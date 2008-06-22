@@ -1,0 +1,37 @@
+#! /usr/bin/env python
+#-*- coding: utf-8 -*-
+
+import sys, os, bz2, time, optparse
+
+BASE = os.path.basename( os.getcwd() )
+TIMESTAMP = time.strftime( '%Y%m%d' )
+
+def main( args = None ):
+	if args is None:
+		args = sys.argv
+	parser = optparse.OptionParser( usage='usage: %prog [options] <branch>' )
+	parser.add_option( '-s', '--spec', type='string', dest='spec', help='explicitly sets version string' )
+	parser.add_option( '--prefix', type='string', dest='prefix', help='string that before version' )
+	parser.add_option( '--postfix', type='string', dest='postfix', help='string that append to timestamp' )
+	parser.add_option( '-q', '--quiet', action='store_false', dest='verbose', help='be vewwy quiet (I\'m hunting wabbits)' )
+	parser.set_defaults( verbose=True )
+	opts, args = parser.parse_args( args=args[1:] )
+	if len( args ) < 1:
+		parser.print_help()
+		return 1
+
+	fileName = '%s-%s.%s' % ( BASE if opts.prefix is None else opts.prefix, args[0] if opts.spec is None else opts.spec, TIMESTAMP )
+	if opts.postfix is not None:
+		fileName += '-' + opts.postfix
+	rData = os.popen( 'git archive --format=tar %s --prefix=%s/ %s' % ( '--verbose' if opts.verbose else '', fileName, args[0] ) ).read()
+	cData = bz2.compress( rData )
+	fout = open( '%s.tbz2' % fileName , 'wb' )
+	fout.write( cData )
+	fout.close()
+	if opts.verbose:
+		print "== compression ==\nbefore:\t%d\nafter:\t%d\nrate:\t%f%%" % ( len( rData ), len( cData ), 100.0 - ( 100.0 * len( cData ) / len( rData ) ) )
+	
+	return 0
+
+if __name__ == '__main__':
+	sys.exit( main() )
