@@ -1,0 +1,6 @@
+#! /bin/sh
+
+test $# -eq 1 || exit 1
+test `which opera` || exit 1
+
+opera --remote "openURL($1,new-page)" >/dev/null 2>&1 &
