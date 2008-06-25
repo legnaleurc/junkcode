@@ -1,0 +1,138 @@
+sup {
+	color: blue;
+	font-weight: bold;
+	cursor: help;
+}
+
+.stealth {
+	margin: 0;
+	padding: 0;
+}
+
+.switch {
+	color: blue;
+	cursor: pointer;
+}
+
+.pp {
+	text-indent: 0;
+	margin: 1em;
+}
+
+.p0 {
+	text-indent: 2em;
+	margin: 2em 0;
+}
+
+.p1 {
+	text-indent: 2em;
+	margin: 1em 0;
+}
+
+pre {
+	margin: 1em;
+	padding: 1em;
+	text-indent: 0;
+	width: 100%;
+	overflow: auto;
+}
+
+code {
+	color: #333333;
+}
+
+.forte {
+	background-color: #E0E0E0;
+}
+
+.keyword {
+	color: green;
+	font-weight: bold;
+}
+
+.highlight {
+	color: red;
+	font-weight: bold;
+}
+
+.ph {
+	text-align: center;
+	font-weight: bold;
+	font-size: larger;
+}
+
+.by {
+	text-align: right;
+	font-style: italic;
+}
+
+.pic {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	overflow: auto;
+}
+
+.quote {
+	margin: 2em;
+	padding: 0em 4em;
+	border-style: dashed;
+	border-width: thin;
+}
+
+/* 標籤雲 ------------------------------------------ */
+
+/* 對齊方式 字型 */
+#labelCloud {
+	text-align: center;
+	/*font-family: arial,cwTeX粗黑體;*/
+}
+
+/* 顯示方式可設定成display:block ,設定背景圖片*/
+#labelCloud .label-cloud li {
+	display: inline;
+/*	background: #3d3434 !important;*/
+	padding: 2px;
+	margin: 0;
+	vertical-align: baseline !important;
+	border: 0;
+}
+
+#labelCloud ul {
+	list-style-type: none;
+	margin: 0 auto;
+	padding: 0;
+}
+
+#labelCloud a img {
+	border: 0;
+	display: inline;
+	margin: 0 0 0 3px;
+	padding: 0;
+}
+
+#labelCloud a {
+	text-decoration: none;
+}
+
+#labelCloud a:hover {
+	text-decoration: none;
+	background: #99CCFF;
+}
+
+#labelCloud li a{
+}
+
+#labelCloud .label-cloud {
+}
+
+/*當標籤雲文章數量顯示為true 可以設定 間距 文字大小,顏色 */
+#labelCloud .label-count {
+	padding-left: 0.2em;
+	font-size: 10px;
+	color: #000;
+}
+
+#labelCloud .label-cloud li:before {
+	content: "" !important;
+}
