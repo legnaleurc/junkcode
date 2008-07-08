@@ -38,11 +38,11 @@ pre {
 }
 
 code {
-	color: #333333;
+	color: silver;
 }
 
 .forte {
-	background-color: #E0E0E0;
+	border: dashed 1px gray;
 }
 
 .keyword {
