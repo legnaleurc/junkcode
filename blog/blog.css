@@ -116,8 +116,8 @@ code {
 }
 
 #labelCloud a:hover {
-	text-decoration: none;
-	background: #99CCFF;
+	text-decoration: underline;
+/*	background: #CCCC00;*/
 }
 
 #labelCloud li a{
