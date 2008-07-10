@@ -158,12 +158,34 @@ var Blog = {
 
 	Media: {
 		linker: function() {
-			var temp = $$( '.Media' );
+			var temp = $$( 'a.Media' );
 			if( temp ) {
 				temp.each( function( X ) {
 					X.observe( 'click', Blog.Media.handler.bindAsEventListener( this ) );
 				}.bind( this ) );
 			}
+			temp = $$( 'a.YouTube' );
+			if( temp ) {
+				temp.each( function( X ) {
+					X.observe( 'click', Blog.Media.youtube.bindAsEventListener( this ) );
+				}.bind( this ) );
+			}
+		},
+		
+		youtube: function( e ) {
+			e.preventDefault();
+			var E = Event.element( e );
+			var url = E.readAttribute( 'href' );
+			var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=(\w+)/ );
+			url = 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1';
+			
+			var node = new Element( 'object', { width: '425', height: '344' } );
+			node.appendChild( new Element( 'param', { name: 'movie', value: url } ) );
+			node.appendChild( new Element( 'param', { name: 'allowFullScreen', value: 'true' } ) );
+			node.appendChild( new Element( 'embed', { src: url, type: 'application/x-shockwave-flash', allowfullscreen: 'true', width: '425', height: '344' } ) );
+			E.parentNode.insertBefore( node, E );
+			E.stopObserving( 'click', this.youtube );
+			E.remove();
 		},
 
 		handler: function( e ) {
