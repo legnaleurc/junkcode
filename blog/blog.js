@@ -47,10 +47,10 @@ var Blog = {
 	TagCloud: {
 		
 		cloudMin: 1,
-		minFontSize: 9,
-		maxFontSize: 24,
-		minColor: [ 255, 255, 0 ],
-		maxColor: [ 255, 255, 255 ],
+		minFontSize: 10,
+		maxFontSize: 20,
+		minColor: [ 0xCC, 0xCC, 0xFF ],
+		maxColor: [ 0x99, 0x99, 0xFF ],
 		showCount: false,
 		shuffle: true,
 
