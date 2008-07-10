@@ -170,6 +170,12 @@ var Blog = {
 					X.observe( 'click', Blog.Media.youtube.bindAsEventListener( this ) );
 				}.bind( this ) );
 			}
+			temp = $$( 'a.GoogleVideo' );
+			if( temp ) {
+				temp.each( function( X ) {
+					X.observe( 'click', Blog.Media.googlevideo.bindAsEventListener( this ) );
+				}.bind( this ) );
+			}
 		},
 		
 		youtube: function( e ) {
@@ -185,6 +191,21 @@ var Blog = {
 			node.appendChild( new Element( 'embed', { src: url, type: 'application/x-shockwave-flash', allowfullscreen: 'true', width: '425', height: '344' } ) );
 			E.parentNode.insertBefore( node, E );
 			E.stopObserving( 'click', this.youtube );
+			E.remove();
+		},
+		
+		googlevideo: function( e ) {
+			e.preventDefault();
+			var E = Event.element( e );
+			var url = E.readAttribute( 'href' );
+			var dim = { width: E.readAttribute( 'width' ) + 'px', height: E.readAttribute( 'height' ) + 'px' };
+			var temp = url.match( /http:\/\/video\.google\.com\/videoplay\?(\w+)=(.+)/ );
+			url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
+			
+			var node = new Element( 'embed', { allowFullScreen: 'true', src: url, type: 'application/x-shockwave-flash' } );
+			node.setStyle( dim );
+			E.parentNode.insertBefore( node, E );
+			E.stopObserving( 'click', this.googlevideo );
 			E.remove();
 		},
 
