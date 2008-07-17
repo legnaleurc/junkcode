@@ -33,16 +33,15 @@ pre {
 	margin: 1em;
 	padding: 1em;
 	text-indent: 0;
-	width: 100%;
 	overflow: auto;
 }
 
 code {
-	color: #333333;
+	color: silver;
 }
 
 .forte {
-	background-color: #E0E0E0;
+	border: dashed 1px gray;
 }
 
 .keyword {
@@ -116,8 +115,8 @@ code {
 }
 
 #labelCloud a:hover {
-	text-decoration: none;
-	background: #99CCFF;
+	text-decoration: underline;
+/*	background: #CCCC00;*/
 }
 
 #labelCloud li a{

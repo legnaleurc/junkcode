@@ -11,13 +11,13 @@ var Blog = {
 						'class': collapsed['class'],
 						'title': collapsed['title']
 					} );
-					more.update( collapsed['contentText'] );
+					more.update( collapsed['textContent'] );
 
 					var less = new Element( 'span', {
 						'class': expanded['class'],
 						'title': expanded['title']
 					} );
-					less.update( expanded['contentText'] );
+					less.update( expanded['textContent'] );
 					less.hide();
 
 					more.observe( 'click', function( e ) {
@@ -47,10 +47,10 @@ var Blog = {
 	TagCloud: {
 		
 		cloudMin: 1,
-		minFontSize: 9,
-		maxFontSize: 24,
-		minColor: [ 255, 255, 0 ],
-		maxColor: [ 255, 255, 255 ],
+		minFontSize: 10,
+		maxFontSize: 20,
+		minColor: [ 0xCC, 0xCC, 0xFF ],
+		maxColor: [ 0x99, 0x99, 0xFF ],
 		showCount: false,
 		shuffle: true,
 
@@ -157,13 +157,56 @@ var Blog = {
 	},
 
 	Media: {
-		linker: function() {
-			var temp = $$( '.Media' );
+		trigger: function() {
+			var temp = $$( 'a.Media' );
 			if( temp ) {
 				temp.each( function( X ) {
 					X.observe( 'click', Blog.Media.handler.bindAsEventListener( this ) );
 				}.bind( this ) );
 			}
+			temp = $$( 'a.YouTube' );
+			if( temp ) {
+				temp.each( function( X ) {
+					X.observe( 'click', Blog.Media.youtube.bindAsEventListener( this ) );
+				}.bind( this ) );
+			}
+			temp = $$( 'a.GoogleVideo' );
+			if( temp ) {
+				temp.each( function( X ) {
+					X.observe( 'click', Blog.Media.googlevideo.bindAsEventListener( this ) );
+				}.bind( this ) );
+			}
+		},
+		
+		youtube: function( e ) {
+			e.preventDefault();
+			var E = Event.element( e );
+			var url = E.readAttribute( 'href' );
+			var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=(\w+)/ );
+			url = 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1';
+			
+			var node = new Element( 'object', { width: '425', height: '344' } );
+			node.appendChild( new Element( 'param', { name: 'movie', value: url } ) );
+			node.appendChild( new Element( 'param', { name: 'allowFullScreen', value: 'true' } ) );
+			node.appendChild( new Element( 'embed', { src: url, type: 'application/x-shockwave-flash', allowfullscreen: 'true', width: '425', height: '344' } ) );
+			E.parentNode.insertBefore( node, E );
+			E.stopObserving( 'click', this.youtube );
+			E.remove();
+		},
+		
+		googlevideo: function( e ) {
+			e.preventDefault();
+			var E = Event.element( e );
+			var url = E.readAttribute( 'href' );
+			var dim = { width: E.readAttribute( 'width' ) + 'px', height: E.readAttribute( 'height' ) + 'px' };
+			var temp = url.match( /http:\/\/video\.google\.com\/videoplay\?(\w+)=(.+)/ );
+			url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
+			
+			var node = new Element( 'embed', { allowFullScreen: 'true', src: url, type: 'application/x-shockwave-flash' } );
+			node.setStyle( dim );
+			E.parentNode.insertBefore( node, E );
+			E.stopObserving( 'click', this.googlevideo );
+			E.remove();
 		},
 
 		handler: function( e ) {
