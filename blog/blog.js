@@ -11,13 +11,13 @@ var Blog = {
 						'class': collapsed['class'],
 						'title': collapsed['title']
 					} );
-					more.update( collapsed['contentText'] );
+					more.update( collapsed['textContent'] );
 
 					var less = new Element( 'span', {
 						'class': expanded['class'],
 						'title': expanded['title']
 					} );
-					less.update( expanded['contentText'] );
+					less.update( expanded['textContent'] );
 					less.hide();
 
 					more.observe( 'click', function( e ) {
@@ -157,7 +157,7 @@ var Blog = {
 	},
 
 	Media: {
-		linker: function() {
+		trigger: function() {
 			var temp = $$( 'a.Media' );
 			if( temp ) {
 				temp.each( function( X ) {
