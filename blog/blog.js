@@ -3,44 +3,33 @@
 var Blog = {
 
 	hideBlocks: function( selector, collapsed, expanded ) {
-		var posts = $$( selector );
+		var posts = $( selector );
 		if( posts && collapsed && expanded ) {
 			try {
-				posts.each( function( post ) {
-					var more = new Element( 'span', {
-						'class': collapsed['class'],
-						'title': collapsed['title']
+				posts.each( function( index_, post ) {
+					var more = $( '<span class="' + collapsed['class'] + '" title="' + collapsed['title'] + '">' + collapsed['contentText'] + '</span>' );
+
+					var less = $( '<span class="' + expanded['class'] + '" title="' + expanded['title'] + '">' + expanded['contentText'] + '</span>' ).hide();
+
+					more.bind( 'click', function( e ) {
+						$.each( [ post, this, less ], function() {
+							$(this).toggle();
+						} );
 					} );
-					more.update( collapsed['contentText'] );
 
-					var less = new Element( 'span', {
-						'class': expanded['class'],
-						'title': expanded['title']
+					less.bind( 'click', function( e ) {
+						$.each( [ post, this, less ], function() {
+							$(this).toggle();
+						} );
 					} );
-					less.update( expanded['contentText'] );
-					less.hide();
 
-					more.observe( 'click', function( e ) {
-						post.toggle();
-						this.toggle();
-						less.toggle();
-					}.bindAsEventListener( more ) );
-
-					less.observe( 'click', function( e ) {
-						post.toggle();
-						more.toggle();
-						this.toggle();
-					}.bindAsEventListener( less ) );
-
-					post.insert( {
-						'before': more,
-						'after': less
-					} );
-					post.hide();
+					$( post ).before( more ).after( less ).hide();
 				} );
 			} catch( e ) {
-				$('stderr').update( e.message() );
+				$( '#stderr' ).append( e.message );
 			}
+		} else {
+			throw new TypeError( 'Invalid argument(s).' );
 		}
 	},
 	
@@ -54,22 +43,22 @@ var Blog = {
 		showCount: false,
 		shuffle: true,
 
-		randomShuffle: function( hash ) {
-			var result = new Hash();
-			var keys = hash.keys();
-			for( var i = 0, r, temp, len = keys.length; i < len; ++i ) {
-				do {
-					r = Math.floor( Math.random() * len );
-				} while( r == i );
-				temp = keys[i];
-				keys[i] = keys[r];
-				keys[r] = temp;
-			}
-			keys.each( function( key ) {
-				result.set( key, hash.get( key ) );
-			} );
-			return result;
-		},
+// 		randomShuffle: function( hash ) {
+// 			var result = new Hash();
+// 			var keys = hash.keys();
+// 			for( var i = 0, r, temp, len = keys.length; i < len; ++i ) {
+// 				do {
+// 					r = Math.floor( Math.random() * len );
+// 				} while( r == i );
+// 				temp = keys[i];
+// 				keys[i] = keys[r];
+// 				keys[r] = temp;
+// 			}
+// 			keys.each( function( key ) {
+// 				result.set( key, hash.get( key ) );
+// 			} );
+// 			return result;
+// 		},
 
 		helper: function( a, b, i, x ) {
 			if( a > b ) {
@@ -83,9 +72,9 @@ var Blog = {
 			// 傳入的參數為Object, 轉換為Hash
 			tags = $H( tags );
 			tags.unset( '' );
-			if( this.shuffle ) {
-				tags = this.randomShuffle( tags );
-			}
+// 			if( this.shuffle ) {
+// 				tags = this.randomShuffle( tags );
+// 			}
 			// color的rgb
 			var c = new Array( 3 );
 			// 標籤的大小數量, 取得標籤的數量後做unique再取陣列長度
@@ -149,57 +138,57 @@ var Blog = {
 		}
 
 	},
+// 
+// 	highlighting: function() {
+// 		dp.SyntaxHighlighter.ClipboardSwf = 'http://career.ccu.edu.tw/~legnaleurc/library/dp.SyntaxHighlighter/Scripts/clipboard.swf';
+// 		dp.SyntaxHighlighter.BloggerMode();
+// 		dp.SyntaxHighlighter.HighlightAll( 'code' );
+// 	},
 
-	highlighting: function() {
-		dp.SyntaxHighlighter.ClipboardSwf = 'http://career.ccu.edu.tw/~legnaleurc/library/dp.SyntaxHighlighter/Scripts/clipboard.swf';
-		dp.SyntaxHighlighter.BloggerMode();
-		dp.SyntaxHighlighter.HighlightAll( 'code' );
-	},
-
-	Media: {
-		linker: function() {
-			var temp = $$( '.Media' );
-			if( temp ) {
-				temp.each( function( X ) {
-					X.observe( 'click', Blog.Media.handler.bindAsEventListener( this ) );
-				}.bind( this ) );
-			}
-		},
-
-		handler: function( e ) {
-			e.preventDefault();
-			var E = Event.element( e );
-			var attr = {
-				value: E.readAttribute( 'href' ),
-				width: E.readAttribute( 'width' ),
-				height: E.readAttribute( 'height' ),
-				uiMode: E.readAttribute( 'uimode' ),
-				autoStart: E.readAttribute( 'autostart' )
-			};
-			attr.type = this.getMIME( attr.value );
-			if( !isNaN( attr.width ) )
-				attr.width += 'px';
-			if( !isNaN( attr.height ) )
-				attr.height += 'px';
-///*
-			var media = new Element( 'object', { data: attr.value, type: attr.type } );
-			media.setStyle( {
-				width: attr.width,
-				height: attr.height
-			} );
-			media.appendChild( new Element( 'param', { name: 'FileName', value: attr.value } ) );
-			media.appendChild( new Element( 'param', { name: 'src', value: attr.value } ) );
-			media.appendChild( new Element( 'param', { name: 'Scale', value: 'Aspect' } ) );
-			if( attr.uiMode ) {
-				media.appendChild( new Element( 'param', { name: 'uiMode', value: attr.uiMode } ) );
-			}
-			if( attr.autoStart ) {
-				media.appendChild( new Element( 'param', { name: 'AutoPlay', value: attr.autoStart } ) );
-				media.appendChild( new Element( 'param', { name: 'AutoStart', value: attr.autoStart } ) );
-			}
-			E.parentNode.insertBefore( media, E );
-			E.stopObserving( 'click', this.handler );
-			E.remove();
+// 	Media: {
+// 		linker: function() {
+// 			var temp = $$( '.Media' );
+// 			if( temp ) {
+// 				temp.each( function( X ) {
+// 					X.observe( 'click', Blog.Media.handler.bindAsEventListener( this ) );
+// 				}.bind( this ) );
+// 			}
+// 		},
+// 
+// 		handler: function( e ) {
+// 			e.preventDefault();
+// 			var E = Event.element( e );
+// 			var attr = {
+// 				value: E.readAttribute( 'href' ),
+// 				width: E.readAttribute( 'width' ),
+// 				height: E.readAttribute( 'height' ),
+// 				uiMode: E.readAttribute( 'uimode' ),
+// 				autoStart: E.readAttribute( 'autostart' )
+// 			};
+// 			attr.type = this.getMIME( attr.value );
+// 			if( !isNaN( attr.width ) )
+// 				attr.width += 'px';
+// 			if( !isNaN( attr.height ) )
+// 				attr.height += 'px';
+// ///*
+// 			var media = new Element( 'object', { data: attr.value, type: attr.type } );
+// 			media.setStyle( {
+// 				width: attr.width,
+// 				height: attr.height
+// 			} );
+// 			media.appendChild( new Element( 'param', { name: 'FileName', value: attr.value } ) );
+// 			media.appendChild( new Element( 'param', { name: 'src', value: attr.value } ) );
+// 			media.appendChild( new Element( 'param', { name: 'Scale', value: 'Aspect' } ) );
+// 			if( attr.uiMode ) {
+// 				media.appendChild( new Element( 'param', { name: 'uiMode', value: attr.uiMode } ) );
+// 			}
+// 			if( attr.autoStart ) {
+// 				media.appendChild( new Element( 'param', { name: 'AutoPlay', value: attr.autoStart } ) );
+// 				media.appendChild( new Element( 'param', { name: 'AutoStart', value: attr.autoStart } ) );
+// 			}
+// 			E.parentNode.insertBefore( media, E );
+// 			E.stopObserving( 'click', this.handler );
+// 			E.remove();
 //*/
 /*
 			var str = '<object data="' + attr.value + '" type="' + attr.type + '" style="width: ' + attr.width + '; height: ' + attr.height + ';">';
@@ -218,19 +207,19 @@ var Blog = {
 			E.stopObserving( 'click', Blog.Media.handler );
 			E.replace( str );
 */
-		},
-
-		getMIME: function( S ) {
-			var ext = S.match( /\.[a-z0-9]+$/i )[0].toLowerCase();
-			switch( ext ) {
-				case '.mp3':
-					return 'audio/mpeg';
-				case '.mpg':
-					return 'video/mpeg';
-				default:
-					return '*/*';
-			}
-		}
-	}
+// 		},
+// 
+// 		getMIME: function( S ) {
+// 			var ext = S.match( /\.[a-z0-9]+$/i )[0].toLowerCase();
+// 			switch( ext ) {
+// 				case '.mp3':
+// 					return 'audio/mpeg';
+// 				case '.mpg':
+// 					return 'video/mpeg';
+// 				default:
+// 					return '*/*';
+// 			}
+// 		}
+// 	}
 
 };
