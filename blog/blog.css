@@ -36,11 +36,12 @@ pre {
 	overflow: auto;
 }
 
-code {
-	color: silver;
+code.forte {
+	font-weight: bold;
+	background-color: #333333;
 }
 
-.forte {
+pre.forte {
 	border: dashed 1px gray;
 }
 
