@@ -2,6 +2,29 @@
 
 var Blog = {
 
+	targetLink: function() {
+		var flag = true;
+
+		$( 'toggle' ).observe( 'click', function( e ) {
+			e.preventDefault();
+			if( flag ) {
+				this.textContent = 'Up to you';
+			} else {
+				this.textContent = 'Open in new window';
+			}
+			flat = !flag;
+		} );
+
+		$$( 'a[rel="external"]' ).each( function( link ) {
+			link.observe( 'click', function( e ) {
+				if( flag ) {
+					e.preventDefault();
+					window.open( this.readAttribute( 'href' ), '_blank' );
+				}
+			} );
+		} );
+	},
+
 	hideBlocks: function( selector, collapsed, expanded ) {
 		var posts = $$( selector );
 		if( posts && collapsed && expanded ) {
