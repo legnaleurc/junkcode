@@ -2,17 +2,16 @@
 
 var Blog = {
 
-	targetLink: function() {
+	targetLink: function( id, dft, ct ) {
 		var flag = true;
+		var toggle = $( id );
 
-		$( 'toggle' ).observe( 'click', function( e ) {
+		toggle.textContent = dft;
+
+		toggle.observe( 'click', function( e ) {
 			e.preventDefault();
-			if( flag ) {
-				this.textContent = 'Up to you';
-			} else {
-				this.textContent = 'Open in new window';
-			}
-			flat = !flag;
+			this.textContent = flag ? ct : dft;
+			flag = !flag;
 		} );
 
 		$$( 'a[rel="external"]' ).each( function( link ) {
