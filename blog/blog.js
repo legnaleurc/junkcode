@@ -6,11 +6,11 @@ var Blog = {
 		var flag = true;
 		var toggle = $( id );
 
-		toggle.textContent = dft;
+		toggle.update( dft );
 
 		toggle.observe( 'click', function( e ) {
 			e.preventDefault();
-			this.textContent = flag ? ct : dft;
+			this.update( flag ? ct : dft );
 			flag = !flag;
 		} );
 
