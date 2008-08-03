@@ -204,7 +204,7 @@ var Blog = {
 			e.preventDefault();
 			var E = Event.element( e );
 			var url = E.readAttribute( 'href' );
-			var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=(\w+)/ );
+			var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
 			url = 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1';
 			
 			var node = new Element( 'object', { width: '425', height: '344' } );
