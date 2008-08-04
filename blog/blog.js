@@ -10,15 +10,15 @@ var Blog = {
 
 		toggle.click( function( e ) {
 			e.preventDefault();
-			this.text( flag ? ct : dft );
+			$( this ).text( flag ? ct : dft );
 			flag = !flag;
 		} );
 
 		$( 'a[rel="external"]' ).each( function( index ) {
-			this.click( function( e ) {
+			$( this ).click( function( e ) {
 				if( flag ) {
 					e.preventDefault();
-					window.open( this.attr( 'href' ), '_blank' );
+					window.open( $( this ).attr( 'href' ), '_blank' );
 				}
 			} );
 		} );
