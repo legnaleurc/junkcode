@@ -33,16 +33,16 @@ pre {
 	margin: 1em;
 	padding: 1em;
 	text-indent: 0;
-	width: 100%;
 	overflow: auto;
 }
 
-code {
-	color: #333333;
+code.forte {
+	font-weight: bold;
+	background-color: #333333;
 }
 
-.forte {
-	background-color: #E0E0E0;
+pre.forte {
+	border: dashed 1px gray;
 }
 
 .keyword {
@@ -56,12 +56,15 @@ code {
 }
 
 .ph {
+	margin: 2em;
+	text-indent: 0;
 	text-align: center;
 	font-weight: bold;
 	font-size: larger;
 }
 
 .by {
+	text-indent: 0;
 	text-align: right;
 	font-style: italic;
 }
@@ -116,8 +119,8 @@ code {
 }
 
 #labelCloud a:hover {
-	text-decoration: none;
-	background: #99CCFF;
+	text-decoration: underline;
+/*	background: #CCCC00;*/
 }
 
 #labelCloud li a{

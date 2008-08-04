@@ -2,14 +2,36 @@
 
 var Blog = {
 
+	targetLink: function( id, dft, ct ) {
+		var flag = true;
+		var toggle = $( id );
+
+		toggle.text( dft );
+
+		toggle.click( function( e ) {
+			e.preventDefault();
+			this.text( flag ? ct : dft );
+			flag = !flag;
+		} );
+
+		$( 'a[rel="external"]' ).each( function( index ) {
+			this.click( function( e ) {
+				if( flag ) {
+					e.preventDefault();
+					window.open( this.attr( 'href' ), '_blank' );
+				}
+			} );
+		} );
+	},
+
 	hideBlocks: function( selector, collapsed, expanded ) {
 		var posts = $( selector );
 		if( posts && collapsed && expanded ) {
 			try {
 				posts.each( function( index_, post ) {
-					var more = $( '<span class="' + collapsed['class'] + '" title="' + collapsed['title'] + '">' + collapsed['contentText'] + '</span>' );
+					var more = $( '<span class="' + collapsed['class'] + '" title="' + collapsed['title'] + '">' + collapsed['textContent'] + '</span>' );
 
-					var less = $( '<span class="' + expanded['class'] + '" title="' + expanded['title'] + '">' + expanded['contentText'] + '</span>' ).hide();
+					var less = $( '<span class="' + expanded['class'] + '" title="' + expanded['title'] + '">' + expanded['textContent'] + '</span>' ).hide();
 
 					more.bind( 'click', function( e ) {
 						$.each( [ post, this, less ], function() {
@@ -36,10 +58,10 @@ var Blog = {
 	TagCloud: {
 		
 		cloudMin: 1,
-		minFontSize: 9,
-		maxFontSize: 24,
-		minColor: [ 255, 255, 0 ],
-		maxColor: [ 255, 255, 255 ],
+		minFontSize: 10,
+		maxFontSize: 20,
+		minColor: [ 0xCC, 0xCC, 0xFF ],
+		maxColor: [ 0x99, 0x99, 0xFF ],
 		showCount: false,
 		shuffle: true,
 
@@ -138,57 +160,100 @@ var Blog = {
 		}
 
 	},
-// 
-// 	highlighting: function() {
-// 		dp.SyntaxHighlighter.ClipboardSwf = 'http://career.ccu.edu.tw/~legnaleurc/library/dp.SyntaxHighlighter/Scripts/clipboard.swf';
-// 		dp.SyntaxHighlighter.BloggerMode();
-// 		dp.SyntaxHighlighter.HighlightAll( 'code' );
-// 	},
 
-// 	Media: {
-// 		linker: function() {
-// 			var temp = $$( '.Media' );
-// 			if( temp ) {
-// 				temp.each( function( X ) {
-// 					X.observe( 'click', Blog.Media.handler.bindAsEventListener( this ) );
-// 				}.bind( this ) );
-// 			}
-// 		},
-// 
-// 		handler: function( e ) {
-// 			e.preventDefault();
-// 			var E = Event.element( e );
-// 			var attr = {
-// 				value: E.readAttribute( 'href' ),
-// 				width: E.readAttribute( 'width' ),
-// 				height: E.readAttribute( 'height' ),
-// 				uiMode: E.readAttribute( 'uimode' ),
-// 				autoStart: E.readAttribute( 'autostart' )
-// 			};
-// 			attr.type = this.getMIME( attr.value );
-// 			if( !isNaN( attr.width ) )
-// 				attr.width += 'px';
-// 			if( !isNaN( attr.height ) )
-// 				attr.height += 'px';
-// ///*
-// 			var media = new Element( 'object', { data: attr.value, type: attr.type } );
-// 			media.setStyle( {
-// 				width: attr.width,
-// 				height: attr.height
-// 			} );
-// 			media.appendChild( new Element( 'param', { name: 'FileName', value: attr.value } ) );
-// 			media.appendChild( new Element( 'param', { name: 'src', value: attr.value } ) );
-// 			media.appendChild( new Element( 'param', { name: 'Scale', value: 'Aspect' } ) );
-// 			if( attr.uiMode ) {
-// 				media.appendChild( new Element( 'param', { name: 'uiMode', value: attr.uiMode } ) );
-// 			}
-// 			if( attr.autoStart ) {
-// 				media.appendChild( new Element( 'param', { name: 'AutoPlay', value: attr.autoStart } ) );
-// 				media.appendChild( new Element( 'param', { name: 'AutoStart', value: attr.autoStart } ) );
-// 			}
-// 			E.parentNode.insertBefore( media, E );
-// 			E.stopObserving( 'click', this.handler );
-// 			E.remove();
+	highlighting: function() {
+		dp.SyntaxHighlighter.ClipboardSwf = 'http://career.ccu.edu.tw/~legnaleurc/library/dp.SyntaxHighlighter/Scripts/clipboard.swf';
+		dp.SyntaxHighlighter.BloggerMode();
+		dp.SyntaxHighlighter.HighlightAll( 'code' );
+	}/*,
+
+	Media: {
+		trigger: function() {
+			var temp = $$( 'a.Media' );
+			if( temp ) {
+				temp.each( function( X ) {
+					X.observe( 'click', Blog.Media.handler.bindAsEventListener( this ) );
+				}.bind( this ) );
+			}
+			temp = $$( 'a.YouTube' );
+			if( temp ) {
+				temp.each( function( X ) {
+					X.observe( 'click', Blog.Media.youtube.bindAsEventListener( this ) );
+				}.bind( this ) );
+			}
+			temp = $$( 'a.GoogleVideo' );
+			if( temp ) {
+				temp.each( function( X ) {
+					X.observe( 'click', Blog.Media.googlevideo.bindAsEventListener( this ) );
+				}.bind( this ) );
+			}
+		},
+		
+		youtube: function( e ) {
+			e.preventDefault();
+			var E = Event.element( e );
+			var url = E.readAttribute( 'href' );
+			var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
+			url = 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1';
+			
+			var node = new Element( 'object', { width: '425', height: '344' } );
+			node.appendChild( new Element( 'param', { name: 'movie', value: url } ) );
+			node.appendChild( new Element( 'param', { name: 'allowFullScreen', value: 'true' } ) );
+			node.appendChild( new Element( 'embed', { src: url, type: 'application/x-shockwave-flash', allowfullscreen: 'true', width: '425', height: '344' } ) );
+			E.parentNode.insertBefore( node, E );
+			E.stopObserving( 'click', this.youtube );
+			E.remove();
+		},
+		
+		googlevideo: function( e ) {
+			e.preventDefault();
+			var E = Event.element( e );
+			var url = E.readAttribute( 'href' );
+			var dim = { width: E.readAttribute( 'width' ) + 'px', height: E.readAttribute( 'height' ) + 'px' };
+			var temp = url.match( /http:\/\/video\.google\.com\/videoplay\?(\w+)=(.+)/ );
+			url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
+			
+			var node = new Element( 'embed', { allowFullScreen: 'true', src: url, type: 'application/x-shockwave-flash' } );
+			node.setStyle( dim );
+			E.parentNode.insertBefore( node, E );
+			E.stopObserving( 'click', this.googlevideo );
+			E.remove();
+		},
+
+		handler: function( e ) {
+			e.preventDefault();
+			var E = Event.element( e );
+			var attr = {
+				value: E.readAttribute( 'href' ),
+				width: E.readAttribute( 'width' ),
+				height: E.readAttribute( 'height' ),
+				uiMode: E.readAttribute( 'uimode' ),
+				autoStart: E.readAttribute( 'autostart' )
+			};
+			attr.type = this.getMIME( attr.value );
+			if( !isNaN( attr.width ) )
+				attr.width += 'px';
+			if( !isNaN( attr.height ) )
+				attr.height += 'px';
+///*
+			var media = new Element( 'object', { data: attr.value, type: attr.type } );
+			media.setStyle( {
+				width: attr.width,
+				height: attr.height
+			} );
+			media.appendChild( new Element( 'param', { name: 'FileName', value: attr.value } ) );
+			media.appendChild( new Element( 'param', { name: 'src', value: attr.value } ) );
+			media.appendChild( new Element( 'param', { name: 'Scale', value: 'Aspect' } ) );
+			if( attr.uiMode ) {
+				media.appendChild( new Element( 'param', { name: 'uiMode', value: attr.uiMode } ) );
+			}
+			if( attr.autoStart ) {
+				media.appendChild( new Element( 'param', { name: 'AutoPlay', value: attr.autoStart } ) );
+				media.appendChild( new Element( 'param', { name: 'AutoStart', value: attr.autoStart } ) );
+			}
+			E.parentNode.insertBefore( media, E );
+			E.stopObserving( 'click', this.handler );
+			E.remove();
 //*/
 /*
 			var str = '<object data="' + attr.value + '" type="' + attr.type + '" style="width: ' + attr.width + '; height: ' + attr.height + ';">';
