@@ -3,9 +3,12 @@
 var Blog = {
 
 	targetLink: function( id, dft, ct ) {
-		var flag = true;
 		var toggle = $( id );
+		if( toggle.length ){
+			throw new Error( 'There is no element matched `' + id + '\' in this DOM!' );
+		}
 
+		var flag = true;
 		toggle.text( dft );
 
 		toggle.click( function( e ) {
@@ -24,35 +27,41 @@ var Blog = {
 		} );
 	},
 
+	/**
+	 * @brief Hide blocks
+	 * @param String selector CSS selector of blocks.
+	 * @param String collapsed Collapsed element.
+	 * @param String expanded Expanded element.
+	 * @throw TypeError If any argument is wrong. Strong safety.
+	 */
 	hideBlocks: function( selector, collapsed, expanded ) {
 		var posts = $( selector );
-		if( posts && collapsed && expanded ) {
-			try {
-				posts.each( function( index_, post ) {
-					var more = $( '<span class="' + collapsed['class'] + '" title="' + collapsed['title'] + '">' + collapsed['textContent'] + '</span>' );
-
-					var less = $( '<span class="' + expanded['class'] + '" title="' + expanded['title'] + '">' + expanded['textContent'] + '</span>' ).hide();
-
-					more.bind( 'click', function( e ) {
-						$.each( [ post, this, less ], function() {
-							$(this).toggle();
-						} );
-					} );
-
-					less.bind( 'click', function( e ) {
-						$.each( [ post, this, less ], function() {
-							$(this).toggle();
-						} );
-					} );
-
-					$( post ).before( more ).after( less ).hide();
-				} );
-			} catch( e ) {
-				$( '#stderr' ).append( e.message );
-			}
-		} else {
+		if( posts.length == 0 ) {
+			throw new Error( 'There is no element matched `' + selector + '\' in this DOM!' );
+		}
+		if( !( collapsed && expanded ) ) {
 			throw new TypeError( 'Invalid argument(s).' );
 		}
+
+		posts.each( function( index_, post ) {
+			var more = $( collapsed );
+
+			var less = $( expanded ).hide();
+
+			more.click( function( e ) {
+				jQuery.each( [ post, this, less ], function() {
+					$( this ).toggle();
+				} );
+			} );
+
+			less.click( function( e ) {
+				jQuery.each( [ post, this, less ], function() {
+					$( this ).toggle();
+				} );
+			} );
+
+			$( this ).before( more ).after( less ).hide();
+		} );
 	},
 	
 	TagCloud: {
