@@ -90,22 +90,8 @@ var Blog = {
 // 			} );
 // 			return result;
 // 		},
-
-// 		helper: function( a, b, i, x ) {
-// 			if( a > b ) {
-// 				return a - Math.floor( Math.log( i ) * ( a - b ) / Math.log( x ) );
-// 			} else {
-// 				return Math.floor( Math.log( i ) * ( b - a ) / Math.log( x ) + a );
-// 			}
-// 		},
 		
 		generate: function( tags ) {
-			// 傳入的參數為Object, 轉換為Hash
-// 			tags = $H( tags );
-// 			tags.unset( '' );
-// 			if( this.shuffle ) {
-// 				tags = this.randomShuffle( tags );
-// 			}
 			function helper( a, b, i, x ) {
 				if( a > b ) {
 					return a - Math.floor( Math.log( i ) * ( a - b ) / Math.log( x ) );
@@ -180,126 +166,88 @@ var Blog = {
 		dp.SyntaxHighlighter.ClipboardSwf = 'http://career.ccu.edu.tw/~legnaleurc/library/dp.SyntaxHighlighter/Scripts/clipboard.swf';
 		dp.SyntaxHighlighter.BloggerMode();
 		dp.SyntaxHighlighter.HighlightAll( 'code' );
-	}/*,
+	},
 
 	Media: {
+		active: true,
+		
 		trigger: function() {
-			var temp = $$( 'a.Media' );
-			if( temp ) {
-				temp.each( function( X ) {
-					X.observe( 'click', Blog.Media.handler.bindAsEventListener( this ) );
-				}.bind( this ) );
-			}
-			temp = $$( 'a.YouTube' );
-			if( temp ) {
-				temp.each( function( X ) {
-					X.observe( 'click', Blog.Media.youtube.bindAsEventListener( this ) );
-				}.bind( this ) );
-			}
-			temp = $$( 'a.GoogleVideo' );
-			if( temp ) {
-				temp.each( function( X ) {
-					X.observe( 'click', Blog.Media.googlevideo.bindAsEventListener( this ) );
-				}.bind( this ) );
+			$( 'a.Media' ).click( Blog.Media.handler );
+			$( 'a.YouTube' ).click( Blog.Media.youTube );
+			$( 'a.GoogleVideo' ).click( Blog.Media.googleVideo );
+		},
+		
+		youTube: function( e ) {
+			if( Blog.Media.active ) {
+				e.preventDefault();
+				var self = $( this );
+				var url = self.attr( 'href' );
+				var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
+				url = 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1';
+
+				self.before( $( '\
+					<object width="425" height="344">\
+						<param name="movie" value="' + url + '" />\
+						<param name="allowFullScreen" value="true" />\
+						<embed src="' + url + '" type="application/x-shockwave-flash" allowFullScreen="true" width="425" height="344" />\
+					</object>\
+				' ) ).remove();
 			}
 		},
 		
-		youtube: function( e ) {
-			e.preventDefault();
-			var E = Event.element( e );
-			var url = E.readAttribute( 'href' );
-			var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
-			url = 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1';
-			
-			var node = new Element( 'object', { width: '425', height: '344' } );
-			node.appendChild( new Element( 'param', { name: 'movie', value: url } ) );
-			node.appendChild( new Element( 'param', { name: 'allowFullScreen', value: 'true' } ) );
-			node.appendChild( new Element( 'embed', { src: url, type: 'application/x-shockwave-flash', allowfullscreen: 'true', width: '425', height: '344' } ) );
-			E.parentNode.insertBefore( node, E );
-			E.stopObserving( 'click', this.youtube );
-			E.remove();
-		},
-		
-		googlevideo: function( e ) {
-			e.preventDefault();
-			var E = Event.element( e );
-			var url = E.readAttribute( 'href' );
-			var dim = { width: E.readAttribute( 'width' ) + 'px', height: E.readAttribute( 'height' ) + 'px' };
-			var temp = url.match( /http:\/\/video\.google\.com\/videoplay\?(\w+)=(.+)/ );
-			url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
-			
-			var node = new Element( 'embed', { allowFullScreen: 'true', src: url, type: 'application/x-shockwave-flash' } );
-			node.setStyle( dim );
-			E.parentNode.insertBefore( node, E );
-			E.stopObserving( 'click', this.googlevideo );
-			E.remove();
+		googleVideo: function( e ) {
+			if( Blog.Media.active ) {
+				e.preventDefault();
+				var self = $( this );
+				var url = self.attr( 'href' );
+				var temp = url.match( /http:\/\/video\.google\.com\/videoplay\?(\w+)=(.+)/ );
+				url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
+
+				self.before( $( '<embed allowFullScreen="true" src="' + url + '" type="application/x-shockwave-flash" />').width( self.attr( 'width' ) ).height( self.attr( 'height' ) ) ).remove();
+			}
 		},
 
 		handler: function( e ) {
-			e.preventDefault();
-			var E = Event.element( e );
-			var attr = {
-				value: E.readAttribute( 'href' ),
-				width: E.readAttribute( 'width' ),
-				height: E.readAttribute( 'height' ),
-				uiMode: E.readAttribute( 'uimode' ),
-				autoStart: E.readAttribute( 'autostart' )
-			};
-			attr.type = this.getMIME( attr.value );
-			if( !isNaN( attr.width ) )
-				attr.width += 'px';
-			if( !isNaN( attr.height ) )
-				attr.height += 'px';
-///*
-			var media = new Element( 'object', { data: attr.value, type: attr.type } );
-			media.setStyle( {
-				width: attr.width,
-				height: attr.height
-			} );
-			media.appendChild( new Element( 'param', { name: 'FileName', value: attr.value } ) );
-			media.appendChild( new Element( 'param', { name: 'src', value: attr.value } ) );
-			media.appendChild( new Element( 'param', { name: 'Scale', value: 'Aspect' } ) );
-			if( attr.uiMode ) {
-				media.appendChild( new Element( 'param', { name: 'uiMode', value: attr.uiMode } ) );
+			if( Blog.Media.active ) {
+				e.preventDefault();
+				var self = $( this );
+				var attr = {
+					value: self.attr( 'href' ),
+					width: self.attr( 'width' ),
+					height: self.attr( 'height' ),
+					uiMode: self.attr( 'uimode' ),
+					autoStart: self.attr( 'autostart' )
+					type: Blog.Media.getMIME( attr.value )
+				};
+				var media = $( '\
+					<object data="' + attr.value + '" type="' + attr.type + '">\
+						<param name="Filename" value="' + attr.value + '" />\
+						<param name="src" value="' + attr.value + '" />\
+						<param name="Scale" value="Aspect">\
+					</object>\
+				' ).width( attr.width ).height( attr.height );
+				if( attr.uiMode ) {
+					media.append( $( '<param name="uiMode" value="' + attr.uiMode + '" />' ) );
+				}
+				if( attr.autoStart ) {
+					media.append( $( '<param name="AutoPlay" value="' + attr.autoStart + '" />' ) );
+					media.append( $( '<param name="AutoStart" value="' + attr.autoStart + '" />' ) );
+				}
+				self.before( media ).remove();
 			}
-			if( attr.autoStart ) {
-				media.appendChild( new Element( 'param', { name: 'AutoPlay', value: attr.autoStart } ) );
-				media.appendChild( new Element( 'param', { name: 'AutoStart', value: attr.autoStart } ) );
-			}
-			E.parentNode.insertBefore( media, E );
-			E.stopObserving( 'click', this.handler );
-			E.remove();
-//*/
-/*
-			var str = '<object data="' + attr.value + '" type="' + attr.type + '" style="width: ' + attr.width + '; height: ' + attr.height + ';">';
-			str += '<param name="FileName" value="' + attr.value + '" />';
-			str += '<param name="src" value="' + attr.value + '" />';
-			str += '<param name="Scale" value="Aspect" />';
-			if( attr.uiMode ) {
-				str += '<param name="uiMode" value="' + attr.uiMode + '" />';
-			}
-			if( attr.autoStart ) {
-				str += '<param name="AutoPlay" value="' + attr.autoStart + '" />';
-				str += '<param name="AutoStart" value="' + attr.autoStart + '" />';
-			}
-			str += '</object>';
+		},
 
-			E.stopObserving( 'click', Blog.Media.handler );
-			E.replace( str );
-*/
-// 		},
-// 
-// 		getMIME: function( S ) {
-// 			var ext = S.match( /\.[a-z0-9]+$/i )[0].toLowerCase();
-// 			switch( ext ) {
-// 				case '.mp3':
-// 					return 'audio/mpeg';
-// 				case '.mpg':
-// 					return 'video/mpeg';
-// 				default:
-// 					return '*/*';
-// 			}
-// 		}
-// 	}
+		getMIME: function( S ) {
+			var ext = S.match( /\.[a-z0-9]+$/i )[0].toLowerCase();
+			switch( ext ) {
+				case '.mp3':
+					return 'audio/mpeg';
+				case '.mpg':
+					return 'video/mpeg';
+				default:
+					return '*/*';
+			}
+		}
+	}
 
 };
