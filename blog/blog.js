@@ -94,7 +94,7 @@ var Blog = {
 			
 			// 標籤的大小數量, 取得標籤的數量後做unique再取陣列長度
 			var c = [];
-			tags.each( function( key, value ) {
+			jQuery.each( tag, function( key, value ) {
 				if( jQuery.inArray( value, c ) < -1 ) {
 					c.push( value );
 				}
@@ -113,14 +113,14 @@ var Blog = {
 			// 清單元素
 			var ul = $( '<ul class="label-cloud"/>' );
 			
-			tags.each( function( key, value ) {
+			jQuery.each( tag, function( key, value ) {
 				// 當標籤文章數小於最底限時, 跳過這次的迭代( 由於每次的迭代都是function, 用return取代continue )
 				if( value < Blog.TagCloud.cloudMin ) {
 					return true;
 				}
 				// 取得顏色
-				c.each( function( index ) {
-					this = helper( Blog.TagCloud.minColor[index], Blog.TagCloud.maxColor[index], value - ta, tz );
+				jQuery.each( c, function( index ) {
+					c[index] = helper( Blog.TagCloud.minColor[index], Blog.TagCloud.maxColor[index], value - ta, tz );
 				} );
 				// 建立連結
 				var a = $( '<a/>' ).attr( {
@@ -209,7 +209,7 @@ var Blog = {
 					width: self.attr( 'width' ),
 					height: self.attr( 'height' ),
 					uiMode: self.attr( 'uimode' ),
-					autoStart: self.attr( 'autostart' )
+					autoStart: self.attr( 'autostart' ),
 					type: Blog.Media.getMIME( attr.value )
 				};
 				var media = $( '\
