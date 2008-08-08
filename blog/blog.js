@@ -1,4 +1,4 @@
-// Depends on prototype.js
+// Depends on jQuery
 
 var Blog = {
 
