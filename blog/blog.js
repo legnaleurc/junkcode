@@ -9,21 +9,17 @@ var Blog = {
 		}
 
 		var flag = true;
-		toggle.text( dft );
-
-		toggle.click( function( e ) {
+		toggle.text( dft ).click( function( e ) {
 			e.preventDefault();
 			$( this ).text( flag ? ct : dft );
 			flag = !flag;
 		} );
 
-		$( 'a[rel="external"]' ).each( function( index ) {
-			$( this ).click( function( e ) {
-				if( flag ) {
-					e.preventDefault();
-					window.open( $( this ).attr( 'href' ), '_blank' );
-				}
-			} );
+		$( 'a[rel="external"]' ).click( function( e ) {
+			if( flag ) {
+				e.preventDefault();
+				window.open( $( this ).attr( 'href' ), '_blank' );
+			}
 		} );
 	},
 
@@ -49,15 +45,11 @@ var Blog = {
 			var less = $( expanded ).hide();
 
 			more.click( function( e ) {
-				jQuery.each( [ post, this, less ], function() {
-					$( this ).toggle();
-				} );
+				$( [ post, this, less ] ).toggle();
 			} );
 
 			less.click( function( e ) {
-				jQuery.each( [ post, this, less ], function() {
-					$( this ).toggle();
-				} );
+				$( [ post, this, less ] ).toggle();
 			} );
 
 			$( this ).before( more ).after( less ).hide();
@@ -108,6 +100,7 @@ var Blog = {
 				}
 			} );
 			var labelCount = c.length;
+			
 			// color的rgb
 			c = new Array( 3 );
 			
