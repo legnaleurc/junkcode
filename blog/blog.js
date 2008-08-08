@@ -72,7 +72,7 @@ var Blog = {
 		minColor: [ 0xCC, 0xCC, 0xFF ],
 		maxColor: [ 0x99, 0x99, 0xFF ],
 		showCount: false,
-		shuffle: true,
+// 		shuffle: true,
 
 // 		randomShuffle: function( hash ) {
 // 			var result = new Hash();
@@ -91,81 +91,87 @@ var Blog = {
 // 			return result;
 // 		},
 
-		helper: function( a, b, i, x ) {
-			if( a > b ) {
-				return a - Math.floor( Math.log( i ) * ( a - b ) / Math.log( x ) );
-			} else {
-				return Math.floor( Math.log( i ) * ( b - a ) / Math.log( x ) + a );
-			}
-		},
+// 		helper: function( a, b, i, x ) {
+// 			if( a > b ) {
+// 				return a - Math.floor( Math.log( i ) * ( a - b ) / Math.log( x ) );
+// 			} else {
+// 				return Math.floor( Math.log( i ) * ( b - a ) / Math.log( x ) + a );
+// 			}
+// 		},
 		
 		generate: function( tags ) {
 			// 傳入的參數為Object, 轉換為Hash
-			tags = $H( tags );
-			tags.unset( '' );
+// 			tags = $H( tags );
+// 			tags.unset( '' );
 // 			if( this.shuffle ) {
 // 				tags = this.randomShuffle( tags );
 // 			}
-			// color的rgb
-			var c = new Array( 3 );
+			function helper( a, b, i, x ) {
+				if( a > b ) {
+					return a - Math.floor( Math.log( i ) * ( a - b ) / Math.log( x ) );
+				} else {
+					return Math.floor( Math.log( i ) * ( b - a ) / Math.log( x ) + a );
+				}
+			}
+			
 			// 標籤的大小數量, 取得標籤的數量後做unique再取陣列長度
-			var labelCount = tags.values().uniq().length;
+			var c = [];
+			tags.each( function( key, value ) {
+				if( jQuery.inArray( value, c ) < -1 ) {
+					c.push( value );
+				}
+			} );
+			var labelCount = c.length;
+			// color的rgb
+			c = new Array( 3 );
 			
 			// 標籤數量底限
 			var ta = this.cloudMin - 1;
 			// 大小和顏色的總級數
 			var tz = labelCount - this.cloudMin;
 			// 放置標籤雲的元素
-			var lc2 = $( 'labelCloud' );
+			var lc2 = $( '#labelCloud' );
 			// 清單元素
-			var ul = new Element( 'ul' );
-			ul.addClassName( 'label-cloud' );
+			var ul = $( '<ul class="label-cloud"/>' );
 			
-			tags.each( function( pair ) {
+			tags.each( function( key, value ) {
 				// 當標籤文章數小於最底限時, 跳過這次的迭代( 由於每次的迭代都是function, 用return取代continue )
-				if( pair.value < this.cloudMin ) {
-					return;
+				if( value < Blog.TagCloud.cloudMin ) {
+					return true;
 				}
 				// 取得顏色
-				for( var i = 0; i < c.length; ++i ) {
-					c[i] = this.helper( this.minColor[i], this.maxColor[i], pair.value - ta, tz );
-				}
-				// 取得字體大小
-				var fs = this.helper( this.minFontSize, this.maxFontSize, pair.value - ta, tz );
-				// 建立清單項目
-				var li = new Element( 'li' );
-				li.setStyle( {
-					fontSize: fs + 'px',
-					lineHeight: '1em'
+				c.each( function( index ) {
+					this = helper( Blog.TagCloud.minColor[index], Blog.TagCloud.maxColor[index], value - ta, tz );
 				} );
 				// 建立連結
-				var a = new Element( 'a', {
-					href: [ location.protocol, null, location.host, 'search', 'label', encodeURIComponent( pair.key ) ].join( '/' ),
-					title: pair.value + ' Post' + ( pair.value > 1 ? 's' : '' ) + ' in ' + pair.key
-				} );
-				a.setStyle( {
+				var a = $( '<a/>' ).attr( {
+					href: [ location.protocol, null, location.host, 'search', 'label', encodeURIComponent( key ) ].join( '/' ),
+					title: value + ' Post' + ( value > 1 ? 's' : '' ) + ' in ' + key
+				} ).css( {
 					color: 'rgb( ' + c.join( ', ' ) + ' )'
-				} );
-				a.appendChild( document.createTextNode( pair.key ) );
+				} ).text( key );
+				// 取得字體大小
+				var fs = helper( Blog.TagCloud.minFontSize, Blog.TagCloud.maxFontSize, value - ta, tz );
+				// 建立清單項目
+				var li = $( '<li/>' ).css( {
+					fontSize: fs + 'px',
+					lineHeight: '1em'
+				} ).append( a );
 				// 項目加入連結
-				li.appendChild( a );
 				// 如果設定顯示篇數的話
-				if( this.showCount ) {
+				if( Blog.TagCloud.showCount ) {
 					// 建立行內型元素
-					var span = new Element( 'span' );
-					span.addClassName( 'label-count' );
-					span.appendChild( document.createTextNode( '(' + pair.value + ')' ) );
+					var span = $( '<span class="label-count">(' + value + ')</span>' );
 					// 加入項目(在連結元素之後)
-					li.appendChild( span );
+					li.append( span );
 				}
 				// 清單加入項目
-				ul.appendChild( li );
+				ul.append( li ).append( ' ' );
 				// 間隔字元(美化)
-				ul.appendChild( document.createTextNode( ' ' ) );
-			}.bind( this ) );
+			} );
 
 			// 加入清單
-			lc2.appendChild( ul );
+			lc2.append( ul );
 		}
 
 	},
