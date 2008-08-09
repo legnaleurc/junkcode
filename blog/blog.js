@@ -119,11 +119,10 @@ var Blog = {
 				jQuery.each( c, function( index ) {
 					c[index] = helper( Blog.TagCloud.minColor[index], Blog.TagCloud.maxColor[index], value - ta, tz );
 				} );
-				// 取得字體大小
-				var fs = helper( Blog.TagCloud.minFontSize, Blog.TagCloud.maxFontSize, value - ta, tz );
 				// 建立清單項目
 				var li = $( '<li/>' ).css( {
-					fontSize: fs + 'px',
+					// 取得字體大小
+					fontSize: helper( Blog.TagCloud.minFontSize, Blog.TagCloud.maxFontSize, value - ta, tz ) + 'px',
 					lineHeight: '1em'
 				} ).append( $( '<a>' + key + '</a>' ).attr( {
 					href: [ location.protocol, null, location.host, 'search', 'label', encodeURIComponent( key ) ].join( '/' ),
@@ -135,7 +134,7 @@ var Blog = {
 				// 如果設定顯示篇數的話
 				if( Blog.TagCloud.showCount ) {
 					// 加入項目(在連結元素之後)
-					li.append( $( '<span class="label-count">(' + value + ')</span>' ) );
+					li.append( '<span class="label-count">(' + value + ')</span>' );
 				}
 				// 清單加入項目
 				ul.append( li ).append( ' ' );
@@ -203,7 +202,7 @@ var Blog = {
 					height: self.attr( 'height' ),
 					uiMode: self.attr( 'uimode' ),
 					autoStart: self.attr( 'autostart' ),
-					type: Blog.Media.getMIME( attr.value )
+					type: Blog.Media.getMIME( self.attr( 'href' ) )
 				};
 				var media = $( '\
 					<object data="' + attr.value + '" type="' + attr.type + '">\
@@ -216,8 +215,7 @@ var Blog = {
 					media.append( $( '<param name="uiMode" value="' + attr.uiMode + '" />' ) );
 				}
 				if( attr.autoStart ) {
-					media.append( $( '<param name="AutoPlay" value="' + attr.autoStart + '" />' ) );
-					media.append( $( '<param name="AutoStart" value="' + attr.autoStart + '" />' ) );
+					media.append( '<param name="AutoPlay" value="' + attr.autoStart + '" />' ).append( '<param name="AutoStart" value="' + attr.autoStart + '" />' );
 				}
 				self.before( media ).remove();
 			}
