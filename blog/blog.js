@@ -46,7 +46,7 @@ var Blog = {
 			} );
 
 			less.click( function( e ) {
-				$( [ post, this, less ] ).toggle();
+				$( [ post, more, this ] ).toggle();
 			} );
 
 			$( this ).before( more ).after( less ).hide();
@@ -119,27 +119,23 @@ var Blog = {
 				jQuery.each( c, function( index ) {
 					c[index] = helper( Blog.TagCloud.minColor[index], Blog.TagCloud.maxColor[index], value - ta, tz );
 				} );
-				// 建立連結
-				var a = $( '<a/>' ).attr( {
-					href: [ location.protocol, null, location.host, 'search', 'label', encodeURIComponent( key ) ].join( '/' ),
-					title: value + ' Post' + ( value > 1 ? 's' : '' ) + ' in ' + key
-				} ).css( {
-					color: 'rgb( ' + c.join( ', ' ) + ' )'
-				} ).text( key );
 				// 取得字體大小
 				var fs = helper( Blog.TagCloud.minFontSize, Blog.TagCloud.maxFontSize, value - ta, tz );
 				// 建立清單項目
 				var li = $( '<li/>' ).css( {
 					fontSize: fs + 'px',
 					lineHeight: '1em'
-				} ).append( a );
+				} ).append( $( '<a>' + key + '</a>' ).attr( {
+					href: [ location.protocol, null, location.host, 'search', 'label', encodeURIComponent( key ) ].join( '/' ),
+					title: value + ' Post' + ( value > 1 ? 's' : '' ) + ' in ' + key
+				} ).css( {
+					color: 'rgb( ' + c.join( ', ' ) + ' )'
+				} ) );
 				// 項目加入連結
 				// 如果設定顯示篇數的話
 				if( Blog.TagCloud.showCount ) {
-					// 建立行內型元素
-					var span = $( '<span class="label-count">(' + value + ')</span>' );
 					// 加入項目(在連結元素之後)
-					li.append( span );
+					li.append( $( '<span class="label-count">(' + value + ')</span>' ) );
 				}
 				// 清單加入項目
 				ul.append( li ).append( ' ' );
@@ -153,7 +149,7 @@ var Blog = {
 	},
 
 	highlighting: function() {
-		dp.SyntaxHighlighter.ClipboardSwf = 'http://career.ccu.edu.tw/~legnaleurc/library/dp.SyntaxHighlighter/Scripts/clipboard.swf';
+		dp.SyntaxHighlighter.ClipboardSwf = 'http://www.cs.ccu.edu.tw/~pwc94u/lib/dp.SyntaxHighlighter/Scripts/clipboard.swf';
 		dp.SyntaxHighlighter.BloggerMode();
 		dp.SyntaxHighlighter.HighlightAll( 'code' );
 	},
