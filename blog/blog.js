@@ -4,7 +4,7 @@ var Blog = {
 
 	targetLink: function( id, dft, ct ) {
 		var toggle = $( id );
-		if( toggle.length ){
+		if( toggle.length == 0 ){
 			throw new Error( 'There is no element matched `' + id + '\' in this DOM!' );
 		}
 
@@ -31,13 +31,10 @@ var Blog = {
 	 * @throw TypeError If any argument is wrong. Strong safety.
 	 */
 	hideBlocks: function( selector, collapsed, expanded ) {
-		var posts = $( selector );
-		if( posts.length == 0 ) {
-			throw new Error( 'There is no element matched `' + selector + '\' in this DOM!' );
-		}
 		if( !( collapsed && expanded ) ) {
 			throw new TypeError( 'Invalid argument(s).' );
 		}
+		var posts = $( selector );
 
 		posts.each( function( index_, post ) {
 			var more = $( collapsed );
@@ -94,8 +91,8 @@ var Blog = {
 			
 			// 標籤的大小數量, 取得標籤的數量後做unique再取陣列長度
 			var c = [];
-			jQuery.each( tag, function( key, value ) {
-				if( jQuery.inArray( value, c ) < -1 ) {
+			jQuery.each( tags, function( key, value ) {
+				if( jQuery.inArray( value, c ) < 0 ) {
 					c.push( value );
 				}
 			} );
@@ -113,7 +110,7 @@ var Blog = {
 			// 清單元素
 			var ul = $( '<ul class="label-cloud"/>' );
 			
-			jQuery.each( tag, function( key, value ) {
+			jQuery.each( tags, function( key, value ) {
 				// 當標籤文章數小於最底限時, 跳過這次的迭代( 由於每次的迭代都是function, 用return取代continue )
 				if( value < Blog.TagCloud.cloudMin ) {
 					return true;
