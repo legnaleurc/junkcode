@@ -170,13 +170,13 @@ var Blog = {
 				var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
 				url = 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1';
 
-				self.before( $( '\
+				self.before( '\
 					<object width="425" height="344">\
 						<param name="movie" value="' + url + '" />\
 						<param name="allowFullScreen" value="true" />\
 						<embed src="' + url + '" type="application/x-shockwave-flash" allowFullScreen="true" width="425" height="344" />\
 					</object>\
-				' ) ).remove();
+				' ).remove();
 			}
 		},
 		
@@ -188,7 +188,7 @@ var Blog = {
 				var temp = url.match( /http:\/\/video\.google\.com\/videoplay\?(\w+)=(.+)/ );
 				url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
 
-				self.before( $( '<embed allowFullScreen="true" src="' + url + '" type="application/x-shockwave-flash" />').width( self.attr( 'width' ) ).height( self.attr( 'height' ) ) ).remove();
+				self.before( $( '<embed allowFullScreen="true" src="' + url + '" type="application/x-shockwave-flash" />' ).width( self.attr( 'width' ) ).height( self.attr( 'height' ) ) ).remove();
 			}
 		},
 
