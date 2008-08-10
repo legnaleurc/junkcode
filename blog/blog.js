@@ -39,7 +39,8 @@ var Blog = {
 		posts.each( function( index_, post ) {
 			var more = $( collapsed );
 
-			var less = $( expanded ).hide();
+			// for bug in jQuery 1.2.6 on KHTML
+			var less = $( expanded ).css( 'display', 'none' );
 
 			more.click( function( e ) {
 				$( [ post, this, less ] ).toggle();
@@ -49,7 +50,8 @@ var Blog = {
 				$( [ post, more, this ] ).toggle();
 			} );
 
-			$( this ).before( more ).after( less ).hide();
+			// for bug in jQuery 1.2.6 on KHTML
+			$( this ).before( more ).after( less ).css( 'display', 'none' );
 		} );
 	},
 	
