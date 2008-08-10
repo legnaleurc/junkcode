@@ -61,25 +61,8 @@ var Blog = {
 		minColor: [ 0xCC, 0xCC, 0xFF ],
 		maxColor: [ 0x99, 0x99, 0xFF ],
 		showCount: false,
-// 		shuffle: true,
+		shuffle: true,
 
-// 		randomShuffle: function( hash ) {
-// 			var result = new Hash();
-// 			var keys = hash.keys();
-// 			for( var i = 0, r, temp, len = keys.length; i < len; ++i ) {
-// 				do {
-// 					r = Math.floor( Math.random() * len );
-// 				} while( r == i );
-// 				temp = keys[i];
-// 				keys[i] = keys[r];
-// 				keys[r] = temp;
-// 			}
-// 			keys.each( function( key ) {
-// 				result.set( key, hash.get( key ) );
-// 			} );
-// 			return result;
-// 		},
-		
 		generate: function( tags ) {
 			function helper( a, b, i, x ) {
 				if( a > b ) {
@@ -91,7 +74,13 @@ var Blog = {
 			
 			// 標籤的大小數量, 取得標籤的數量後做unique再取陣列長度
 			var c = [];
+			var rsk = [];
 			jQuery.each( tags, function( key, value ) {
+				if( Blog.TagCloud.shuffle ) {
+					rsk.splice( Math.floor( Math.random() * ( rsk.length + 1 ) ), 0, key );
+				} else {
+					rsk.push( key );
+				}
 				if( jQuery.inArray( value, c ) < 0 ) {
 					c.push( value );
 				}
@@ -110,23 +99,23 @@ var Blog = {
 			// 清單元素
 			var ul = $( '<ul class="label-cloud"/>' );
 			
-			jQuery.each( tags, function( key, value ) {
+			jQuery.each( rsk, function( index, key ) {
 				// 當標籤文章數小於最底限時, 跳過這次的迭代( 由於每次的迭代都是function, 用return取代continue )
-				if( value < Blog.TagCloud.cloudMin ) {
+				if( tags[key] < Blog.TagCloud.cloudMin ) {
 					return true;
 				}
 				// 取得顏色
 				jQuery.each( c, function( index ) {
-					c[index] = helper( Blog.TagCloud.minColor[index], Blog.TagCloud.maxColor[index], value - ta, tz );
+					c[index] = helper( Blog.TagCloud.minColor[index], Blog.TagCloud.maxColor[index], tags[key] - ta, tz );
 				} );
 				// 建立清單項目
 				var li = $( '<li/>' ).css( {
 					// 取得字體大小
-					fontSize: helper( Blog.TagCloud.minFontSize, Blog.TagCloud.maxFontSize, value - ta, tz ) + 'px',
+					fontSize: helper( Blog.TagCloud.minFontSize, Blog.TagCloud.maxFontSize, tags[key] - ta, tz ) + 'px',
 					lineHeight: '1em'
 				} ).append( $( '<a>' + key + '</a>' ).attr( {
 					href: [ location.protocol, null, location.host, 'search', 'label', encodeURIComponent( key ) ].join( '/' ),
-					title: value + ' Post' + ( value > 1 ? 's' : '' ) + ' in ' + key
+					title: tags[key] + ' Post' + ( tags[key] > 1 ? 's' : '' ) + ' in ' + key
 				} ).css( {
 					color: 'rgb( ' + c.join( ', ' ) + ' )'
 				} ) );
@@ -134,7 +123,7 @@ var Blog = {
 				// 如果設定顯示篇數的話
 				if( Blog.TagCloud.showCount ) {
 					// 加入項目(在連結元素之後)
-					li.append( '<span class="label-count">(' + value + ')</span>' );
+					li.append( '<span class="label-count">(' + tags[key] + ')</span>' );
 				}
 				// 清單加入項目
 				ul.append( li ).append( ' ' );
@@ -221,15 +210,19 @@ var Blog = {
 			}
 		},
 
-		getMIME: function( S ) {
-			var ext = S.match( /\.[a-z0-9]+$/i )[0].toLowerCase();
-			switch( ext ) {
-				case '.mp3':
-					return 'audio/mpeg';
-				case '.mpg':
-					return 'video/mpeg';
-				default:
-					return '*/*';
+		getMIME: function( s ) {
+			var m = s.match( /\.(\w+)$/ );
+			if( m ) {
+				switch( m[1].toLowerCase() ) {
+					case 'mp3':
+						return 'audio/mpeg';
+					case 'mpg':
+						return 'video/mpeg';
+					default:
+						return '*/*';
+				}
+			} else {
+				throw new Error( 'Unknown extension: `' + s + "'" );
 			}
 		}
 	}
