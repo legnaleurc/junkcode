@@ -2,16 +2,16 @@
 
 var Blog = {
 
-	targetLink: function( id, dft, ct ) {
-		var toggle = $( id );
+	targetLink: function( param ) {
+		var toggle = $( param.id );
 		if( toggle.length == 0 ){
-			throw new Error( 'There is no element matched `' + id + '\' in this DOM!' );
+			throw new Error( 'There is no element matched `' + param.id + '\' in this DOM!' );
 		}
 
 		var flag = true;
-		toggle.text( dft ).click( function( e ) {
+		toggle.text( param.dft ).click( function( e ) {
 			e.preventDefault();
-			$( this ).text( flag ? ct : dft );
+			$( this ).text( flag ? param.ct : param.dft );
 			flag = !flag;
 		} );
 
@@ -30,17 +30,17 @@ var Blog = {
 	 * @param String expanded Expanded element.
 	 * @throw TypeError If any argument is wrong. Strong safety.
 	 */
-	hideBlocks: function( selector, collapsed, expanded ) {
-		if( !( collapsed && expanded ) ) {
+	hideBlocks: function( param ) {
+		if( !( param.collapsed && param.expanded ) ) {
 			throw new TypeError( 'Invalid argument(s).' );
 		}
-		var posts = $( selector );
+		var posts = $( param.selector );
 
 		posts.each( function( index_, post ) {
-			var more = $( collapsed );
+			var more = $( param.collapsed );
 
 			// for bug in jQuery 1.2.6 on KHTML
-			var less = $( expanded ).css( 'display', 'none' );
+			var less = $( param.expanded ).css( 'display', 'none' );
 
 			more.click( function( e ) {
 				$( [ post, this, less ] ).toggle();
@@ -148,7 +148,11 @@ var Blog = {
 		active: true,
 		
 		trigger: function() {
-			$( 'a.Media' ).click( Blog.Media.handler );
+			$( 'a.Media' ).click( function() {
+				if( Blog.Media.active ) {
+					$( this ).media();
+				}
+			} );
 			$( 'a.YouTube' ).click( Blog.Media.youTube );
 			$( 'a.GoogleVideo' ).click( Blog.Media.googleVideo );
 		},
@@ -180,51 +184,6 @@ var Blog = {
 				url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
 
 				self.before( $( '<embed allowFullScreen="true" src="' + url + '" type="application/x-shockwave-flash" />' ).width( self.attr( 'width' ) ).height( self.attr( 'height' ) ) ).remove();
-			}
-		},
-
-		handler: function( e ) {
-			if( Blog.Media.active ) {
-				e.preventDefault();
-				var self = $( this );
-				var attr = {
-					value: self.attr( 'href' ),
-					width: self.attr( 'width' ),
-					height: self.attr( 'height' ),
-					uiMode: self.attr( 'uimode' ),
-					autoStart: self.attr( 'autostart' ),
-					type: Blog.Media.getMIME( self.attr( 'href' ) )
-				};
-				var media = $( '\
-					<object data="' + attr.value + '" type="' + attr.type + '">\
-						<param name="Filename" value="' + attr.value + '" />\
-						<param name="src" value="' + attr.value + '" />\
-						<param name="Scale" value="Aspect">\
-					</object>\
-				' ).width( attr.width ).height( attr.height );
-				if( attr.uiMode ) {
-					media.append( $( '<param name="uiMode" value="' + attr.uiMode + '" />' ) );
-				}
-				if( attr.autoStart ) {
-					media.append( '<param name="AutoPlay" value="' + attr.autoStart + '" />' ).append( '<param name="AutoStart" value="' + attr.autoStart + '" />' );
-				}
-				self.before( media ).remove();
-			}
-		},
-
-		getMIME: function( s ) {
-			var m = s.match( /\.(\w+)$/ );
-			if( m ) {
-				switch( m[1].toLowerCase() ) {
-					case 'mp3':
-						return 'audio/mpeg';
-					case 'mpg':
-						return 'video/mpeg';
-					default:
-						return '*/*';
-				}
-			} else {
-				throw new Error( 'Unknown extension: `' + s + "'" );
 			}
 		}
 	}
