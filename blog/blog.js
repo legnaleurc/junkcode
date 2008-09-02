@@ -148,8 +148,9 @@ var Blog = {
 		active: true,
 		
 		trigger: function() {
-			$( 'a.Media' ).click( function() {
+			$( 'a.Media' ).click( function( e ) {
 				if( Blog.Media.active ) {
+					e.preventDefault();
 					$( this ).media();
 				}
 			} );
