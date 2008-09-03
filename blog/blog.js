@@ -15,7 +15,7 @@ var Blog = {
 			flag = !flag;
 		} );
 
-		$( 'a[rel="external"]' ).click( function( e ) {
+		$( 'a[rel="external"]' ).bind( 'click.target', function( e ) {
 			if( flag ) {
 				e.preventDefault();
 				window.open( $( this ).attr( 'href' ), '_blank' );
@@ -148,34 +148,28 @@ var Blog = {
 		active: true,
 		
 		trigger: function() {
+			$.fn.media.defaults.bgColor = '#000000';
 			$( 'a.Media' ).click( function( e ) {
 				if( Blog.Media.active ) {
 					e.preventDefault();
-					$( this ).media();
+					$( this ).unbind( 'click.target' ).media();
 				}
 			} );
-			$( 'a.YouTube' ).click( Blog.Media.youTube );
+			$( 'a.YouTube' ).click( function( e ) {
+				if( Blog.Media.active ) {
+					e.preventDefault();
+					var temp = $( this ).attr( 'href' ).match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
+					$( this ).unbind( 'click.target' ).media( {
+						src: 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1',
+						width: 425,
+						height: 344,
+						type: 'swf'
+					} );
+				}
+			} );
 			$( 'a.GoogleVideo' ).click( Blog.Media.googleVideo );
 		},
-		
-		youTube: function( e ) {
-			if( Blog.Media.active ) {
-				e.preventDefault();
-				var self = $( this );
-				var url = self.attr( 'href' );
-				var temp = url.match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
-				url = 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1';
 
-				self.before( '\
-					<object width="425" height="344">\
-						<param name="movie" value="' + url + '" />\
-						<param name="allowFullScreen" value="true" />\
-						<embed src="' + url + '" type="application/x-shockwave-flash" allowFullScreen="true" width="425" height="344" />\
-					</object>\
-				' ).remove();
-			}
-		},
-		
 		googleVideo: function( e ) {
 			if( Blog.Media.active ) {
 				e.preventDefault();
