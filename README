@@ -7,3 +7,5 @@ opcmx:
 	只要把這個script放到PATH找得到的地方，或是直接指定絕對路徑，在開網頁的命令填上
 	opcmx %s
 	即可
+launcher:
+	針對PortableApps.com的檔案啟動器
