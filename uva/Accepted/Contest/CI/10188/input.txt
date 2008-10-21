@@ -1,0 +1,72 @@
+
+2
+                                                                               
+                                                                               
+2
+                                                                               
+                                                                               
+2
+The answer is: 10
+The answer is: 5
+2
+The answer is: 10
+The answer is: 5
+2
+The answer is: 10
+The answer is: 5
+2
+The answer is: 10
+The answer is: 15
+2
+The answer is: 10
+The answer is:  5
+2
+The answer is: 10
+The answer is: 5
+3
+                     Input Set #1: YES
+Input Set #2: NO
+Input Set #3: NO
+3
+Input Set #0: YES
+Input Set #1: NO
+            Input Set #2: NO
+1
+1 0 1 0
+1
+1010
+1
+                                                                               
+1
+                                                                               
+1
+The judges are mean!
+1
+The judges are good!
+3
+Input Set #1: YES
+Input Set #2: NO
+Input Set #3: NO
+4
+123
+ABCDE FG
+hij k
+lmn
+1
+alskjdflajksdf;lkjas;dfj
+1
+1
+2
+ d 3
+ 
+1
+ d 3
+3
+adfs df 1 dasf adf df
+2
+fs aaaaaaaaaaaa 3
+3
+aa1
+2
+3
+0 
