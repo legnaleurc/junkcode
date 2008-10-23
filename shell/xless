@@ -1,12 +1,21 @@
 #! /bin/bash
 
+TGZ='\.t(ar\.)?gz$'
+GZ='\.gz$'
+TBZ2='\.t(ar\.)?bz(2)?$'
+BZ2='\bz(2)?$'
+
 if [ $# -eq 1 ] ; then
-	if [[ $1 =~ '\.tar\.gz$' ]] ; then
-		exec tar -ztf $1 | less
-	elif [[ $1 =~ '\.gz$' ]] ; then
-		exec gzip -cd $1 | less
+	if [[ $1 =~ $TGZ ]] ; then
+		exec tar -ztf "$1" | less
+	elif [[ $1 =~ $GZ ]] ; then
+		exec gzip -cd "$1" | less
+	elif [[ $1 =~ $TBZ2 ]] ; then
+		exec tar -jtf "$1" | less
+	elif [[ $1 =~ $BZ2 ]] ; then
+		exec bzip2 -cd "$1" | less
 	else
-		echo 'Invalid filename.' >&2
+		echo "Invalid filename: $1" >&2
 		exit 1
 	fi
 else

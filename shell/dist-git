@@ -6,15 +6,23 @@ import sys, os, bz2, time, optparse
 BASE = os.path.basename( os.getcwd() )
 TIMESTAMP = time.strftime( '%Y%m%d' )
 
-def main( args = None ):
-	if args is None:
-		args = sys.argv
+def setOption():
 	parser = optparse.OptionParser( usage='usage: %prog [options] <branch>' )
 	parser.add_option( '-s', '--spec', type='string', dest='spec', help='explicitly sets version string' )
 	parser.add_option( '--prefix', type='string', dest='prefix', help='string that before version' )
 	parser.add_option( '--postfix', type='string', dest='postfix', help='string that append to timestamp' )
 	parser.add_option( '-q', '--quiet', action='store_false', dest='verbose', help='be vewwy quiet (I\'m hunting wabbits)' )
 	parser.set_defaults( verbose=True )
+	return parser
+
+def main( args = None ):
+	if args is None:
+		args = sys.argv
+
+	if not os.path.exists( '.git' ):
+		print >> sys.stderr, 'Not a git repository.'
+		return 1
+	parser = setOption()
 	opts, args = parser.parse_args( args=args[1:] )
 	if len( args ) < 1:
 		parser.print_help()
