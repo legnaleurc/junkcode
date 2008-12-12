@@ -12,12 +12,15 @@ fi
 
 if [ ! -e '/etc/apt/sources.list.d/libmsn.list' ] ; then
 	cp libmsn.list /etc/apt/sources.list.d
+	aptitude update
 fi
-aptitude update
-mkdir '/tmp/libmsn' && cd '/tmp/libmsn'
+if [ ! -d '/tmp/libmsn' ] ; then
+	mkdir '/tmp/libmsn'
+fi
+cd '/tmp/libmsn'
 apt-get source 'libmsn'
-pbuilder --build '*.dsc'
-for deb in `ls /var/cache/pbuilder/result/libmsn*.deb` ; do
+pbuilder --build "*.dsc"
+for deb in `ls "/var/cache/pbuilder/result/libmsn*.deb"` ; do
 	if [ `echo $deb | grep -v -e 'dbg'` ] ; then
 		LIST="$LIST $deb"
 	fi
