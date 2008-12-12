@@ -46,3 +46,4 @@ libmsn-dev
 libxklavier12-dev
 libck-connector-dev
 network-manager-dev
+libpulse-dev
