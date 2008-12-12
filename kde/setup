@@ -5,7 +5,7 @@ if [ `whoami` != 'root' ] ; then
 	exit 1
 fi
 
-if [ -x `which pbuilder` ] ; then
+if [ `which pbuilder` ] ; then
 	aptitude install -y pbuilder
 	pbuilder create
 fi
