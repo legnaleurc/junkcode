@@ -16,7 +16,7 @@ libxslt1-dev
 shared-mime-info
 libgif-dev
 libssl-dev
-libboost1.36-dev
+libboost1.35-dev
 libgpgme11-dev
 libxine-dev
 libqimageblitz-dev

@@ -5,7 +5,7 @@ if [ `whoami` != 'root' ] ; then
 	exit 1
 fi
 
-if [ `which pbuilder` ] ; then
+if [ -z `which pbuilder` ] ; then
 	aptitude install -y pbuilder
 	pbuilder create
 fi
@@ -19,13 +19,13 @@ if [ ! -d '/tmp/libmsn' ] ; then
 fi
 cd '/tmp/libmsn'
 apt-get source 'libmsn'
-pbuilder --build "*.dsc"
-for deb in `ls "/var/cache/pbuilder/result/libmsn*.deb"` ; do
+pbuilder --build *.dsc
+for deb in `ls /var/cache/pbuilder/result/libmsn*.deb` ; do
 	if [ `echo $deb | grep -v -e 'dbg'` ] ; then
 		LIST="$LIST $deb"
 	fi
 done
-dpkg -i "$LIST"
+dpkg -i $LIST
 cd -
 
 xargs aptitude install -y < 'dependency.txt'
