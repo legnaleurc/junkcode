@@ -211,13 +211,13 @@ end module
 # kdebase contains useful general-purpose programs, normally people would
 # expect a usable desktop to have these.
 module kdebase
-	#configure-flags --with-pam --with-shadow
+	configure-flags --with-pam --with-shadow
 end module
 
 # kdemultimedia contains JuK, noatun, Kaboodle, and other KDE multimedia
 # applications.  It does not include amarok, which is in extragear/multimedia
 module kdemultimedia
-	checkout-only kmix libkcddb libkcompactdisc
+	do-not-compile dragonplayer kscd juk
 end module
 
 # ... Well, they're games. ;)
@@ -270,14 +270,14 @@ end module
 # kdeutils has miscellaneous programs which can be useful.  You probably won't
 # die if you remove this from the config file though.
 module kdeutils
-	checkout-only ark kwallet okteta
+	do-not-compile kcalc kcharselect kdessh kdf kfloppy kgpg ktimer printer-applet superkaramba sweeper
 end module
 
 # kdegraphics contains various programs useful for graphics editing.  It
 # doesn't include Krita, which is part of KOffice, but it is worth it just for
 # KolourPaint and Gwenview.
 module kdegraphics
-	checkout-only gwenview okular ksnapshot
+	do-not-compile kamera kcolorchooser kgamma kolourpaint kruler ksaneplugin
 end module
 
 # Contains nifty diversions of time, which generally aren't games.
@@ -335,7 +335,7 @@ end module
 
 # Includes the popular K3B and Amarok programs.
 module extragear/multimedia
-	checkout-only k3b
+	do-not-compile amarok kaffeine kaffeinegl kaudiocreator kmid kmplayer kplayer
 end module
 
 # Includes various photo management applications.
