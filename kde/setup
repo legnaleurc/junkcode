@@ -29,9 +29,3 @@ dpkg -i $LIST
 cd -
 
 xargs aptitude install -y < 'dependency.txt'
-
-if [ -z `kdesvn-build` ] ; then
-	wget http://kdesvn-build.kde.org/releases/kdesvn-build-1.7.1.tar.bz2 -O /tmp/kdesvn-build.tbz2
-	tar -C /usr/local/src -jxf /tmp/kdesvn-build.tbz2
-	ln -s /usr/local/src/kdesvn-build-1.7.1/kdesvn-build /usr/local/bin/kdesvn-build
-fi

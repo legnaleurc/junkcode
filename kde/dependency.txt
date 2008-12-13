@@ -2,8 +2,8 @@ build-essential
 xorg-dev
 cdbs
 debhelper
-cmake
-kdesdk-scripts
+cmake/experimental
+kdesdk-scripts/experimental
 subversion
 ssh
 xserver-xephyr
