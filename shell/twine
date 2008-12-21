@@ -1,0 +1,2 @@
+#! /bin/sh
+LC_ALL='zh_TW.UTF-8' wine "$@"

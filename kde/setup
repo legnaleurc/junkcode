@@ -1,0 +1,31 @@
+#! /bin/sh
+
+if [ `whoami` != 'root' ] ; then
+	echo >2 'root only!'
+	exit 1
+fi
+
+if [ -z `which pbuilder` ] ; then
+	aptitude install -y pbuilder
+	pbuilder create
+fi
+
+if [ ! -e '/etc/apt/sources.list.d/libmsn.list' ] ; then
+	cp libmsn.list /etc/apt/sources.list.d
+	aptitude update
+fi
+if [ ! -d '/tmp/libmsn' ] ; then
+	mkdir '/tmp/libmsn'
+fi
+cd '/tmp/libmsn'
+apt-get source 'libmsn'
+pbuilder --build *.dsc
+for deb in `ls /var/cache/pbuilder/result/libmsn*.deb` ; do
+	if [ `echo $deb | grep -v -e 'dbg'` ] ; then
+		LIST="$LIST $deb"
+	fi
+done
+dpkg -i $LIST
+cd -
+
+xargs aptitude install -y < 'dependency.txt'
