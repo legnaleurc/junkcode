@@ -145,18 +145,30 @@ var Blog = {
 	},
 
 	Media: {
-		active: true,
+		video: true,
+		image: true,
 		
 		trigger: function() {
+			// processing image
+			$( 'img.Media' ).each( function() {
+				var shell = $( '\
+					<div style="overflow: auto; width: 100%;">\
+						<a href="' + $( this ).attr( 'src' ) + '" rel="external"/>\
+					</div>\
+				' );
+				$( this ).after( shell ).appendTo( shell.children( ':first' ) );
+			} );
+
+			// processing video
 			$.fn.media.defaults.bgColor = '#000000';
 			$( 'a.Media' ).click( function( e ) {
-				if( Blog.Media.active ) {
+				if( Blog.Media.video ) {
 					e.preventDefault();
 					$( this ).unbind( 'click.target' ).media();
 				}
 			} );
 			$( 'a.YouTube' ).click( function( e ) {
-				if( Blog.Media.active ) {
+				if( Blog.Media.video ) {
 					e.preventDefault();
 					var temp = $( this ).attr( 'href' ).match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
 					$( this ).unbind( 'click.target' ).media( {
@@ -167,20 +179,19 @@ var Blog = {
 					} );
 				}
 			} );
-			$( 'a.GoogleVideo' ).click( Blog.Media.googleVideo );
-		},
+			$( 'a.GoogleVideo' ).click( function( e ) {
+				if( Blog.Media.video ) {
+					e.preventDefault();
+					var self = $( this );
+					var url = self.attr( 'href' );
+					var temp = url.match( /http:\/\/video\.google\.com\/videoplay\?(\w+)=(.+)/ );
+					url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
 
-		googleVideo: function( e ) {
-			if( Blog.Media.active ) {
-				e.preventDefault();
-				var self = $( this );
-				var url = self.attr( 'href' );
-				var temp = url.match( /http:\/\/video\.google\.com\/videoplay\?(\w+)=(.+)/ );
-				url = 'http://video.google.com/googleplayer.swf?' + temp[1] + '=' + temp[2] + '&fs=true';
-
-				self.before( $( '<embed allowFullScreen="true" src="' + url + '" type="application/x-shockwave-flash" />' ).width( self.attr( 'width' ) ).height( self.attr( 'height' ) ) ).remove();
-			}
+					self.before( $( '<embed allowFullScreen="true" src="' + url + '" type="application/x-shockwave-flash" />' ).width( self.attr( 'width' ) ).height( self.attr( 'height' ) ) ).remove();
+				}
+			} );
 		}
+
 	}
 
 };
