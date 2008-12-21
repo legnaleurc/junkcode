@@ -1,4 +1,5 @@
 // Depends on jQuery
+// Depends on jQuery Media Plugin
 
 var Blog = {
 
