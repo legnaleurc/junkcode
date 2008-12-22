@@ -163,13 +163,13 @@ var Blog = {
 			// processing video
 			$.fn.media.defaults.bgColor = '#000000';
 			$( 'a.Media' ).click( function( e ) {
-				if( Blog.Media.video ) {
+				if( Blog.Media.video && !e.ctrlKey ) {
 					e.preventDefault();
 					$( this ).unbind( 'click.target' ).media();
 				}
 			} );
 			$( 'a.YouTube' ).click( function( e ) {
-				if( Blog.Media.video ) {
+				if( Blog.Media.video && !e.ctrlKey ) {
 					e.preventDefault();
 					var temp = $( this ).attr( 'href' ).match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
 					$( this ).unbind( 'click.target' ).media( {
@@ -181,7 +181,7 @@ var Blog = {
 				}
 			} );
 			$( 'a.GoogleVideo' ).click( function( e ) {
-				if( Blog.Media.video ) {
+				if( Blog.Media.video && !e.ctrlKey ) {
 					e.preventDefault();
 					var self = $( this );
 					var url = self.attr( 'href' );
