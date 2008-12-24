@@ -211,7 +211,7 @@ end module
 # kdebase contains useful general-purpose programs, normally people would
 # expect a usable desktop to have these.
 module kdebase
-	configure-flags --with-pam --with-shadow
+	#configure-flags --with-pam --with-shadow
 end module
 
 # kdemultimedia contains JuK, noatun, Kaboodle, and other KDE multimedia
@@ -237,7 +237,7 @@ end module
 # kdenetwork has Kopete and other useful applications for the Internet and
 # other networks.
 module kdenetwork
-	checkout-only kget kopete
+	do-not-compile filesharing kdnssd kppp krdc krfb
 end module
 
 # kdeadmin has system administration tools for your computer.
@@ -335,7 +335,7 @@ end module
 
 # Includes the popular K3B and Amarok programs.
 module extragear/multimedia
-	do-not-compile amarok kaffeine kaffeinegl kaudiocreator kmid kmplayer kplayer
+	do-not-compile kaffeine kaffeinegl kaudiocreator kmid kmplayer kplayer
 end module
 
 # Includes various photo management applications.
