@@ -1,6 +1,6 @@
 #include <fstream>
 #include <string>
-#include <vector>
+#include <list>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
@@ -10,13 +10,13 @@ int main( int argc, char * argv[] ) {
 	ifstream fin( argv[0], ios::binary );
 
 	if( fin.is_open() ) {
-		vector< char > binary;
+		list< char > binary;
 		copy( istreambuf_iterator< char >( fin ), istreambuf_iterator< char >(), back_inserter( binary ) );
 		fin.close();
 
 		string magic( "!_METAMAGIC__" );
 		magic[0] = '_';
-		vector< char >::iterator result = search( binary.begin(), binary.end(), magic.begin(), magic.end() );
+		list< char >::iterator result = search( binary.begin(), binary.end(), magic.begin(), magic.end() );
 		if( result == binary.end() ) {
 			cerr << "Can not find piece!" << endl;
 		} else {
