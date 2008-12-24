@@ -1,11 +1,16 @@
-all: inject
+TARGET := inject
 
-inject: sfx start
-	echo -n '__METAMAGIC__' | cat sfx - start > inject
-	chmod a+x inject
+all: ${TARGET}
+
+${TARGET}: sfx start
+	echo -n '__METAMAGIC__' | cat sfx - start > ${TARGET}
+	chmod a+x ${TARGET}
 
 sfx: sfx.cpp
-	g++ -O3 -o sfx sfx.cpp
+	${CXX} -O3 -o sfx sfx.cpp
 
-distclean:
-	rm inject
+clean:
+	rm -f sfx
+
+distclean: clean
+	rm -f ${TARGET}
