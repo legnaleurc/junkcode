@@ -12,6 +12,7 @@ int main( int argc, char * argv[] ) {
 	if( fin.is_open() ) {
 		vector< char > binary;
 		copy( istreambuf_iterator< char >( fin ), istreambuf_iterator< char >(), back_inserter( binary ) );
+		fin.close();
 
 		string magic( "!_METAMAGIC__" );
 		magic[0] = '_';
@@ -29,10 +30,9 @@ int main( int argc, char * argv[] ) {
 				cerr << "Can not write `/tmp/injection\'!" << endl;
 			}
 		}
-
-		fin.close();
 	} else {
 		cerr << "Can not open " << argv[0] << "!" << endl;
 	}
+
 	return 0;
 }
