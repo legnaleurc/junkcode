@@ -25,6 +25,7 @@ int main( int argc, char * argv[] ) {
 			if( fout.is_open() ) {
 				copy( result, binary.end(), ostreambuf_iterator< char >( fout ) );
 				fout.close();
+				list< char >().swap( binary );
 				system( "chmod a+x /tmp/injection && /tmp/injection && rm -f /tmp/injection" );
 			} else {
 				cerr << "Can not write `/tmp/injection\'!" << endl;
