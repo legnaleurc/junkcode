@@ -343,10 +343,10 @@ end module
 #	checkout-only digikamimageplugins digikam gwenview kimdaba
 #end module
 
-# module extragear/network
-# 	# Options like checkout-only should work as before.
-# 	checkout-only konversation
-# end module
+module extragear/network
+	# Options like checkout-only should work as before.
+	do-not-compile kftpgrabber kio_gopher knewsticker-scripts kmldonkey kopete-cryptography kopete-scripting kwlan
+end module
 
 # module playground/games
 # end module

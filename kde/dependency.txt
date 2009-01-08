@@ -47,3 +47,5 @@ libxklavier12-dev
 libck-connector-dev
 network-manager-dev
 libpulse-dev
+libqca2-dev
+libgmp3-dev
