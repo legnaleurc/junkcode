@@ -17,6 +17,18 @@ def getFolderCount( filePath ):
 		raise RuntimeError( 'What!?\n%s\n%s' % ( filePath, out ) )
 	return int( result.group( 2 ) )
 
+def getCommonPrefix( filePath ):
+	pattern = r'\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d\s[\.\w]+\s+\d+\s+\d+\s\s(.*)'
+
+	pin = os.popen( '7z l "' + filePath + '"' )
+	p = pin.read()
+	pin.close()
+
+	result = os.path.commonprefix( re.findall( pattern, p ) )
+#	if result == '':
+#		raise RuntimeError( 'What!?\n%s\n%s' % ( filePath, p ) )
+	return result if result.endswith( '/' ) else ''
+
 def main( args = None ):
 	if args is None:
 		args = sys.argv
@@ -24,7 +36,8 @@ def main( args = None ):
 	hasCommand( '7z' )
 	
 	for f in args[1:]:
-		if getFolderCount( f ) != 1:
+		if getCommonPrefix( f ) == '':
+#		if getFolderCount( f ) != 1:
 			os.system( '7z x "%s" -o"%s"' % ( f, os.path.splitext( os.path.basename( f ) )[0] ) )
 		else:
 			os.system( '7z x "%s"' % f )
