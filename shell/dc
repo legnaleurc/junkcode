@@ -7,16 +7,6 @@ def hasCommand( cmd ):
 	if os.system( 'which ' + cmd + ' > /dev/null' ) != 0:
 		raise SystemError( "One of commands: `" + cmd + "' not found." )
 
-def getFolderCount( filePath ):
-	pin = os.popen( '7z l "%s" | tail -1' % filePath )
-	out = pin.read()
-	pin.close()
-
-	result = re.search( r'(\d+)\s+files,\s+(\d+)\s+folders', out )
-	if result is None:
-		raise RuntimeError( 'What!?\n%s\n%s' % ( filePath, out ) )
-	return int( result.group( 2 ) )
-
 def getCommonPrefix( filePath ):
 	pattern = r'\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d\s[\.\w]+\s+\d+\s+\d+\s\s(.*)'
 
@@ -24,10 +14,13 @@ def getCommonPrefix( filePath ):
 	p = pin.read()
 	pin.close()
 
-	result = os.path.commonprefix( re.findall( pattern, p ) )
-#	if result == '':
-#		raise RuntimeError( 'What!?\n%s\n%s' % ( filePath, p ) )
-	return result if result.endswith( '/' ) else ''
+	fileList = re.findall( pattern, p )
+	result = os.path.commonprefix( fileList )
+
+	return result if result == fileList[-1] else ''
+
+def getFileName( fileName ):
+	return re.match( r'([^\.]*)(\..*)*', os.path.basename( fileName ) ).group( 1 )
 
 def main( args = None ):
 	if args is None:
@@ -37,8 +30,7 @@ def main( args = None ):
 	
 	for f in args[1:]:
 		if getCommonPrefix( f ) == '':
-#		if getFolderCount( f ) != 1:
-			os.system( '7z x "%s" -o"%s"' % ( f, os.path.splitext( os.path.basename( f ) )[0] ) )
+			os.system( '7z x "%s" -o"%s"' % ( f, getFileName( f ) ) )
 		else:
 			os.system( '7z x "%s"' % f )
 	
