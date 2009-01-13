@@ -3,9 +3,10 @@
 
 import os, sys, re
 
-def hasCommand( cmd ):
-	if os.system( 'which ' + cmd + ' > /dev/null' ) != 0:
-		raise SystemError( "One of commands: `" + cmd + "' not found." )
+def hasCommand( *cmds ):
+	for cmd in cmds:
+		if os.system( 'which ' + cmd + ' > /dev/null' ) != 0:
+			raise SystemError( cmd + ': command not found.' )
 
 def getCommonPrefix( filePath ):
 	filePattern = r'\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d\s[\.\w]+\s+\d+\s+\d+\s\s(.*)'
@@ -31,7 +32,11 @@ def main( args = None ):
 	if args is None:
 		args = sys.argv
 
-	hasCommand( '7z' )
+	try:
+		hasCommand( '7z' )
+	except SystemError, e:
+		print >> sys.stderr, e.message
+		return 1
 	
 	for f in args[1:]:
 		if getCommonPrefix( f ) == '':
