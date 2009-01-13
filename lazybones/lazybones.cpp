@@ -96,13 +96,23 @@ int main() {
 
 	int input;
 
+	// choose distribution
+	// choose section
+	// choose mirror
 	cout << "Which distributions and respostries do you want?\n"
 		"first: experimental\tsecond: unstable\tthird: testing\tforth: stable\n"
 		"0: none\t1: main\t2: contrib\t4: non-free" << endl;
 	cin >> input;
 
+	// change respository
 	setSourcesList( input );
-	
+
+	// change grub list
+	system( "./grub.sh" );
+
+	// remove packages that not needed
+	system( "./purge.sh" );
+
 	system( "aptitude update && aptitude dist-upgrade -yR" );
 	return 0;
 }
