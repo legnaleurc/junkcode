@@ -31,10 +31,10 @@ def main( args = None ):
 	layout.addLayout( barLayout )
 
 	url = QLineEdit( window )
-	barLayout.addWidget( url, 0, 0, 1, 8 )
+	barLayout.addWidget( url, 0, 0, 1, 4 )
 
 	select = QComboBox( window )
-	barLayout.addWidget( select, 0, 9, 1, 2 )
+	barLayout.addWidget( select, 0, 5, 1, 1 )
 	readEngines( select, os.path.join( os.path.dirname( os.path.realpath( args[0] ) ), 'engines.csv' ) )
 
 	web = QWebView( window )
