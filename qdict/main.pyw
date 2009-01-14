@@ -53,11 +53,6 @@ def main( args = None ):
 	QObject.connect( web, SIGNAL( 'loadStarted()' ), progress, SLOT( 'show()' ) )
 	QObject.connect( web, SIGNAL( 'loadProgress( int )' ), progress, SLOT( 'setValue( int )' ) )
 	QObject.connect( web, SIGNAL( 'loadFinished( bool )' ), lambda ok: ok and progress.hide() )
-	#QObject.connect( web, SIGNAL( 'statusBarMessage( const QString & )' ), status, SLOT( 'showMessage( const QString & )' ) )
-
-	#def helper( s ):
-		#print s
-	#QObject.connect( web, SIGNAL( 'statusBarMessage( const QString & )' ), helper )
 
 	return app.exec_()
 
