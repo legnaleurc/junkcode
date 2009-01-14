@@ -4,10 +4,10 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
-import sys, csv
+import sys, csv, os
 
-def readEngines( combo ):
-	fin = csv.reader( open( "engines.csv" ) )
+def readEngines( combo, csvPath ):
+	fin = csv.reader( open( csvPath ) )
 	for line in fin:
 		combo.addItem( line[0], QVariant( line[1] ) )
 
@@ -35,7 +35,7 @@ def main( args = None ):
 
 	select = QComboBox( window )
 	barLayout.addWidget( select, 0, 9, 1, 2 )
-	readEngines( select )
+	readEngines( select, os.path.join( os.path.dirname( os.path.realpath( args[0] ) ), 'engines.csv' ) )
 
 	web = QWebView( window )
 	layout.addWidget( web )
