@@ -1,11 +1,16 @@
-dist-git:
-	用來把git的檔案庫發佈成tbz2的壓縮檔
-	dist-git --help
-	可以看到使用方式
-opcmx:
-	讓PCManX在用Opera開網頁時可以自動開新分頁
-	只要把這個script放到PATH找得到的地方，或是直接指定絕對路徑，在開網頁的命令填上
-	opcmx %s
-	即可
+shell:
+	dist-git:
+		用來把git的檔案庫發佈成tbz2的壓縮檔
+		dist-git --help
+		可以看到使用方式
+	opcmx:
+		讓PCManX在用Opera開網頁時可以自動開新分頁
+		只要把這個script放到PATH找得到的地方，或是直接指定絕對路徑，在開網頁的命令填上
+		opcmx %s
+		即可
+	d2d:
+		解壓縮檔案到資料夾
 launcher:
 	針對PortableApps.com的檔案啟動器
+qdict:
+	簡單的字典程式
