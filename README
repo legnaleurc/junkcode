@@ -10,6 +10,8 @@ shell:
 		即可
 	d2d:
 		解壓縮檔案到資料夾
+	tcc:
+		轉換文字編碼工具
 launcher:
 	針對PortableApps.com的檔案啟動器
 qdict:
