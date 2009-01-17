@@ -23,7 +23,7 @@ def getCommonPrefix( filePath ):
 	fileList = re.findall( filePattern, p )
 	result = os.path.commonprefix( fileList )
 
-	return result if result == fileList[-1] else ''
+	return result if all( map( lambda x: re.match( result + r'/.*', x ) != None, fileList[:-1] ) ) else ''
 
 def getFileName( fileName ):
 	return re.match( r'([^\.]*)(\..*)*', os.path.basename( fileName ) ).group( 1 )
