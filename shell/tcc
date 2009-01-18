@@ -12,30 +12,45 @@ perform() {
 	fi
 }
 
+usage() {
+	echo "Usage: `basename $0` -i <codec> [-p] files..."
+	echo '\t-i codec:'
+	echo '\t\tAssign input file codec.'
+	echo '\t-p:'
+	echo '\t\tPreview the result.'
+}
+
 action=perform
 
-TMP=`getopt -o i:p -- "$@"`
+TMP=`getopt -o i:p -- "$@" 2>/dev/null`
+if [ $? -ne 0 ] ; then
+	echo >& 2 'Option error'
+	usage
+	exit 1
+fi
 eval set -- "$TMP"
-while true ; do
+while [ $1 != '--' ] ; do
 	case "$1" in
 	-i)
 		from=$2
-		shift 2
+		shift
 		;;
 	-p)
 		action=preview
-		shift
-		;;
-	--)
-		shift
-		break
 		;;
 	*)
 		echo >&2 'unknown switch:' $1
 		exit 1
 		;;
 	esac
+	shift
 done
+shift
+
+if [ $# -lt 1 ] ; then
+	echo >&2 'need input file(s)'
+	exit 1
+fi
 
 if [ -z $from ] ; then
 	echo >&2 'what is the input codec?'
