@@ -6,14 +6,20 @@ from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
 import sys, csv, os
 
-def readEngines( combo, csvPath ):
+def loadEngines( combo, csvPath ):
 	fin = csv.reader( open( csvPath ) )
 	for line in fin:
 		combo.addItem( line[0], QVariant( line[1] ) )
 
+def reloadEngines( combo, csvPath ):
+	combo.clear()
+	loadEngines( combo, csvPath )
+
 def main( args = None ):
 	if args is None:
 		args = sys.argv
+
+	ENG_PATH = os.path.join( os.path.dirname( os.path.realpath( args[0] ) ), 'engines.csv' )
 
 	app = QApplication( args )
 
@@ -31,11 +37,14 @@ def main( args = None ):
 	layout.addLayout( barLayout )
 
 	url = QLineEdit( window )
-	barLayout.addWidget( url, 0, 0, 1, 4 )
+	barLayout.addWidget( url, 0, 0, 1, 7 )
 
 	select = QComboBox( window )
-	barLayout.addWidget( select, 0, 5, 1, 1 )
-	readEngines( select, os.path.join( os.path.dirname( os.path.realpath( args[0] ) ), 'engines.csv' ) )
+	barLayout.addWidget( select, 0, 7, 1, 2 )
+	loadEngines( select, ENG_PATH )
+	reload = QPushButton( 'Reload', window )
+	barLayout.addWidget( reload, 0, 9, 1, 1 )
+	QObject.connect( reload, SIGNAL( 'clicked()' ), lambda: reloadEngines( select, ENG_PATH ) )
 
 	web = QWebView( window )
 	layout.addWidget( web )
