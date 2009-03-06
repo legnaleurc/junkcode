@@ -23,8 +23,10 @@ def main( args ):
 	close.setDisabled( True )
 	QObject.connect( close, SIGNAL( 'clicked()' ), app, SLOT( 'quit()' ) )
 
-	for line in sys.stdin:
+	line = sys.stdin.readline()
+	while line:
 		textarea.append( line )
+		line = sys.stdin.readline()
 
 	close.setEnabled( True )
 
