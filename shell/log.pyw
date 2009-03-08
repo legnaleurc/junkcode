@@ -5,23 +5,26 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys
 
-def main( args ):
+def main( args = None ):
 	if args == None:
 		args = sys.argv
 
 	app = QApplication( args )
 
 	widget = QWidget()
-	mainBox = QHBoxLayout( widget )
-	widget.setLayout( widget )
+	mainBox = QVBoxLayout( widget )
+	widget.setLayout( mainBox )
 
 	textarea = QTextEdit( widget )
 	mainBox.addWidget( textarea )
+	textarea.setReadOnly( True )
 
 	close = QPushButton( 'Close', widget )
 	mainBox.addWidget( close )
 	close.setDisabled( True )
 	QObject.connect( close, SIGNAL( 'clicked()' ), app, SLOT( 'quit()' ) )
+
+	widget.show()
 
 	line = sys.stdin.readline()
 	while line:
