@@ -25,9 +25,13 @@ class MsgDlg( QWidget ):
 		textArea = QTextEdit( self )
 		layout.addWidget( textArea )
 		textArea.setReadOnly( True )
+		textArea.setFontFamily( 'monospace' )
+		def helper( line ):
+			textArea.insertPlainText( line )
+			textArea.ensureCursorVisible()
 
 		self.__monitor = Monitor( self )
-		QObject.connect( self.__monitor, SIGNAL( 'readed( const QString & )' ), textArea, SLOT( 'append( const QString & )' ) )
+		QObject.connect( self.__monitor, SIGNAL( 'readed( const QString & )' ), helper )
 
 		close = QPushButton( 'Close', self )
 		layout.addWidget( close )
