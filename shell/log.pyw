@@ -22,25 +22,35 @@ class MsgDlg( QWidget ):
 		layout = QVBoxLayout( self )
 		self.setLayout( layout )
 
-		textArea = QTextEdit( self )
-		layout.addWidget( textArea )
-		textArea.setReadOnly( True )
-		textArea.setFontFamily( 'monospace' )
+		self.__textArea = QTextEdit( self )
+		layout.addWidget( self.__textArea )
+		self.__textArea.setReadOnly( True )
+		self.__textArea.setFontFamily( 'monospace' )
 		def helper( line ):
-			textArea.insertPlainText( line )
-			textArea.ensureCursorVisible()
+			self.__textArea.insertPlainText( line )
+			self.__textArea.ensureCursorVisible()
 
 		self.__monitor = Monitor( self )
 		QObject.connect( self.__monitor, SIGNAL( 'readed( const QString & )' ), helper )
 
-		close = QPushButton( 'Close', self )
-		layout.addWidget( close )
-		close.setDisabled( True )
-		QObject.connect( close, SIGNAL( 'clicked()' ), qApp, SLOT( 'quit()' ) )
-		QObject.connect( self.__monitor, SIGNAL( 'finished()' ), lambda: close.setEnabled( True ) )
+		buttons = QDialogButtonBox( QDialogButtonBox.Save | QDialogButtonBox.Close, Qt.Horizontal, self )
+		layout.addWidget( buttons )
+		buttons.setDisabled( True )
+		QObject.connect( self.__monitor, SIGNAL( 'finished()' ), lambda: buttons.setEnabled( True ) )
+		QObject.connect( buttons.button( QDialogButtonBox.Close ), SIGNAL( 'clicked()' ), self, SLOT( 'close()' ) )
+		QObject.connect( buttons.button( QDialogButtonBox.Save ), SIGNAL( 'clicked()' ), self.save )
 
 	def monitor( self ):
 		self.__monitor.start()
+
+	def save( self ):
+		filePath = QFileDialog.getSaveFileName( self, 'Save log file', QDir.homePath() )
+		if filePath:
+			fout = QFile( filePath )
+			if not fout.open( QIODevice.WriteOnly | QIODevice.Text ):
+				return
+			fout.write( self.__textArea.toPlainText().toUtf8() )
+			fout.close()
 
 def main( args = None ):
 	if args == None:
