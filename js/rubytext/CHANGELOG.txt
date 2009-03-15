@@ -1,0 +1,9 @@
+2.5.0:
+	interface:
+		Add Hiragana to Romaji converting.
+		XHTML 1.1 complete.
+
+2.4.2:
+	new feature:
+		String.removeBase( String ):
+			Remove ruby base and remain ruby text only.

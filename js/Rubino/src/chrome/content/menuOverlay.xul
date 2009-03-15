@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<overlay id="RubinoOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/javascript" src="chrome://rubino/content/interface.js"></script>
+
+<menupopup id="menu_ToolsPopup">
+	<menuitem insertafter="devToolsSeparator" label="Rubino"
+	accesskey="R" oncommand="shell.launcher();" />	
+</menupopup>
+
+</overlay>
+

@@ -1,0 +1,7 @@
+<!ENTITY Rubino.window.title     "Rubino">
+<!ENTITY Rubino.textarea.title   "注音文字">
+<!ENTITY Rubino.control.title    "控制台">
+<!ENTITY Rubino.control.execute  "執行">
+<!ENTITY Rubino.control.copy     "複製到剪貼簿">
+<!ENTITY Rubino.control.flush    "清空結果">
+<!ENTITY Rubino.result.title     "預覽">

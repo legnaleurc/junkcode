@@ -1,0 +1,23 @@
+.:
+	manifest.txt
+		File list.
+	src
+		Directory of source codes.
+	test
+		Testing case.
+
+./src:
+	rubytext.css
+		Rubytext notation implement in CSS.
+	rubytext.js
+		RubyText source code.
+
+./test:
+	index.html
+		Testing case main page.
+	rubyadd.css
+		CSS file of index.html.
+	rubyadd.js
+		RubyText wrapper to index.html.
+	sample.txt
+		A text file for test rubytext marking.

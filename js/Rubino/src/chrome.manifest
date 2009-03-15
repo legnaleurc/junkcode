@@ -1,0 +1,8 @@
+content	rubino	chrome/content/
+
+skin	rubino	classic	chrome/skin/
+
+overlay	chrome://browser/content/browser.xul chrome://rubino/content/menuOverlay.xul
+
+locale	rubino	en-US	chrome/locale/en-US/
+locale	rubino	zh-TW	chrome/locale/zh-TW/

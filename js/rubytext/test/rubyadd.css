@@ -1,0 +1,52 @@
+/* Font and the border settings */
+body {
+	font-family: Arial, Helvetica, sans-serif;
+}
+/* Title */
+h1 {
+	text-align: left;
+	float: right;
+	border-bottom: 1px solid #CCC;
+	padding: 0 5px 0 20px;
+}
+/* option boxes */
+ol {
+	padding: 0;
+	float: left;
+	width: 36em;
+	clear: right;
+}
+
+ol li {
+	list-style-type: none;
+	display: block;
+	float: left;
+	margin: 0;
+	width: 12em;
+}
+
+ol li h4 {
+	margin: 0;
+	border-bottom: 1px solid #CCC;
+}
+
+ol li input {
+	display: block;
+}
+/* stdin and stdout boxes */
+.stdio {
+	margin: 0;
+	border: 1px solid #999;
+	width: 46%;
+	margin: 1%;
+}
+
+#stdin {
+	clear: left;
+	float: left;
+}
+
+#stdout {
+	float: right;
+	overflow: auto;
+}

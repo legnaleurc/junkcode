@@ -1,0 +1,7 @@
+<!ENTITY Rubino.window.title     "Rubino">
+<!ENTITY Rubino.textarea.title   "Ruby Text Area">
+<!ENTITY Rubino.control.title    "Control Panel">
+<!ENTITY Rubino.control.execute  "Execute">
+<!ENTITY Rubino.control.copy     "Copy to Clipboard">
+<!ENTITY Rubino.control.flush    "Flush the box">
+<!ENTITY Rubino.result.title     "Preview">

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE overlay SYSTEM "chrome://rubino/locale/rubino.dtd">
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://rubino/skin/interface.css" type="text/css"?>
+<window
+       id="interface_window"
+       onload="shell.onLoad();"
+       title="&Rubino.window.title;"
+       persist="screenX screenY width height persist-list-selectedIndex"
+       minwidth="450"
+       minheight="660"
+       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	
+	<script type="application/javascript" src="chrome://rubino/content/rubytext.js"></script>
+	<script type="application/javascript" src="chrome://rubino/content/interface.js"></script>
+	
+	<groupbox id="istream" orient="horizontal" align="center" flex="1">
+		<caption label="&Rubino.textarea.title;" />
+		<textbox id="stdin" multiline="true" flex="1" minheight="200" />
+	</groupbox>
+	<groupbox orient="horizontal" id="control-panel">
+		<caption label="&Rubino.control.title;" />
+		<button id="exe" label="&Rubino.control.execute;" flex="1" />
+		<button id="copy" label="&Rubino.control.copy;" flex="1" />
+		<button id="cls" label="&Rubino.control.flush;" flex="1" />
+	</groupbox>
+	<groupbox orient="horizontal" align="center" flex="1">
+		<caption label="&Rubino.result.title;" />
+		<tabbox id="ostream" flex="1">
+			<tabs flex="1">
+				<tab flex="1" label="ruby" />
+				<tab flex="1" label="corundum" />
+				<tab flex="1" label="pure" />
+			</tabs>
+			<tabpanels minheight="300" flex="1">
+				<iframe id="out1" src="chrome://rubino/content/ruby.html" flex="1" />
+				<iframe id="out2" src="chrome://rubino/content/corundum.html" flex="1" />
+				<iframe id="out3" src="chrome://rubino/content/pure.html" flex="1" />
+			</tabpanels>
+		</tabbox>
+	</groupbox>
+</window>

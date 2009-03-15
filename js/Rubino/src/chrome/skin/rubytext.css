@@ -1,0 +1,38 @@
+﻿ruby {
+	display: inline-table;
+}
+
+ruby * {
+	display: inline;
+	line-height: 50%; /**/
+	margin: 0px;
+	padding: 0px;
+	/*position: static;*/
+	text-indent: 0px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+ruby > * {
+	display: table-row-group;
+	/*line-height: 100%;*/
+}
+
+ruby > rt, ruby rtc {
+	display: table-header-group;
+	font-size: 75%; /* Tweaked */
+	line-height: 175%; /* Tweaked */
+	font-family: "MS UI Gothic", sans-serif; /* Added */
+}
+
+ruby rtc + rtc {
+	display: table-footer-group;
+}
+
+ruby rbc > *, ruby rtc > * {
+	display: table-cell;
+}
+
+ruby rp {
+	display: none;
+}

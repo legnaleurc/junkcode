@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Rubytext testing page</title>
+		<link rel="stylesheet" href="rubyadd.css" type="text/css" />
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+		<script type="text/javascript" src="../src/rubytext.js"></script>
+		<script type="text/javascript">//<![CDATA[
+			RubyText.loadCSS( '../src/rubytext.css' );
+		//]]></script>
+		<script type="text/javascript" src="rubyadd.js"></script>
+	</head>
+	<body>
+		<div>
+			<h1>
+				<a id="testcase" href="sample.txt" rel="external">Library Version: </a>
+			</h1>
+			<a href="http://validator.w3.org/check?uri=referer" rel="external">
+				<img src="http://www.w3.org/Icons/valid-xhtml11-blue" alt="Valid HTML 4.01 Strict" height="31" width="88" />
+			</a>
+			<br />
+			<a href="http://jigsaw.w3.org/css-validator/check/referer" rel="external">
+				<img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss-blue" alt="Valid CSS!" />
+			</a>
+		</div>
+		<div>
+			<ol id="options">
+				<li>
+					<h4>First:</h4>
+					<input id="generate" type="button" value="Generate &lt;ruby&gt;" />
+					<input id="deltag" type="button" value="Delete &lt;ruby&gt;" />
+				</li>
+				<li>
+					<h4>Second:</h4>
+					<input id="ppre" type="button" value="Preview with &lt;pre&gt;" />
+					<input id="wpre" type="button" value="Preview without &lt;pre&gt;" />
+					<input id="clean" type="button" value="Clear display block" />
+				</li>
+				<li>
+					<h4>Extra:</h4>
+					<input id="deltext" type="button" value="Delete Ruby Text" />
+					<input id="delbase" type="button" value="Delete Ruby Base" />
+					<input id="test" type="button" value="TEST" />
+				</li>
+			</ol>
+			<div>
+				<textarea class="stdio" id="stdin" rows="0" cols="0"></textarea>
+				<div class="stdio" id="stdout" />
+			</div>
+		</div>
+	</body>
+</html>
