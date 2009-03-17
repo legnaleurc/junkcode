@@ -33,10 +33,10 @@ $( function() {
 
 	reserveWindow();
 
-	$( '#testcase' ).text( $( '#testcase' ).text() + RubyText.Version );
+	$( '#testcase' ).text( $( '#testcase' ).text() + Rubytext.version );
 
 	$( '#generate' ).click( function( e ) {
-		var temp = cin.val().createTag( 'ja.Hiragana' );
+		var temp = new Rubytext( cin.val() ).createTag( 'ja.Hiragana' );
 		if( temp )
 			cin.val( temp );
 		else
@@ -44,7 +44,7 @@ $( function() {
 	} );
 
 	$( '#deltag' ).click( function( e ) {
-		var temp = cin.val().removeTag();
+		var temp = new Rubytext( cin.val() ).removeTag();
 		if( temp )
 			cin.val( temp );
 		else
@@ -52,7 +52,7 @@ $( function() {
 	} );
 
 	$( '#deltext' ).click( function( e ) {
-		var temp = cin.val().removeTag().clearText( 'ja.Hiragana' );
+		var temp = new Rubytext( cin.val() ).removeTag().clearText( 'ja.Hiragana' );
 		if( temp )
 			cout.html( '<pre>' + temp + '</pre>' );
 		else
@@ -60,7 +60,7 @@ $( function() {
 	} );
 
 	$( '#delbase' ).click( function( e ) {
-		var temp = cin.val().removeTag().clearBase( 'ja.Hiragana' );
+		var temp = new Rubytext( cin.val() ).removeTag().clearBase( 'ja.Hiragana' );
 		if( temp ) {
 			cout.html( '<pre>' + temp + '</pre>' );
 		} else {
@@ -69,7 +69,7 @@ $( function() {
 	} );
 
 	$( '#test' ).click( function( e ) {
-		var temp = cin.val().removeTag().clearBase( 'ja.Hiragana' ).rubyTransform();
+		var temp = new Rubytext( cin.val() ).removeTag().clearBase( 'ja.Hiragana' ).rubyTransform();
 		if( temp ) {
 			cout.html( '<pre>' + temp + '</pre>' );
 		} else {
