@@ -14,7 +14,7 @@ function Rubytext( string ) {
 	};
 
 	this.createTag = function( filter ) {
-		self = self.replace( eval( 'Rubytext.Filter.' + filter ), '<ruby><rb>$1</rb><rp>$2</rp><rt>$3</rt><rp>$4</rp></ruby>' );
+		self = self.replace( filter, '<ruby><rb>$1</rb><rp>$2</rp><rt>$3</rt><rp>$4</rp></ruby>' );
 		return this;
 	};
 
@@ -24,12 +24,12 @@ function Rubytext( string ) {
 	};
 
 	this.clearText = function( filter ) {
-		self = self.replace( eval( 'Rubytext.Filter.' + filter ), '$1' );
+		self = self.replace( filter, '$1' );
 		return this;
 	};
 
 	this.clearBase = function( filter ) {
-		self = self.replace( eval( 'Rubytext.Filter.' + filter ), '$3' );
+		self = self.replace( filter, '$3' );
 		return this;
 	};
 
