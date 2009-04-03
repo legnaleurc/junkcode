@@ -46,7 +46,7 @@ class MsgDlg( QWidget ):
 	def __init__( self, cmd, parent = None ):
 		QWidget.__init__( self, parent )
 
-		self.setWindowTitle( 'Clog' )
+		self.setWindowTitle( u'Clog -- ' + unicode( cmd, 'utf-8' ) )
 		#FIXME: should be this:
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
 		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
