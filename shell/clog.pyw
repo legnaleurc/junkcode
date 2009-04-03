@@ -3,7 +3,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import sys, os
+import sys, os, locale
 
 class Listener( QThread ):
 	def __init__( self, stream, parent = None ):
@@ -13,7 +13,7 @@ class Listener( QThread ):
 	def run( self ):
 		line = self.__stream.readline()
 		while line:
-			self.emit( SIGNAL( 'readed( const QString & )' ), line )
+			self.emit( SIGNAL( 'readed( const QString & )' ), unicode( line, locale.getpreferredencoding() ) )
 			line = self.__stream.readline()
 
 class MsgArea( QTextEdit ):
@@ -46,7 +46,7 @@ class MsgDlg( QWidget ):
 	def __init__( self, cmd, parent = None ):
 		QWidget.__init__( self, parent )
 
-		self.setWindowTitle( u'Clog -- ' + unicode( cmd, 'utf-8' ) )
+		self.setWindowTitle( u'Clog -- ' + unicode( cmd, locale.getpreferredencoding() ) )
 		#FIXME: should be this:
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
 		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
