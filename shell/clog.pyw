@@ -47,6 +47,9 @@ class MsgDlg( QWidget ):
 		QWidget.__init__( self, parent )
 
 		self.setWindowTitle( 'Clog' )
+		#FIXME: should be this:
+		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
+		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
 
 		pipes = os.popen3( cmd )
 
