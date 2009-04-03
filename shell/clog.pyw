@@ -46,10 +46,12 @@ class MsgDlg( QWidget ):
 	def __init__( self, cmd, parent = None ):
 		QWidget.__init__( self, parent )
 
-		self.setWindowTitle( u'Clog -- ' + unicode( cmd, locale.getpreferredencoding() ) )
 		#FIXME: should be this:
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
 		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
+
+		cmd = unicode( cmd, locale.getpreferredencoding() ) if cmd != '' else unicode( QInputDialog.getText( self, 'Enter command', 'Command:' )[0] )
+		self.setWindowTitle( u'Clog -- ' + cmd )
 
 		pipes = os.popen3( cmd )
 
