@@ -2,21 +2,18 @@ TARGET := Painter
 SRC_DIR := src
 SOURCES := $(shell find $(SRC_DIR) -name '*.java')
 CLS_DIR := classes
-CLASSES := $(subst $(SRC_DIR)/,,$(subst .java,.class,$(SOURCES)))
 
 JAVA := java
 JAVAC := javac
 JFLAGS := -sourcepath $(SRC_DIR) -d $(CLS_DIR)
 JAR := jar
 JARFLAGS := cmf
+
 MKDIR := mkdir -p
+RM := rm -rf
 
 .PHONY: all
-all: jar
-
-dryrun:
-	@echo $(SOURCES)
-	@echo $(CLASSES)
+all: test
 
 class: $(SOURCES)
 	@[ -d $(CLS_DIR) ] || $(MKDIR) $(CLS_DIR)
@@ -27,3 +24,10 @@ jar: class
 
 test: jar
 	$(JAVA) -jar $(TARGET).jar
+
+.PHONY: clean
+clean:
+	$(RM) $(CLS_DIR)
+
+distclean: clean
+	$(RM) $(TARGET).jar
