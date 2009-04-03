@@ -50,10 +50,11 @@ class MsgDlg( QWidget ):
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
 		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
 
-		cmd = unicode( cmd, locale.getpreferredencoding() ) if cmd != '' else unicode( QInputDialog.getText( self, 'Enter command', 'Command:' )[0] )
+		if cmd == '':
+			cmd = QInputDialog.getText( self, 'Enter command', 'Command:' )[0]
 		self.setWindowTitle( u'Clog -- ' + cmd )
 
-		pipes = os.popen3( cmd )
+		pipes = os.popen3( unicode( cmd ) )
 
 		layout = QVBoxLayout( self )
 		self.setLayout( layout )
@@ -83,7 +84,7 @@ def main( args = None ):
 
 	app = QApplication( args )
 
-	widget = MsgDlg( ' '.join( args[1:] ) )
+	widget = MsgDlg( QApplication.arguments()[1:].join( ' ' ) )
 	widget.show()
 
 	return app.exec_()
