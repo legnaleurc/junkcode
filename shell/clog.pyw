@@ -51,7 +51,9 @@ class MsgDlg( QWidget ):
 		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
 
 		if cmd == '':
-			cmd = QInputDialog.getText( self, 'Enter command', 'Command:' )[0]
+			cmd = QInputDialog.getText( self, 'Enter command', 'Command:' )[0].simplified()
+		elif cmd == '-':
+			cmd = QString( sys.stdin.read().decode( locale.getpreferredencoding() ) ).simplified()
 		self.setWindowTitle( u'Clog -- ' + cmd )
 
 		pipes = os.popen3( unicode( cmd ) )
