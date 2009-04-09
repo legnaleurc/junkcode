@@ -31,7 +31,7 @@ class MsgArea( QTextEdit ):
 
 	def write( self, line ):
 		self.insertPlainText( line )
-		self.ensureCursorVisible()
+		self.moveCursor( QTextCursor.End )
 
 	def save( self ):
 		filePath = QFileDialog.getSaveFileName( self, 'Save log file', QDir.homePath() )
