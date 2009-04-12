@@ -3,11 +3,12 @@ TARGET := demo
 all: $(TARGET)
 
 $(TARGET): main.o image.o bitmap.o
-	$(CXX) $^ -o $@
+	$(CXX) -O3 $^ -o $@
+	strip $@
 
 %.o: %.cpp
-	$(CXX) -g -o $@ -c $<
+	$(CXX) -O3 -o $@ -c $<
 
 .PHONY:
 clean:
-	rm *.o
+	rm *.o *~
