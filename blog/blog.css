@@ -24,6 +24,10 @@ sup {
 	margin: 2em 0;
 }
 
+.p0 * {
+	text-indent: 0;
+}
+
 .p1 {
 	text-indent: 2em;
 	margin: 1em 0;
@@ -50,7 +54,7 @@ pre.forte {
 	font-weight: bold;
 }
 
-.highlight {
+.highlight, .warning {
 	color: red;
 	font-weight: bold;
 }
