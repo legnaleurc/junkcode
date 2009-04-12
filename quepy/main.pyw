@@ -24,7 +24,7 @@ def main( args = None ):
 	app = QApplication( args )
 
 	window = QMainWindow()
-	window.setWindowTitle( 'QDict' )
+	window.setWindowTitle( 'QuePy' )
 	window.resize( 800, 600 )
 	window.show()
 
