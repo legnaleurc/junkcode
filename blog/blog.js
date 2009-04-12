@@ -64,7 +64,7 @@ var Blog = {
 		minColor: [ 0xCC, 0xCC, 0xFF ],
 		maxColor: [ 0x99, 0x99, 0xFF ],
 		showCount: false,
-		shuffle: true,
+		shuffle: false,
 
 		generate: function( tags ) {
 			function helper( a, b, i, x ) {
@@ -139,10 +139,10 @@ var Blog = {
 
 	},
 
-	highlighting: function() {
-		dp.SyntaxHighlighter.ClipboardSwf = 'http://www.cs.ccu.edu.tw/~pwc94u/lib/dp.SyntaxHighlighter/Scripts/clipboard.swf';
-		dp.SyntaxHighlighter.BloggerMode();
-		dp.SyntaxHighlighter.HighlightAll( 'code' );
+	highlighting: function( cbs ) {
+		SyntaxHighlighter.config.clipboardSwf = cbs;
+		SyntaxHighlighter.config.bloggerMode = true;
+		SyntaxHighlighter.all();
 	},
 
 	Media: {
