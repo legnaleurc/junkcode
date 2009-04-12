@@ -1,0 +1,70 @@
+;_eval
+(define _eval
+	(lambda (src)
+		(expression src)
+	)
+)
+;expression
+(define expression
+	(lambda (expr)
+		(cond
+			((number? expr) expr)
+			((eqv? (car expr) 'if) (condition (cdr expr)))
+			(else (operator expr))
+		)
+	)
+)
+;condition
+(define condition
+	(lambda (con)
+		(if (expression (car con))
+			(expression (cadr con))
+			(expression (caddr con))
+		)
+	)
+)
+;operator
+(define operator
+	(lambda (op)
+		(cond
+			((eqv? (car op) '+) (apply + (operands (cdr op))))
+			((eqv? (car op) '-) (apply - (operands (cdr op))))
+			((eqv? (car op) '*) (apply * (operands (cdr op))))
+			((eqv? (car op) '/) (apply / (operands (cdr op))))
+			((eqv? (car op) '=) (apply = (operands (cdr op))))
+			((eqv? (car op) '<) (apply < (operands (cdr op))))
+			((eqv? (car op) '>) (apply > (operands (cdr op))))
+			((eqv? (car op) '<=) (apply <= (operands (cdr op))))
+			((eqv? (car op) '>=) (apply >= (operands (cdr op))))
+		)
+	)
+)
+;operands
+(define operands
+	(lambda (oprs)
+		(if (null? oprs)
+			oprs
+			(cons (operand (car oprs)) (operands (cdr oprs)))
+		)
+	)
+)
+;operand
+(define operand
+	(lambda (opr)
+		(if (or (null? opr) (number? opr))
+			opr
+			(_eval opr)
+		)
+	)
+)
+
+(display (_eval '(+ 12 2 3)))
+(newline)
+(display (_eval '(+ 1 (* 2 3 4))))
+(newline)
+(display (_eval '(+ 3)))
+(newline)
+(display (_eval '(* 3)))
+(newline)
+(display (_eval '(if (< 3 2) 3 2)))
+(newline)

@@ -1,0 +1,30 @@
+;merge
+(define merge
+	(lambda (left right)
+		(cond
+			((null? left) right)
+			((null? right) left)
+			((> (car left) (car right)) (cons (car left) (merge (cdr left) right)))
+			(else (cons (car right) (merge left (cdr right))))
+		)
+	)
+)
+;consLast
+(define consLast
+	(lambda (last base)
+		(if (null? base) (cons last base)
+			(cons (car base) (consLast last (cdr base)))
+		)
+	)
+)
+;display tests
+(display "(merge '(83 62 34 19) '(79 67 54 28 21))")
+(newline)
+(display "; ")
+(display (merge '(83 62 34 19) '(79 67 54 28 21)))
+(newline)
+(display "(consLast 'd '(a b c))")
+(newline)
+(display "; ")
+(display (consLast 'd '(a b c)))
+(newline)
