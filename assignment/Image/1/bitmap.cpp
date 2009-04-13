@@ -72,6 +72,9 @@ void Bitmap::parseHeader( std::istream & in ) {
 
 	// ignore important color
 	tmp += 4;
+
+	// jump offset
+	in.seekg( this->offset_, std::ios::beg );
 }
 
 void Bitmap::writeHeader( std::ostream & out ) {
@@ -105,6 +108,12 @@ void Bitmap::writeHeader( std::ostream & out ) {
 	out.write( tmp, 4 );
 	fromInt32( tmp, 4, 0 );	// no important color
 	out.write( tmp, 4 );
+
+	// write color palette
+	for( int i = 0; i < 256; ++i ) {
+		fromInt32( tmp, 4, i << 16 | i << 8 | i );
+		out.write( tmp, 4 );
+	}
 }
 
 }
