@@ -10,8 +10,10 @@ class EngineBox( QComboBox ):
 	def __init__( self, enginePath, parent = None ):
 		QComboBox.__init__( self, parent )
 
-		appDir = QFileInfo( qApp.arguments()[0] ).absolutePath()
-		self.PATH = os.path.join( unicode( appDir ), enginePath )
+		fi = QFileInfo( qApp.arguments()[0] )
+		if fi.isSymLink():
+			fi = QFileInfo( fi.symLinkTarget() )
+		self.PATH = os.path.join( unicode( fi.absolutePath() ), enginePath )
 
 		self.load()
 
