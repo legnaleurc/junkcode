@@ -5,9 +5,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -47,7 +48,12 @@ public class MainWindow extends JFrame {
 		Container central = this.getContentPane();
 		
 		// components
-		JLabel prompt = new JLabel("IP:");
+		JRadioButton beServer = new JRadioButton("As server and listen to port");
+		JRadioButton beClient = new JRadioButton("As client and connect to");
+		this.selection_ = new ButtonGroup();
+		this.selection_.add(beServer);
+		this.selection_.add(beClient);
+		this.port_ = new JTextField();
 		this.uri_ = new JTextField();
 		this.outputArea_ = new JTextArea(24, 80);
 		this.outputArea_.setEditable(false);
@@ -55,11 +61,18 @@ public class MainWindow extends JFrame {
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		this.inputArea_ = new JTextField();
 		
+		// layout
 		central.setLayout(new BoxLayout(central, BoxLayout.Y_AXIS));
 		
 		JPanel tmp = new JPanel();
 		tmp.setLayout(new BoxLayout(tmp, BoxLayout.X_AXIS));
-		tmp.add(prompt);
+		tmp.add(beServer);
+		tmp.add(this.port_);
+		central.add(tmp);
+		
+		tmp = new JPanel();
+		tmp.setLayout(new BoxLayout(tmp, BoxLayout.X_AXIS));
+		tmp.add(beClient);
 		tmp.add(this.uri_);
 		central.add(tmp);
 		
@@ -92,7 +105,8 @@ public class MainWindow extends JFrame {
 		});
 	}
 	
-	private JTextField uri_, inputArea_;
+	private JTextField port_, uri_, inputArea_;
 	private JTextArea outputArea_;
+	private ButtonGroup selection_;
 
 }
