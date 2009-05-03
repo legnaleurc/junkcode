@@ -43,17 +43,23 @@ class MsgArea( QTextEdit ):
 			fout.close()
 
 class MsgDlg( QWidget ):
-	def __init__( self, cmd, parent = None ):
+	def __init__( self, args, parent = None ):
 		QWidget.__init__( self, parent )
 
 		#FIXME: should be this:
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
 		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
 
-		if cmd == '':
-			cmd = QInputDialog.getText( self, 'Enter command', 'Command:' )[0].simplified()
-		elif cmd == '-':
+		# handle arguments
+		if len( args ) == 0:
+			cmd, ok = QInputDialog.getText( self, 'Enter command', 'Command:' )
+			if not ok:
+				self.close()
+			cmd = cmd.simplified()
+		elif args[1] == '-':
 			cmd = QString( sys.stdin.read().decode( locale.getpreferredencoding() ) ).simplified()
+		else:
+			cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
 		self.setWindowTitle( u'Clog -- ' + cmd )
 
 		pipes = os.popen3( unicode( cmd ) )
@@ -86,7 +92,7 @@ def main( args = None ):
 
 	app = QApplication( args )
 
-	widget = MsgDlg( QApplication.arguments()[1:].join( ' ' ) )
+	widget = MsgDlg( QApplication.arguments()[1:] )
 	widget.show()
 
 	return app.exec_()
