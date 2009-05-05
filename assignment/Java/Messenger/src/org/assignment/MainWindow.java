@@ -5,10 +5,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -31,6 +29,8 @@ public class MainWindow extends JFrame {
 					System.err.println(e.getMessage());
 				}
 				
+				ModeDialog md = new ModeDialog();
+				
 				// create main window
 				MainWindow mw = new MainWindow("Messenger");
 				mw.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -48,13 +48,6 @@ public class MainWindow extends JFrame {
 		Container central = this.getContentPane();
 		
 		// components
-		JRadioButton beServer = new JRadioButton("As server and listen to port");
-		JRadioButton beClient = new JRadioButton("As client and connect to");
-		this.selection_ = new ButtonGroup();
-		this.selection_.add(beServer);
-		this.selection_.add(beClient);
-		this.port_ = new JTextField();
-		this.uri_ = new JTextField();
 		this.outputArea_ = new JTextArea(24, 80);
 		this.outputArea_.setEditable(false);
 		JScrollPane scroll = new JScrollPane(this.outputArea_);
@@ -64,17 +57,7 @@ public class MainWindow extends JFrame {
 		// layout
 		central.setLayout(new BoxLayout(central, BoxLayout.Y_AXIS));
 		
-		JPanel tmp = new JPanel();
-		tmp.setLayout(new BoxLayout(tmp, BoxLayout.X_AXIS));
-		tmp.add(beServer);
-		tmp.add(this.port_);
-		central.add(tmp);
-		
-		tmp = new JPanel();
-		tmp.setLayout(new BoxLayout(tmp, BoxLayout.X_AXIS));
-		tmp.add(beClient);
-		tmp.add(this.uri_);
-		central.add(tmp);
+		JPanel tmp;
 		
 		tmp = new JPanel();
 		tmp.setLayout(new BoxLayout(tmp, BoxLayout.X_AXIS));
@@ -105,8 +88,7 @@ public class MainWindow extends JFrame {
 		});
 	}
 	
-	private JTextField port_, uri_, inputArea_;
+	private JTextField inputArea_;
 	private JTextArea outputArea_;
-	private ButtonGroup selection_;
 
 }
