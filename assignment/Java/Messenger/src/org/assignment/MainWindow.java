@@ -3,6 +3,12 @@ package org.assignment;
 import java.awt.Container;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -28,14 +34,37 @@ public class MainWindow extends JFrame {
 				} catch( Exception e ) {
 					System.err.println(e.getMessage());
 				}
-				
-				ModeDialog md = new ModeDialog();
+
+				URI uri = ModeDialog.getSelection();
+				if( uri == null ) {
+					return;
+				}
 				
 				// create main window
 				MainWindow mw = new MainWindow("Messenger");
 				mw.setDefaultCloseOperation(EXIT_ON_CLOSE);
 				mw.setSize(640, 480);
 				mw.setVisible(true);
+				
+				if( uri.host == null ) {
+					try {
+						mw.listen( uri.port );
+						mw.connect(new URI( "localhost", uri.port ));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					try {
+						mw.connect(uri);
+					} catch (UnknownHostException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 	}
@@ -74,8 +103,52 @@ public class MainWindow extends JFrame {
 	}
 	
 	public void sendMessage() {
-		this.outputArea_.append(this.inputArea_.getText()+"\n");
+		PrintWriter sout = null;
+		try {
+			sout = new PrintWriter( this.client_.getOutputStream() );
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sout.println(this.inputArea_.getText()+"\n");
 		this.inputArea_.setText("");
+	}
+	
+	public void appendMessage( String msg ) {
+		this.outputArea_.append(msg);
+		for( Socket client : this.clients_ ) {
+			synchronized(client) {
+				try {
+					PrintWriter sout = new PrintWriter( client.getOutputStream() );
+					sout.println(msg);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public void listen( int port ) throws IOException {
+		if(this.server_ != null) {
+			this.server_.close();
+		}
+		this.server_ = new ServerSocket( port );
+		
+		while(true) {
+			Socket client = this.server_.accept();
+			this.clients_.add(client);
+			
+			ClientReader person = new ClientReader(client, this);
+			person.start();
+		}
+	}
+	
+	public void connect(URI uri) throws UnknownHostException, IOException {
+		if(this.client_ != null) {
+			this.client_.close();
+		}
+		this.client_ = new Socket(uri.host, uri.port);
 	}
 	
 	private void setupAction_() {
@@ -90,5 +163,8 @@ public class MainWindow extends JFrame {
 	
 	private JTextField inputArea_;
 	private JTextArea outputArea_;
+	private ServerSocket server_;
+	private Vector<Socket> clients_;
+	private Socket client_;
 
 }
