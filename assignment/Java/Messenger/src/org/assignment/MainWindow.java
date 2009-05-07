@@ -5,11 +5,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Vector;
-
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -116,7 +113,7 @@ public class MainWindow extends JFrame {
 	
 	public void appendMessage( String msg ) {
 		this.outputArea_.append(msg);
-		for( Socket client : this.clients_ ) {
+		for( Socket client : this.listener_.getClients() ) {
 			synchronized(client) {
 				try {
 					PrintWriter sout = new PrintWriter( client.getOutputStream() );
@@ -130,18 +127,8 @@ public class MainWindow extends JFrame {
 	}
 	
 	public void listen( int port ) throws IOException {
-		if(this.server_ != null) {
-			this.server_.close();
-		}
-		this.server_ = new ServerSocket( port );
-		
-		while(true) {
-			Socket client = this.server_.accept();
-			this.clients_.add(client);
-			
-			ClientReader person = new ClientReader(client, this);
-			person.start();
-		}
+		this.listener_ = new Listener( port, this );
+		this.listener_.start();
 	}
 	
 	public void connect(URI uri) throws UnknownHostException, IOException {
@@ -163,8 +150,7 @@ public class MainWindow extends JFrame {
 	
 	private JTextField inputArea_;
 	private JTextArea outputArea_;
-	private ServerSocket server_;
-	private Vector<Socket> clients_;
+	private Listener listener_;
 	private Socket client_;
 
 }
