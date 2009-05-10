@@ -3,10 +3,6 @@ package org.assignment;
 import java.awt.Container;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -44,23 +40,10 @@ public class MainWindow extends JFrame {
 				mw.setVisible(true);
 				
 				if( uri.host == null ) {
-					try {
-						mw.listen( uri.port );
-						mw.connect(new URI( "localhost", uri.port ));
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					mw.listen( uri.port );
+					mw.connect(new URI( "localhost", uri.port ));
 				} else {
-					try {
-						mw.connect(uri);
-					} catch (UnknownHostException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					mw.connect(uri);
 				}
 			}
 		});
@@ -78,6 +61,7 @@ public class MainWindow extends JFrame {
 		this.outputArea_.setEditable(false);
 		JScrollPane scroll = new JScrollPane(this.outputArea_);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scroll.setAutoscrolls(true);
 		this.inputArea_ = new JTextField();
 		
 		// layout
@@ -100,42 +84,26 @@ public class MainWindow extends JFrame {
 	}
 	
 	public void sendMessage() {
-		PrintWriter sout = null;
-		try {
-			sout = new PrintWriter( this.client_.getOutputStream() );
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		synchronized(this.client_) {
+			this.client_.send(this.inputArea_.getText());
 		}
-		sout.println(this.inputArea_.getText()+"\n");
+		System.err.println("sended: " + this.inputArea_.getText());
 		this.inputArea_.setText("");
 	}
 	
 	public void appendMessage( String msg ) {
 		this.outputArea_.append(msg);
-		for( Socket client : this.listener_.getClients() ) {
-			synchronized(client) {
-				try {
-					PrintWriter sout = new PrintWriter( client.getOutputStream() );
-					sout.println(msg);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 	
-	public void listen( int port ) throws IOException {
-		this.listener_ = new Listener( port, this );
-		this.listener_.start();
+	public void listen( int port ) {
+		this.server_ = new Server( port );
+		this.server_.listen();
 	}
 	
-	public void connect(URI uri) throws UnknownHostException, IOException {
-		if(this.client_ != null) {
-			this.client_.close();
-		}
-		this.client_ = new Socket(uri.host, uri.port);
+	public void connect(URI uri) {
+		this.client_ = new Client(uri.host, uri.port);
+		Receiver r = new Receiver(this.client_, this);
+		r.start();
 	}
 	
 	private void setupAction_() {
@@ -150,7 +118,28 @@ public class MainWindow extends JFrame {
 	
 	private JTextField inputArea_;
 	private JTextArea outputArea_;
-	private Listener listener_;
-	private Socket client_;
+	private Server server_;
+	private Client client_;
+	
+	private class Receiver extends Thread {
+		
+		private Client client_;
+		private MainWindow parent_;
+
+		public Receiver( Client client, MainWindow parent ) {
+			this.client_ = client;
+			this.parent_ = parent;
+		}
+		
+		public void run() {
+			String line;
+			while( ( line = this.client_.receive() ) != null ) {
+				synchronized( this.parent_ ) {
+					this.parent_.appendMessage(line);
+				}
+			}
+		}
+		
+	}
 
 }
