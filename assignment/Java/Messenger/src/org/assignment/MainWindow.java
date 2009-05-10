@@ -59,9 +59,6 @@ public class MainWindow extends JFrame {
 		});
 	}
 	
-	/**
-	 * @param title Window title
-	 */
 	public MainWindow( String title ) {
 		super(title);
 		Container central = this.getContentPane();
@@ -72,6 +69,7 @@ public class MainWindow extends JFrame {
 		JScrollPane scroll = new JScrollPane(this.outputArea_);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scroll.setAutoscrolls(true);
+		this.outputArea_.setAutoscrolls(true);
 		this.inputArea_ = new JTextField();
 		
 		// layout
