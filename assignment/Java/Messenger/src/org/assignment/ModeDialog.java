@@ -32,6 +32,7 @@ public class ModeDialog extends JDialog {
 		
 		JRadioButton serverMode = new JRadioButton("Server listening port:");
 		serverMode.setActionCommand("server");
+		serverMode.setSelected(true);
 		JRadioButton clientMode = new JRadioButton("Client connect to:");
 		clientMode.setActionCommand("client");
 		
@@ -40,8 +41,10 @@ public class ModeDialog extends JDialog {
 		this.choise_.add(clientMode);
 		
 		this.serverPort_ = new JTextField();
-		this.clientHost_ = new JTextField();
+		this.clientHost_ = new JTextField( "localhost" );
+		this.clientHost_.setColumns(32);
 		this.clientPort_ = new JTextField();
+		this.clientPort_.setColumns(8);
 		
 		JButton ok = new JButton("Ok");
 		ok.addActionListener(new ActionListener() {
@@ -82,6 +85,8 @@ public class ModeDialog extends JDialog {
 		tmp.add(ok);
 		tmp.add(cancel);
 		this.add(tmp);
+		
+		this.pack();
 	}
 	
 	public URI getURI() {

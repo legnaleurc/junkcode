@@ -16,13 +16,8 @@ public class Server {
 	private Hashtable<Socket, PrintWriter> clients_;
 	private Listener listener_;
 
-	public Server( int port ) {
-		try {
-			this.server_ = new ServerSocket( port );
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		}
+	public Server( int port ) throws IOException {
+		this.server_ = new ServerSocket( port );
 		this.clients_ = new Hashtable< Socket, PrintWriter >();
 		this.listener_ = new Listener(this.server_, this.clients_);
 	}

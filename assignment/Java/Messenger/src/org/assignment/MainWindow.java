@@ -4,7 +4,6 @@ import java.awt.Container;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.net.SocketException;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -39,14 +38,22 @@ public class MainWindow extends JFrame {
 				// create main window
 				MainWindow mw = new MainWindow("Messenger");
 				mw.setDefaultCloseOperation(EXIT_ON_CLOSE);
-				mw.setSize(640, 480);
 				mw.setVisible(true);
 				
 				if( uri.host == null ) {
-					mw.listen( uri.port );
-					mw.connect(new URI( "localhost", uri.port ));
-				} else {
+					try {
+						mw.listen( uri.port );
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(mw, "Can not open server.");
+						mw.setVisible(false);
+						return;
+					}
+					uri.host = "localhost";
+				}
+				try {
 					mw.connect(uri);
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(mw, "Can not connect to: " + uri.host + ":" + uri.port);
 				}
 			}
 		});
@@ -84,6 +91,7 @@ public class MainWindow extends JFrame {
 		central.add(tmp);
 		
 		this.setupAction_();
+		this.pack();
 	}
 	
 	public void sendMessage() {
@@ -97,19 +105,13 @@ public class MainWindow extends JFrame {
 		this.outputArea_.append(msg+"\n");
 	}
 	
-	public void listen( int port ) {
+	public void listen( int port ) throws IOException {
 		this.server_ = new Server( port );
 		this.server_.listen();
 	}
 	
-	public void connect(URI uri) {
-		try {
-			this.client_ = new Client(uri.host, uri.port);
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(this, "Can not connect to: " + uri.host + ":" + uri.port);
-			this.setVisible(false);
-			return;
-		}
+	public void connect(URI uri) throws IOException {
+		this.client_ = new Client(uri.host, uri.port);
 		Receiver r = new Receiver(this.client_, this);
 		r.start();
 	}
@@ -152,7 +154,7 @@ public class MainWindow extends JFrame {
 						this.parent_.appendMessage(line);
 					}
 				}
-			} catch (SocketException e) {
+			} catch (IOException e) {
 				this.parent_.onDisconnect_();
 			}
 		}

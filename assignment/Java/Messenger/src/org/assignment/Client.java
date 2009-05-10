@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.SocketException;
 
 public class Client {
 	
@@ -26,16 +25,8 @@ public class Client {
 		this.out_.flush();
 	}
 	
-	public String receive() throws SocketException {
-		try {
-			return this.in_.readLine();
-		} catch (SocketException e) {
-			throw e;
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-			return null;
-		}
+	public String receive() throws IOException {
+		return this.in_.readLine();
 	}
 
 }
