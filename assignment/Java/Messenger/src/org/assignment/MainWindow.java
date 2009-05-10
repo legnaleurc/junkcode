@@ -3,8 +3,11 @@ package org.assignment;
 import java.awt.Container;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.net.SocketException;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -87,12 +90,11 @@ public class MainWindow extends JFrame {
 		synchronized(this.client_) {
 			this.client_.send(this.inputArea_.getText());
 		}
-		System.err.println("sended: " + this.inputArea_.getText());
 		this.inputArea_.setText("");
 	}
 	
 	public void appendMessage( String msg ) {
-		this.outputArea_.append(msg);
+		this.outputArea_.append(msg+"\n");
 	}
 	
 	public void listen( int port ) {
@@ -101,7 +103,13 @@ public class MainWindow extends JFrame {
 	}
 	
 	public void connect(URI uri) {
-		this.client_ = new Client(uri.host, uri.port);
+		try {
+			this.client_ = new Client(uri.host, uri.port);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "Can not connect to: " + uri.host + ":" + uri.port);
+			this.setVisible(false);
+			return;
+		}
 		Receiver r = new Receiver(this.client_, this);
 		r.start();
 	}
@@ -114,6 +122,11 @@ public class MainWindow extends JFrame {
 				}
 			}
 		});
+	}
+	
+	private void onDisconnect_() {
+		JOptionPane.showMessageDialog(this, "The server has been disconnceted. Click Ok to exit.");
+		this.setVisible(false);
 	}
 	
 	private JTextField inputArea_;
@@ -133,10 +146,14 @@ public class MainWindow extends JFrame {
 		
 		public void run() {
 			String line;
-			while( ( line = this.client_.receive() ) != null ) {
-				synchronized( this.parent_ ) {
-					this.parent_.appendMessage(line);
+			try {
+				while( ( line = this.client_.receive() ) != null ) {
+					synchronized( this.parent_ ) {
+						this.parent_.appendMessage(line);
+					}
 				}
+			} catch (SocketException e) {
+				this.parent_.onDisconnect_();
 			}
 		}
 		

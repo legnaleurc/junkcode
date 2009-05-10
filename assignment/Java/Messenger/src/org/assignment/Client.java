@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.SocketException;
 
 public class Client {
 	
@@ -13,30 +13,12 @@ public class Client {
 	private PrintWriter out_;
 	private BufferedReader in_;
 
-	public Client( String host, int port ) {
-		try {
-			this.connection_ = new Socket( host, port );
-		} catch (UnknownHostException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		}
+	public Client( String host, int port ) throws IOException {
+		this.connection_ = new Socket( host, port );
 		
-		try {
-			this.out_ = new PrintWriter( this.connection_.getOutputStream() );
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		}
+		this.out_ = new PrintWriter( this.connection_.getOutputStream() );
 		
-		try {
-			this.in_ = new BufferedReader( new InputStreamReader( this.connection_.getInputStream() ) );
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		}
+		this.in_ = new BufferedReader( new InputStreamReader( this.connection_.getInputStream() ) );
 	}
 	
 	public void send( String msg ) {
@@ -44,9 +26,11 @@ public class Client {
 		this.out_.flush();
 	}
 	
-	public String receive() {
+	public String receive() throws SocketException {
 		try {
 			return this.in_.readLine();
+		} catch (SocketException e) {
+			throw e;
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace();
