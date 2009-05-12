@@ -15,10 +15,15 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+/**
+ * 主視窗，程式執行點
+ * @author legnaleurc
+ */
 public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = 8880002421871642870L;
 
+	/// 程式執行點
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -58,7 +63,11 @@ public class MainWindow extends JFrame {
 			}
 		});
 	}
-	
+
+	/**
+	 * 建構子
+	 * @param title 視窗標題
+	 */
 	public MainWindow( String title ) {
 		super(title);
 		Container central = this.getContentPane();
@@ -92,6 +101,7 @@ public class MainWindow extends JFrame {
 		this.pack();
 	}
 	
+	/// 送出訊息
 	public void sendMessage() {
 		synchronized(this.client_) {
 			this.client_.send(this.inputArea_.getText());
@@ -99,15 +109,29 @@ public class MainWindow extends JFrame {
 		this.inputArea_.setText("");
 	}
 	
+	/**
+	 * 印出訊息
+	 * @param msg
+	 */
 	public void appendMessage( String msg ) {
 		this.outputArea_.append(msg+"\n");
 	}
 	
+	/**
+	 * 啟動 server 並聆聽加入請求
+	 * @param port 本機連接埠
+	 * @throws IOException 建立失敗
+	 */
 	public void listen( int port ) throws IOException {
 		this.server_ = new Server( port );
 		this.server_.listen();
 	}
 	
+	/**
+	 * 連結到指定 server
+	 * @param uri 主機名稱和連接埠
+	 * @throws IOException 連接失敗
+	 */
 	public void connect(URI uri) throws IOException {
 		this.client_ = new Client(uri.host, uri.port);
 		Receiver r = new Receiver(this.client_, this);

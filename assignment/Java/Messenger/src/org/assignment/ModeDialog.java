@@ -2,6 +2,8 @@ package org.assignment;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -12,10 +14,20 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+/**
+ * 模式選擇對話框
+ * @author legnaleurc
+ */
 public class ModeDialog extends JDialog {
 
 	private static final long serialVersionUID = -684903256850725954L;
 	
+	/**
+	 * 顯示對話框並讓使用者選擇 server/client 模式
+	 * @return host name 和 port number
+	 * 
+	 * 若 host 為 null 即為 server 模式，若是 null 物件代表使用者按下 cancel。
+	 */
 	public static URI getSelection() {
 		ModeDialog md = new ModeDialog();
 		md.setVisible(true);
@@ -61,6 +73,16 @@ public class ModeDialog extends JDialog {
 			}
 		});
 		
+		this.getContentPane().addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				System.err.println("lasdjfoi");
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+					apply_ = true;
+					setVisible(false);
+				}
+			}
+		});
+		
 		// layout
 		this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
 		
@@ -89,7 +111,7 @@ public class ModeDialog extends JDialog {
 		this.pack();
 	}
 	
-	public URI getURI() {
+	private URI getURI() {
 		String command = this.choise_.getSelection().getActionCommand();
 		if( command == "server" ) {
 			return new URI( null, Integer.parseInt(this.serverPort_.getText()) );
