@@ -1,2 +1,2 @@
 #! /bin/sh
-LC_ALL='zh_TW.UTF-8' wine "$@"
+env WINEPREFIX="$HOME/.wine" LC_ALL='zh_TW.UTF-8' wine "$@"
