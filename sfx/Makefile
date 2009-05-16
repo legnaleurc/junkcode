@@ -7,7 +7,8 @@ ${TARGET}: sfx start
 	chmod a+x ${TARGET}
 
 sfx: sfx.cpp
-	${CXX} -O3 -o sfx sfx.cpp
+	${CXX} -Os -o $@ $<
+	strip $@
 
 clean:
 	rm -f sfx
