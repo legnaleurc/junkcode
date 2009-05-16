@@ -5,8 +5,9 @@
 --disable-static \
 --enable-shared \
 --enable-gpl \
---disable-ffmpeg \
 --disable-ffplay \
 --disable-ffserver \
+--disable-network \
+--disable-ipv6 \
 --disable-stripping \
 ;
