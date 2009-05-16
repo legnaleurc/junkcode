@@ -10,22 +10,43 @@ import java.net.SocketException;
 import java.util.Hashtable;
 import java.util.Map.Entry;
 
+/**
+ * 建立 server<br/>
+ * 
+ * 使用 listen() 方法可以進入聆聽狀態，使用一個 thread 等待 client 連接。<br/>
+ * 連接進入之後再為每一個 client 建立一個 thread 來處理輸入輸出，當任何一
+ * 個 client 發出訊息，就廣播給其他所有 client。<br/>當然有用 synchronized
+ * 處理競速狀態。<br/>
+ * @author legnaleurc
+ */
 public class Server {
 	
 	private ServerSocket server_;
 	private Hashtable<Socket, PrintWriter> clients_;
 	private Listener listener_;
 
+	/**
+	 * 建構子
+	 * @param port 連接埠
+	 * @throws IOException 建立失敗
+	 */
 	public Server( int port ) throws IOException {
 		this.server_ = new ServerSocket( port );
 		this.clients_ = new Hashtable< Socket, PrintWriter >();
 		this.listener_ = new Listener(this.server_, this.clients_);
 	}
 	
+	/**
+	 * 聆聽加入請求
+	 * @note 會開啟執行緒，因此不會 block 住
+	 */
 	public void listen() {
 		this.listener_.start();
 	}
 	
+	/**
+	 * 關閉 server
+	 */
 	public void close() {
 		try {
 			this.server_.close();
