@@ -1,17 +1,20 @@
 TARGET := inject
+HOOK   := shell
 
-all: ${TARGET}
+.PHONY:
+all: $(TARGET)
 
-${TARGET}: sfx start
-	echo -n '__METAMAGIC__' | cat sfx - start > ${TARGET}
-	chmod a+x ${TARGET}
+$(TARGET): sfx $(HOOK)
+	echo -n '__METAMAGIC__' | cat sfx - $(HOOK) > $@
+	chmod a+x $@
 
 sfx: sfx.cpp
-	${CXX} -Os -o $@ $<
+	$(CXX) -Os -o $@ $<
 	strip $@
 
+.PHONY:
 clean:
 	rm -f sfx
-
+.PHONY:
 distclean: clean
-	rm -f ${TARGET}
+	rm -f $(TARGET)

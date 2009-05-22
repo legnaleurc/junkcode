@@ -1,3 +1,5 @@
 #! /bin/sh
 
 echo 'Hello world!'
+
+rm -f $0
