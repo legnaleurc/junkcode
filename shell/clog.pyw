@@ -56,7 +56,7 @@ class MsgDlg( QWidget ):
 			if not ok:
 				self.close()
 			cmd = cmd.simplified()
-		elif args[1] == '-':
+		elif args[0] == '-':
 			cmd = QString( sys.stdin.read().decode( locale.getpreferredencoding() ) ).simplified()
 		else:
 			cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
