@@ -4,7 +4,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
-import sys, csv, os
+import sys, csv, os, re
 
 class EngineBox( QComboBox ):
 	def __init__( self, enginePath, parent = None ):
@@ -75,12 +75,18 @@ class MainWindow( QMainWindow ):
 		self.connect( self.pages.currentWidget(), SIGNAL( 'loadFinished( bool )' ), lambda ok: ok and progress.hide() )
 
 	def load( self ):
-		self.pages.currentWidget().load( QUrl( self.engines.getCurrent().arg( self.uri.text() ) ) )
+		self.pages.currentWidget().load( self.__uriHelper() )
+
+	def __uriHelper( self ):
+		if re.match( r'^about:.*', unicode( self.uri.text() ) ) != None:
+			return QUrl( self.uri.text() )
+		else:
+			return QUrl( self.engines.getCurrent().arg( self.uri.text() ) )
 
 	def newTab( self ):
 		page = QWebView( self.pages )
-		page.load( QUrl( self.engines.getCurrent().arg( self.uri.text() ) ) )
-		self.pages.addTab( page.title(), page )
+		page.load( self.__uriHelper() )
+		self.pages.addTab( page, page.title() )
 
 def main( args = None ):
 	if args is None:
