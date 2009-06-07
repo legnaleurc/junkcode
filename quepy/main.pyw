@@ -32,9 +32,11 @@ class MainWindow( QMainWindow ):
 
 		self.__initToolBar()
 
-		self.center = QWebView( self )
-		self.setCentralWidget( self.center )
-		self.center.load( QUrl( 'about:blank' ) )
+		self.pages = QTabWidget( self )
+		self.setCentralWidget( self.pages )
+		page = QWebView( self.pages )
+		page.load( QUrl( 'about:blank' ) )
+		self.pages.addTab( page, 'about:blank' )
 
 		self.__initStatusBar()
 
@@ -46,6 +48,10 @@ class MainWindow( QMainWindow ):
 		self.uri = QLineEdit( self )
 		toolBar.addWidget( self.uri )
 		self.connect( self.uri, SIGNAL( 'returnPressed()' ), self.load )
+		ctrlEnter = QAction( self.uri )
+		self.uri.addAction( ctrlEnter )
+		ctrlEnter.setShortcut( 'Ctrl+Enter' )
+		self.connect( ctrlEnter, SIGNAL( 'triggered()' ), self.newTab )
 
 		toolBar.addSeparator()
 
@@ -64,12 +70,17 @@ class MainWindow( QMainWindow ):
 		progress.hide()
 		status.showMessage( 'Ready' )
 
-		self.connect( self.center, SIGNAL( 'loadStarted()' ), progress, SLOT( 'show()' ) )
-		self.connect( self.center, SIGNAL( 'loadProgress( int )' ), progress, SLOT( 'setValue( int )' ) )
-		self.connect( self.center, SIGNAL( 'loadFinished( bool )' ), lambda ok: ok and progress.hide() )
+		self.connect( self.pages.currentWidget(), SIGNAL( 'loadStarted()' ), progress, SLOT( 'show()' ) )
+		self.connect( self.pages.currentWidget(), SIGNAL( 'loadProgress( int )' ), progress, SLOT( 'setValue( int )' ) )
+		self.connect( self.pages.currentWidget(), SIGNAL( 'loadFinished( bool )' ), lambda ok: ok and progress.hide() )
 
 	def load( self ):
-		self.center.load( QUrl( self.engines.getCurrent().arg( self.uri.text() ) ) )
+		self.pages.currentWidget().load( QUrl( self.engines.getCurrent().arg( self.uri.text() ) ) )
+
+	def newTab( self ):
+		page = QWebView( self.pages )
+		page.load( QUrl( self.engines.getCurrent().arg( self.uri.text() ) ) )
+		self.pages.addTab( page.title(), page )
 
 def main( args = None ):
 	if args is None:
