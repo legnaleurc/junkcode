@@ -15,16 +15,20 @@
         <title>Response</title>
     </head>
     <body>
+        <div>What you have selected:</div>
         <%@page import="org.assignment.Cart" %>
         <%@page import="java.util.Enumeration" %>
+        <table border="1">
         <%
             Cart cart = new Cart();
             for( Enumeration< String > e = request.getParameterNames(); e.hasMoreElements(); ) {
                 String key = e.nextElement();
                 Integer value = Integer.parseInt( request.getParameter( key ) );
+                out.print( String.format( "<tr><td>%s</td><td>%d</td></tr>", key, value ) );
                 cart.addItem( key, value );
             }
         %>
+        </table>
         <h1><%= cart.getTotalValue() %></h1>
         <a href="index.jsp">back and buy again</a>
     </body>
