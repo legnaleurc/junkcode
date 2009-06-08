@@ -26,5 +26,12 @@ public class Cart {
     public Integer getItem( String key ) {
         return this.items_.get( key );
     }
+    public Integer getTotalValue() {
+        Integer sum = 0;
+        for( Integer i : this.items_.values() ) {
+            sum += i;
+        }
+        return sum;
+    }
 
 }

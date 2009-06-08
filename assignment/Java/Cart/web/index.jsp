@@ -25,18 +25,18 @@
                     </tr>
                 </thead>
                 <tbody>
+<%
+                    for( int i = 0; i < 20; ++i ) {
+%>
                     <tr>
-                        <td><input type="checkbox" name="item0" value="ON" /></td>
+                        <td><input type="checkbox" name="item<%= i %>" value="100" /></td>
                         <td></td>
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr>
-                        <td><input type="checkbox" name="item1" value="ON" /></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+<%
+                        }
+%>
                 </tbody>
             </table>
             <input type="submit" />

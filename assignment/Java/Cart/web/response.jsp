@@ -15,9 +15,17 @@
         <title>Response</title>
     </head>
     <body>
-        <jsp:useBean id="cart" scope="session" class="org.assignment.Cart" />
+        <%@page import="org.assignment.Cart" %>
+        <%@page import="java.util.Enumeration" %>
         <%
-            out.println( request.getParameterMap() );
+            Cart cart = new Cart();
+            for( Enumeration< String > e = request.getParameterNames(); e.hasMoreElements(); ) {
+                String key = e.nextElement();
+                Integer value = Integer.parseInt( request.getParameter( key ) );
+                cart.addItem( key, value );
+            }
         %>
+        <h1><%= cart.getTotalValue() %></h1>
+        <a href="index.jsp">back and buy again</a>
     </body>
 </html>
