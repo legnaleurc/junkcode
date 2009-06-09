@@ -14,9 +14,9 @@
         <script type="text/javascript" src="jquery.js"></script>
         <script type="text/javascript">//<![CDATA[
             $( function() {
-                $( '#toggle' ).click( function() {
+                $( '#increase' ).click( function() {
                     $( '.items' ).each( function() {
-                        this.checked = !this.checked;
+                        ++this.value;
                     } );
                 } );
             } );
@@ -25,11 +25,13 @@
     </head>
     <body>
         <%@page import="org.assignment.Cart" %>
+        <%@page import="java.util.Hashtable" %>
+        <%@page import="java.util.Map" %>
         <form name="cart" action="response.jsp" method="POST">
             <table border="1">
                 <thead>
                     <tr>
-                        <th><button id="toggle" type="button">Toggle</button></th>
+                        <th><button id="increase" type="button">Increase</button></th>
                         <th>Price</th>
                         <th>Item</th>
                         <th>Brief</th>
@@ -37,15 +39,14 @@
                 </thead>
                 <tbody>
                     <%
-                    String checkbox = "<td><input type=\"checkbox\" class=\"items\" name=\"%s\" value=\"%d\" /></td>";
+                    Hashtable< String, Integer > items = Cart.loadItems();
+                    String input = "<td><input type=\"text\" class=\"items\" name=\"%s\" value=\"0\" /></td>";
                     String text = "<td>%s</td>";
-                    for( int i = 0; i < 20; ++i ) {
-                        Integer price = Cart.randomValue(100, 99999);
-                        String name = Cart.randomName( Cart.randomValue( 3, 10 ) );
+                    for( Map.Entry< String, Integer > e : items.entrySet() ) {
                         out.print( "<tr>" );
-                        out.print( String.format( checkbox, name, price ) );
-                        out.print( String.format( text, price ) );
-                        out.print( String.format( text, name ) );
+                        out.print( String.format( input, e.getKey() ) );
+                        out.print( String.format( text, e.getValue() ) );
+                        out.print( String.format( text, e.getKey() ) );
                         out.print( String.format( text, Cart.randomBrief( Cart.randomValue( 1, 3 ) ) ) );
                         out.print( "</tr>" );
                     }

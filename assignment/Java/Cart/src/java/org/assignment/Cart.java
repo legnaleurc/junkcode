@@ -6,6 +6,7 @@
 package org.assignment;
 
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
  *
@@ -16,9 +17,42 @@ public class Cart {
     private Hashtable< String, Integer > items_;
     static final private String UpperCases_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static final private String LowerCases_ = UpperCases_.toLowerCase();
+    static final private Hashtable< String, Integer > Items_ = new Hashtable();
+
+    static {
+        Items_.put( "Amarok", 2 );
+        Items_.put( "Boson", 3 );
+        Items_.put( "CMake", 5 );
+        Items_.put( "Dolphin", 7 );
+        Items_.put( "Firefox", 11 );
+        Items_.put( "GDB", 13 );
+        Items_.put( "Htop", 17 );
+        Items_.put( "Iceweasel", 19 );
+        Items_.put( "JuK", 23 );
+        Items_.put( "Kate", 29 );
+        Items_.put( "Lyx", 31 );
+        Items_.put( "Mozilla", 37 );
+        Items_.put( "NetScape", 41 );
+        Items_.put( "Okular", 43 );
+        Items_.put( "Plasma", 47 );
+        Items_.put( "Qwit", 53 );
+        Items_.put( "Regex", 59 );
+        Items_.put( "Solid", 61 );
+        Items_.put( "Tar", 67 );
+        Items_.put( "Umbrello", 71 );
+        Items_.put( "Vanila", 73 );
+        Items_.put( "Webkit", 79 );
+        Items_.put( "Xorg", 83 );
+        Items_.put( "Yacc", 89 );
+        Items_.put( "ZFS", 97 );
+    }
 
     public Cart() {
         this.items_ = new Hashtable< String, Integer >();
+    }
+
+    static public Hashtable< String, Integer > loadItems() {
+        return Items_;
     }
 
     static public Integer randomValue( Integer from, Integer to ) {
@@ -63,8 +97,8 @@ public class Cart {
     }
     public Integer getTotalValue() {
         Integer sum = 0;
-        for( Integer i : this.items_.values() ) {
-            sum += i;
+        for( Map.Entry< String, Integer > e : this.items_.entrySet() ) {
+            sum += e.getValue() * Items_.get( e.getKey() );
         }
         return sum;
     }
