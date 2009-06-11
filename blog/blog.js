@@ -40,8 +40,7 @@ var Blog = {
 		posts.each( function( index_, post ) {
 			var more = $( param.collapsed );
 
-			// for bug in jQuery 1.2.6 on KHTML
-			var less = $( param.expanded ).css( 'display', 'none' );
+			var less = $( param.expanded ).hide();
 
 			more.click( function( e ) {
 				$( [ post, this, less ] ).toggle();
@@ -51,20 +50,19 @@ var Blog = {
 				$( [ post, more, this ] ).toggle();
 			} );
 
-			// for bug in jQuery 1.2.6 on KHTML
-			$( this ).before( more ).after( less ).css( 'display', 'none' );
+			$( this ).before( more ).after( less ).hide();
 		} );
 	},
-	
+
 	TagCloud: {
-		
+
 		cloudMin: 1,
 		minFontSize: 10,
 		maxFontSize: 20,
 		minColor: [ 0xCC, 0xCC, 0xFF ],
 		maxColor: [ 0x99, 0x99, 0xFF ],
 		showCount: false,
-		shuffle: false,
+		shuffle: true,
 
 		generate: function( tags ) {
 			function helper( a, b, i, x ) {
@@ -74,25 +72,29 @@ var Blog = {
 					return Math.floor( Math.log( i ) * ( b - a ) / Math.log( x ) + a );
 				}
 			}
-			
+
 			// 標籤的大小數量, 取得標籤的數量後做unique再取陣列長度
 			var c = [];
 			var rsk = [];
-			jQuery.each( tags, function( key, value ) {
-				if( Blog.TagCloud.shuffle ) {
-					rsk.splice( Math.floor( Math.random() * ( rsk.length + 1 ) ), 0, key );
-				} else {
-					rsk.push( key );
-				}
-				if( jQuery.inArray( value, c ) < 0 ) {
-					c.push( value );
-				}
+			( function( functor ) {
+				jQuery.each( tags, function( key, value ) {
+					// random shuffle or just copy. tags -> rsk
+					functor( key );
+					// unique array to c
+					if( jQuery.inArray( value, c ) < 0 ) {
+						c.push( value );
+					}
+				} );
+			} )( Blog.TagCloud.shuffle ? function( key ) {
+				rsk.splice( Math.floor( Math.random() * ( rsk.length + 1 ) ), 0, key );
+			} : function( key ) {
+				rsk.push( key );
 			} );
 			var labelCount = c.length;
-			
+
 			// color的rgb
 			c = new Array( 3 );
-			
+
 			// 標籤數量底限
 			var ta = this.cloudMin - 1;
 			// 大小和顏色的總級數
@@ -101,7 +103,7 @@ var Blog = {
 			var lc2 = $( '#labelCloud' );
 			// 清單元素
 			var ul = $( '<ul class="label-cloud"/>' );
-			
+
 			jQuery.each( rsk, function( index, key ) {
 				// 當標籤文章數小於最底限時, 跳過這次的迭代( 由於每次的迭代都是function, 用return取代continue )
 				if( tags[key] < Blog.TagCloud.cloudMin ) {
@@ -148,7 +150,7 @@ var Blog = {
 	Media: {
 		video: true,
 		image: true,
-		
+
 		trigger: function() {
 			// processing image
 			$( 'img.Media' ).each( function() {
@@ -171,7 +173,10 @@ var Blog = {
 			$( 'a.YouTube' ).click( function( e ) {
 				if( Blog.Media.video && !e.ctrlKey ) {
 					e.preventDefault();
-					var temp = $( this ).attr( 'href' ).match( /http:\/\/tw\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
+					var temp = $( this ).attr( 'href' ).match( /http:\/\/\w+\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
+					if( temp == null ) {
+						throw new Error( 'URL not match!' );
+					}
 					$( this ).unbind( 'click.target' ).media( {
 						src: 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1',
 						width: 425,
