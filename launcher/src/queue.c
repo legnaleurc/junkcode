@@ -1,9 +1,10 @@
 #include "queue.h"
 
 PathQueue newPathQueue() {
-	PathQueue temp;
-	temp.front = NULL;
-	temp.last = NULL;
+	PathQueue temp = {
+		NULL,
+		NULL
+	};
 	return temp;
 }
 

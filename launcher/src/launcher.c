@@ -14,9 +14,9 @@ int _tmain( int argc, TCHAR * argv[] ) {
 	getPaths( pwd, _MAX_PATH, target, _MAX_PATH, config, _MAX_PATH, argv[0] );
 
 	if( _taccess_s( config, 2 ) == 0 ) {
-		_tfopen_s( &fin, config, _T( "r" ) );
+		_tfopen_s( &fin, config, TEXT( "r" ) );
 		if( fin == NULL ) {
-			_ftprintf_s( stderr, _T( "Read file error.\n" ) );
+			_ftprintf_s( stderr, TEXT( "Read file error.\n" ) );
 			return 1;
 		} else {
 			_fgetts( buffer, BUF_SIZE, fin );
@@ -33,9 +33,9 @@ int _tmain( int argc, TCHAR * argv[] ) {
 	cd( buffer );
 	execute( buffer, argv );
 
-	_tfopen_s( &fout, config, _T( "w" ) );
+	_tfopen_s( &fout, config, TEXT( "w" ) );
 	if( fout == NULL ) {
-		_ftprintf_s( stderr, _T( "Write file error.\n" ) );
+		_ftprintf_s( stderr, TEXT( "Write file error.\n" ) );
 		return 1;
 	} else {
 		_fputts( buffer, fout );

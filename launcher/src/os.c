@@ -33,17 +33,17 @@ int findFile( TCHAR * result, size_t len, const TCHAR * target, const TCHAR * fr
 	int ret = 1;
 
 	// Find first file in path\\* .
-	hFind = FindFirstFile( concat( tmp, _MAX_PATH, from, _T( "*" ) ), &FindFileData );
+	hFind = FindFirstFile( concat( tmp, _MAX_PATH, from, TEXT( "*" ) ), &FindFileData );
 	do {
 		_tcscpy_s( fname, _MAX_PATH, FindFileData.cFileName );
 		dwAttrs = GetFileAttributes( concat( tmp, _MAX_PATH, from, fname ) );
 
 		// Don't walk directory "." and ".." .
-		if( _tcscmp( fname, _T( "." ) ) != 0 && _tcscmp( fname, _T( ".." ) ) != 0 ) {
+		if( _tcscmp( fname, TEXT( "." ) ) != 0 && _tcscmp( fname, TEXT( ".." ) ) != 0 ) {
 			// If this file is directory:
 			if( ( dwAttrs & FILE_ATTRIBUTE_DIRECTORY ) ) {
 				//findFile( result, len, target, tmp, exclude );
-				_tcscat_s( tmp, _MAX_PATH, _T( "\\" ) );
+				_tcscat_s( tmp, _MAX_PATH, TEXT( "\\" ) );
 				PQ_push( &paths, tmp );
 			} else if( _tcscmp( fname, target ) == 0 ) {
 				if( _tcscmp( tmp, exclude ) != 0 ) {
@@ -77,5 +77,5 @@ void getPaths( TCHAR * pwd, size_t pwd_size, TCHAR * target, size_t tgt_size, TC
 
 	_tmakepath_s( target, tgt_size, NULL, NULL, fname, ext );
 
-	_tmakepath_s( config, conf_size, drive, dir, _T( "cache" ), _T( "ini" ) );
+	_tmakepath_s( config, conf_size, drive, dir, TEXT( "cache" ), TEXT( "ini" ) );
 }
