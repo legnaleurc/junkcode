@@ -1,19 +1,24 @@
-TARGET := demo
+TARGET1 := demo1
+TARGET2 := demo2
 HEADERS := $(shell find . -name '*.hpp')
 SOURCES := $(shell find . -name '*.cpp')
-OBJECTS := $(subst .cpp,.o,$(SOURCES))
+OBJECTS := image.o bitmap.o
 
-#CXXFLAGS := -O3
-CXXFLAGS := -g
+CXXFLAGS := -O3
+#CXXFLAGS := -g
 
 RM := rm -rf
 
 .PHONY:
-all: $(TARGET)
+all: $(TARGET1) $(TARGET2)
 
-$(TARGET): $(OBJECTS)
+$(TARGET1): $(OBJECTS) main1.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
-#	strip $@
+	strip $@
+
+$(TARGET2): $(OBJECTS) main2.o
+	$(CXX) $(CXXFLAGS) $^ -o $@
+	strip $@
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<

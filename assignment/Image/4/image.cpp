@@ -25,6 +25,8 @@ private:
 	double colors_, down_;
 };
 
+const double PI = std::acos( -1 );
+
 }
 
 namespace pwc94u {
@@ -94,6 +96,92 @@ void Image::equalize() {
 	for( int row = 0; row < this->width_; ++row ) {
 		for( int col = 0; col < this->height_; ++col ) {
 			this->pixmap_[row][col] = table.find( this->pixmap_[row][col] )->second;
+		}
+	}
+}
+
+struct HSI {
+	double h, s, i;
+	HSI() : h(0), s(0), i(0) {}
+	HSI( int rgb ) {
+		int red = ( rgb >> 8 ) & 0xff;
+		int green = ( rgb >> 16 ) & 0xff;
+		int black = ( rgb >> 24 ) & 0xff;
+
+		double theta = std::acos( 0.5 * ( 2*red - green - black ) / std::sqrt( ( red - green ) * ( red - green ) + ( red - black ) * ( green - black ) ) );
+		h = ( black <= green ) ? ( theta ) : ( 2 * PI - theta );
+
+		s = 1 - 3.0 * std::min( std::min( red, green ), black ) / ( red + green + black );
+
+		i = ( red + green + black ) / 3.0;
+	}
+
+	int toRGB() const {
+		int black = 0, red = 0, green = 0;
+		if( 0 <= h && h < PI * 2 / 3 ) {
+			black = i * ( 1 - s );
+			red = i * ( 1 + ( s * std::cos( h ) ) / ( std::cos( PI / 3 - h ) ) );
+			green = 3 * i - ( red + black );
+		} else if( PI * 2 / 3 <= h && h < PI * 4 / 3 ) {
+			double h_ = h - PI * 2 / 3;
+			red = i * ( 1 - s );
+			green = i * ( 1 + ( s * std::cos( h_ ) ) / ( std::cos( PI / 3 - h_ ) ) );
+			black = 3 * i - ( red + black );
+		} else if( PI * 4 / 3 <= h && h <= 2 * PI ) {
+			double h_ = h - PI * 4 / 3;
+			green = i * ( 1 - s );
+			black = i * ( 1 + ( s * std::cos( h_ ) ) / ( std::cos( PI / 3 - h_ ) ) );
+			red = 3 * i - ( red + black );
+		}
+		return ( black << 24 ) | ( green << 16 ) | ( red << 8 );
+	}
+};
+
+struct eq2 {
+	eq2( int cdfMin, int bpp, int size ):
+	min_( cdfMin ),
+	sum_( 0 ),
+	colors_( std::pow( 2, bpp ) - 1 ),
+	down_( size - this->min_ ) {}
+
+	void operator ()( std::pair< const int, int > & it ) {
+		// get cdf
+		this->sum_ += it.second;
+		// equalize
+		it.second = std::floor( ( this->sum_ - this->min_ ) / this->down_ * this->colors_ );
+	}
+private:
+	int min_, sum_;
+	double colors_, down_;
+};
+
+void Image::equalize2() {
+	using std::map;
+	map< int, int > table;
+	using std::vector;
+	vector< vector< HSI > > backup( this->height_, vector< HSI >( this->width_ ) );
+	using std::make_pair;
+
+	for( int row = 0; row < this->width_; ++row ) {
+		for( int col = 0; col < this->height_; ++col ) {
+			backup[row][col] = HSI( this->pixmap_[row][col] );
+			int i = static_cast< int >( backup[row][col].i );
+			map< int, int >::iterator it = table.find( i );
+			if( it == table.end() ) {
+				table.insert( make_pair( i, 1 ) );
+			} else {
+				++it->second;
+			}
+		}
+	}
+
+	std::for_each( table.begin(), table.end(), eq2( table.begin()->second, 8, this->width_ * this->height_ ) );
+
+	for( int row = 0; row < this->width_; ++row ) {
+		for( int col = 0; col < this->height_; ++col ) {
+			int i = static_cast< int >( backup[row][col].i );
+			backup[row][col].i = table.find( i )->second;
+			this->pixmap_[row][col] = backup[row][col].toRGB();
 		}
 	}
 }

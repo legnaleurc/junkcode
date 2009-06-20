@@ -17,6 +17,7 @@ public:
 	void save( std::ostream & out );
 
 	void equalize();
+	void equalize2();
 
 	void reduceNoise();
 
