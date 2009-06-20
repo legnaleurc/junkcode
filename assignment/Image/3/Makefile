@@ -28,5 +28,6 @@ distclean: clean
 .PHONY:
 dist:
 	mkdir 494410006 && cp $(SOURCES) $(HEADERS) Makefile 494410006
+	-cp report.pdf 494410006
 	tar -cjf 494410006.tbz2 494410006
 	$(RM) 494410006
