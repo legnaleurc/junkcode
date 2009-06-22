@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is JAX-WS RI 2.1.3.1-hudson-749-SNAPSHOT. --><xs:schema xmlns:tns="http://assignment.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://assignment.org/">
+
+<xs:element name="judge" type="tns:judge"></xs:element>
+
+<xs:element name="judgeResponse" type="tns:judgeResponse"></xs:element>
+
+<xs:complexType name="judge">
+<xs:sequence>
+<xs:element name="month" type="xs:int"></xs:element>
+<xs:element name="date" type="xs:int"></xs:element>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="judgeResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"></xs:element>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
