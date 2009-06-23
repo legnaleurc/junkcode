@@ -175,10 +175,6 @@
 				RelativePath=".\src\queue.c"
 				>
 			</File>
-			<File
-				RelativePath=".\src\util.c"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -191,10 +187,6 @@
 			</File>
 			<File
 				RelativePath=".\include\queue.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\util.h"
 				>
 			</File>
 		</Filter>

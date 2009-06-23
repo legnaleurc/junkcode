@@ -2,8 +2,13 @@
 #include <direct.h>
 #include <process.h>
 #include <windows.h>
-#include "util.h"
 #include "queue.h"
+
+static TCHAR * concat( TCHAR * dst, size_t size, const TCHAR * left, const TCHAR * right ) {
+	_tcscpy_s( dst, size, left );
+	_tcscat_s( dst, size, right );
+	return dst;
+}
 
 void cd( const TCHAR * path ) {
 	TCHAR drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
