@@ -45,7 +45,7 @@ int findFile( TCHAR * result, size_t len, const TCHAR * target, const TCHAR * fr
 				//findFile( result, len, target, tmp, exclude );
 				_tcscat_s( tmp, _MAX_PATH, TEXT( "\\" ) );
 				PQ_push( &paths, tmp );
-			} else if( _tcscmp( fname, target ) == 0 ) {
+			} else if( _tcsicmp( fname, target ) == 0 ) {
 				if( _tcscmp( tmp, exclude ) != 0 ) {
 					freePathQueue( &paths );
 					_tcscpy_s( result, len, tmp );
