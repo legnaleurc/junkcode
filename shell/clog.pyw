@@ -42,9 +42,9 @@ class MsgArea( QTextEdit ):
 			fout.write( self.toPlainText().toUtf8() )
 			fout.close()
 
-class MsgDlg( QWidget ):
+class MsgDlg( QTabWidget ):
 	def __init__( self, args, parent = None ):
-		QWidget.__init__( self, parent )
+		QTabWidget.__init__( self, parent )
 
 		#FIXME: should be this:
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
@@ -64,27 +64,23 @@ class MsgDlg( QWidget ):
 
 		pipes = os.popen3( unicode( cmd ) )
 
-		layout = QVBoxLayout( self )
-		self.setLayout( layout )
+		self.__setPage( MsgArea( pipes[1], self ), 'stdout' )
+		self.__setPage( MsgArea( pipes[2], self ), 'stderr' )
 
-		self.__outArea = MsgArea( pipes[1], self )
-		layout.addWidget( self.__outArea )
+	def __setPage( self, textArea, title ):
+		widget = QWidget( self )
+		layout = QVBoxLayout( widget )
+		widget.setLayout( layout )
+		self.addTab( widget, title )
 
-		self.__errArea = MsgArea( pipes[2], self )
-		layout.addWidget( self.__errArea )
+		layout.addWidget( textArea )
 
-		buttons = QDialogButtonBox( QDialogButtonBox.Close, Qt.Horizontal, self )
+		buttons = QDialogButtonBox( QDialogButtonBox.Save | QDialogButtonBox.Close, Qt.Horizontal, self )
 		layout.addWidget( buttons )
 		buttons.setDisabled( True )
 		QObject.connect( buttons.button( QDialogButtonBox.Close ), SIGNAL( 'clicked()' ), self, SLOT( 'close()' ) )
-
-		save1 = buttons.addButton( 'Save stdout', QDialogButtonBox.AcceptRole )
-		QObject.connect( self.__outArea, SIGNAL( 'finished' ), lambda: buttons.setEnabled( True ) )
-		QObject.connect( save1, SIGNAL( 'clicked()' ), self.__outArea.save )
-
-		save2 = buttons.addButton( 'Save stderr', QDialogButtonBox.AcceptRole )
-		QObject.connect( self.__errArea, SIGNAL( 'finished' ), lambda: buttons.setEnabled( True ) )
-		QObject.connect( save2, SIGNAL( 'clicked()' ), self.__errArea.save )
+		QObject.connect( buttons.button( QDialogButtonBox.Save ), SIGNAL( 'clicked()' ), lambda: textArea.save() )
+		QObject.connect( textArea, SIGNAL( 'finished' ), lambda: buttons.setEnabled( True ) )
 
 def main( args = None ):
 	if args == None:
@@ -93,6 +89,7 @@ def main( args = None ):
 	app = QApplication( args )
 
 	widget = MsgDlg( QApplication.arguments()[1:] )
+	widget.setCurrentIndex( 1 )
 	widget.show()
 
 	return app.exec_()
