@@ -144,7 +144,8 @@ var Blog = {
 	highlighting: function( cbs ) {
 		SyntaxHighlighter.config.clipboardSwf = cbs;
 		SyntaxHighlighter.config.bloggerMode = true;
-		SyntaxHighlighter.all();
+		//SyntaxHighlighter.all();
+		SyntaxHighlighter.highlight();
 	},
 
 	Media: {
