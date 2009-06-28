@@ -16,6 +16,31 @@ class Listener( QThread ):
 			self.emit( SIGNAL( 'readed( const QString & )' ), unicode( line, locale.getpreferredencoding() ) )
 			line = self.__stream.readline()
 
+class InputArea( QWidget ):
+	def __init__( self, stream, parent = None ):
+		QWidget.__init__( self, parent )
+		self.__stream = stream
+
+		layout = QVBoxLayout( self )
+		self.setLayout( layout )
+
+		self.__screen = QTextEdit( self )
+		self.__screen.setReadOnly( True )
+		self.__screen.setFontFamily( 'monospace' )
+		layout.addWidget( self.__screen )
+
+		self.__input = QLineEdit( self )
+		self.connect( self.__input, SIGNAL( 'returnPressed()' ), self.read )
+		layout.addWidget( self.__input )
+
+	def read( self ):
+		str = self.__input.text()
+		self.__input.clear()
+		self.__screen.insertPlainText( line )
+		self.__screen.moveCursor( QTextCursor.End )
+		self.__stream.write( str.toLocal8Bits() )
+		self.__stream.flush()
+
 class MsgArea( QTextEdit ):
 	def __init__( self, stream, parent = None ):
 		QTextEdit.__init__( self, parent )
