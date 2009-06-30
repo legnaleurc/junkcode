@@ -3,7 +3,8 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import sys, os
+from subprocess import Popen, PIPE
+import sys
 
 class Listener( QThread ):
 	def __init__( self, stream, parent = None ):
@@ -98,11 +99,11 @@ class MsgDlg( QTabWidget ):
 			cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
 		self.setWindowTitle( u'Clog -- ' + cmd )
 
-		pipes = os.popen3( unicode( cmd ) )
+		pipes = Popen( unicode( cmd ), shell = True, stdin = PIPE, stdout = PIPE, stderr = PIPE )
 
-		self.__setPage( InputArea( pipes[0], self ), 'stdin' )
-		self.__setPage( MsgArea( pipes[1], self ), 'stdout' )
-		self.__setPage( MsgArea( pipes[2], self ), 'stderr' )
+		self.__setPage( InputArea( pipes.stdin, self ), 'stdin' )
+		self.__setPage( MsgArea( pipes.stdout, self ), 'stdout' )
+		self.__setPage( MsgArea( pipes.stderr, self ), 'stderr' )
 
 	def __setPage( self, textArea, title ):
 		widget = QWidget( self )
