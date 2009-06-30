@@ -3,7 +3,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import sys, os, locale
+import sys, os
 
 class Listener( QThread ):
 	def __init__( self, stream, parent = None ):
@@ -13,7 +13,7 @@ class Listener( QThread ):
 	def run( self ):
 		line = self.__stream.readline()
 		while line:
-			self.emit( SIGNAL( 'readed( const QString & )' ), unicode( line, locale.getpreferredencoding() ) )
+			self.emit( SIGNAL( 'readed( const QString & )' ), QString.fromLocal8Bit( line ) )
 			line = self.__stream.readline()
 
 class InputArea( QWidget ):
@@ -93,7 +93,7 @@ class MsgDlg( QTabWidget ):
 				self.close()
 			cmd = cmd.simplified()
 		elif args[0] == '-':
-			cmd = QString( sys.stdin.read().decode( locale.getpreferredencoding() ) ).simplified()
+			cmd = QString.fromLocal8Bit( sys.stdin.read() ).simplified()
 		else:
 			cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
 		self.setWindowTitle( u'Clog -- ' + cmd )
