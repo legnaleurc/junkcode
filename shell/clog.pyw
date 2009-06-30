@@ -29,17 +29,28 @@ class InputArea( QWidget ):
 		self.__screen.setFontFamily( 'monospace' )
 		layout.addWidget( self.__screen )
 
+		inputBox = QHBoxLayout()
+		layout.addLayout( inputBox )
+
 		self.__input = QLineEdit( self )
 		self.connect( self.__input, SIGNAL( 'returnPressed()' ), self.read )
-		layout.addWidget( self.__input )
+		inputBox.addWidget( self.__input )
+
+		eot = QPushButton( 'EOT', self )
+		self.connect( eot, SIGNAL( 'clicked()' ), self.eot )
+		inputBox.addWidget( eot )
 
 	def read( self ):
-		str = self.__input.text()
+		line = self.__input.text() + '\n'
 		self.__input.clear()
 		self.__screen.insertPlainText( line )
 		self.__screen.moveCursor( QTextCursor.End )
-		self.__stream.write( str.toLocal8Bits() )
+		self.__stream.write( line.toLocal8Bit() )
 		self.__stream.flush()
+
+	def eot( self ):
+		self.__stream.close()
+		self.emit( SIGNAL( 'finished' ) )
 
 class MsgArea( QTextEdit ):
 	def __init__( self, stream, parent = None ):
@@ -89,6 +100,7 @@ class MsgDlg( QTabWidget ):
 
 		pipes = os.popen3( unicode( cmd ) )
 
+		self.__setPage( InputArea( pipes[0], self ), 'stdin' )
 		self.__setPage( MsgArea( pipes[1], self ), 'stdout' )
 		self.__setPage( MsgArea( pipes[2], self ), 'stderr' )
 
@@ -114,7 +126,7 @@ def main( args = None ):
 	app = QApplication( args )
 
 	widget = MsgDlg( QApplication.arguments()[1:] )
-	widget.setCurrentIndex( 1 )
+	widget.setCurrentIndex( 2 )
 	widget.show()
 
 	return app.exec_()
