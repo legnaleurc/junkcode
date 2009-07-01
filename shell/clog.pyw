@@ -53,6 +53,15 @@ class InputArea( QWidget ):
 		self.__stream.close()
 		self.emit( SIGNAL( 'finished' ) )
 
+	def save( self ):
+		filePath = QFileDialog.getSaveFileName( self, 'Save log file', QDir.homePath() )
+		if filePath:
+			fout = QFile( filePath )
+			if not fout.open( QIODevice.WriteOnly | QIODevice.Text ):
+				return
+			fout.write( self.__screen.toPlainText().toUtf8() )
+			fout.close()
+
 class MsgArea( QTextEdit ):
 	def __init__( self, stream, parent = None ):
 		QTextEdit.__init__( self, parent )
@@ -79,9 +88,9 @@ class MsgArea( QTextEdit ):
 			fout.write( self.toPlainText().toUtf8() )
 			fout.close()
 
-class MsgDlg( QTabWidget ):
+class MsgDlg( QWidget ):
 	def __init__( self, args, parent = None ):
-		QTabWidget.__init__( self, parent )
+		QWidget.__init__( self, parent )
 
 		#FIXME: should be this:
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
@@ -99,26 +108,29 @@ class MsgDlg( QTabWidget ):
 			cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
 		self.setWindowTitle( u'Clog -- ' + cmd )
 
+		layout = QVBoxLayout( self )
+		self.setLayout( layout )
+
+		self.__pages = QTabWidget( self )
+		layout.addWidget( self.__pages )
+
+		self.__buttons = QDialogButtonBox( QDialogButtonBox.Save | QDialogButtonBox.Close, Qt.Horizontal, self )
+		layout.addWidget( self.__buttons )
+		self.__buttons.setDisabled( True )
+		QObject.connect( self.__buttons.button( QDialogButtonBox.Close ), SIGNAL( 'clicked()' ), self, SLOT( 'close()' ) )
+		QObject.connect( self.__buttons.button( QDialogButtonBox.Save ), SIGNAL( 'clicked()' ), lambda: self.__pages.currentWidget().save() )
+
 		pipes = Popen( unicode( cmd ), shell = True, stdin = PIPE, stdout = PIPE, stderr = PIPE )
+		self.__addPage( InputArea( pipes.stdin, self ), 'stdin' )
+		self.__addPage( MsgArea( pipes.stdout, self ), 'stdout' )
+		self.__addPage( MsgArea( pipes.stderr, self ), 'stderr' )
 
-		self.__setPage( InputArea( pipes.stdin, self ), 'stdin' )
-		self.__setPage( MsgArea( pipes.stdout, self ), 'stdout' )
-		self.__setPage( MsgArea( pipes.stderr, self ), 'stderr' )
+	def __addPage( self, textArea, title ):
+		self.__pages.addTab( textArea, title )
+		QObject.connect( textArea, SIGNAL( 'finished' ), lambda: self.__buttons.setEnabled( True ) )
 
-	def __setPage( self, textArea, title ):
-		widget = QWidget( self )
-		layout = QVBoxLayout( widget )
-		widget.setLayout( layout )
-		self.addTab( widget, title )
-
-		layout.addWidget( textArea )
-
-		buttons = QDialogButtonBox( QDialogButtonBox.Save | QDialogButtonBox.Close, Qt.Horizontal, self )
-		layout.addWidget( buttons )
-		buttons.setDisabled( True )
-		QObject.connect( buttons.button( QDialogButtonBox.Close ), SIGNAL( 'clicked()' ), self, SLOT( 'close()' ) )
-		QObject.connect( buttons.button( QDialogButtonBox.Save ), SIGNAL( 'clicked()' ), lambda: textArea.save() )
-		QObject.connect( textArea, SIGNAL( 'finished' ), lambda: buttons.setEnabled( True ) )
+	def setCurrentIndex( self, index ):
+		self.__pages.setCurrentIndex( index )
 
 def main( args = None ):
 	if args == None:
