@@ -1,22 +1,19 @@
+#! /bin/sh
+
+BASE='
 build-essential
 xorg-dev
 cdbs
 debhelper
-cmake/experimental
-kdesdk-scripts/experimental
+cmake
+kdesdk-scripts
 subversion
 ssh
 xserver-xephyr
 doxygen
 dbus-x11
-libstreamanalyzer-dev
-libstrigiqtdbusclient-dev
-libxml2-dev
-libxslt1-dev
-shared-mime-info
-libgif-dev
-libssl-dev
-libboost1.35-dev
+libboost-dev
+libboost-program-options-dev
 libgpgme11-dev
 libxine-dev
 libqimageblitz-dev
@@ -33,6 +30,19 @@ libxtst-dev
 xsltproc
 libxrender-dev
 libfontconfig1-dev
+automoc
+'
+KDELIBS='
+libqt4-dev
+libstreamanalyzer-dev
+libstrigiqtdbusclient-dev
+libxml2-dev
+libxslt1-dev
+shared-mime-info
+'
+ELSE='
+libgif-dev
+libssl-dev
 libgstreamer0.10-dev
 libical-dev
 libasound2-dev
@@ -49,3 +59,6 @@ network-manager-dev
 libpulse-dev
 libqca2-dev
 libgmp3-dev
+'
+
+echo $BASE $KDELIBS
