@@ -5,4 +5,4 @@ if [ `whoami` != 'root' ] ; then
 	exit 1
 fi
 
-./getdep | xargs aptitude install
+./getdep | xargs aptitude install -Ry
