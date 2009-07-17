@@ -17,8 +17,8 @@ public class Main {
 				
 				JFrame window = new JFrame();
 				window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				window.add( new FileTree() );
-				window.pack();
+				window.getContentPane().add( new FileTree() );
+				window.setSize( 640, 480 );
 				window.setVisible(true);
 			}
 		} );
