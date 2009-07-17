@@ -2,6 +2,7 @@ package org.FoolproofProject;
 
 import java.io.File;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -25,6 +26,7 @@ public class FileTree extends JPanel {
 		FileTreeModel model = new FileTreeModel( root );
 		JTree view = new JTree( model );
 		JScrollPane scroll = new JScrollPane( view );
+		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 		add( scroll );
 	}
 	
