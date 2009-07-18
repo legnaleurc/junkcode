@@ -335,7 +335,7 @@ end module
 
 # Includes the popular K3B and Amarok programs.
 module extragear/multimedia
-	do-not-compile kaffeine kaffeinegl kaudiocreator kmid kmplayer kplayer
+	do-not-compile kaffeine kaffeinegl kaudiocreator kmid kmplayer kplayer amarok
 end module
 
 # Includes various photo management applications.
