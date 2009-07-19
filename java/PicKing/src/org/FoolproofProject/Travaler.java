@@ -7,14 +7,6 @@ import java.util.Map.Entry;
 
 public class Travaler {
 	
-	public static Pair pick( Long limit, String path ) {
-		return pick( limit, new File( path ) );
-	}
-	
-	public static Pair pick( Long limit, File path ) {
-		return pick( limit, walk( path ) );
-	}
-	
 	public static Pair pick( Long limit, Hashtable< String, Long > items ) {
 		Vector< Pair > table = new Vector< Pair >();
 		table.add( new Pair() );
@@ -41,45 +33,15 @@ public class Travaler {
 		return max;
 	}
 	
-	public static Hashtable< String, Long > walk( String path ) {
-		return walk( new File( path ) );
-	}
-	
-	public static Hashtable< String, Long > walk( File path ) {
-		Hashtable< String, Long > table = new Hashtable< String, Long >();
-		if( path.isDirectory() ) {
-			for( File file : path.listFiles() ) {
-				table.put(file.getAbsolutePath(), deepWalk( file ) );
-			}
-		}
-		return table;
-	}
-	
-	private static Long deepWalk( File path ) {
+	public static Long getSize( File path ) {
 		if( path.isDirectory() ) {
 			Long sum = path.length();
 			for( File file : path.listFiles() ) {
-				sum += deepWalk( file );
+				sum += getSize( file );
 			}
 			return sum;
 		} else {
 			return path.length();
-		}
-	}
-	
-	public static class Pair {
-		public Long size;
-		public Vector< String > items;
-		public Pair() {
-			size = 0L;
-			items = new Vector< String >();
-		}
-		public Pair( Long size, Vector< String > items ) {
-			this.size = size;
-			this.items = items;
-		}
-		public String toString() {
-			return "("+size+":"+items+")";
 		}
 	}
 

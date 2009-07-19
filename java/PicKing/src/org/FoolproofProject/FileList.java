@@ -1,5 +1,8 @@
 package org.FoolproofProject;
 
+import java.io.File;
+import java.util.Vector;
+
 import javax.swing.BoxLayout;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -20,6 +23,19 @@ public class FileList extends JPanel {
 	
 	public void setItems( ShortFile path ) {
 		view.setListData( path.listFiles() );
+	}
+	
+	public Vector< File > getSelectedFiles() {
+		Object[] selection = view.getSelectedValues();
+		if( selection == null ) {
+			return null;
+		}
+
+		Vector< File > tmp = new Vector< File >();
+		for( Object o : selection ) {
+			tmp.add( ( File )o );
+		}
+		return tmp;
 	}
 
 }

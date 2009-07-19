@@ -1,6 +1,10 @@
 package org.FoolproofProject;
 
 import java.awt.Container;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.Hashtable;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -13,6 +17,9 @@ import javax.swing.UIManager;
 public class Main extends JFrame {
 	
 	private static final long serialVersionUID = 6869079478547863579L;
+	private FileList list;
+	private NeturalField size;
+	private ResultTree result;
 	
 	public Main( String title ) {
 		super( title );
@@ -33,10 +40,10 @@ public class Main extends JFrame {
 		DirectoryTree tree = new DirectoryTree();
 		central.add( tree );
 		
-		FileList list = new FileList( tree );
+		list = new FileList( tree );
 		central.add( list );
 		
-		ResultTree result = new ResultTree();
+		result = new ResultTree();
 		central.add( result );
 		
 		Container pane = getContentPane();
@@ -47,7 +54,7 @@ public class Main extends JFrame {
 		JPanel panel = new JPanel();
 		panel.setLayout( new BoxLayout( panel, BoxLayout.X_AXIS ) );
 		
-		NeturalField size = new NeturalField( 4 );
+		size = new NeturalField( 4 );
 		panel.add( size );
 		
 		JComboBox unit = new JComboBox();
@@ -59,6 +66,18 @@ public class Main extends JFrame {
 		
 		JButton start = new JButton( "Start" );
 		panel.add( start );
+		start.addMouseListener( new MouseAdapter() {
+			public void mouseClicked( MouseEvent e ) {
+				result.clear();
+				
+				Hashtable< String, Long > table = new Hashtable< String, Long >();
+				for( File file : list.getSelectedFiles() ) {
+					table.put( file.getName(), Travaler.getSize( file ) );
+				}
+				Pair pair = Travaler.pick( size.toLong(), table );
+				result.addResult( pair );
+			}
+		} );
 		
 		Container pane = getContentPane();
 		pane.add( panel );

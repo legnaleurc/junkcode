@@ -11,11 +11,11 @@ public class NeturalField extends JTextField {
 	private static final long serialVersionUID = -4923755274608244338L;
 	
 	public NeturalField( int columns ) {
-		super( columns );
+		super( "0", columns );
 	}
 	
-	public Integer getNumber() {
-		return Integer.parseInt( super.getText() );
+	public Long toLong() {
+		return Long.parseLong( super.getText() );
 	}
 	
 	protected Document createDefaultModel() {
