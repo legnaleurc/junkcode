@@ -6,6 +6,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 public class ResultTree extends JPanel {
 
@@ -17,6 +18,8 @@ public class ResultTree extends JPanel {
 		JScrollPane scroll = new JScrollPane( view );
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 		add( scroll );
+		
+		clear();
 	}
 	
 	public void clear() {
@@ -36,6 +39,7 @@ public class ResultTree extends JPanel {
 		for( String name : result.items ) {
 			newNode.add( new DefaultMutableTreeNode( name ) );
 		}
+		view.expandPath( new TreePath( newNode.getPath() ) );
 	}
 
 }
