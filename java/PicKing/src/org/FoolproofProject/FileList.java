@@ -1,6 +1,5 @@
 package org.FoolproofProject;
 
-import java.io.File;
 import javax.swing.BoxLayout;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -19,7 +18,7 @@ public class FileList extends JPanel {
 		add( scroll );
 	}
 	
-	public void setItems( File path ) {
+	public void setItems( ShortFile path ) {
 		view.setListData( path.listFiles() );
 	}
 

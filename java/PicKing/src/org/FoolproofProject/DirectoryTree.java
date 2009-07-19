@@ -42,7 +42,7 @@ public class DirectoryTree extends JPanel {
 				TreePath[] selection = ( ( JTree )e.getSource() ).getSelectionPaths();
 				if( selection.length == 1 ) {
 					for( FileList list : listener ) {
-						list.setItems( ( File )selection[0].getLastPathComponent() );
+						list.setItems( ( ShortFile )selection[0].getLastPathComponent() );
 					}
 				}
 			}
@@ -57,10 +57,10 @@ public class DirectoryTree extends JPanel {
 	
 	private class DirectoryTreeModel implements TreeModel {
 		
-		private File root;
+		private ShortFile root;
 		
 		public DirectoryTreeModel( File root ) {
-			this.root = root;
+			this.root = new ShortFile( root );
 		}
 
 		@Override
@@ -70,12 +70,12 @@ public class DirectoryTree extends JPanel {
 		}
 
 		@Override
-		public File getChild(Object parent, int index) {
+		public ShortFile getChild(Object parent, int index) {
 			File[] children = ( ( File )parent ).listFiles( new DirectoryFilter() );
 			if( children == null || ( index >= children.length ) ) {
 				return null;
 			}
-			return new File( ( File )parent, children[index].getName() );
+			return new ShortFile( ( File )parent, children[index].getName() );
 		}
 
 		@Override
@@ -103,7 +103,7 @@ public class DirectoryTree extends JPanel {
 		}
 
 		@Override
-		public File getRoot() {
+		public ShortFile getRoot() {
 			return root;
 		}
 
