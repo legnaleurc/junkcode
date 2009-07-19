@@ -2,6 +2,7 @@ package org.FoolproofProject;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -9,6 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -20,15 +23,33 @@ public class DirectoryTree extends JPanel {
 	
 	private static final long serialVersionUID = -8724999594568776949L;
 	private Vector< FileList > listener;
+	private Hashtable< JScrollPane, JTree > views;
 	
 	public DirectoryTree() {
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 		listener = new Vector< FileList >();
+		views = new Hashtable< JScrollPane, JTree >();
 		
 		JTabbedPane tab = new JTabbedPane();
 		add( tab );
 		for( File root : File.listRoots() ) {
 			tab.addTab( root.getPath(), createRootTab( root ) );
+		}
+		tab.addChangeListener( new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JTabbedPane source = ( JTabbedPane )e.getSource();
+				dispatch( views.get( source.getSelectedComponent() ) );
+			}
+		} );
+	}
+	
+	private void dispatch( JTree tree ) {
+		TreePath[] selection = tree.getSelectionPaths();
+		if( selection != null && selection.length == 1 ) {
+			for( FileList list : listener ) {
+				list.setItems( ( ShortFile )selection[0].getLastPathComponent() );
+			}
 		}
 	}
 	
@@ -38,15 +59,12 @@ public class DirectoryTree extends JPanel {
 		view.addTreeSelectionListener( new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
-				TreePath[] selection = ( ( JTree )e.getSource() ).getSelectionPaths();
-				if( selection.length == 1 ) {
-					for( FileList list : listener ) {
-						list.setItems( ( ShortFile )selection[0].getLastPathComponent() );
-					}
-				}
+				dispatch( ( JTree )e.getSource() );
 			}
 		} );
-		return new JScrollPane( view );
+		JScrollPane scroll = new JScrollPane( view );
+		views.put( scroll, view );
+		return scroll;
 	}
 	
 	public void addFileListListener( FileList list ) {
