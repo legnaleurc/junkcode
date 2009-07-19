@@ -36,6 +36,9 @@ public class Main extends JFrame {
 		FileList list = new FileList( tree );
 		central.add( list );
 		
+		ResultTree result = new ResultTree();
+		central.add( result );
+		
 		Container pane = getContentPane();
 		pane.add( central );
 	}
