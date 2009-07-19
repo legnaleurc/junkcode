@@ -2,6 +2,7 @@ package org.FoolproofProject;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -12,13 +13,15 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 public class DirectoryTree extends JPanel {
 	
 	private static final long serialVersionUID = -8724999594568776949L;
+	private Vector< FileList > listener;
 	
 	public DirectoryTree() {
-		this( File.listRoots()[0] );
+		this( "." );
 	}
 	
 	public DirectoryTree( String path ) {
@@ -32,17 +35,24 @@ public class DirectoryTree extends JPanel {
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 		add( scroll );
 		
+		view.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION );
 		view.addTreeSelectionListener( new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
-				TreePath[] paths = ( ( JTree )e.getSource() ).getSelectionPaths();
-				System.err.println( "<?" );
-				for( TreePath path : paths ) {
-					System.err.println( path.getLastPathComponent() );
+				TreePath[] selection = ( ( JTree )e.getSource() ).getSelectionPaths();
+				if( selection.length == 1 ) {
+					for( FileList list : listener ) {
+						list.setItems( ( File )selection[0].getLastPathComponent() );
+					}
 				}
-				System.err.println( "?>" );
 			}
 		} );
+		
+		listener = new Vector< FileList >();
+	}
+	
+	public void addFileListListener( FileList list ) {
+		listener.add( list );
 	}
 	
 	private class DirectoryTreeModel implements TreeModel {

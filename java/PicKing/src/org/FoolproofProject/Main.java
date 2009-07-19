@@ -1,5 +1,7 @@
 package org.FoolproofProject;
 
+import java.awt.Container;
+
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -17,11 +19,18 @@ public class Main {
 				}
 				
 				JFrame window = new JFrame();
-				window.setLayout( new BoxLayout( window.getContentPane(), BoxLayout.Y_AXIS ) );
 				window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 				window.setSize( 640, 480 );
-				window.getContentPane().add( new DirectoryTree() );
 				window.setVisible(true);
+				
+				Container pane = window.getContentPane();
+				pane.setLayout( new BoxLayout( pane, BoxLayout.X_AXIS ) );
+				
+				DirectoryTree tree = new DirectoryTree();
+				pane.add( tree );
+				
+				FileList list = new FileList( tree );
+				pane.add( list );
 			}
 		} );
 	}
