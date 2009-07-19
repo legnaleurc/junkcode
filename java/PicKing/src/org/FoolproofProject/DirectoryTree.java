@@ -7,6 +7,7 @@ import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -21,20 +22,18 @@ public class DirectoryTree extends JPanel {
 	private Vector< FileList > listener;
 	
 	public DirectoryTree() {
-		this( "." );
-	}
-	
-	public DirectoryTree( String path ) {
-		this( new File( path ) );
-	}
-	
-	public DirectoryTree( File root ) {
-		DirectoryTreeModel model = new DirectoryTreeModel( root );
-		JTree view = new JTree( model );
-		JScrollPane scroll = new JScrollPane( view );
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
-		add( scroll );
+		listener = new Vector< FileList >();
 		
+		JTabbedPane tab = new JTabbedPane();
+		add( tab );
+		for( File root : File.listRoots() ) {
+			tab.addTab( root.getPath(), createRootTab( root ) );
+		}
+	}
+	
+	private JScrollPane createRootTab( File root ) {
+		JTree view = new JTree( new DirectoryTreeModel( root ) );
 		view.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION );
 		view.addTreeSelectionListener( new TreeSelectionListener() {
 			@Override
@@ -47,8 +46,7 @@ public class DirectoryTree extends JPanel {
 				}
 			}
 		} );
-		
-		listener = new Vector< FileList >();
+		return new JScrollPane( view );
 	}
 	
 	public void addFileListListener( FileList list ) {
