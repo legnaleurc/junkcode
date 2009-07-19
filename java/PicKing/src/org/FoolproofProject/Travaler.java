@@ -7,16 +7,16 @@ import java.util.Map.Entry;
 
 public class Travaler {
 	
-	public static Pair pick( Long limit, Hashtable< String, Long > items ) {
+	public static Pair pick( Long limit, Hashtable< File, Long > items ) {
 		Vector< Pair > table = new Vector< Pair >();
 		table.add( new Pair() );
 		
-		for( Entry< String, Long > e : items.entrySet() ) {
+		for( Entry< File, Long > e : items.entrySet() ) {
 			Vector< Pair > tmp = new Vector< Pair >();
 			for( Pair p : table ) {
 				Long newSize = p.size + e.getValue();
 				if( newSize <= limit ) {
-					Vector< String > newDirs = new Vector< String >( p.items );
+					Vector< File > newDirs = new Vector< File >( p.items );
 					newDirs.add( e.getKey() );
 					tmp.add( new Pair( newSize, newDirs ) );
 				}

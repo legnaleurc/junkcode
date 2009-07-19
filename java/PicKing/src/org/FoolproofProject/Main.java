@@ -5,6 +5,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -70,12 +71,22 @@ public class Main extends JFrame {
 			public void mouseClicked( MouseEvent e ) {
 				result.clear();
 				
-				Hashtable< String, Long > table = new Hashtable< String, Long >();
-				for( File file : list.getSelectedFiles() ) {
-					table.put( file.getName(), Travaler.getSize( file ) );
+				Vector< File > items = list.getSelectedFiles();
+				while( !items.isEmpty() ) {
+					Hashtable< File, Long > table = new Hashtable< File, Long >();
+					for( File file : items ) {
+						table.put( file, Travaler.getSize( file ) );
+					}
+					Pair pair = Travaler.pick( size.toLong(), table );
+					if( pair.size == 0L ) {
+						result.addResult( items );
+						return;
+					}
+					result.addResult( pair );
+					for( File item : pair.items ) {
+						items.remove( item );
+					}
 				}
-				Pair pair = Travaler.pick( size.toLong(), table );
-				result.addResult( pair );
 			}
 		} );
 		
