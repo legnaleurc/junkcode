@@ -2,7 +2,6 @@ package org.FoolproofProject;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -23,12 +22,10 @@ public class DirectoryTree extends JPanel {
 	
 	private static final long serialVersionUID = -8724999594568776949L;
 	private Vector< FileList > listener;
-	private Hashtable< JScrollPane, JTree > views;
 	
 	public DirectoryTree() {
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 		listener = new Vector< FileList >();
-		views = new Hashtable< JScrollPane, JTree >();
 		
 		JTabbedPane tab = new JTabbedPane();
 		add( tab );
@@ -39,7 +36,9 @@ public class DirectoryTree extends JPanel {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				JTabbedPane source = ( JTabbedPane )e.getSource();
-				dispatch( views.get( source.getSelectedComponent() ) );
+				JScrollPane tab = ( JScrollPane )source.getSelectedComponent();
+				JTree tree = ( JTree )tab.getViewport().getView();
+				dispatch( tree );
 			}
 		} );
 	}
@@ -62,9 +61,7 @@ public class DirectoryTree extends JPanel {
 				dispatch( ( JTree )e.getSource() );
 			}
 		} );
-		JScrollPane scroll = new JScrollPane( view );
-		views.put( scroll, view );
-		return scroll;
+		return new JScrollPane( view );
 	}
 	
 	public void addFileListListener( FileList list ) {
