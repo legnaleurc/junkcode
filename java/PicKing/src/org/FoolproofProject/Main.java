@@ -21,6 +21,7 @@ public class Main extends JFrame {
 	private FileList list;
 	private NeturalField size;
 	private ResultTree result;
+	private JComboBox unit;
 	
 	public Main( String title ) {
 		super( title );
@@ -58,7 +59,7 @@ public class Main extends JFrame {
 		size = new NeturalField( 4 );
 		panel.add( size );
 		
-		JComboBox unit = new JComboBox();
+		unit = new JComboBox();
 		panel.add( unit );
 		unit.addItem( "B" );
 		unit.addItem( "KB" );
@@ -72,17 +73,19 @@ public class Main extends JFrame {
 				result.clear();
 				
 				Vector< File > items = list.getSelectedFiles();
+				long eng = ( long )Math.pow( 1024, unit.getSelectedIndex() );
 				while( !items.isEmpty() ) {
 					Hashtable< File, Long > table = new Hashtable< File, Long >();
 					for( File file : items ) {
 						table.put( file, Travaler.getSize( file ) );
 					}
-					Pair pair = Travaler.pick( size.toLong(), table );
+					Pair pair = Travaler.pick( size.toLong() * eng, table );
 					if( pair.size == 0L ) {
-						result.addResult( items );
+						result.addResult( "Overflow", items );
 						return;
 					}
-					result.addResult( pair );
+					Long title = pair.size / eng;
+					result.addResult( title + " " + unit.getSelectedItem(), pair.items );
 					for( File item : pair.items ) {
 						items.remove( item );
 					}

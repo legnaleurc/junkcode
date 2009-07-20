@@ -28,12 +28,8 @@ public class ResultTree extends JPanel {
 		( ( DefaultTreeModel )view.getModel() ).setRoot( null );
 	}
 	
-	public void addResult( Pair result ) {
-		getRoot().add( createNewNode( result.size, result.items ) );
-	}
-	
-	public void addResult( Vector< File > overflow ) {
-		getRoot().add( createNewNode( "Overflow", overflow ) );
+	public void addResult( String title, Vector< File > items ) {
+		getRoot().add( createNewNode( title, items ) );
 	}
 	
 	private DefaultMutableTreeNode getRoot() {
