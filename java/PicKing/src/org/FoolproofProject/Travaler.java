@@ -95,8 +95,11 @@ public class Travaler {
 			return new Cell( cell, sum );
 		}
 		
-		private boolean canStop() {
+		private Boolean canStop() {
 			Long top = population[0].size;
+			if( top == 0L ) {
+				return true;
+			}
 			Long bottom = population[population.length/2].size;
 			Double rate = bottom.doubleValue() / top.doubleValue();
 			return rate >= 0.99;
