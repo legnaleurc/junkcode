@@ -1,6 +1,8 @@
 package org.FoolproofProject;
 
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -37,7 +39,8 @@ public class Main extends JFrame {
 
 	private void initViewPort() {
 		JPanel central = new JPanel();
-		central.setLayout( new BoxLayout( central, BoxLayout.X_AXIS ) );
+		central.setLayout( new GridLayout( 1, 3 ) );
+		central.setMaximumSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
 		
 		DirectoryTree tree = new DirectoryTree();
 		central.add( tree );
@@ -54,7 +57,7 @@ public class Main extends JFrame {
 	
 	private void initControlPanel() {
 		JPanel panel = new JPanel();
-		panel.setLayout( new BoxLayout( panel, BoxLayout.X_AXIS ) );
+		panel.setLayout( new GridLayout( 1, 3 ) );
 		
 		size = new NeturalField( 4 );
 		panel.add( size );
@@ -116,17 +119,10 @@ public class Main extends JFrame {
 				}
 				
 				Main self = new Main( "PicKing" );
-				self.setSize( 640, 480 );
+				self.setSize( 800, 600 );
 				self.setVisible(true);
 			}
 		} );
-		// for test
-//		File cwd = new File( "./src/org/FoolproofProject" );
-//		Hashtable< File, Long > table = new Hashtable< File, Long >();
-//		for( File f : cwd.listFiles() ) {
-//			table.put( f, Travaler.getSize( f ) );
-//		}
-//		System.err.println( Travaler.pick2( 2000L, table ) );
 	}
 
 }
