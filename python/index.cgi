@@ -64,7 +64,7 @@ def main( args = None ):
 	print '<title>Material</title>'
 	print '</head>'
 	print '<body>'
-	v = Visitor( unicode( '.' ) )
+	v = Visitor( None if len( args ) == 1 else unicode( args[1] ) )
 	v.walk()
 	print '</body>'
 	print '</html>'
