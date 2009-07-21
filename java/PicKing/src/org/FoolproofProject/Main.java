@@ -81,6 +81,7 @@ public class Main extends JFrame {
 				Long limit = size.toLong() * eng;
 				Vector< File > overflow = new Vector< File >();
 				Hashtable< File, Long > table = new Hashtable< File, Long >();
+				Hashtable< File, Long > total = new Hashtable< File, Long >();
 				for( File item : items ) {
 					Long fileSize = Travaler.getSize( item );
 					if( fileSize > limit ) {
@@ -88,7 +89,10 @@ public class Main extends JFrame {
 					} else {
 						table.put( item, fileSize );
 					}
+					total.put( item , fileSize );
 				}
+				
+				result.setTable( total );
 				
 				while( !table.isEmpty() ) {
 					Pair pair = Travaler.pick( limit, table );
