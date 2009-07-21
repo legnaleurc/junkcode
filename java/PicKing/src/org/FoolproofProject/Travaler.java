@@ -99,11 +99,7 @@ public class Travaler {
 			Long top = population[0].size;
 			Long bottom = population[population.length/2].size;
 			Double rate = bottom.doubleValue() / top.doubleValue();
-			if( rate >= 0.95 ) {
-				return true;
-			} else {
-				return false;
-			}
+			return rate >= 0.99;
 		}
 		
 		private void crossOver() {
