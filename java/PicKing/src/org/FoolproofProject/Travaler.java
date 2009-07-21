@@ -81,7 +81,7 @@ public class Travaler {
 				cell.clear();
 				sum = 0L;
 				for( Entry< File, Long > e : items.entrySet() ) {
-					if( Math.floor( Math.random() * 2 ) == 0.0 ) {
+					if( Math.floor( Math.random() * 2 ) < 1.0 ) {
 						cell.put( e.getKey(), false );
 					} else {
 						cell.put( e.getKey(), true );
@@ -124,7 +124,7 @@ public class Travaler {
 			for( int i = halfSize; i < population.length; ++i ) {
 				Cell cell = population[i];
 				for( Entry< File, Boolean > e : cell.table.entrySet() ) {
-					if( Math.floor( Math.random() * 2 ) < 1.0 ) {
+					if( Math.floor( Math.random() * cell.table.size() ) < 1.0 ) {
 						if( e.getValue() ) {
 							cell.table.put( e.getKey(), false );
 							cell.size -= items.get( e.getKey() );
