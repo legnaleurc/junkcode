@@ -65,6 +65,7 @@ public class Main extends JFrame {
 		unit.addItem( "KB" );
 		unit.addItem( "MB" );
 		unit.addItem( "GB" );
+		unit.setSelectedIndex( 2 );
 		
 		JButton start = new JButton( "Start" );
 		panel.add( start );
@@ -111,6 +112,13 @@ public class Main extends JFrame {
 				self.setVisible(true);
 			}
 		} );
+		// for test
+//		File cwd = new File( "./src/org/FoolproofProject" );
+//		Hashtable< File, Long > table = new Hashtable< File, Long >();
+//		for( File f : cwd.listFiles() ) {
+//			table.put( f, Travaler.getSize( f ) );
+//		}
+//		System.err.println( Travaler.pick2( 2000L, table ) );
 	}
 
 }

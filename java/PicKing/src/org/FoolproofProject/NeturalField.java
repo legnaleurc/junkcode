@@ -11,7 +11,7 @@ public class NeturalField extends JTextField {
 	private static final long serialVersionUID = -4923755274608244338L;
 	
 	public NeturalField( int columns ) {
-		super( "0", columns );
+		super( "4483", columns );
 	}
 	
 	public Long toLong() {
