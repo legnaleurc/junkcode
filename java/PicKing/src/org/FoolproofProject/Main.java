@@ -75,21 +75,29 @@ public class Main extends JFrame {
 				
 				Vector< File > items = list.getSelectedFiles();
 				long eng = ( long )Math.pow( 1024, unit.getSelectedIndex() );
-				while( !items.isEmpty() ) {
-					Hashtable< File, Long > table = new Hashtable< File, Long >();
-					for( File file : items ) {
-						table.put( file, Travaler.getSize( file ) );
+				Long limit = size.toLong() * eng;
+				Vector< File > overflow = new Vector< File >();
+				Hashtable< File, Long > table = new Hashtable< File, Long >();
+				for( File item : items ) {
+					Long fileSize = Travaler.getSize( item );
+					if( fileSize > limit ) {
+						overflow.add( item );
+					} else {
+						table.put( item, fileSize );
 					}
-					Pair pair = Travaler.pick( size.toLong() * eng, table );
-					if( pair.size == 0L ) {
-						result.addResult( "Overflow", items );
-						return;
-					}
+				}
+				
+				while( !table.isEmpty() ) {
+					Pair pair = Travaler.pick( limit, table );
 					Long title = pair.size / eng;
 					result.addResult( title + " " + unit.getSelectedItem(), pair.items );
-					for( File item : pair.items ) {
-						items.remove( item );
+					for( File file : pair.items ) {
+						table.remove( file );
 					}
+				}
+				
+				if( !overflow.isEmpty() ) {
+					result.addResult( "Overflow", overflow );
 				}
 			}
 		} );

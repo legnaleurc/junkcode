@@ -58,12 +58,10 @@ public class Travaler {
 		}
 		
 		public Pair select() {
-			boolean stop = this.canStop();
-			while( !stop ) {
+			while( !canStop() ) {
 				crossOver();
 				mutation();
 				Arrays.sort( population );
-				stop = this.canStop();
 			}
 			
 			Cell survivor = population[0];
@@ -98,17 +96,9 @@ public class Travaler {
 		}
 		
 		private boolean canStop() {
-//			Long first = population[0].size;
-//			for( int i = 1; i < population.length / 2; ++i ) {
-//				if( !population[i].size.equals( first ) ) {
-//					return false;
-//				}
-//			}
-//			return true;
 			Long top = population[0].size;
 			Long bottom = population[population.length/2].size;
 			Double rate = bottom.doubleValue() / top.doubleValue();
-			System.err.println( rate >= 0.95 );
 			if( rate >= 0.95 ) {
 				return true;
 			} else {
@@ -157,7 +147,11 @@ public class Travaler {
 	}
 	
 	public static Pair pick( Long limit, Hashtable< File, Long > items ) {
-		return pick2( limit, items );
+		if( items.size() < 16 ) {
+			return pick1( limit, items );
+		} else {
+			return pick2( limit, items );
+		}
 	}
 	
 	public static Pair pick2( Long limit, Hashtable< File, Long > items ) {
