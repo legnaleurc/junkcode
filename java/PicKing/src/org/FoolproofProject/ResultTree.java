@@ -2,6 +2,7 @@ package org.FoolproofProject;
 
 import java.awt.Component;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -13,6 +14,8 @@ import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 public class ResultTree extends JPanel {
 
@@ -50,6 +53,18 @@ public class ResultTree extends JPanel {
 		
 		table = null;
 		clear();
+	}
+	
+	public void expandAll() {
+		expand( new TreePath( view.getModel().getRoot() ) );
+	}
+	
+	private void expand( TreePath path ) {
+		view.expandPath( path );
+		TreeNode node = ( TreeNode )path.getLastPathComponent();
+		for( Enumeration< ? > e = node.children(); e.hasMoreElements(); ) {
+			expand( path.pathByAddingChild( e.nextElement() ) );
+		}
 	}
 	
 	public void clear() {

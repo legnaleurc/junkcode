@@ -106,6 +106,8 @@ public class Main extends JFrame {
 				if( !overflow.isEmpty() ) {
 					result.addResult( "Overflow", overflow );
 				}
+				
+				result.expandAll();
 			}
 		} );
 		
