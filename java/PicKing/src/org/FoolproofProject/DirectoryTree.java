@@ -47,7 +47,7 @@ public class DirectoryTree extends JPanel {
 		TreePath[] selection = tree.getSelectionPaths();
 		if( selection != null && selection.length == 1 ) {
 			for( FileList list : listener ) {
-				list.setItems( ( ShortFile )selection[0].getLastPathComponent() );
+				list.setItems( ( File )selection[0].getLastPathComponent() );
 			}
 		}
 	}

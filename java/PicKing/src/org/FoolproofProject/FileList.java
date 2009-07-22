@@ -34,8 +34,8 @@ public class FileList extends JPanel {
 		} );
 	}
 	
-	public void setItems( ShortFile path ) {
-		ShortFile[] files = path.listFiles();
+	public void setItems( File path ) {
+		File[] files = path.listFiles();
 		if( files != null ) {
 			view.setListData( files );
 		}
