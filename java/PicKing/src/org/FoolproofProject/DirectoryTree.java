@@ -22,21 +22,21 @@ public class DirectoryTree extends JPanel {
 	
 	private static final long serialVersionUID = -8724999594568776949L;
 	private Vector< FileList > listener;
+	private JTabbedPane tabWidget;
 	
 	public DirectoryTree() {
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 		listener = new Vector< FileList >();
 		
-		JTabbedPane tab = new JTabbedPane();
-		add( tab );
+		tabWidget = new JTabbedPane();
+		add( tabWidget );
 		for( File root : File.listRoots() ) {
-			tab.addTab( root.getPath(), createRootTab( root ) );
+			tabWidget.addTab( root.getPath(), createRootTab( root ) );
 		}
-		tab.addChangeListener( new ChangeListener() {
+		tabWidget.addChangeListener( new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				JTabbedPane source = ( JTabbedPane )e.getSource();
-				JScrollPane tab = ( JScrollPane )source.getSelectedComponent();
+				JScrollPane tab = ( JScrollPane )tabWidget.getSelectedComponent();
 				JTree tree = ( JTree )tab.getViewport().getView();
 				dispatch( tree );
 			}
@@ -66,6 +66,30 @@ public class DirectoryTree extends JPanel {
 	
 	public void addFileListListener( FileList list ) {
 		listener.add( list );
+	}
+	
+	public void open( File file ) {
+		if( file.isDirectory() ) {
+			File root = file;
+			Vector< File > list = new Vector< File >();
+			while( root.getParentFile() != null ) {
+				list.insertElementAt( root, 0 );
+				root = root.getParentFile();
+			}
+			list.insertElementAt( root, 0 );
+			File[] roots = File.listRoots();
+			for( int i = 0; i < roots.length; ++i ) {
+				if( roots[i].equals( root ) ) {
+					tabWidget.setSelectedIndex( i );
+					break;
+				}
+			}
+			
+			JScrollPane current = ( JScrollPane )tabWidget.getSelectedComponent();
+			JTree tree = ( JTree )current.getViewport().getView();
+			TreePath path = new TreePath( list.toArray() );
+			tree.setSelectionPath( path );
+		}
 	}
 	
 	private class DirectoryTreeModel implements TreeModel {

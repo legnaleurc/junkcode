@@ -43,5 +43,14 @@ public class ShortFile extends File {
 			return tmp;
 		}
 	}
+	
+	public ShortFile getParentFile() {
+		File parent = super.getParentFile();
+		if( parent == null ) {
+			return null;
+		} else {
+			return new ShortFile( parent );
+		}
+	}
 
 }
