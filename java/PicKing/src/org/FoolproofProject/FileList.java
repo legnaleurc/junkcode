@@ -35,7 +35,10 @@ public class FileList extends JPanel {
 	}
 	
 	public void setItems( ShortFile path ) {
-		view.setListData( path.listFiles() );
+		ShortFile[] files = path.listFiles();
+		if( files != null ) {
+			view.setListData( files );
+		}
 	}
 	
 	public Vector< File > getSelectedFiles() {

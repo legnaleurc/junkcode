@@ -165,7 +165,7 @@ public class DirectoryTree extends JPanel {
 		private class DirectoryFilter implements FileFilter {
 			@Override
 			public boolean accept(File file) {
-				return file.isDirectory();
+				return file.isDirectory() && !file.isHidden();
 			}
 		}
 	}

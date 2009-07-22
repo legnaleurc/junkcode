@@ -36,6 +36,9 @@ public class ShortFile extends File {
 			return null;
 		} else {
 			File[] original = super.listFiles();
+			if( original == null ) {
+				return null;
+			}
 			ShortFile[] tmp = new ShortFile[original.length];
 			for( int i = 0; i < tmp.length; ++i ) {
 				tmp[i] = new ShortFile( original[i] );
