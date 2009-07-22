@@ -50,14 +50,14 @@ public class Travaler {
 			this.limit = limit;
 			this.items = items;
 			
-			population = new Cell[items.size() * 4];
+			population = new Cell[items.size() * 2];
 			for( int i = 0; i < population.length; ++i ) {
-				population[i] = randomSelect();
+				population[i] = generatePopulation();
 			}
 			Arrays.sort( population );
 		}
 		
-		public Pair select() {
+		public Pair perform() {
 			while( !canStop() ) {
 				crossOver();
 				mutation();
@@ -74,7 +74,7 @@ public class Travaler {
 			return result;
 		}
 		
-		private Cell randomSelect() {
+		private Cell generatePopulation() {
 			Hashtable< File, Boolean > cell = new Hashtable< File, Boolean >();
 			Long sum = null;
 			do {
@@ -95,6 +95,15 @@ public class Travaler {
 			return new Cell( cell, sum );
 		}
 		
+		private int selectParent( int i ) {
+			int total = items.size();
+			if( i + 1 == total || Math.floor( Math.random() * total ) < 2.0 ) {
+				return i;
+			} else {
+				return selectParent( i + 1 );
+			}
+		}
+		
 		private Boolean canStop() {
 			Long top = population[0].size;
 			if( top == 0L ) {
@@ -102,14 +111,14 @@ public class Travaler {
 			}
 			Long bottom = population[population.length/2].size;
 			Double rate = bottom.doubleValue() / top.doubleValue();
-			return rate >= 0.99;
+			return rate >= 0.999;
 		}
 		
 		private void crossOver() {
 			final int halfSize = population.length / 2;
-			for( int i = 0; i < halfSize; i += 2 ) {
+			for( int i = 0; i < halfSize; ++i ) {
 				Cell new1 = new Cell( population[i] );
-				Cell new2 = new Cell( population[i+1] );
+				Cell new2 = new Cell( population[selectParent( 0 )] );
 				for( Entry< File, Boolean > e : new1.table.entrySet() ) {
 					if( Math.floor( Math.random() * 2 ) < 1.0 ) {
 						Boolean tmp = new2.table.get( e.getKey() );
@@ -117,8 +126,9 @@ public class Travaler {
 						e.setValue( tmp );
 					}
 				}
-				population[halfSize + i] = ( new1.update( items ) > limit ) ? randomSelect() : new1;
-				population[halfSize + i + 1] = ( new2.update( items ) > limit ) ? randomSelect() : new2;
+				new1 = ( new1.update( items ) > limit ) ? generatePopulation() : new1;
+				new2 = ( new2.update( items ) > limit ) ? generatePopulation() : new2;
+				population[halfSize + i] = ( new1.size > new2.size ) ? new1 : new2;
 			}
 		}
 		
@@ -138,7 +148,7 @@ public class Travaler {
 					}
 				}
 				if( cell.size > limit ) {
-					population[i] = randomSelect();
+					population[i] = generatePopulation();
 				}
 			}
 		}
@@ -147,18 +157,18 @@ public class Travaler {
 	
 	public static Pair pick( Long limit, Hashtable< File, Long > items ) {
 		if( items.size() < 16 ) {
-			return pick1( limit, items );
+			return pickSmall( limit, items );
 		} else {
-			return pick2( limit, items );
+			return pickLarge( limit, items );
 		}
 	}
 	
-	public static Pair pick2( Long limit, Hashtable< File, Long > items ) {
+	public static Pair pickLarge( Long limit, Hashtable< File, Long > items ) {
 		GeneticAlgorithm ga = new GeneticAlgorithm( limit, items );
-		return ga.select();
+		return ga.perform();
 	}
 	
-	public static Pair pick1( Long limit, Hashtable< File, Long > items ) {
+	public static Pair pickSmall( Long limit, Hashtable< File, Long > items ) {
 		Vector< Pair > table = new Vector< Pair >();
 		table.add( new Pair() );
 		
