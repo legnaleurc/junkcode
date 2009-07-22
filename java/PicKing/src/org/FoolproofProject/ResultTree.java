@@ -25,6 +25,7 @@ public class ResultTree extends JPanel {
 	
 	public ResultTree() {
 		view = new JTree();
+		view.setRootVisible( false );
 		JScrollPane scroll = new JScrollPane( view );
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 		add( scroll );

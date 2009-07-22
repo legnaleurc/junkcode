@@ -54,6 +54,7 @@ public class DirectoryTree extends JPanel {
 	
 	private JScrollPane createRootTab( File root ) {
 		JTree view = new JTree( new DirectoryTreeModel( root ) );
+		view.setRootVisible( false );
 		view.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION );
 		view.addTreeSelectionListener( new TreeSelectionListener() {
 			@Override
