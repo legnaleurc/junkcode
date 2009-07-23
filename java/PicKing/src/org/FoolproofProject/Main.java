@@ -30,6 +30,38 @@ import org.FoolproofProject.Travaler.Result;
 
 public class Main extends JFrame {
 	
+	private class ItemTable {
+		
+		private Long size;
+		private Hashtable< File, Long > table;
+		
+		public ItemTable() {
+			size = 0L;
+			table = new Hashtable< File, Long >();
+		}
+		
+		public Long getSize() {
+			return size;
+		}
+		public Hashtable< File, Long > getTable() {
+			return table;
+		}
+		public void remove( File key ) {
+			size -= table.get( key );
+			table.remove( key );
+		}
+		public void put( File key, Long value ) {
+			size += value;
+			table.put( key, value );
+		}
+		public boolean isEmpty() {
+			return table.isEmpty();
+		}
+		public Vector< File > getKeys() {
+			return new Vector< File >( table.keySet() );
+		}
+	}
+	
 	private static final long serialVersionUID = 6869079478547863579L;
 	private FileList list;
 	private NeturalField size;
@@ -177,12 +209,10 @@ public class Main extends JFrame {
 				long eng = ( long )Math.pow( 1024, unit.getSelectedIndex() );
 				Long limit = size.toLong() * eng;
 				Vector< File > overflow = new Vector< File >();
-				Hashtable< File, Long > table = new Hashtable< File, Long >();
+				ItemTable table = new ItemTable();
 				Hashtable< File, Long > total = new Hashtable< File, Long >();
-				Long totalSize = 0L;
 				for( File item : items ) {
 					Long fileSize = Travaler.getSize( item );
-					totalSize += fileSize;
 					if( fileSize > limit ) {
 						overflow.add( item );
 					} else {
@@ -193,22 +223,17 @@ public class Main extends JFrame {
 				
 				result.setTable( total );
 				
-				if( totalSize < limit ) {
-					Long title = totalSize / eng;
-					result.addResult( title + " " + unit.getSelectedItem(), items );
-				} else {
-					while( !table.isEmpty() ) {
-						Result pair = Travaler.pick( limit, table );
-						Long title = pair.size / eng;
-						result.addResult( title + " " + unit.getSelectedItem(), pair.items );
-						for( File file : pair.items ) {
-							table.remove( file );
-						}
+				while( !table.isEmpty() ) {
+					Result pair = ( table.getSize() < limit ) ? new Result( table.getSize(), table.getKeys() ) : Travaler.pick( limit, table.getTable() );
+					Long title = pair.size / eng;
+					result.addResult( title + " " + unit.getSelectedItem(), pair.items );
+					for( File file : pair.items ) {
+						table.remove( file );
 					}
-					
-					if( !overflow.isEmpty() ) {
-						result.addResult( "Overflow", overflow );
-					}
+				}
+				
+				if( !overflow.isEmpty() ) {
+					result.addResult( "Overflow", overflow );
 				}
 				
 				result.expandAll();
