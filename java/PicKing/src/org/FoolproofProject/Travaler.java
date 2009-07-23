@@ -102,7 +102,7 @@ public class Travaler {
 				cell.clear();
 				sum = 0L;
 				for( Entry< File, Long > e : items.entrySet() ) {
-					if( Math.floor( Math.random() * 2 ) < 1.0 ) {
+					if( Math.random() * 2 < 1.0 ) {
 						cell.put( e.getKey(), false );
 					} else {
 						cell.put( e.getKey(), true );
@@ -118,7 +118,7 @@ public class Travaler {
 		
 		private int selectParent( int i ) {
 			int total = items.size() - i;
-			if( i + 1 == total || Math.floor( Math.random() * total ) < 2.0 ) {
+			if( i + 1 == total || Math.random() * total < 2.0 ) {
 				return i;
 			} else {
 				return selectParent( i + 1 );
@@ -137,7 +137,7 @@ public class Travaler {
 				Cell new1 = new Cell( population[i] );
 				Cell new2 = new Cell( population[selectParent( 0 )] );
 				for( Entry< File, Boolean > e : new1.table.entrySet() ) {
-					if( Math.floor( Math.random() * 2 ) < 1.0 ) {
+					if( Math.random() * 2 < 1.0 ) {
 						Boolean tmp = new2.table.get( e.getKey() );
 						new2.table.put( e.getKey(), e.getValue() );
 						e.setValue( tmp );
@@ -154,7 +154,7 @@ public class Travaler {
 			for( int i = halfSize; i < population.length; ++i ) {
 				Cell cell = population[i];
 				for( Entry< File, Boolean > e : cell.table.entrySet() ) {
-					if( Math.floor( Math.random() * cell.table.size() ) < 1.0 ) {
+					if( Math.random() * cell.table.size() < 1.0 ) {
 						if( e.getValue() ) {
 							cell.table.put( e.getKey(), false );
 							cell.size -= items.get( e.getKey() );
