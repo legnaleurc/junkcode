@@ -57,7 +57,7 @@ public class ResultTree extends JPanel {
 	}
 	
 	public void expandAll() {
-		expand( new TreePath( view.getModel().getRoot() ) );
+		expand( new TreePath( getRoot() ) );
 	}
 	
 	private void expand( TreePath path ) {
