@@ -7,6 +7,27 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 public class Travaler {
+
+	public static class Result {
+		
+		public Long size;
+		public Vector< File > items;
+		
+		public Result() {
+			size = 0L;
+			items = new Vector< File >();
+		}
+		
+		public Result( Long size, Vector< File > items ) {
+			this.size = size;
+			this.items = items;
+		}
+		
+		public String toString() {
+			return "("+size+":"+items+")";
+		}
+
+	}
 	
 	private static class GeneticAlgorithm {
 		
@@ -57,7 +78,7 @@ public class Travaler {
 			Arrays.sort( population );
 		}
 		
-		public Pair perform() {
+		public Result perform() {
 			while( !canStop() ) {
 				crossOver();
 				mutation();
@@ -65,7 +86,7 @@ public class Travaler {
 			}
 			
 			Cell survivor = population[0];
-			Pair result = new Pair( survivor.size, new Vector< File >() );
+			Result result = new Result( survivor.size, new Vector< File >() );
 			for( Entry< File, Boolean > e : survivor.table.entrySet() ) {
 				if( e.getValue() ) {
 					result.items.add( e.getKey() );
@@ -155,7 +176,7 @@ public class Travaler {
 		
 	}
 	
-	public static Pair pick( Long limit, Hashtable< File, Long > items ) {
+	public static Result pick( Long limit, Hashtable< File, Long > items ) {
 		if( items.size() < 16 ) {
 			return pickSmall( limit, items );
 		} else {
@@ -163,30 +184,30 @@ public class Travaler {
 		}
 	}
 	
-	public static Pair pickLarge( Long limit, Hashtable< File, Long > items ) {
+	public static Result pickLarge( Long limit, Hashtable< File, Long > items ) {
 		GeneticAlgorithm ga = new GeneticAlgorithm( limit, items );
 		return ga.perform();
 	}
 	
-	public static Pair pickSmall( Long limit, Hashtable< File, Long > items ) {
-		Vector< Pair > table = new Vector< Pair >();
-		table.add( new Pair() );
+	public static Result pickSmall( Long limit, Hashtable< File, Long > items ) {
+		Vector< Result > table = new Vector< Result >();
+		table.add( new Result() );
 		
 		for( Entry< File, Long > e : items.entrySet() ) {
-			Vector< Pair > tmp = new Vector< Pair >();
-			for( Pair p : table ) {
+			Vector< Result > tmp = new Vector< Result >();
+			for( Result p : table ) {
 				Long newSize = p.size + e.getValue();
 				if( newSize <= limit ) {
 					Vector< File > newDirs = new Vector< File >( p.items );
 					newDirs.add( e.getKey() );
-					tmp.add( new Pair( newSize, newDirs ) );
+					tmp.add( new Result( newSize, newDirs ) );
 				}
 			}
 			table.addAll(table.size(), tmp);
 		}
 		
-		Pair max = new Pair();
-		for( Pair p : table ) {
+		Result max = new Result();
+		for( Result p : table ) {
 			if( p.size >= max.size ) {
 				max = p;
 			}

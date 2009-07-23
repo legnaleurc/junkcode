@@ -26,6 +26,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.FoolproofProject.Configuration.Record;
+import org.FoolproofProject.Travaler.Result;
 
 public class Main extends JFrame {
 	
@@ -190,7 +191,7 @@ public class Main extends JFrame {
 				result.setTable( total );
 				
 				while( !table.isEmpty() ) {
-					Pair pair = Travaler.pick( limit, table );
+					Result pair = Travaler.pick( limit, table );
 					Long title = pair.size / eng;
 					result.addResult( title + " " + unit.getSelectedItem(), pair.items );
 					for( File file : pair.items ) {
