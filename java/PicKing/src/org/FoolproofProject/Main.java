@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -226,6 +227,7 @@ public class Main extends JFrame {
 				while( !table.isEmpty() ) {
 					Result pair = ( table.getSize() < limit ) ? new Result( table.getSize(), table.getKeys() ) : Travaler.pick( limit, table.getTable() );
 					Long title = pair.size / eng;
+					Collections.sort( pair.items );
 					result.addResult( title + " " + unit.getSelectedItem(), pair.items );
 					for( File file : pair.items ) {
 						table.remove( file );
