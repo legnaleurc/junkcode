@@ -178,8 +178,10 @@ public class Main extends JFrame {
 				Vector< File > overflow = new Vector< File >();
 				Hashtable< File, Long > table = new Hashtable< File, Long >();
 				Hashtable< File, Long > total = new Hashtable< File, Long >();
+				Long totalSize = 0L;
 				for( File item : items ) {
 					Long fileSize = Travaler.getSize( item );
+					totalSize += fileSize;
 					if( fileSize > limit ) {
 						overflow.add( item );
 					} else {
@@ -190,17 +192,22 @@ public class Main extends JFrame {
 				
 				result.setTable( total );
 				
-				while( !table.isEmpty() ) {
-					Result pair = Travaler.pick( limit, table );
-					Long title = pair.size / eng;
-					result.addResult( title + " " + unit.getSelectedItem(), pair.items );
-					for( File file : pair.items ) {
-						table.remove( file );
+				if( totalSize < limit ) {
+					Long title = totalSize / eng;
+					result.addResult( title + " " + unit.getSelectedItem(), items );
+				} else {
+					while( !table.isEmpty() ) {
+						Result pair = Travaler.pick( limit, table );
+						Long title = pair.size / eng;
+						result.addResult( title + " " + unit.getSelectedItem(), pair.items );
+						for( File file : pair.items ) {
+							table.remove( file );
+						}
 					}
-				}
-				
-				if( !overflow.isEmpty() ) {
-					result.addResult( "Overflow", overflow );
+					
+					if( !overflow.isEmpty() ) {
+						result.addResult( "Overflow", overflow );
+					}
 				}
 				
 				result.expandAll();
