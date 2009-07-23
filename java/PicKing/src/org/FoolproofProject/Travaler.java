@@ -214,8 +214,11 @@ public class Travaler {
 	public static Long getSize( File path ) {
 		if( path.isDirectory() ) {
 			Long sum = path.length();
-			for( File file : path.listFiles() ) {
-				sum += getSize( file );
+			File[] files = path.listFiles();
+			if( files != null ) {
+				for( File file : files ) {
+					sum += getSize( file );
+				}
 			}
 			return sum;
 		} else {
