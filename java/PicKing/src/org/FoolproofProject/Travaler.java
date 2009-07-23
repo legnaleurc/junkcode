@@ -117,7 +117,7 @@ public class Travaler {
 		}
 		
 		private int selectParent( int i ) {
-			int total = items.size();
+			int total = items.size() - i;
 			if( i + 1 == total || Math.floor( Math.random() * total ) < 2.0 ) {
 				return i;
 			} else {
@@ -126,13 +126,9 @@ public class Travaler {
 		}
 		
 		private Boolean canStop() {
-			Long top = population[0].size;
-			if( top == 0L ) {
-				return true;
-			}
-			Long bottom = population[population.length/2].size;
-			Double rate = bottom.doubleValue() / top.doubleValue();
-			return rate >= 0.999;
+			Long head = population[0].size;
+			Long tail = population[items.size()-1].size;
+			return head.equals( tail );
 		}
 		
 		private void crossOver() {
