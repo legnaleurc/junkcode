@@ -31,8 +31,11 @@ public class FileList extends JPanel {
 		view.addMouseListener( new MouseAdapter() {
 			public void mouseClicked( MouseEvent e ) {
 				if( e.getClickCount() == 2 ) {
-					File file = ( File )view.getModel().getElementAt( view.locationToIndex( e.getPoint() ) );
-					parentTree.open( file );
+					int index = view.locationToIndex( e.getPoint() );
+					if( index >= 0 ) {
+						File file = ( File )view.getModel().getElementAt( index );
+						parentTree.open( file );
+					}
 				}
 			}
 		} );
