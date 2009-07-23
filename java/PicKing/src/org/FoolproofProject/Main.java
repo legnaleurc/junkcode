@@ -70,7 +70,8 @@ public class Main extends JFrame {
 		pane.add( center );
 		center.setLayout( new BoxLayout( center, BoxLayout.Y_AXIS ) );
 		center.setMaximumSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
-		
+
+		center.add( new JLabel( "Version: 0.1.0" ) );
 		center.add( new JLabel( "Author: legnaleurc" ) );
 		center.add( new JLabel( "License: GPLv3" ) );
 		center.add( new JLabel( "e-mail: legnaleurc@gmail.com" ) );
