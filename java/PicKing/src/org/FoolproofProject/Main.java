@@ -254,7 +254,7 @@ public class Main extends JFrame {
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(UIManager.getLookAndFeel());
+					UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 				} catch( Exception e ) {
 					System.err.println( e.getMessage() );
 				}
