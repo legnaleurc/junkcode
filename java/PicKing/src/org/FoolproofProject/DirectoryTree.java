@@ -24,7 +24,6 @@ public class DirectoryTree extends JPanel {
 	private static final long serialVersionUID = -8724999594568776949L;
 	private Vector< FileList > listener;
 	private JTabbedPane tabWidget;
-	private Hashtable< JTree, File > tabs;
 	
 	public DirectoryTree() {
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
@@ -52,7 +51,6 @@ public class DirectoryTree extends JPanel {
 	}
 	
 	private void createTabs() {
-		tabs = new Hashtable< JTree, File >();
 		for( File root : File.listRoots() ) {
 			tabWidget.addTab( root.getPath(), createRootTab( root ) );
 		}
@@ -60,7 +58,6 @@ public class DirectoryTree extends JPanel {
 	
 	private JScrollPane createRootTab( File root ) {
 		JTree view = new JTree( new DirectoryTreeModel( root ) );
-		tabs.put( view, root );
 		view.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION );
 		view.addTreeSelectionListener( new TreeSelectionListener() {
 			@Override
