@@ -146,7 +146,7 @@ public class DirectoryTree extends JPanel {
 	
 	private class DirectoryTreeModel implements TreeModel {
 		
-		private ShortFile root;
+		private File root;
 		
 		public DirectoryTreeModel( File root ) {
 			this.root = new ShortFile( root );
@@ -159,7 +159,7 @@ public class DirectoryTree extends JPanel {
 		}
 
 		@Override
-		public ShortFile getChild(Object parent, int index) {
+		public File getChild(Object parent, int index) {
 			File[] children = ( ( File )parent ).listFiles( new DirectoryFilter() );
 			if( children == null || ( index >= children.length ) ) {
 				return null;
@@ -192,7 +192,7 @@ public class DirectoryTree extends JPanel {
 		}
 
 		@Override
-		public ShortFile getRoot() {
+		public File getRoot() {
 			return root;
 		}
 
