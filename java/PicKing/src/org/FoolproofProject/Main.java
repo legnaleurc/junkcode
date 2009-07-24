@@ -23,6 +23,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -135,6 +136,7 @@ public class Main extends JFrame {
 		JMenuItem refresh = new JMenuItem( "Refresh" );
 		edit.add( refresh );
 		refresh.setMnemonic( KeyEvent.VK_R );
+		refresh.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F5, 0 ) );
 		refresh.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
