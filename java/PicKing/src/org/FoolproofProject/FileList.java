@@ -55,9 +55,9 @@ public class FileList extends JPanel {
 			File[] files = path.listFiles();
 			if( files != null ) {
 				view.setListData( files );
+			} else {
+				view.removeAll();
 			}
-		} else {
-			view.removeAll();
 		}
 	}
 	
