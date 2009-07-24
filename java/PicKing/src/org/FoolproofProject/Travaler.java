@@ -116,13 +116,10 @@ public class Travaler {
 			return new Cell( cell, sum );
 		}
 		
-		private int selectParent( int i ) {
-			int total = items.size() - i;
-			if( i + 1 == total || Math.random() * total < 2.0 ) {
-				return i;
-			} else {
-				return selectParent( i + 1 );
-			}
+		private int selectParent() {
+			int i = 0;
+			for( final int total = items.size(); Math.random() * ( total - i ) >= 2.0; ++i );
+			return i;
 		}
 		
 		private Boolean canStop() {
@@ -135,7 +132,7 @@ public class Travaler {
 			final int halfSize = population.length / 2;
 			for( int i = 0; i < halfSize; ++i ) {
 				Cell new1 = new Cell( population[i] );
-				Cell new2 = new Cell( population[selectParent( 0 )] );
+				Cell new2 = new Cell( population[selectParent()] );
 				for( Entry< File, Boolean > e : new1.table.entrySet() ) {
 					if( Math.random() * 2 < 1.0 ) {
 						Boolean tmp = new2.table.get( e.getKey() );
