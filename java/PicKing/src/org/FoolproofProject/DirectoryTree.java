@@ -2,6 +2,7 @@ package org.FoolproofProject;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -23,6 +24,7 @@ public class DirectoryTree extends JPanel {
 	private static final long serialVersionUID = -8724999594568776949L;
 	private Vector< FileList > listener;
 	private JTabbedPane tabWidget;
+	private Hashtable< JTree, File > tabs;
 	
 	public DirectoryTree() {
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
@@ -30,31 +32,35 @@ public class DirectoryTree extends JPanel {
 		
 		tabWidget = new JTabbedPane();
 		add( tabWidget );
-		for( File root : File.listRoots() ) {
-			tabWidget.addTab( root.getPath(), createRootTab( root ) );
-		}
+		createTabs();
 		tabWidget.addChangeListener( new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				JScrollPane tab = ( JScrollPane )tabWidget.getSelectedComponent();
-				JTree tree = ( JTree )tab.getViewport().getView();
-				dispatch( tree );
+				dispatch( getCurrentTree() );
 			}
 		} );
 	}
 	
 	private void dispatch( JTree tree ) {
-		TreePath[] selection = tree.getSelectionPaths();
-		if( selection != null && selection.length == 1 ) {
+		if( tree != null ) {
+			TreePath selection = tree.getSelectionPath();
+			File file = ( File )( selection != null ? selection.getLastPathComponent() : null );
 			for( FileList list : listener ) {
-				list.setItems( ( File )selection[0].getLastPathComponent() );
+				list.setItems( file );
 			}
+		}
+	}
+	
+	private void createTabs() {
+		tabs = new Hashtable< JTree, File >();
+		for( File root : File.listRoots() ) {
+			tabWidget.addTab( root.getPath(), createRootTab( root ) );
 		}
 	}
 	
 	private JScrollPane createRootTab( File root ) {
 		JTree view = new JTree( new DirectoryTreeModel( root ) );
-		view.setRootVisible( false );
+		tabs.put( view, root );
 		view.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION );
 		view.addTreeSelectionListener( new TreeSelectionListener() {
 			@Override
@@ -63,6 +69,15 @@ public class DirectoryTree extends JPanel {
 			}
 		} );
 		return new JScrollPane( view );
+	}
+	
+	private JTree getCurrentTree() {
+		JScrollPane current = ( JScrollPane )tabWidget.getSelectedComponent();
+		if( current == null ) {
+			return null;
+		}
+		JTree tree = ( JTree )current.getViewport().getView();
+		return tree;
 	}
 	
 	public void addFileListListener( FileList list ) {
@@ -86,10 +101,46 @@ public class DirectoryTree extends JPanel {
 				}
 			}
 			
-			JScrollPane current = ( JScrollPane )tabWidget.getSelectedComponent();
-			JTree tree = ( JTree )current.getViewport().getView();
 			TreePath path = new TreePath( list.toArray() );
-			tree.setSelectionPath( path );
+			getCurrentTree().setSelectionPath( path );
+		}
+	}
+	
+	public void refresh() {
+		// dump state
+		Hashtable< File, TreePath > sel = new Hashtable< File, TreePath >();
+		File curRoot = null;
+		for( int i = 0; i < tabWidget.getTabCount(); ++i ) {
+			JScrollPane tab = ( JScrollPane )tabWidget.getComponentAt( i );
+			JTree tree = ( JTree )tab.getViewport().getView();
+			File root = ( File )tree.getModel().getRoot();
+			TreePath path = tree.getSelectionPath();
+			if( path != null ) {
+				sel.put( root, path );
+			}
+			
+			if( tabWidget.getSelectedIndex() == i ) {
+				curRoot = root;
+			}
+		}
+		
+		// clear tabs
+		tabWidget.removeAll();
+		createTabs();
+		
+		// restore state
+		for( int i = 0; i < tabWidget.getTabCount(); ++i ) {
+			JScrollPane tab = ( JScrollPane )tabWidget.getComponentAt( i );
+			JTree tree = ( JTree )tab.getViewport().getView();
+			File root = ( File )tree.getModel().getRoot();
+			TreePath path = sel.get( root );
+			if( path != null ) {
+				tree.setSelectionPath( path );
+			}
+			if( root.equals( curRoot ) ) {
+				tabWidget.setSelectedIndex( i );
+				dispatch( tree );
+			}
 		}
 	}
 	

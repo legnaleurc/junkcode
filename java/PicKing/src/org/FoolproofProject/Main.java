@@ -70,6 +70,7 @@ public class Main extends JFrame {
 	private JComboBox unit;
 	private JDialog about;
 	private Preference preference;
+	private DirectoryTree tree;
 	
 	public Main( String title ) {
 		super( title );
@@ -131,6 +132,16 @@ public class Main extends JFrame {
 		menuBar.add( edit );
 		edit.setMnemonic( KeyEvent.VK_E );
 		
+		JMenuItem refresh = new JMenuItem( "Refresh" );
+		edit.add( refresh );
+		refresh.setMnemonic( KeyEvent.VK_R );
+		refresh.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tree.refresh();
+			}
+		} );
+		
 		JMenuItem preferences = new JMenuItem( "Preferences" );
 		edit.add( preferences );
 		preferences.setMnemonic( KeyEvent.VK_P );
@@ -171,7 +182,7 @@ public class Main extends JFrame {
 		central.setLayout( new GridLayout( 1, 3 ) );
 		central.setMaximumSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
 		
-		DirectoryTree tree = new DirectoryTree();
+		tree = new DirectoryTree();
 		central.add( tree );
 		
 		list = new FileList( tree );

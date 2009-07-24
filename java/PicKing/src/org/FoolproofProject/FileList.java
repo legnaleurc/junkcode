@@ -51,9 +51,13 @@ public class FileList extends JPanel {
 	}
 	
 	public void setItems( File path ) {
-		File[] files = path.listFiles();
-		if( files != null ) {
-			view.setListData( files );
+		if( path != null ) {
+			File[] files = path.listFiles();
+			if( files != null ) {
+				view.setListData( files );
+			}
+		} else {
+			view.removeAll();
 		}
 	}
 	
