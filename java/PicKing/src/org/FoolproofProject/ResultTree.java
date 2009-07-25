@@ -2,6 +2,7 @@ package org.FoolproofProject;
 
 import java.awt.Component;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -111,6 +112,25 @@ public class ResultTree extends JPanel {
 			newNode.add( new DefaultMutableTreeNode( item ) );
 		}
 		return newNode;
+	}
+	
+	public void save( PrintStream fout ) {
+		if( fout != null ) {
+			savePath( new TreePath( getRoot() ), 0, fout );
+		}
+	}
+	
+	private void savePath( TreePath path, int indent, PrintStream fout ) {
+		DefaultMutableTreeNode node = ( DefaultMutableTreeNode )path.getLastPathComponent();
+		StringBuilder sb = new StringBuilder();
+		for( int i = 0; i < indent; ++i ) {
+			sb.append( '\t' );
+		}
+		sb.append( node.getUserObject() );
+		fout.println( sb.toString() );
+		for( Enumeration< ? > e = node.children(); e.hasMoreElements(); ) {
+			savePath( path.pathByAddingChild( e.nextElement() ), indent + 1, fout );
+		}
 	}
 
 }

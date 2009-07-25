@@ -9,6 +9,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -17,6 +20,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -263,6 +267,29 @@ public class Main extends JFrame {
 		Record r = Configuration.load();
 		size.setLong( r.limit );
 		unit.setSelectedIndex( r.unit );
+	}
+	
+	public void save() {
+		JFileChooser fc = new JFileChooser();
+		switch( fc.showSaveDialog( this ) ) {
+		case JFileChooser.APPROVE_OPTION:
+			try {
+				PrintStream fout = new PrintStream( fc.getSelectedFile(), "UTF-8" );
+				result.save( fout );
+				fout.close();
+			} catch (FileNotFoundException e) {
+				ErrorLog.getInstance().log( e.getMessage() );
+			} catch (UnsupportedEncodingException e) {
+				ErrorLog.getInstance().log( e.getMessage() );
+			}
+			break;
+		case JFileChooser.CANCEL_OPTION:
+			break;
+		case JFileChooser.ERROR_OPTION:
+			break;
+		default:
+			;
+		}
 	}
 
 	public static void main(String[] args) {
