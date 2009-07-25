@@ -97,22 +97,15 @@ public class Travaler {
 		
 		private Cell generatePopulation() {
 			Hashtable< File, Boolean > cell = new Hashtable< File, Boolean >();
-			Long sum = null;
-			do {
-				cell.clear();
-				sum = 0L;
-				for( Entry< File, Long > e : items.entrySet() ) {
-					if( Math.random() * 2 < 1.0 ) {
-						cell.put( e.getKey(), false );
-					} else {
-						cell.put( e.getKey(), true );
-						sum += e.getValue();
-						if( sum > limit ) {
-							break;
-						}
-					}
+			Long sum = 0L;
+			for( Entry< File, Long > e : items.entrySet() ) {
+				if( e.getValue() + sum >= limit || Math.random() * 2 < 1.0 ) {
+					cell.put( e.getKey(), false );
+				} else {
+					cell.put( e.getKey(), true );
+					sum += e.getValue();
 				}
-			} while( sum > limit );
+			}
 			return new Cell( cell, sum );
 		}
 		
