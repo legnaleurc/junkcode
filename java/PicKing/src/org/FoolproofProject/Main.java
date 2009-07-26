@@ -236,6 +236,8 @@ public class Main extends JFrame {
 		
 		Container pane = getContentPane();
 		pane.add( central );
+		
+		tree.open( new ShortFile( System.getProperty( "user.home" ) ) );
 	}
 	
 	private void initControlPanel() {
