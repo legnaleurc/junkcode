@@ -155,6 +155,21 @@ public class Main extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar( menuBar );
 		
+		JMenu file = new JMenu( "File" );
+		menuBar.add( file );
+		file.setMnemonic( KeyEvent.VK_F );
+		
+		JMenuItem save = new JMenuItem( "Save" );
+		file.add( save );
+		save.setMnemonic( KeyEvent.VK_S );
+		save.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK ) );
+		save.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				save();
+			}
+		} );
+		
 		JMenu edit = new JMenu( "Edit" );
 		menuBar.add( edit );
 		edit.setMnemonic( KeyEvent.VK_E );
