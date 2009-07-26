@@ -53,13 +53,7 @@ public class Travaler {
 			}
 			@Override
 			public int compareTo(Cell rhs) {
-				if( rhs.size < this.size ) {
-					return -1;
-				}
-				if( rhs.size > this.size ) {
-					return 1;
-				}
-				return 0;
+				return rhs.size.compareTo( size );
 			}
 		}
 		
