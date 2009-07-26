@@ -133,7 +133,7 @@ public class Main extends JFrame {
 		center.setMaximumSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
 
 		center.add( new JLabel( "Version: 0.1.0" ) );
-		center.add( new JLabel( "Author: legnaleurc" ) );
+		center.add( new JLabel( "Author: legnaleurc (FoolproofProject)" ) );
 		center.add( new JLabel( "License: GPLv3" ) );
 		center.add( new JLabel( "e-mail: legnaleurc@gmail.com" ) );
 		center.add( new JLabel( "blog: http://legnaleurc.blogspot.com/" ) );
