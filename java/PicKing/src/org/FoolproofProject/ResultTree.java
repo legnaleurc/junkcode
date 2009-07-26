@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,6 +30,7 @@ public class ResultTree extends JPanel {
 		view.setRootVisible( false );
 		JScrollPane scroll = new JScrollPane( view );
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
+		setBorder( BorderFactory.createTitledBorder( "Result" ) );
 		add( scroll );
 		
 		ToolTipManager.sharedInstance().registerComponent( view );

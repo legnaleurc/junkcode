@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -26,6 +27,7 @@ public class FileList extends JPanel {
 		view = new JList();
 		JScrollPane scroll = new JScrollPane( view );
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
+		setBorder( BorderFactory.createTitledBorder( "File List" ) );
 		add( scroll );
 		
 		view.addMouseListener( new MouseAdapter() {

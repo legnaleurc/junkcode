@@ -159,7 +159,7 @@ public class Main extends JFrame {
 		menuBar.add( file );
 		file.setMnemonic( KeyEvent.VK_F );
 		
-		JMenuItem save_ = new JMenuItem( "Save" );
+		JMenuItem save_ = new JMenuItem( "Save Result" );
 		file.add( save_ );
 		save_.setMnemonic( KeyEvent.VK_S );
 		save_.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK ) );

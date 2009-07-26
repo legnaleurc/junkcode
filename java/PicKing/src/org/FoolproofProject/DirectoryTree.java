@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -27,6 +28,7 @@ public class DirectoryTree extends JPanel {
 	
 	public DirectoryTree() {
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
+		setBorder( BorderFactory.createTitledBorder( "Directory Tree" ) );
 		listener = new Vector< FileList >();
 		
 		tabWidget = new JTabbedPane();
