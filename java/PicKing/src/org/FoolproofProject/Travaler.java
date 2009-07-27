@@ -103,10 +103,32 @@ public class Travaler {
 			return new Cell( cell, sum );
 		}
 		
+		/**
+		 * Select parent index.
+		 * 
+		 * N := total size
+		 * 
+		 * Plain:
+		 * int i = 0;
+		 * for( ; Math.random() * ( N - i ) >= 2.0; ++i );
+		 * return i;
+		 * 
+		 * PDF:
+		 * P( X = i ) = 2(N-1-i)/(N(N-1))
+		 * 
+		 * CDF:
+		 * P( X <= i ) = i(2N-1-i)/(N(N-1)) = C
+		 * b = 2N-1
+		 * d = b^2 - 4CN(N-1)
+		 * i = (b-d^0.5)/2
+		 */
 		private int selectParent() {
-			int i = 0;
-			for( final int total = items.size(); Math.random() * ( total - i ) >= 2.0; ++i );
-			return i;
+			int n = items.size();
+			int b = 2 * n - 1;
+			double c = Math.random();
+			double d = b * b - 4 * n * ( n - 1 ) * c;
+			double k = ( b - Math.sqrt( d ) ) / 2;
+			return ( int )Math.floor( k );
 		}
 		
 		private Boolean canStop() {
