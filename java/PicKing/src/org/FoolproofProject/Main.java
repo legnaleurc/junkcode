@@ -41,14 +41,14 @@ public class Main extends JFrame {
 		
 		private final Long limit;
 		private Long size;
-		private Hashtable< File, Long > table, all;
+		private Hashtable< File, Long > items, table;
 		private Vector< File > overflow;
 		
 		public ItemTable( Long limit ) {
 			this.limit = limit;
 			size = 0L;
+			items = new Hashtable< File, Long >();
 			table = new Hashtable< File, Long >();
-			all = new Hashtable< File, Long >();
 			overflow = new Vector< File >();
 		}
 		
@@ -58,33 +58,33 @@ public class Main extends JFrame {
 		public Long getSize() {
 			return size;
 		}
+		public Hashtable< File, Long > getItems() {
+			return items;
+		}
 		public Hashtable< File, Long > getTable() {
 			return table;
 		}
-		public Hashtable< File, Long > getAll() {
-			return all;
-		}
 		public void remove( File key ) {
-			size -= table.get( key );
-			table.remove( key );
+			size -= items.get( key );
+			items.remove( key );
 		}
 		public void put( File key, Long value ) {
 			if( value < limit ) {
 				size += value;
-				table.put( key, value );
+				items.put( key, value );
 			} else {
 				overflow.add( key );
 			}
-			all.put( key, value );
+			table.put( key, value );
 		}
-		public boolean isEmpty() {
-			return table.isEmpty();
+		public boolean noItem() {
+			return items.isEmpty();
 		}
 		public boolean noOverflow() {
 			return overflow.isEmpty();
 		}
-		public Vector< File > getKeys() {
-			return new Vector< File >( table.keySet() );
+		public Vector< File > getItemKeys() {
+			return new Vector< File >( items.keySet() );
 		}
 		public Vector< File > getOverflow() {
 			return overflow;
@@ -266,32 +266,7 @@ public class Main extends JFrame {
 		panel.add( start );
 		start.addMouseListener( new MouseAdapter() {
 			public void mouseClicked( MouseEvent e ) {
-				result.clear();
-				
-				Vector< File > items = list.getSelectedFiles();
-				long eng = ( long )Math.pow( 1024, unit.getSelectedIndex() );
-				ItemTable table = new ItemTable( size.toLong() * eng );
-				for( File item : items ) {
-					table.put( item, Travaler.getSize( item ) );
-				}
-				
-				result.setTable( table.getAll() );
-				
-				while( !table.isEmpty() ) {
-					Result pair = ( table.getSize() < table.getLimit() ) ? new Result( table.getSize(), table.getKeys() ) : Travaler.pick( table.getLimit(), table.getTable() );
-					Long title = pair.size / eng;
-					Collections.sort( pair.items );
-					result.addResult( title + " " + unit.getSelectedItem(), pair.items );
-					for( File file : pair.items ) {
-						table.remove( file );
-					}
-				}
-				
-				if( !table.noOverflow() ) {
-					result.addResult( "Overflow", table.getOverflow() );
-				}
-				
-				result.expandAll();
+				perform();
 			}
 		} );
 		
@@ -326,6 +301,35 @@ public class Main extends JFrame {
 		default:
 			;
 		}
+	}
+	
+	public void perform() {
+		result.clear();
+		
+		Vector< File > items = list.getSelectedFiles();
+		long eng = ( long )Math.pow( 1024, unit.getSelectedIndex() );
+		ItemTable table = new ItemTable( size.toLong() * eng );
+		for( File item : items ) {
+			table.put( item, Travaler.getSize( item ) );
+		}
+		
+		result.setTable( table.getTable() );
+		
+		while( !table.noItem() ) {
+			Result pair = ( table.getSize() < table.getLimit() ) ? new Result( table.getSize(), table.getItemKeys() ) : Travaler.pick( table.getLimit(), table.getItems() );
+			Long title = pair.size / eng;
+			Collections.sort( pair.items );
+			result.addResult( title + " " + unit.getSelectedItem(), pair.items );
+			for( File file : pair.items ) {
+				table.remove( file );
+			}
+		}
+		
+		if( !table.noOverflow() ) {
+			result.addResult( "Overflow", table.getOverflow() );
+		}
+		
+		result.expandAll();
 	}
 
 	public static void main(String[] args) {
