@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -242,13 +243,18 @@ public class Main extends JFrame {
 	
 	private void initControlPanel() {
 		JPanel panel = new JPanel();
-		panel.setLayout( new GridLayout( 1, 3 ) );
+		panel.setLayout( new GridLayout( 1, 2 ) );
+		
+		JPanel limitPanel = new JPanel();
+		panel.add( limitPanel );
+		limitPanel.setLayout( new GridLayout( 1, 2 ) );
+		limitPanel.setBorder( BorderFactory.createTitledBorder( "Limit" ) );
 		
 		size = new NeturalField();
-		panel.add( size );
+		limitPanel.add( size );
 		
 		unit = new JComboBox();
-		panel.add( unit );
+		limitPanel.add( unit );
 		unit.addItem( "B" );
 		unit.addItem( "KB" );
 		unit.addItem( "MB" );
