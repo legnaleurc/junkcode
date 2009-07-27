@@ -126,7 +126,7 @@ public class Travaler {
 			int n = items.size();
 			int b = 2 * n - 1;
 			double c = Math.random();
-			double d = b * b - 4 * n * ( n - 1 ) * c;
+			double d = ( b * b - 1 ) * ( 1 - c ) + 1;
 			double k = ( b - Math.sqrt( d ) ) / 2;
 			return ( int )Math.floor( k );
 		}
