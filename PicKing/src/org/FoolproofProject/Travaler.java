@@ -10,21 +10,25 @@ public class Travaler {
 
 	public static class Result {
 		
-		public Long size;
-		public Vector< File > items;
+		private Long size;
+		private Vector< File > items;
 		
 		public Result() {
 			size = 0L;
 			items = new Vector< File >();
 		}
-		
 		public Result( Long size, Vector< File > items ) {
 			this.size = size;
 			this.items = items;
 		}
-		
 		public String toString() {
 			return "("+size+":"+items+")";
+		}
+		public Long getSize() {
+			return size;
+		}
+		public Vector< File > getItems() {
+			return items;
 		}
 
 	}
@@ -32,8 +36,10 @@ public class Travaler {
 	private static class GeneticAlgorithm {
 		
 		private class Cell implements Comparable< Cell > {
-			public Hashtable< File, Boolean > table;
-			public Long size;
+			
+			private Hashtable< File, Boolean > table;
+			private Long size;
+			
 			public Cell( Hashtable< File, Boolean > table, Long size ) {
 				this.table = table;
 				this.size = size;
@@ -53,6 +59,12 @@ public class Travaler {
 				} else {
 					size += value;
 				}
+			}
+			public Hashtable<File, Boolean> getTable() {
+				return table;
+			}
+			public Long getSize() {
+				return size;
 			}
 			@Override
 			public int compareTo(Cell rhs) {
@@ -84,10 +96,10 @@ public class Travaler {
 			}
 			
 			Cell survivor = population.get( 0 );
-			Result result = new Result( survivor.size, new Vector< File >() );
-			for( Entry< File, Boolean > e : survivor.table.entrySet() ) {
+			Result result = new Result( survivor.getSize(), new Vector< File >() );
+			for( Entry< File, Boolean > e : survivor.getTable().entrySet() ) {
 				if( e.getValue() ) {
-					result.items.add( e.getKey() );
+					result.getItems().add( e.getKey() );
 				}
 			}
 			return result;
@@ -136,8 +148,8 @@ public class Travaler {
 		}
 		
 		private Boolean canStop() {
-			Long head = population.firstElement().size;
-			Long tail = population.lastElement().size;
+			Long head = population.firstElement().getSize();
+			Long tail = population.lastElement().getSize();
 			return head.equals( tail );
 		}
 		
@@ -147,7 +159,7 @@ public class Travaler {
 				Cell new1 = new Cell( population.get( i ) );
 				Cell new2 = new Cell( population.get( selectParent() ) );
 				for( Entry< File, Long > e : items.entrySet() ) {
-					if( new1.table.get( e.getKey() ) == new2.table.get( e.getKey() ) ) {
+					if( new1.getTable().get( e.getKey() ) == new2.getTable().get( e.getKey() ) ) {
 						break;
 					}
 					if( !new1.canToggle( e.getKey(), e.getValue(), limit ) || !new2.canToggle( e.getKey(), e.getValue(), limit ) ) {
@@ -197,9 +209,9 @@ public class Travaler {
 		for( Entry< File, Long > e : items.entrySet() ) {
 			Vector< Result > tmp = new Vector< Result >();
 			for( Result p : table ) {
-				Long newSize = p.size + e.getValue();
+				Long newSize = p.getSize() + e.getValue();
 				if( newSize <= limit ) {
-					Vector< File > newDirs = new Vector< File >( p.items );
+					Vector< File > newDirs = new Vector< File >( p.getItems() );
 					newDirs.add( e.getKey() );
 					tmp.add( new Result( newSize, newDirs ) );
 				}
@@ -209,7 +221,7 @@ public class Travaler {
 		
 		Result max = new Result();
 		for( Result p : table ) {
-			if( p.size >= max.size ) {
+			if( p.getSize() >= max.getSize() ) {
 				max = p;
 			}
 		}

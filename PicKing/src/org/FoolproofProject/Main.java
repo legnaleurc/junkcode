@@ -317,10 +317,10 @@ public class Main extends JFrame {
 		
 		while( !table.noItem() ) {
 			Result pair = ( table.getSize() < table.getLimit() ) ? new Result( table.getSize(), table.getItemKeys() ) : Travaler.pick( table.getLimit(), table.getItems() );
-			Long title = pair.size / eng;
-			Collections.sort( pair.items );
-			result.addResult( title + " " + unit.getSelectedItem(), pair.items );
-			for( File file : pair.items ) {
+			Long title = pair.getSize() / eng;
+			Collections.sort( pair.getItems() );
+			result.addResult( title + " " + unit.getSelectedItem(), pair.getItems() );
+			for( File file : pair.getItems() ) {
 				table.remove( file );
 			}
 		}
