@@ -14,15 +14,15 @@ public class NeturalField extends JTextField {
 		super( "4483" );
 	}
 	
-	public NeturalField( Long number ) {
-		super( number.toString() );
+	public NeturalField( long number ) {
+		super( String.valueOf( number ) );
 	}
 	
-	public void setLong( Long number ) {
-		setText( number.toString() );
+	public void setLong( long number ) {
+		setText( String.valueOf( number ) );
 	}
 	
-	public Long toLong() {
+	public long toLong() {
 		try {
 			return Long.parseLong( super.getText() );
 		} catch (NumberFormatException e) {
@@ -32,25 +32,20 @@ public class NeturalField extends JTextField {
 	}
 	
 	protected Document createDefaultModel() {
-		return new NeturalDocument();
-	}
-	
-	private class NeturalDocument extends PlainDocument {
-		
-		private static final long serialVersionUID = -3237520404172699543L;
-
-		public void insertString( int offs, String str, AttributeSet a ) throws BadLocationException {
-			if( str == null ) {
-				return;
-			}
-			for( char c : str.toCharArray() ) {
-				if( !Character.isDigit( c ) ) {
+		return new PlainDocument() {
+			private static final long serialVersionUID = -3237520404172699543L;
+			public void insertString( int offs, String str, AttributeSet a ) throws BadLocationException {
+				if( str == null ) {
 					return;
 				}
+				for( char c : str.toCharArray() ) {
+					if( !Character.isDigit( c ) ) {
+						return;
+					}
+				}
+				super.insertString(offs, str, a);
 			}
-			super.insertString(offs, str, a);
-		}
-		
+		};
 	}
 
 }
