@@ -10,29 +10,11 @@ import java.util.Scanner;
 
 public class Configuration {
 	
-	public static class Record {
-		private long limit;
-		private int unit;
-		
-		public Record() {
-			limit = 4483L;
-			unit = 2;
-		}
-		public Record( long limit, int unit ) {
-			this.limit = limit;
-			this.unit = unit;
-		}
-		public long getLimit() {
-			return limit;
-		}
-		public int getUnit() {
-			return unit;
-		}
-	}
-	
 	private static final File file = new File( ".packing" );
+	private long limit;
+	private int unit;
 	
-	public static void save( Record r ) {
+	public static void save( Configuration r ) {
 		if( file.exists() && file.isHidden() ) {
 			try {
 				Runtime.getRuntime().exec( String.format( "ATTRIB -H %s" , file.getAbsolutePath()) ).waitFor();
@@ -65,8 +47,8 @@ public class Configuration {
 		}
 	}
 	
-	public static Record load() {
-		Record r = new Record();
+	public static Configuration load() {
+		Configuration r = new Configuration();
 		try {
 			Scanner fin = new Scanner( new FileInputStream( file ) );
 			r.limit = fin.nextLong();
@@ -76,6 +58,24 @@ public class Configuration {
 			save( r );
 		}
 		return r;
+	}
+	
+	public Configuration() {
+		limit = 4483L;
+		unit = 2;
+	}
+	
+	public Configuration( long limit, int unit ) {
+		this.limit = limit;
+		this.unit = unit;
+	}
+	
+	public long getLimit() {
+		return limit;
+	}
+	
+	public int getUnit() {
+		return unit;
 	}
 
 }

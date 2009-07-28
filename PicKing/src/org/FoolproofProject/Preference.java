@@ -11,8 +11,6 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import org.FoolproofProject.Configuration.Record;
-
 public class Preference extends JDialog {
 
 	private static final long serialVersionUID = -3910072899938489788L;
@@ -53,7 +51,7 @@ public class Preference extends JDialog {
 		ok.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Configuration.save( new Record( limit.toLong(), unit.getSelectedIndex() ) );
+				Configuration.save( new Configuration( limit.toLong(), unit.getSelectedIndex() ) );
 				parent.read();
 				setVisible( false );
 			}
@@ -63,7 +61,7 @@ public class Preference extends JDialog {
 		apply.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Configuration.save( new Record( limit.toLong(), unit.getSelectedIndex() ) );
+				Configuration.save( new Configuration( limit.toLong(), unit.getSelectedIndex() ) );
 				parent.read();
 			}
 		} );

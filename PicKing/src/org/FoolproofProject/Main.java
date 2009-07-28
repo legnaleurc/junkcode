@@ -32,7 +32,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.FoolproofProject.Configuration.Record;
 import org.FoolproofProject.Travaler.Result;
 
 public class Main extends JFrame {
@@ -275,7 +274,7 @@ public class Main extends JFrame {
 	}
 	
 	public void read() {
-		Record r = Configuration.load();
+		Configuration r = Configuration.load();
 		size.setLong( r.getLimit() );
 		unit.setSelectedIndex( r.getUnit() );
 	}
