@@ -276,8 +276,8 @@ public class Main extends JFrame {
 	
 	public void read() {
 		Record r = Configuration.load();
-		size.setLong( r.limit );
-		unit.setSelectedIndex( r.unit );
+		size.setLong( r.getLimit() );
+		unit.setSelectedIndex( r.getUnit() );
 	}
 	
 	public void save() {

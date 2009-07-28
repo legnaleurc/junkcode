@@ -11,15 +11,22 @@ import java.util.Scanner;
 public class Configuration {
 	
 	public static class Record {
-		public Long limit;
-		public int unit;
+		private long limit;
+		private int unit;
+		
 		public Record() {
 			limit = 4483L;
 			unit = 2;
 		}
-		public Record( Long limit, int unit ) {
+		public Record( long limit, int unit ) {
 			this.limit = limit;
 			this.unit = unit;
+		}
+		public long getLimit() {
+			return limit;
+		}
+		public int getUnit() {
+			return unit;
 		}
 	}
 	
@@ -43,7 +50,7 @@ public class Configuration {
 			ErrorLog.getInstance().log( e.getMessage() );
 			return;
 		}
-		fout.printf( "%d %d\n", r.limit, r.unit );
+		fout.printf( "%d %d\n", r.getLimit(), r.getUnit() );
 		fout.close();
 		if( !file.isHidden() ) {
 			try {
