@@ -1,7 +1,7 @@
 package org.FoolproofProject;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Map.Entry;
@@ -42,14 +42,17 @@ public class Travaler {
 				this.table = new Hashtable< File, Boolean >( cell.table );
 				this.size = new Long( cell.size );
 			}
-			public Long update( Hashtable< File, Long > items ) {
-				size = 0L;
-				for( Entry< File, Boolean > e : table.entrySet() ) {
-					if( e.getValue() ) {
-						size += items.get( e.getKey() );
-					}
+			public boolean canToggle( File key, Long value, Long limit ) {
+				return ( table.get( key ) || size + value < limit );
+			}
+			public void toggle( File key, Long value ) {
+				boolean tmp = table.get( key );
+				table.put( key, !tmp );
+				if( tmp ) {
+					size -= value;
+				} else {
+					size += value;
 				}
-				return size;
 			}
 			@Override
 			public int compareTo(Cell rhs) {
@@ -59,27 +62,28 @@ public class Travaler {
 		
 		private Long limit;
 		private Hashtable< File, Long > items;
-		private Cell[] population;
+		private Vector< Cell > population;
 		
 		public GeneticAlgorithm( Long limit, Hashtable< File, Long > items ) {
 			this.limit = limit;
 			this.items = items;
 			
-			population = new Cell[items.size() * 2];
-			for( int i = 0; i < population.length; ++i ) {
-				population[i] = generatePopulation();
+			population = new Vector< Cell >();
+			for( int i = 0; i < items.size(); ++i ) {
+				population.add( generatePopulation() );
 			}
-			Arrays.sort( population );
+			Collections.sort( population );
 		}
 		
 		public Result perform() {
 			while( !canStop() ) {
 				crossOver();
 				mutation();
-				Arrays.sort( population );
+				Collections.sort( population );
+				population.subList( items.size(), population.size() ).clear();
 			}
 			
-			Cell survivor = population[0];
+			Cell survivor = population.get( 0 );
 			Result result = new Result( survivor.size, new Vector< File >() );
 			for( Entry< File, Boolean > e : survivor.table.entrySet() ) {
 				if( e.getValue() ) {
@@ -132,46 +136,41 @@ public class Travaler {
 		}
 		
 		private Boolean canStop() {
-			Long head = population[0].size;
-			Long tail = population[items.size()-1].size;
+			Long head = population.firstElement().size;
+			Long tail = population.lastElement().size;
 			return head.equals( tail );
 		}
 		
 		private void crossOver() {
-			final int halfSize = population.length / 2;
-			for( int i = 0; i < halfSize; ++i ) {
-				Cell new1 = new Cell( population[i] );
-				Cell new2 = new Cell( population[selectParent()] );
-				for( Entry< File, Boolean > e : new1.table.entrySet() ) {
-					if( Math.random() * 2 < 1.0 ) {
-						Boolean tmp = new2.table.get( e.getKey() );
-						new2.table.put( e.getKey(), e.getValue() );
-						e.setValue( tmp );
+			final int length = population.size();
+			for( int i = 0; i < length; ++i ) {
+				Cell new1 = new Cell( population.get( i ) );
+				Cell new2 = new Cell( population.get( selectParent() ) );
+				for( Entry< File, Long > e : items.entrySet() ) {
+					if( new1.table.get( e.getKey() ) == new2.table.get( e.getKey() ) ) {
+						break;
+					}
+					if( !new1.canToggle( e.getKey(), e.getValue(), limit ) || !new2.canToggle( e.getKey(), e.getValue(), limit ) ) {
+						break;
+					}
+					if( Math.random() < 0.5 ) {
+						new1.toggle( e.getKey(), e.getValue() );
+						new2.toggle( e.getKey(), e.getValue() );
 					}
 				}
-				new1 = ( new1.update( items ) > limit ) ? generatePopulation() : new1;
-				new2 = ( new2.update( items ) > limit ) ? generatePopulation() : new2;
-				population[halfSize + i] = ( new1.size > new2.size ) ? new1 : new2;
+				population.add( new1 );
+				population.add( new2 );
 			}
 		}
 		
 		private void mutation() {
-			final int halfSize = population.length / 2;
-			for( int i = halfSize; i < population.length; ++i ) {
-				Cell cell = population[i];
-				for( Entry< File, Boolean > e : cell.table.entrySet() ) {
-					if( Math.random() * cell.table.size() < 1.0 ) {
-						if( e.getValue() ) {
-							cell.table.put( e.getKey(), false );
-							cell.size -= items.get( e.getKey() );
-						} else {
-							cell.table.put( e.getKey(), true );
-							cell.size += items.get( e.getKey() );
-						}
+			final int length = population.size();
+			for( int i = 0; i < length; ++i ) {
+				Cell cell = population.get( i );
+				for( Entry< File, Long > e : items.entrySet() ) {
+					if( cell.canToggle( e.getKey(), e.getValue(), limit) && Math.random() * items.size() < 1.0 ) {
+						cell.toggle( e.getKey(), e.getValue() );
 					}
-				}
-				if( cell.size > limit ) {
-					population[i] = generatePopulation();
 				}
 			}
 		}
