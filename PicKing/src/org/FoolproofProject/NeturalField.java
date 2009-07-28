@@ -11,11 +11,11 @@ public class NeturalField extends JTextField {
 	private static final long serialVersionUID = -4923755274608244338L;
 	
 	public NeturalField() {
-		super( "4483", 4 );
+		super( "4483" );
 	}
 	
 	public NeturalField( Long number ) {
-		super( number.toString(), 4 );
+		super( number.toString() );
 	}
 	
 	public void setLong( Long number ) {
@@ -23,7 +23,12 @@ public class NeturalField extends JTextField {
 	}
 	
 	public Long toLong() {
-		return Long.parseLong( super.getText() );
+		try {
+			return Long.parseLong( super.getText() );
+		} catch (NumberFormatException e) {
+			ErrorLog.getInstance().log( e.getMessage() );
+			return 0L;
+		}
 	}
 	
 	protected Document createDefaultModel() {
