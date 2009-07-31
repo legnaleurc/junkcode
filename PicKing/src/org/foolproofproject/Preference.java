@@ -1,4 +1,4 @@
-package org.FoolproofProject;
+package org.foolproofproject;
 
 import java.awt.Container;
 import java.awt.GridLayout;

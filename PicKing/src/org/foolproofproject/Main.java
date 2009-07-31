@@ -1,4 +1,4 @@
-package org.FoolproofProject;
+package org.foolproofproject;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -32,7 +32,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.FoolproofProject.Travaler.Result;
+import org.foolproofproject.Travaler.Result;
 
 public class Main extends JFrame {
 	

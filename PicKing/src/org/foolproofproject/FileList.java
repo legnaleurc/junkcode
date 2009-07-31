@@ -1,4 +1,4 @@
-package org.FoolproofProject;
+package org.foolproofproject;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

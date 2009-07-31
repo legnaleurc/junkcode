@@ -1,4 +1,4 @@
-package org.FoolproofProject;
+package org.foolproofproject;
 
 import javax.swing.JTextField;
 import javax.swing.text.AttributeSet;
