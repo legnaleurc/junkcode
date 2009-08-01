@@ -10,17 +10,22 @@ import javax.swing.JTextArea;
 public class LogDialog extends JDialog {
 	
 	private static final long serialVersionUID = -8893137565616271012L;
-	private static LogDialog error = new LogDialog();
+	private static LogDialog error = new LogDialog( "Error Log" );
+	private static LogDialog debug = new LogDialog( "Debug Log" );
 	private JTextArea textArea;
 	
 	public static LogDialog getErrorLog() {
 		return error;
 	}
 	
-	private LogDialog() {
+	public static LogDialog getDebugLog() {
+		return debug;
+	}
+	
+	private LogDialog( String title ) {
 		super( ( Main )null );
 		setSize( 320, 240 );
-		setTitle( "Error Log" );
+		setTitle( title );
 		
 		Container pane = getContentPane();
 		pane.setLayout( new BoxLayout( pane, BoxLayout.Y_AXIS ) );
