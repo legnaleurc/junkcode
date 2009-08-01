@@ -134,7 +134,7 @@ public class Main extends JFrame {
 
 		center.add( new JLabel( "Version: 0.1.0" ) );
 		center.add( new JLabel( "Author: legnaleurc (FoolproofProject)" ) );
-		center.add( new JLabel( "License: GPLv3" ) );
+		center.add( new JLabel( "License: LGPLv3" ) );
 		center.add( new JLabel( "e-mail: legnaleurc@gmail.com" ) );
 		center.add( new JLabel( "blog: http://legnaleurc.blogspot.com/" ) );
 		
