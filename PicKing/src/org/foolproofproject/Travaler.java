@@ -66,6 +66,9 @@ public class Travaler {
 			public Long getSize() {
 				return size;
 			}
+			public String toString() {
+				return String.format( "(%d,%s)", size, table.keySet() );
+			}
 			@Override
 			public int compareTo(Cell rhs) {
 				return rhs.size.compareTo( size );
@@ -148,9 +151,13 @@ public class Travaler {
 		}
 		
 		private Boolean canStop() {
-			Long head = population.firstElement().getSize();
-			Long tail = population.lastElement().getSize();
-			return head.equals( tail );
+			Cell head = population.firstElement();
+			Cell tail = population.lastElement();
+			if( Configuration.getDebug() ) {
+				LogDialog.getDebugLog().log( "head: " + head );
+				LogDialog.getDebugLog().log( "tail: " + tail );
+			}
+			return head.getSize().equals( tail.getSize() );
 		}
 		
 		private void crossOver() {

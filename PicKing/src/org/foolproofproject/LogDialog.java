@@ -5,6 +5,7 @@ import java.awt.Container;
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class LogDialog extends JDialog {
@@ -35,8 +36,10 @@ public class LogDialog extends JDialog {
 		main.setLayout( new BoxLayout( main, BoxLayout.Y_AXIS ) );
 		
 		textArea = new JTextArea();
-		main.add( textArea );
 		textArea.setEditable( false );
+		
+		JScrollPane scroll = new JScrollPane( textArea );
+		main.add( scroll );
 	}
 	
 	public void log( String msg ) {
