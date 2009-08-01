@@ -337,7 +337,7 @@ public class Main extends JFrame {
 				try {
 					UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 				} catch( Exception e ) {
-					System.err.println( e.getMessage() );
+					LogDialog.getErrorLog().log( e.getMessage() );
 				}
 				
 				Main self = new Main( "PicKing" );
