@@ -14,9 +14,11 @@ class ListDir {
 	 * @param $ignore Regular expression of ignore file.
 	 */
 	public function perform( $path = '.', $limit = 0, $ignore = '(^\..*|(.+\.php$)|cgi-bin)' ) {
+		echo "<!-- listing directories BEGIN -->\n";
 		printf( '<div id="%s" class="%s">'."\n", $this->id, $this->class );
 		$this->traverse( $path, $limit, $ignore );
 		echo "</div>\n";
+		echo "<!-- listing directories END -->\n";
 	}
 
 	private function traverse( $path, $limit, $ignore ) {
