@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class Configuration implements Serializable {
 	
 	private static final long serialVersionUID = 1450881336532749573L;
-	private static final File file = new File( ".packing" );
+	private static final File file = new File( System.getProperty( "user.home" ) + File.separator + ".packing" );
 	private static Configuration self;
 	private long limit;
 	private int unit;
