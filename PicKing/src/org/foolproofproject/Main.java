@@ -202,6 +202,16 @@ public class Main extends JFrame {
 		menuBar.add( help );
 		help.setMnemonic( KeyEvent.VK_H );
 		
+		JMenuItem debugLog = new JMenuItem( "Debug Log" );
+		help.add( debugLog );
+		debugLog.setMnemonic( KeyEvent.VK_D );
+		debugLog.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LogDialog.getDebugLog().setVisible( true );
+			}
+		} );
+		
 		JMenuItem errorLog = new JMenuItem( "Error Log" );
 		help.add( errorLog );
 		errorLog.setMnemonic( KeyEvent.VK_E );
