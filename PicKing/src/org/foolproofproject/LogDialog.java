@@ -7,17 +7,17 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-public class ErrorLog extends JDialog {
+public class LogDialog extends JDialog {
 	
 	private static final long serialVersionUID = -8893137565616271012L;
-	private static ErrorLog instance = new ErrorLog();
+	private static LogDialog error = new LogDialog();
 	private JTextArea textArea;
 	
-	public static ErrorLog getInstance() {
-		return instance;
+	public static LogDialog getErrorLog() {
+		return error;
 	}
 	
-	private ErrorLog() {
+	private LogDialog() {
 		super( ( Main )null );
 		setSize( 320, 240 );
 		setTitle( "Error Log" );

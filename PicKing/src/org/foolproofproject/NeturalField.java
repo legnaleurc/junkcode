@@ -26,7 +26,7 @@ public class NeturalField extends JTextField {
 		try {
 			return Long.parseLong( super.getText() );
 		} catch (NumberFormatException e) {
-			ErrorLog.getInstance().log( e.getMessage() );
+			LogDialog.getErrorLog().log( e.getMessage() );
 			return 0L;
 		}
 	}

@@ -205,7 +205,7 @@ public class Main extends JFrame {
 		errorLog.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ErrorLog.getInstance().setVisible( true );
+				LogDialog.getErrorLog().setVisible( true );
 			}
 		} );
 		
@@ -288,9 +288,9 @@ public class Main extends JFrame {
 				result.save( fout );
 				fout.close();
 			} catch (FileNotFoundException e) {
-				ErrorLog.getInstance().log( e.getMessage() );
+				LogDialog.getErrorLog().log( e.getMessage() );
 			} catch (UnsupportedEncodingException e) {
-				ErrorLog.getInstance().log( e.getMessage() );
+				LogDialog.getErrorLog().log( e.getMessage() );
 			}
 			break;
 		case JFileChooser.CANCEL_OPTION:

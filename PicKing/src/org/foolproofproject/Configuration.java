@@ -49,17 +49,17 @@ public class Configuration {
 			try {
 				Runtime.getRuntime().exec( String.format( "ATTRIB -H %s" , file.getAbsolutePath()) ).waitFor();
 			} catch (IOException e) {
-				ErrorLog.getInstance().log( e.getMessage() );
+				LogDialog.getErrorLog().log( e.getMessage() );
 				return;
 			} catch (InterruptedException e) {
-				ErrorLog.getInstance().log( e.getMessage() );
+				LogDialog.getErrorLog().log( e.getMessage() );
 			}
 		}
 		PrintStream fout = null;
 		try {
 			fout = new PrintStream( new FileOutputStream( file ) );
 		} catch (FileNotFoundException e) {
-			ErrorLog.getInstance().log( e.getMessage() );
+			LogDialog.getErrorLog().log( e.getMessage() );
 			return;
 		}
 		fout.printf( "%d %d\n", self.getLimit(), self.getUnit() );
@@ -68,10 +68,10 @@ public class Configuration {
 			try {
 				Runtime.getRuntime().exec( String.format( "ATTRIB +H %s" , file.getAbsolutePath()) ).waitFor();
 			} catch (IOException e) {
-				ErrorLog.getInstance().log( e.getMessage() );
+				LogDialog.getErrorLog().log( e.getMessage() );
 				return;
 			} catch (InterruptedException e) {
-				ErrorLog.getInstance().log( e.getMessage() );
+				LogDialog.getErrorLog().log( e.getMessage() );
 				return;
 			}
 		}
