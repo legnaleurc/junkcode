@@ -5,47 +5,45 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Scanner;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
-import javax.swing.JOptionPane;
-
-public class Configuration {
+public class Configuration implements Serializable {
 	
+	private static final long serialVersionUID = 1450881336532749573L;
 	private static final File file = new File( ".packing" );
 	private static Configuration self;
 	private long limit;
 	private int unit;
+	private boolean debug;
 	
 	static {
-		self = new Configuration();
 		try {
-			Scanner fin = new Scanner( new FileInputStream( file ) );
-			self.limit = fin.nextLong();
-			self.unit = fin.nextInt();
+			ObjectInputStream fin = new ObjectInputStream( new FileInputStream( file ) );
+			self = (Configuration) fin.readObject();
 			fin.close();
 		} catch (FileNotFoundException e) {
+			self = new Configuration();
 			try {
-				save();
+				sync();
 			} catch (Exception e1) {
 				LogDialog.getErrorLog().log( e1.getMessage() );
 			}
+		} catch (Exception e) {
+			LogDialog.getErrorLog().log( e.getMessage() );
+			LogDialog.getErrorLog().log( "Rolling back to default value." );
+			self = new Configuration();
 		}
-		Runtime.getRuntime().addShutdownHook( new Thread() {
-			public void run() {
-				try {
-					save();
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog( null, e.getMessage() );
-				}
-			}
-		} );
 	}
 	
 	public static void setLimit( long limit ) {
 		synchronized (self) {
 			self.limit = limit;
 		}
+	}
+	public static long getLimit() {
+		return self.limit;
 	}
 	
 	public static void setUnit( int unit ) {
@@ -54,27 +52,33 @@ public class Configuration {
 		}
 	}
 	
-	public static long getLimit() {
-		return self.limit;
-	}
-	
 	public static int getUnit() {
 		return self.unit;
+	}
+	
+	public static void setDebug( boolean debug ) {
+		synchronized (self) {
+			self.debug = debug;
+		}
+	}
+	
+	public static boolean getDebug() {
+		return self.debug;
 	}
 	
 	private Configuration() {
 		limit = 4483L;
 		unit = 2;
+		debug = false;
 	}
 	
-	private static void save() throws InterruptedException, IOException {
+	public static void sync() throws InterruptedException, IOException {
 		if( isWindows() && file.exists() && file.isHidden() ) {
 			Runtime.getRuntime().exec( String.format( "ATTRIB -H %s" , file.getAbsolutePath()) ).waitFor();
 		}
-		PrintStream fout = null;
 		try {
-			fout = new PrintStream( new FileOutputStream( file ) );
-			fout.printf( "%d %d\n", getLimit(), getUnit() );
+			ObjectOutputStream fout = new ObjectOutputStream( new FileOutputStream( file ) );
+			fout.writeObject( self );
 			fout.close();
 		} catch (FileNotFoundException e) {
 			LogDialog.getErrorLog().log( e.getMessage() );

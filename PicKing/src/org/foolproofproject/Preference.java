@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -16,6 +17,7 @@ public class Preference extends JDialog {
 	private static final long serialVersionUID = -3910072899938489788L;
 	private JComboBox unit;
 	private NeturalField limit;
+	private JCheckBox debug;
 	private Main parent;
 	
 	public Preference( Main window ) {
@@ -42,6 +44,15 @@ public class Preference extends JDialog {
 		unit.addItem( "MB" );
 		unit.addItem( "GB" );
 		
+		JPanel misc = new JPanel();
+		pane.add( misc );
+		misc.setLayout( new GridLayout( 1, 1 ) );
+		misc.setBorder( BorderFactory.createTitledBorder( "Miscellaneous" ) );
+		
+		debug = new JCheckBox( "Log debug information" );
+		misc.add( debug );
+		debug.setSelected( Configuration.getDebug() );
+		
 		JPanel buttons = new JPanel();
 		pane.add( buttons );
 		buttons.setLayout( new GridLayout( 1, 3 ) );
@@ -51,8 +62,7 @@ public class Preference extends JDialog {
 		ok.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Configuration.setLimit( limit.toLong() );
-				Configuration.setUnit( unit.getSelectedIndex() );
+				toConf();
 				parent.read();
 				setVisible( false );
 			}
@@ -62,8 +72,7 @@ public class Preference extends JDialog {
 		apply.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Configuration.setLimit( limit.toLong() );
-				Configuration.setUnit( unit.getSelectedIndex() );
+				toConf();
 				parent.read();
 			}
 		} );
@@ -83,6 +92,12 @@ public class Preference extends JDialog {
 		limit.setText( size.toString() );
 		unit.setSelectedIndex( index );
 		setVisible( true );
+	}
+	
+	private void toConf() {
+		Configuration.setLimit( limit.toLong() );
+		Configuration.setUnit( unit.getSelectedIndex() );
+		Configuration.setDebug( debug.isSelected() );
 	}
 
 }

@@ -8,6 +8,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -27,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -342,6 +345,15 @@ public class Main extends JFrame {
 				Main self = new Main( "PicKing" );
 				self.setSize( 800, 600 );
 				self.setVisible(true);
+				self.addWindowListener( new WindowAdapter() {
+					public void windowClosing( WindowEvent e ) {
+						try {
+							Configuration.sync();
+						} catch (Exception e1) {
+							JOptionPane.showMessageDialog( e.getComponent(), e1.getMessage(), "Error on saving configuration!", JOptionPane.ERROR_MESSAGE );
+						}
+					}
+				} );
 			}
 		} );
 	}
