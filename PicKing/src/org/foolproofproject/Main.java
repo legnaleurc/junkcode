@@ -274,7 +274,7 @@ public class Main extends JFrame {
 	}
 	
 	public void read() {
-		Configuration r = Configuration.load();
+		Configuration r = Configuration.get();
 		size.setLong( r.getLimit() );
 		unit.setSelectedIndex( r.getUnit() );
 	}

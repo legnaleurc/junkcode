@@ -51,7 +51,7 @@ public class Preference extends JDialog {
 		ok.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Configuration.save( new Configuration( limit.toLong(), unit.getSelectedIndex() ) );
+				Configuration.set( new Configuration( limit.toLong(), unit.getSelectedIndex() ) );
 				parent.read();
 				setVisible( false );
 			}
@@ -61,7 +61,7 @@ public class Preference extends JDialog {
 		apply.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Configuration.save( new Configuration( limit.toLong(), unit.getSelectedIndex() ) );
+				Configuration.set( new Configuration( limit.toLong(), unit.getSelectedIndex() ) );
 				parent.read();
 			}
 		} );

@@ -11,10 +11,40 @@ import java.util.Scanner;
 public class Configuration {
 	
 	private static final File file = new File( ".packing" );
+	private static Configuration self;
 	private long limit;
 	private int unit;
 	
-	public static void save( Configuration r ) {
+	static {
+		self = new Configuration();
+		try {
+			Scanner fin = new Scanner( new FileInputStream( file ) );
+			self.limit = fin.nextLong();
+			self.unit = fin.nextInt();
+			fin.close();
+		} catch (FileNotFoundException e) {
+			save();
+		}
+		Runtime.getRuntime().addShutdownHook( new Thread() {
+			public void run() {
+				save();
+			}
+		} );
+	}
+	
+	public static Configuration get() {
+		synchronized (self) {
+			return self;
+		}
+	}
+	
+	public static void set( Configuration c ) {
+		synchronized (self) {
+			self = c;
+		}
+	}
+	
+	private static void save() {
 		if( file.exists() && file.isHidden() ) {
 			try {
 				Runtime.getRuntime().exec( String.format( "ATTRIB -H %s" , file.getAbsolutePath()) ).waitFor();
@@ -32,7 +62,7 @@ public class Configuration {
 			ErrorLog.getInstance().log( e.getMessage() );
 			return;
 		}
-		fout.printf( "%d %d\n", r.getLimit(), r.getUnit() );
+		fout.printf( "%d %d\n", self.getLimit(), self.getUnit() );
 		fout.close();
 		if( !file.isHidden() ) {
 			try {
@@ -45,19 +75,6 @@ public class Configuration {
 				return;
 			}
 		}
-	}
-	
-	public static Configuration load() {
-		Configuration r = new Configuration();
-		try {
-			Scanner fin = new Scanner( new FileInputStream( file ) );
-			r.limit = fin.nextLong();
-			r.unit = fin.nextInt();
-			fin.close();
-		} catch (FileNotFoundException e) {
-			save( r );
-		}
-		return r;
 	}
 	
 	public Configuration() {
