@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 public class Configuration {
 	
 	private static final File file = new File( ".packing" );
@@ -23,76 +25,67 @@ public class Configuration {
 			self.unit = fin.nextInt();
 			fin.close();
 		} catch (FileNotFoundException e) {
-			save();
+			try {
+				save();
+			} catch (Exception e1) {
+				LogDialog.getErrorLog().log( e1.getMessage() );
+			}
 		}
 		Runtime.getRuntime().addShutdownHook( new Thread() {
 			public void run() {
-				save();
+				try {
+					save();
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog( null, e.getMessage() );
+				}
 			}
 		} );
 	}
 	
-	public static Configuration get() {
+	public static void setLimit( long limit ) {
 		synchronized (self) {
-			return self;
+			self.limit = limit;
 		}
 	}
 	
-	public static void set( Configuration c ) {
+	public static void setUnit( int unit ) {
 		synchronized (self) {
-			self = c;
+			self.unit = unit;
 		}
 	}
 	
-	private static void save() {
-		if( file.exists() && file.isHidden() ) {
-			try {
-				Runtime.getRuntime().exec( String.format( "ATTRIB -H %s" , file.getAbsolutePath()) ).waitFor();
-			} catch (IOException e) {
-				LogDialog.getErrorLog().log( e.getMessage() );
-				return;
-			} catch (InterruptedException e) {
-				LogDialog.getErrorLog().log( e.getMessage() );
-			}
-		}
-		PrintStream fout = null;
-		try {
-			fout = new PrintStream( new FileOutputStream( file ) );
-		} catch (FileNotFoundException e) {
-			LogDialog.getErrorLog().log( e.getMessage() );
-			return;
-		}
-		fout.printf( "%d %d\n", self.getLimit(), self.getUnit() );
-		fout.close();
-		if( !file.isHidden() ) {
-			try {
-				Runtime.getRuntime().exec( String.format( "ATTRIB +H %s" , file.getAbsolutePath()) ).waitFor();
-			} catch (IOException e) {
-				LogDialog.getErrorLog().log( e.getMessage() );
-				return;
-			} catch (InterruptedException e) {
-				LogDialog.getErrorLog().log( e.getMessage() );
-				return;
-			}
-		}
+	public static long getLimit() {
+		return self.limit;
 	}
 	
-	public Configuration() {
+	public static int getUnit() {
+		return self.unit;
+	}
+	
+	private Configuration() {
 		limit = 4483L;
 		unit = 2;
 	}
 	
-	public Configuration( long limit, int unit ) {
-		this.limit = limit;
-		this.unit = unit;
+	private static void save() throws InterruptedException, IOException {
+		if( isWindows() && file.exists() && file.isHidden() ) {
+			Runtime.getRuntime().exec( String.format( "ATTRIB -H %s" , file.getAbsolutePath()) ).waitFor();
+		}
+		PrintStream fout = null;
+		try {
+			fout = new PrintStream( new FileOutputStream( file ) );
+			fout.printf( "%d %d\n", getLimit(), getUnit() );
+			fout.close();
+		} catch (FileNotFoundException e) {
+			LogDialog.getErrorLog().log( e.getMessage() );
+		}
+		if( isWindows() && !file.isHidden() ) {
+			Runtime.getRuntime().exec( String.format( "ATTRIB +H %s" , file.getAbsolutePath()) ).waitFor();
+		}
 	}
 	
-	public long getLimit() {
-		return limit;
-	}
-	
-	public int getUnit() {
-		return unit;
+	private static boolean isWindows() {
+		return System.getProperty( "os.name" ).startsWith( "Windows" );
 	}
 
 }
