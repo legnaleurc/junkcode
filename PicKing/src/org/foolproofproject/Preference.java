@@ -86,6 +86,7 @@ public class Preference extends JDialog {
 		} );
 		
 		pack();
+		setLocationRelativeTo( parent );
 	}
 	
 	public void exec( Long size, int index ) {

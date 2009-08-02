@@ -27,6 +27,7 @@ public class LogDialog extends JDialog {
 		super( ( Main )null );
 		setSize( 320, 240 );
 		setTitle( title );
+		setLocationRelativeTo( null );
 		
 		Container pane = getContentPane();
 		pane.setLayout( new BoxLayout( pane, BoxLayout.Y_AXIS ) );

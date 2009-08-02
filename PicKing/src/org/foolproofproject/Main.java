@@ -106,6 +106,8 @@ public class Main extends JFrame {
 		super( title );
 		
 		setDefaultCloseOperation( EXIT_ON_CLOSE );
+		setSize( 800, 600 );
+		setLocationRelativeTo( null );
 		
 		Container pane = getContentPane();
 		pane.setLayout( new BoxLayout( pane, BoxLayout.Y_AXIS ) );
@@ -126,6 +128,7 @@ public class Main extends JFrame {
 		about = new JDialog( this );
 		about.setTitle( "About PacKing" );
 		about.setSize( 320, 240 );
+		about.setLocationRelativeTo( this );
 		
 		Container pane = about.getContentPane();
 		pane.setLayout( new BoxLayout( pane, BoxLayout.Y_AXIS ) );
@@ -353,7 +356,6 @@ public class Main extends JFrame {
 				}
 				
 				Main self = new Main( "PicKing" );
-				self.setSize( 800, 600 );
 				self.setVisible(true);
 				self.addWindowListener( new WindowAdapter() {
 					public void windowClosing( WindowEvent e ) {
