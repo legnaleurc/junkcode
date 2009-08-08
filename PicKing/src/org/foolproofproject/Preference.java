@@ -19,6 +19,7 @@ public class Preference extends JDialog {
 	private NeturalField limit;
 	private JCheckBox debug;
 	private Main parent;
+	private JCheckBox hidden;
 	
 	public Preference( Main window ) {
 		super( window );
@@ -46,9 +47,12 @@ public class Preference extends JDialog {
 		
 		JPanel misc = new JPanel();
 		pane.add( misc );
-		misc.setLayout( new GridLayout( 1, 1 ) );
+		misc.setLayout( new GridLayout( 2, 1 ) );
 		misc.setBorder( BorderFactory.createTitledBorder( "Miscellaneous" ) );
 		
+		hidden = new JCheckBox( "View Hidden Files" );
+		misc.add( hidden );
+		hidden.setSelected( (Boolean) Configuration.get( "hidden" ) );
 		debug = new JCheckBox( "Log debug information" );
 		misc.add( debug );
 		debug.setSelected( (Boolean) Configuration.get( "debug" ) );
@@ -89,9 +93,10 @@ public class Preference extends JDialog {
 		setLocationRelativeTo( parent );
 	}
 	
-	public void exec( Long size, int index ) {
+	public void exec( Long size, int index, boolean hidden ) {
 		limit.setText( size.toString() );
 		unit.setSelectedIndex( index );
+		this.hidden.setSelected( hidden );
 		setVisible( true );
 	}
 	

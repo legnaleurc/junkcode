@@ -199,7 +199,7 @@ public class Main extends JFrame {
 		preferences.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				preference.exec( size.toLong(), unit.getSelectedIndex() );
+				preference.exec( size.toLong(), unit.getSelectedIndex(), hidden.isSelected() );
 			}
 		} );
 		
