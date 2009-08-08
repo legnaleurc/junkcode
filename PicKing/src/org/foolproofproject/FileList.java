@@ -52,14 +52,11 @@ public class FileList extends JPanel {
 		add( items );
 	}
 	
-	public void setItems( File path ) {
-		if( path != null ) {
-			File[] files = path.listFiles();
-			if( files != null ) {
-				view.setListData( files );
-			} else {
-				view.removeAll();
-			}
+	public void setItems( File[] files ) {
+		if( files != null ) {
+			view.setListData( files );
+		} else {
+			view.removeAll();
 		}
 	}
 	

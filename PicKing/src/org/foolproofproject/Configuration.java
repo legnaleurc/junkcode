@@ -8,20 +8,22 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Hashtable;
 
 public class Configuration implements Serializable {
 	
 	private static final long serialVersionUID = 1450881336532749573L;
 	private static final File file = new File( System.getProperty( "user.home" ) + File.separator + ".packing" );
 	private static Configuration self;
-	private long limit;
-	private int unit;
-	private boolean debug;
+	private Hashtable< String, Object > data;
 	
 	static {
 		try {
 			ObjectInputStream fin = new ObjectInputStream( new FileInputStream( file ) );
 			self = (Configuration) fin.readObject();
+			if( self.data == null ) {
+				throw new Exception( "Configuration format is mismatched." );
+			}
 			fin.close();
 		} catch (FileNotFoundException e) {
 			self = new Configuration();
@@ -37,39 +39,22 @@ public class Configuration implements Serializable {
 		}
 	}
 	
-	public static void setLimit( long limit ) {
+	public static void set( String key, Object value ) {
 		synchronized (self) {
-			self.limit = limit;
-		}
-	}
-	public static long getLimit() {
-		return self.limit;
-	}
-	
-	public static void setUnit( int unit ) {
-		synchronized (self) {
-			self.unit = unit;
+			self.data.put(key, value);
 		}
 	}
 	
-	public static int getUnit() {
-		return self.unit;
-	}
-	
-	public static void setDebug( boolean debug ) {
-		synchronized (self) {
-			self.debug = debug;
-		}
-	}
-	
-	public static boolean getDebug() {
-		return self.debug;
+	public static Object get( String key ) {
+		return self.data.get( key );
 	}
 	
 	private Configuration() {
-		limit = 4483L;
-		unit = 2;
-		debug = false;
+		data = new Hashtable< String, Object >();
+		data.put( "limit", 4483L );
+		data.put( "unit", 2 );
+		data.put( "debug", false );
+		data.put( "hidden", false );
 	}
 	
 	public static void sync() throws InterruptedException, IOException {

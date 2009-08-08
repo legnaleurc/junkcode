@@ -1,6 +1,7 @@
 package org.foolproofproject;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.net.URI;
 
 public class ShortFile extends File {
@@ -32,19 +33,19 @@ public class ShortFile extends File {
 	}
 	
 	public ShortFile[] listFiles() {
-		if( !isDirectory() ) {
+		return listFiles( (FileFilter)null );
+	}
+	
+	public ShortFile[] listFiles( FileFilter filter ) {
+		File[] original = super.listFiles( filter );
+		if( original == null ) {
 			return null;
-		} else {
-			File[] original = super.listFiles();
-			if( original == null ) {
-				return null;
-			}
-			ShortFile[] tmp = new ShortFile[original.length];
-			for( int i = 0; i < tmp.length; ++i ) {
-				tmp[i] = new ShortFile( original[i] );
-			}
-			return tmp;
 		}
+		ShortFile[] tmp = new ShortFile[original.length];
+		for( int i = 0; i < tmp.length; ++i ) {
+			tmp[i] = new ShortFile( original[i] );
+		}
+		return tmp;
 	}
 	
 	public ShortFile getParentFile() {

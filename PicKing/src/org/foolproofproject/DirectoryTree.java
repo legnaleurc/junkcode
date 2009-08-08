@@ -25,11 +25,13 @@ public class DirectoryTree extends JPanel {
 	private static final long serialVersionUID = -8724999594568776949L;
 	private Vector< FileList > listener;
 	private JTabbedPane tabWidget;
+	private boolean hidden;
 	
 	public DirectoryTree() {
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 		setBorder( BorderFactory.createTitledBorder( "Directory Tree" ) );
 		listener = new Vector< FileList >();
+		hidden = (Boolean) Configuration.get( "hidden" );
 		
 		tabWidget = new JTabbedPane();
 		add( tabWidget );
@@ -45,9 +47,12 @@ public class DirectoryTree extends JPanel {
 	private void dispatch( JTree tree ) {
 		if( tree != null ) {
 			TreePath selection = tree.getSelectionPath();
-			File file = ( File )( selection != null ? selection.getLastPathComponent() : null );
-			for( FileList list : listener ) {
-				list.setItems( file );
+			if( selection != null ) {
+				File file = ( File )selection.getLastPathComponent();
+				File[] items = file.listFiles( new DirectoryFilter() );
+				for( FileList list : listener ) {
+					list.setItems( items );
+				}
 			}
 		}
 	}
@@ -77,6 +82,10 @@ public class DirectoryTree extends JPanel {
 		}
 		JTree tree = ( JTree )current.getViewport().getView();
 		return tree;
+	}
+	
+	public void setHidden( boolean hidden ) {
+		this.hidden = hidden;
 	}
 	
 	public void addFileListListener( FileList list ) {
@@ -212,11 +221,12 @@ public class DirectoryTree extends JPanel {
 			
 		}
 		
-		private class DirectoryFilter implements FileFilter {
-			@Override
-			public boolean accept(File file) {
-				return file.isDirectory();
-			}
+	}
+	
+	private class DirectoryFilter implements FileFilter {
+		@Override
+		public boolean accept(File file) {
+			return file.isDirectory() && ( !hidden ? !file.isHidden() : true );
 		}
 	}
 

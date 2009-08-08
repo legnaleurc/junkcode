@@ -21,6 +21,7 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -101,6 +102,7 @@ public class Main extends JFrame {
 	private JDialog about;
 	private Preference preference;
 	private DirectoryTree tree;
+	private JCheckBox hidden;
 	
 	public Main( String title ) {
 		super( title );
@@ -258,7 +260,7 @@ public class Main extends JFrame {
 	
 	private void initControlPanel() {
 		JPanel panel = new JPanel();
-		panel.setLayout( new GridLayout( 1, 2 ) );
+		panel.setLayout( new GridLayout( 1, 3 ) );
 		
 		JPanel limitPanel = new JPanel();
 		panel.add( limitPanel );
@@ -275,7 +277,20 @@ public class Main extends JFrame {
 		unit.addItem( "MB" );
 		unit.addItem( "GB" );
 		
-		read();
+		JPanel viewPanel = new JPanel();
+		panel.add( viewPanel );
+		viewPanel.setLayout( new GridLayout( 1, 1 ) );
+		viewPanel.setBorder( BorderFactory.createTitledBorder( "View" ) );
+		
+		hidden = new JCheckBox( "Hidden" );
+		viewPanel.add( hidden );
+		hidden.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tree.setHidden( hidden.isSelected() );
+				tree.refresh();
+			}
+		} );
 		
 		JButton start = new JButton( "Start" );
 		panel.add( start );
@@ -287,11 +302,14 @@ public class Main extends JFrame {
 		
 		Container pane = getContentPane();
 		pane.add( panel );
+		
+		read();
 	}
 	
 	public void read() {
-		size.setLong( Configuration.getLimit() );
-		unit.setSelectedIndex( Configuration.getUnit() );
+		size.setLong( (Long) Configuration.get( "limit" ) );
+		unit.setSelectedIndex( (Integer) Configuration.get( "unit" ) );
+		hidden.setSelected( (Boolean) Configuration.get( "hidden" ) );
 	}
 	
 	public void save() {

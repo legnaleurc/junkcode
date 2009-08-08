@@ -51,7 +51,7 @@ public class Preference extends JDialog {
 		
 		debug = new JCheckBox( "Log debug information" );
 		misc.add( debug );
-		debug.setSelected( Configuration.getDebug() );
+		debug.setSelected( (Boolean) Configuration.get( "debug" ) );
 		
 		JPanel buttons = new JPanel();
 		pane.add( buttons );
@@ -96,9 +96,10 @@ public class Preference extends JDialog {
 	}
 	
 	private void toConf() {
-		Configuration.setLimit( limit.toLong() );
-		Configuration.setUnit( unit.getSelectedIndex() );
-		Configuration.setDebug( debug.isSelected() );
+		Configuration.set( "limit", limit.toLong() );
+		Configuration.set( "unit", unit.getSelectedIndex() );
+		Configuration.set( "debug", debug.isSelected() );
+		Configuration.set( "hidden", false );
 	}
 
 }
