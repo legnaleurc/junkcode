@@ -1,4 +1,4 @@
-package org.foolproofproject;
+package org.foolproofproject.picking.gui;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -19,6 +19,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
 
 public class DirectoryTree extends JPanel {
 	

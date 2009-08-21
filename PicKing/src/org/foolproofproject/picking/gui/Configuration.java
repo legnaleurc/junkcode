@@ -1,4 +1,4 @@
-package org.foolproofproject;
+package org.foolproofproject.picking.gui;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Hashtable;
+
 
 public class Configuration implements Serializable {
 	

@@ -6,6 +6,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import org.foolproofproject.picking.gui.Configuration;
+import org.foolproofproject.picking.gui.LogDialog;
+
 public class Travaler {
 
 	public static class Result {

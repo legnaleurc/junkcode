@@ -1,4 +1,4 @@
-package org.foolproofproject;
+package org.foolproofproject.picking.gui;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 
 public class FileList extends JPanel {
 

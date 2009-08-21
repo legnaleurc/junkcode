@@ -1,4 +1,4 @@
-package org.foolproofproject;
+package org.foolproofproject.picking.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,6 +36,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.foolproofproject.Travaler;
 import org.foolproofproject.Travaler.Result;
 
 public class Main extends JFrame {

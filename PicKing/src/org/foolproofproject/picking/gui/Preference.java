@@ -1,4 +1,4 @@
-package org.foolproofproject;
+package org.foolproofproject.picking.gui;
 
 import java.awt.Container;
 import java.awt.GridLayout;
@@ -11,6 +11,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+
 
 public class Preference extends JDialog {
 
