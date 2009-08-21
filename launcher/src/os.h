@@ -10,13 +10,13 @@ typedef struct Context {
 	TCHAR dirName[_MAX_PATH];
 } Context;
 
-void cd( const TCHAR * );
+void cd( const TCHAR * path );
 
 int hide( const TCHAR * path );
 
 int show( const TCHAR * path );
 
-int findFile( TCHAR * result, size_t len, const TCHAR * target, const TCHAR * from, const TCHAR * exclude );
+int findFile( TCHAR * result, size_t len, const TCHAR * target, const TCHAR * exclude );
 
 void getPaths( Context * app, const TCHAR * path );
 

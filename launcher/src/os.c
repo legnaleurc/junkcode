@@ -23,7 +23,7 @@ int show( const TCHAR * path ) {
 	return SetFileAttributes( path, GetFileAttributes( path ) ^ FILE_ATTRIBUTE_HIDDEN );
 }
 
-int findFile( TCHAR * result, size_t len, const TCHAR * target, const TCHAR * from, const TCHAR * exclude ) {
+int findFile( TCHAR * result, size_t len, const TCHAR * target, const TCHAR * exclude ) {
 	FILE * pin = NULL;
 	errno_t err = ENOENT;
 

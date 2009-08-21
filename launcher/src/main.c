@@ -25,7 +25,7 @@ int _tmain( int argc, TCHAR * argv[] ) {
 		_stprintf_s( buffer, BUF_SIZE, TEXT( "Error on loading %s: %s\n" ), CACHE, tmp );
 		_ftprintf_s( stderr, buffer );
 
-		err = findFile( buffer, BUF_SIZE, app.baseName, app.dirName, argv[0] );
+		err = findFile( buffer, BUF_SIZE, app.baseName, argv[0] );
 		if( err != 0 ) {
 			_tcserror_s( tmp, BUF_SIZE, err );
 			_stprintf_s( buffer, BUF_SIZE, TEXT( "Error on finding %s: %s\n" ), app.baseName, tmp );
