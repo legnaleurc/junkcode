@@ -3,48 +3,56 @@
 #include <windows.h>
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #define BUF_SIZE 1024
+static const TCHAR * CACHE = TEXT( ".cache" );
 
 int _tmain( int argc, TCHAR * argv[] ) {
-	TCHAR pwd[_MAX_PATH], target[_MAX_PATH], config[_MAX_PATH];
+	Context app;
+
 	FILE * fin = NULL, * fout = NULL;
+	TCHAR buffer[BUF_SIZE], tmp[BUF_SIZE];
+	errno_t err = 0;
 
-	TCHAR buffer[BUF_SIZE];
+	getPaths( &app, argv[0] );
+	cd( app.dirName );
 
-	getPaths( pwd, _MAX_PATH, target, _MAX_PATH, config, _MAX_PATH, argv[0] );
+	// loading cache
+	show( CACHE );
+	err = _tfopen_s( &fin, CACHE, TEXT( "r" ) );
+	if( err != 0 ) {
+		_tcserror_s( tmp, BUF_SIZE, err );
+		_stprintf_s( buffer, BUF_SIZE, TEXT( "Error on loading %s: %s\n" ), CACHE, tmp );
+		_ftprintf_s( stderr, buffer );
 
-	if( _taccess_s( config, 2 ) == 0 ) {
-		_tfopen_s( &fin, config, TEXT( "r" ) );
-		if( fin == NULL ) {
-			_ftprintf_s( stderr, TEXT( "Read file error.\n" ) );
-			return 1;
-		} else {
-			_fgetts( buffer, BUF_SIZE, fin );
+		err = findFile( buffer, BUF_SIZE, app.baseName, app.dirName, argv[0] );
+		if( err != 0 ) {
+			_tcserror_s( tmp, BUF_SIZE, err );
+			_stprintf_s( buffer, BUF_SIZE, TEXT( "Error on finding %s: \n" ), app.baseName, tmp );
+			_ftprintf_s( stderr, buffer );
 			fclose( fin );
-			show( config );
-			if( _taccess_s( buffer, 0 ) != 0 ) {
-				findFile( buffer, BUF_SIZE, target, pwd, argv[0] );
-			}
+			return err;
 		}
 	} else {
-		findFile( buffer, BUF_SIZE, target, pwd, argv[0] );
+		_fgetts( buffer, BUF_SIZE, fin );
 	}
 
 	cd( buffer );
-	execute( buffer, argv );
+	_tcscat_s( buffer, BUF_SIZE, TEXT( " &" ) );
+	_tsystem( buffer );
+	cd( app.dirName );
 
-	_tfopen_s( &fout, config, TEXT( "w" ) );
-	if( fout == NULL ) {
-		_ftprintf_s( stderr, TEXT( "Write file error.\n" ) );
-		return 1;
-	} else {
-		_fputts( buffer, fout );
-		fclose( fout );
+	// saving cache
+	err = _tfopen_s( &fout, CACHE, TEXT( "w" ) );
+	if( err != 0 ) {
+		_tcserror_s( tmp, BUF_SIZE, err );
+		_stprintf_s( buffer, BUF_SIZE, TEXT( "Error on saving %s: %s\n" ), CACHE, tmp );
+		_ftprintf_s( stderr, buffer );
+		return err;
 	}
-
-	hide( config );
+	_ftprintf_s( fout, TEXT( "%s" ), buffer );
+	fclose( fout );
+	hide( CACHE );
 
 	return 0;
 }
