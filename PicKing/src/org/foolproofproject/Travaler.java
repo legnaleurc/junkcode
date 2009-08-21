@@ -6,9 +6,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Map.Entry;
 
-import org.foolproofproject.picking.gui.Configuration;
-import org.foolproofproject.picking.gui.LogDialog;
-
 public class Travaler {
 
 	public static class Result {
@@ -156,10 +153,6 @@ public class Travaler {
 		private Boolean canStop() {
 			Cell head = population.firstElement();
 			Cell tail = population.lastElement();
-			if( (Boolean) Configuration.get( "debug" ) ) {
-				LogDialog.getDebugLog().log( "head: " + head );
-				LogDialog.getDebugLog().log( "tail: " + tail );
-			}
 			return head.getSize().equals( tail.getSize() );
 		}
 		
