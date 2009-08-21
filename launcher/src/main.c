@@ -7,10 +7,24 @@
 #define BUF_SIZE 1024
 static const TCHAR * CACHE = TEXT( ".cache" );
 
+static errno_t load( TCHAR * buf, size_t len ) {
+	FILE * fin = NULL;
+	errno_t err = _tfopen_s( &fin, CACHE, TEXT( "r" ) );
+
+	if( err != 0 ) {
+		return err;
+	} else {
+		_fgetts( buf, len, fin );
+		fclose( fin );
+	}
+
+	return 0;
+}
+
 int _tmain( int argc, TCHAR * argv[] ) {
 	Context app;
 
-	FILE * fin = NULL, * fout = NULL;
+	FILE * fout = NULL;
 	TCHAR buffer[BUF_SIZE], tmp[BUF_SIZE];
 	errno_t err = 0;
 
@@ -19,10 +33,10 @@ int _tmain( int argc, TCHAR * argv[] ) {
 
 	// loading cache
 	show( CACHE );
-	err = _tfopen_s( &fin, CACHE, TEXT( "r" ) );
+	err = load( buffer, BUF_SIZE );
 	if( err != 0 ) {
 		_tcserror_s( tmp, BUF_SIZE, err );
-		_stprintf_s( buffer, BUF_SIZE, TEXT( "Error on loading %s: %s\n" ), CACHE, tmp );
+		_stprintf_s( buffer, BUF_SIZE, TEXT( "Warning on loading %s: %s\n" ), CACHE, tmp );
 		_ftprintf_s( stderr, buffer );
 
 		err = findFile( buffer, BUF_SIZE, app.baseName, argv[0] );
@@ -32,9 +46,6 @@ int _tmain( int argc, TCHAR * argv[] ) {
 			_ftprintf_s( stderr, buffer );
 			return err;
 		}
-	} else {
-		_fgetts( buffer, BUF_SIZE, fin );
-		fclose( fin );
 	}
 
 	cd( buffer );
