@@ -28,13 +28,13 @@ int _tmain( int argc, TCHAR * argv[] ) {
 		err = findFile( buffer, BUF_SIZE, app.baseName, app.dirName, argv[0] );
 		if( err != 0 ) {
 			_tcserror_s( tmp, BUF_SIZE, err );
-			_stprintf_s( buffer, BUF_SIZE, TEXT( "Error on finding %s: \n" ), app.baseName, tmp );
+			_stprintf_s( buffer, BUF_SIZE, TEXT( "Error on finding %s: %s\n" ), app.baseName, tmp );
 			_ftprintf_s( stderr, buffer );
-			fclose( fin );
 			return err;
 		}
 	} else {
 		_fgetts( buffer, BUF_SIZE, fin );
+		fclose( fin );
 	}
 
 	cd( buffer );
