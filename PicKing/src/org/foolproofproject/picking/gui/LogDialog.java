@@ -25,7 +25,7 @@ public class LogDialog extends JDialog {
 	}
 	
 	private LogDialog( String title ) {
-		super( ( Main )null );
+		super( ( Window )null );
 		setSize( 320, 240 );
 		setTitle( title );
 		setLocationRelativeTo( null );

@@ -33,13 +33,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import org.foolproofproject.Travaler;
 import org.foolproofproject.Travaler.Result;
 
-public class Main extends JFrame {
+public class Window extends JFrame {
 	
 	private class ItemTable {
 		
@@ -105,7 +103,7 @@ public class Main extends JFrame {
 	private DirectoryTree tree;
 	private JCheckBox hidden;
 	
-	public Main( String title ) {
+	public Window( String title ) {
 		super( title );
 		
 		setDefaultCloseOperation( EXIT_ON_CLOSE );
@@ -121,6 +119,16 @@ public class Main extends JFrame {
 		initAbout();
 		
 		initMenuBar();
+		
+		this.addWindowListener( new WindowAdapter() {
+			public void windowClosing( WindowEvent e ) {
+				try {
+					Configuration.sync();
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog( e.getComponent(), e1.getMessage(), "Error on saving configuration!", JOptionPane.ERROR_MESSAGE );
+				}
+			}
+		} );
 	}
 	
 	private void initPreference() {
@@ -363,30 +371,6 @@ public class Main extends JFrame {
 		}
 		
 		result.expandAll();
-	}
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater( new Runnable() {
-			public void run() {
-				try {
-					UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-				} catch( Exception e ) {
-					LogDialog.getErrorLog().log( e.getMessage() );
-				}
-				
-				Main self = new Main( "PicKing" );
-				self.setVisible(true);
-				self.addWindowListener( new WindowAdapter() {
-					public void windowClosing( WindowEvent e ) {
-						try {
-							Configuration.sync();
-						} catch (Exception e1) {
-							JOptionPane.showMessageDialog( e.getComponent(), e1.getMessage(), "Error on saving configuration!", JOptionPane.ERROR_MESSAGE );
-						}
-					}
-				} );
-			}
-		} );
 	}
 
 }
