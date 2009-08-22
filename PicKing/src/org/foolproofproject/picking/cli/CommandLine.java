@@ -29,6 +29,9 @@ public class CommandLine {
 			}
 			
 			File path = new File( ( args.length < 2 ) ? "." : args[1] );
+			if( !path.isDirectory() ) {
+				path = new File( "." );
+			}
 			
 			perform( path.listFiles(), limit, eng );
 		}
