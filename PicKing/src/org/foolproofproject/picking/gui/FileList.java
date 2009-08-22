@@ -3,8 +3,6 @@ package org.foolproofproject.picking.gui;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.Vector;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -61,15 +59,15 @@ public class FileList extends JPanel {
 		}
 	}
 	
-	public Vector< File > getSelectedFiles() {
+	public File[] getSelectedFiles() {
 		Object[] selection = view.getSelectedValues();
 		if( selection == null ) {
 			return null;
 		}
 
-		Vector< File > tmp = new Vector< File >();
-		for( Object o : selection ) {
-			tmp.add( ( File )o );
+		File[] tmp = new File[selection.length];
+		for( int i = 0; i < tmp.length; ++i ) {
+			tmp[i] = (File)selection[i];
 		}
 		return tmp;
 	}

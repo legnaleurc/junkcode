@@ -10,14 +10,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -34,64 +29,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import org.foolproofproject.Travaler;
-import org.foolproofproject.Travaler.Result;
+import org.foolproofproject.picking.Performer;
 
-public class Window extends JFrame {
-	
-	private class ItemTable {
-		
-		private final Long limit;
-		private Long size;
-		private Hashtable< File, Long > items, table;
-		private Vector< File > overflow;
-		
-		public ItemTable( Long limit ) {
-			this.limit = limit;
-			size = 0L;
-			items = new Hashtable< File, Long >();
-			table = new Hashtable< File, Long >();
-			overflow = new Vector< File >();
-		}
-		
-		public Long getLimit() {
-			return limit;
-		}
-		public Long getSize() {
-			return size;
-		}
-		public Hashtable< File, Long > getItems() {
-			return items;
-		}
-		public Hashtable< File, Long > getTable() {
-			return table;
-		}
-		public void remove( File key ) {
-			size -= items.get( key );
-			items.remove( key );
-		}
-		public void put( File key, Long value ) {
-			if( value < limit ) {
-				size += value;
-				items.put( key, value );
-			} else {
-				overflow.add( key );
-			}
-			table.put( key, value );
-		}
-		public boolean noItem() {
-			return items.isEmpty();
-		}
-		public boolean noOverflow() {
-			return overflow.isEmpty();
-		}
-		public Vector< File > getItemKeys() {
-			return new Vector< File >( items.keySet() );
-		}
-		public Vector< File > getOverflow() {
-			return overflow;
-		}
-	}
+public class MainWindow extends JFrame {
 	
 	private static final long serialVersionUID = 6869079478547863579L;
 	private FileList list;
@@ -103,7 +43,7 @@ public class Window extends JFrame {
 	private DirectoryTree tree;
 	private JCheckBox hidden;
 	
-	public Window( String title ) {
+	public MainWindow( String title ) {
 		super( title );
 		
 		setDefaultCloseOperation( EXIT_ON_CLOSE );
@@ -347,27 +287,19 @@ public class Window extends JFrame {
 	public void perform() {
 		result.clear();
 		
-		Vector< File > items = list.getSelectedFiles();
-		long eng = ( long )Math.pow( 1024, unit.getSelectedIndex() );
-		ItemTable table = new ItemTable( size.toLong() * eng );
-		for( File item : items ) {
-			table.put( item, Travaler.getSize( item ) );
+		long eng = unit.getSelectedIndex();
+		Performer p = new Performer( size.toLong(), eng, list.getSelectedFiles() );
+		
+		result.setTable( p.getTable() );
+		
+		while( !p.noItem() ) {
+			Performer.Result r = p.once();
+			result.addResult( r.getTitle(), r.getFiles() );
+			p.remove( r.getFiles() );
 		}
 		
-		result.setTable( table.getTable() );
-		
-		while( !table.noItem() ) {
-			Result pair = ( table.getSize() < table.getLimit() ) ? new Result( table.getSize(), table.getItemKeys() ) : Travaler.pick( table.getLimit(), table.getItems() );
-			Long title = pair.getSize() / eng;
-			Collections.sort( pair.getItems() );
-			result.addResult( title + " " + unit.getSelectedItem(), pair.getItems() );
-			for( File file : pair.getItems() ) {
-				table.remove( file );
-			}
-		}
-		
-		if( !table.noOverflow() ) {
-			result.addResult( "Overflow", table.getOverflow() );
+		if( !p.noOverflow() ) {
+			result.addResult( "Overflow", p.getOverflow() );
 		}
 		
 		result.expandAll();

@@ -19,10 +19,10 @@ public class Preference extends JDialog {
 	private JComboBox unit;
 	private NeturalField limit;
 	private JCheckBox debug;
-	private Window parent;
+	private MainWindow parent;
 	private JCheckBox hidden;
 	
-	public Preference( Window window ) {
+	public Preference( MainWindow window ) {
 		super( window );
 		
 		parent = window;
