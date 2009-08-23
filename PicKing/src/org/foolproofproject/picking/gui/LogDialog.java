@@ -1,4 +1,4 @@
-package org.foolproofproject;
+package org.foolproofproject.picking.gui;
 
 import java.awt.Container;
 
@@ -7,6 +7,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
 
 public class LogDialog extends JDialog {
 	
@@ -24,7 +25,7 @@ public class LogDialog extends JDialog {
 	}
 	
 	private LogDialog( String title ) {
-		super( ( Main )null );
+		super( ( MainWindow )null );
 		setSize( 320, 240 );
 		setTitle( title );
 		setLocationRelativeTo( null );

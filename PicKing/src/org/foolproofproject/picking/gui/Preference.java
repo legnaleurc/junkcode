@@ -1,4 +1,4 @@
-package org.foolproofproject;
+package org.foolproofproject.picking.gui;
 
 import java.awt.Container;
 import java.awt.GridLayout;
@@ -12,16 +12,17 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+
 public class Preference extends JDialog {
 
 	private static final long serialVersionUID = -3910072899938489788L;
 	private JComboBox unit;
 	private NeturalField limit;
 	private JCheckBox debug;
-	private Main parent;
+	private MainWindow parent;
 	private JCheckBox hidden;
 	
-	public Preference( Main window ) {
+	public Preference( MainWindow window ) {
 		super( window );
 		
 		parent = window;
