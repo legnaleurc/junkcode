@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.foolproofproject.Travaler;
+import org.foolproofproject.Pack;
 
 public class Performer {
 	
@@ -47,12 +47,12 @@ public class Performer {
 		overflow = new Vector< String >();
 		
 		for( File file : files ) {
-			put( file.getName(), Travaler.getSize( file ) );
+			put( file.getName(), Pack.getFileSize( file ) );
 		}
 	}
 	
 	public Result once() {
-		Travaler.Result r = ( size < limit ) ? new Travaler.Result( size, new Vector< String >( items.keySet() ) ) : Travaler.pick( limit, items );
+		Pack r = ( size < limit ) ? new Pack( size, new Vector< String >( items.keySet() ) ) : Pack.pick( limit, items );
 		return new Result( r.getSize(), eng, r.getItems() );
 	}
 	public void remove( Vector<String> keys ) {

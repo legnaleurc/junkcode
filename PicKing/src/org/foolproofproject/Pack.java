@@ -6,31 +6,27 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Map.Entry;
 
-public class Travaler {
+public class Pack {
 
-	public static class Result {
-		
-		private Long size;
-		private Vector< String > items;
-		
-		public Result() {
-			size = 0L;
-			items = new Vector< String >();
-		}
-		public Result( Long size, Vector<String> items ) {
-			this.size = size;
-			this.items = items;
-		}
-		public String toString() {
-			return "("+size+":"+items+")";
-		}
-		public Long getSize() {
-			return size;
-		}
-		public Vector<String> getItems() {
-			return items;
-		}
-
+	private long size;
+	private Vector< String > items;
+	
+	private Pack() {
+		size = 0L;
+		items = new Vector< String >();
+	}
+	public Pack( long size, Vector<String> items ) {
+		this.size = size;
+		this.items = items;
+	}
+	public String toString() {
+		return "("+size+":"+items+")";
+	}
+	public long getSize() {
+		return size;
+	}
+	public Vector<String> getItems() {
+		return items;
 	}
 	
 	private static class GeneticAlgorithm {
@@ -90,7 +86,7 @@ public class Travaler {
 			Collections.sort( population );
 		}
 		
-		public Result perform() {
+		public Pack perform() {
 			while( !canStop() ) {
 				crossOver();
 				mutation();
@@ -99,7 +95,7 @@ public class Travaler {
 			}
 			
 			Cell survivor = population.get( 0 );
-			Result result = new Result( survivor.getSize(), new Vector< String >() );
+			Pack result = new Pack( survivor.getSize(), new Vector< String >() );
 			for( Entry<String, Boolean> e : survivor.getTable().entrySet() ) {
 				if( e.getValue() ) {
 					result.getItems().add( e.getKey() );
@@ -192,7 +188,7 @@ public class Travaler {
 		
 	}
 	
-	public static Result pick( Long limit, Hashtable<String, Long> items ) {
+	public static Pack pick( Long limit, Hashtable<String, Long> items ) {
 		if( items.size() < 16 ) {
 			return pickSmall( limit, items );
 		} else {
@@ -200,30 +196,30 @@ public class Travaler {
 		}
 	}
 	
-	public static Result pickLarge( Long limit, Hashtable<String,Long> items ) {
+	public static Pack pickLarge( Long limit, Hashtable<String,Long> items ) {
 		GeneticAlgorithm ga = new GeneticAlgorithm( limit, items );
 		return ga.perform();
 	}
 	
-	public static Result pickSmall( Long limit, Hashtable<String,Long> items ) {
-		Vector< Result > table = new Vector< Result >();
-		table.add( new Result() );
+	public static Pack pickSmall( Long limit, Hashtable<String,Long> items ) {
+		Vector< Pack > table = new Vector< Pack >();
+		table.add( new Pack() );
 		
 		for( Entry<String, Long> e : items.entrySet() ) {
-			Vector< Result > tmp = new Vector< Result >();
-			for( Result p : table ) {
+			Vector< Pack > tmp = new Vector< Pack >();
+			for( Pack p : table ) {
 				Long newSize = p.getSize() + e.getValue();
 				if( newSize <= limit ) {
 					Vector< String > newDirs = new Vector< String >( p.getItems() );
 					newDirs.add( e.getKey() );
-					tmp.add( new Result( newSize, newDirs ) );
+					tmp.add( new Pack( newSize, newDirs ) );
 				}
 			}
 			table.addAll(table.size(), tmp);
 		}
 		
-		Result max = new Result();
-		for( Result p : table ) {
+		Pack max = new Pack();
+		for( Pack p : table ) {
 			if( p.getSize() >= max.getSize() ) {
 				max = p;
 			}
@@ -231,13 +227,13 @@ public class Travaler {
 		return max;
 	}
 	
-	public static Long getSize( File path ) {
+	public static long getFileSize( File path ) {
 		if( path.isDirectory() ) {
-			Long sum = path.length();
+			long sum = path.length();
 			File[] files = path.listFiles();
 			if( files != null ) {
 				for( File file : files ) {
-					sum += getSize( file );
+					sum += getFileSize( file );
 				}
 			}
 			return sum;
