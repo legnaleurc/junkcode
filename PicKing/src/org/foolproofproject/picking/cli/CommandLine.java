@@ -43,16 +43,16 @@ public class CommandLine {
 		while( !p.noItem() ) {
 			Performer.Result pair = p.once();
 			System.out.println( pair.getTitle() + ":" );
-			for( File item : pair.getFiles() ) {
-				System.out.println( "\t" + item.getPath() );
+			for( String item : pair.getItems() ) {
+				System.out.println( "\t" + item );
 			}
-			p.remove( pair.getFiles() );
+			p.remove( pair.getItems() );
 		}
 		
 		if( !p.noOverflow() ) {
 			System.out.println( "Overflow:" );
-			for( File item : p.getOverflow() ) {
-				System.out.println( "\t" + item.getPath() );
+			for( String item : p.getOverflow() ) {
+				System.out.println( "\t" + item );
 			}
 		}
 	}

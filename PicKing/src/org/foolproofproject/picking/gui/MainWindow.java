@@ -294,8 +294,8 @@ public class MainWindow extends JFrame {
 		
 		while( !p.noItem() ) {
 			Performer.Result r = p.once();
-			result.addResult( r.getTitle(), r.getFiles() );
-			p.remove( r.getFiles() );
+			result.addResult( r.getTitle(), r.getItems() );
+			p.remove( r.getItems() );
 		}
 		
 		if( !p.noOverflow() ) {

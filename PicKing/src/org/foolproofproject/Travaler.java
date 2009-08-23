@@ -11,13 +11,13 @@ public class Travaler {
 	public static class Result {
 		
 		private Long size;
-		private Vector< File > items;
+		private Vector< String > items;
 		
 		public Result() {
 			size = 0L;
-			items = new Vector< File >();
+			items = new Vector< String >();
 		}
-		public Result( Long size, Vector< File > items ) {
+		public Result( Long size, Vector<String> items ) {
 			this.size = size;
 			this.items = items;
 		}
@@ -27,7 +27,7 @@ public class Travaler {
 		public Long getSize() {
 			return size;
 		}
-		public Vector< File > getItems() {
+		public Vector<String> getItems() {
 			return items;
 		}
 
@@ -37,21 +37,21 @@ public class Travaler {
 		
 		private class Cell implements Comparable< Cell > {
 			
-			private Hashtable< File, Boolean > table;
+			private Hashtable< String, Boolean > table;
 			private Long size;
 			
-			public Cell( Hashtable< File, Boolean > table, Long size ) {
+			public Cell( Hashtable<String,Boolean> table, Long size ) {
 				this.table = table;
 				this.size = size;
 			}
 			public Cell( Cell cell ) {
-				this.table = new Hashtable< File, Boolean >( cell.table );
+				this.table = new Hashtable< String, Boolean >( cell.table );
 				this.size = new Long( cell.size );
 			}
-			public boolean canToggle( File key, Long value, Long limit ) {
+			public boolean canToggle( String key, Long value, Long limit ) {
 				return ( table.get( key ) || size + value < limit );
 			}
-			public void toggle( File key, Long value ) {
+			public void toggle( String key, Long value ) {
 				boolean tmp = table.get( key );
 				table.put( key, !tmp );
 				if( tmp ) {
@@ -60,7 +60,7 @@ public class Travaler {
 					size += value;
 				}
 			}
-			public Hashtable<File, Boolean> getTable() {
+			public Hashtable<String,Boolean> getTable() {
 				return table;
 			}
 			public Long getSize() {
@@ -76,10 +76,10 @@ public class Travaler {
 		}
 		
 		private Long limit;
-		private Hashtable< File, Long > items;
+		private Hashtable<String,Long> items;
 		private Vector< Cell > population;
 		
-		public GeneticAlgorithm( Long limit, Hashtable< File, Long > items ) {
+		public GeneticAlgorithm( Long limit, Hashtable<String,Long> items ) {
 			this.limit = limit;
 			this.items = items;
 			
@@ -99,8 +99,8 @@ public class Travaler {
 			}
 			
 			Cell survivor = population.get( 0 );
-			Result result = new Result( survivor.getSize(), new Vector< File >() );
-			for( Entry< File, Boolean > e : survivor.getTable().entrySet() ) {
+			Result result = new Result( survivor.getSize(), new Vector< String >() );
+			for( Entry<String, Boolean> e : survivor.getTable().entrySet() ) {
 				if( e.getValue() ) {
 					result.getItems().add( e.getKey() );
 				}
@@ -109,9 +109,9 @@ public class Travaler {
 		}
 		
 		private Cell generatePopulation() {
-			Hashtable< File, Boolean > cell = new Hashtable< File, Boolean >();
+			Hashtable< String, Boolean > cell = new Hashtable< String, Boolean >();
 			Long sum = 0L;
-			for( Entry< File, Long > e : items.entrySet() ) {
+			for( Entry<String, Long> e : items.entrySet() ) {
 				if( e.getValue() + sum >= limit || Math.random() * 2 < 1.0 ) {
 					cell.put( e.getKey(), false );
 				} else {
@@ -161,7 +161,7 @@ public class Travaler {
 			for( int i = 0; i < length; ++i ) {
 				Cell new1 = new Cell( population.get( i ) );
 				Cell new2 = new Cell( population.get( selectParent() ) );
-				for( Entry< File, Long > e : items.entrySet() ) {
+				for( Entry<String, Long> e : items.entrySet() ) {
 					if( new1.getTable().get( e.getKey() ) == new2.getTable().get( e.getKey() ) ) {
 						break;
 					}
@@ -182,7 +182,7 @@ public class Travaler {
 			final int length = population.size();
 			for( int i = 0; i < length; ++i ) {
 				Cell cell = population.get( i );
-				for( Entry< File, Long > e : items.entrySet() ) {
+				for( Entry<String, Long> e : items.entrySet() ) {
 					if( cell.canToggle( e.getKey(), e.getValue(), limit) && Math.random() * items.size() < 1.0 ) {
 						cell.toggle( e.getKey(), e.getValue() );
 					}
@@ -192,7 +192,7 @@ public class Travaler {
 		
 	}
 	
-	public static Result pick( Long limit, Hashtable< File, Long > items ) {
+	public static Result pick( Long limit, Hashtable<String, Long> items ) {
 		if( items.size() < 16 ) {
 			return pickSmall( limit, items );
 		} else {
@@ -200,21 +200,21 @@ public class Travaler {
 		}
 	}
 	
-	public static Result pickLarge( Long limit, Hashtable< File, Long > items ) {
+	public static Result pickLarge( Long limit, Hashtable<String,Long> items ) {
 		GeneticAlgorithm ga = new GeneticAlgorithm( limit, items );
 		return ga.perform();
 	}
 	
-	public static Result pickSmall( Long limit, Hashtable< File, Long > items ) {
+	public static Result pickSmall( Long limit, Hashtable<String,Long> items ) {
 		Vector< Result > table = new Vector< Result >();
 		table.add( new Result() );
 		
-		for( Entry< File, Long > e : items.entrySet() ) {
+		for( Entry<String, Long> e : items.entrySet() ) {
 			Vector< Result > tmp = new Vector< Result >();
 			for( Result p : table ) {
 				Long newSize = p.getSize() + e.getValue();
 				if( newSize <= limit ) {
-					Vector< File > newDirs = new Vector< File >( p.getItems() );
+					Vector< String > newDirs = new Vector< String >( p.getItems() );
 					newDirs.add( e.getKey() );
 					tmp.add( new Result( newSize, newDirs ) );
 				}

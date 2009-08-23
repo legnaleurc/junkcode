@@ -1,7 +1,6 @@
 package org.foolproofproject.picking.gui;
 
 import java.awt.Component;
-import java.io.File;
 import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -24,7 +23,7 @@ public class ResultTree extends JPanel {
 
 	private static final long serialVersionUID = 3366458847085663811L;
 	private JTree view;
-	private Hashtable< File, Long > table;
+	private Hashtable<String,Long> table;
 	
 	public ResultTree() {
 		view = new JTree();
@@ -42,7 +41,7 @@ public class ResultTree extends JPanel {
 				if( table != null && leaf ) {
 					DefaultMutableTreeNode node = ( DefaultMutableTreeNode )value;
 					Object item = node.getUserObject();
-					if( item instanceof ShortFile ) {
+					if( item instanceof String && table.containsKey( item ) ) {
 						double size = table.get( item ).doubleValue();
 						int pow = 0;
 						while( size >= 1024 ) {
@@ -76,11 +75,11 @@ public class ResultTree extends JPanel {
 		( ( DefaultTreeModel )view.getModel() ).setRoot( null );
 	}
 	
-	public void setTable( Hashtable< File, Long > table ) {
+	public void setTable( Hashtable<String, Long> table ) {
 		this.table = table;
 	}
 	
-	public void addResult( String title, Vector< File > items ) {
+	public void addResult( String title, Vector<String> items ) {
 		getRoot().add( createNewNode( title, items ) );
 	}
 	
