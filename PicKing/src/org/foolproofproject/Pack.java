@@ -159,10 +159,10 @@ public class Pack {
 				Cell new2 = new Cell( population.get( selectParent() ) );
 				for( Entry<String, Long> e : items.entrySet() ) {
 					if( new1.getTable().get( e.getKey() ) == new2.getTable().get( e.getKey() ) ) {
-						break;
+						continue;
 					}
 					if( !new1.canToggle( e.getKey(), e.getValue(), limit ) || !new2.canToggle( e.getKey(), e.getValue(), limit ) ) {
-						break;
+						continue;
 					}
 					if( Math.random() < 0.5 ) {
 						new1.toggle( e.getKey(), e.getValue() );
