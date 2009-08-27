@@ -13,11 +13,13 @@ perform() {
 }
 
 usage() {
-	echo "Usage: `basename $0` -i <codec> [-p] files..."
-	echo '\t-i codec:'
-	echo '\t\tAssign input file codec.'
-	echo '\t-p:'
-	echo '\t\tPreview the result.'
+cat <<EOF
+Usage: `basename $0` -i <codec> [-p] files...
+	-i codec:
+		Assign input file codec.
+	-p:
+		Preview the result.
+EOF
 }
 
 action=perform
