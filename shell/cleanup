@@ -1,0 +1,14 @@
+#! /bin/sh
+
+dir='.'
+if [ $# -eq 1 ] ; then
+	dir="$1"
+fi
+
+find $dir -name 'Thumbs.db' -o \( -name '*~' -type f \) | while read path ; do
+	rm -fv "$path"
+done
+
+find $dir -type f -perm /133 | while read path ; do
+	chmod -c 644 "$path"
+done
