@@ -49,8 +49,8 @@ int _tmain( int argc, TCHAR * argv[] ) {
 	}
 
 	cd( buffer );
-	_tcscat_s( buffer, BUF_SIZE, TEXT( " &" ) );
-	_tsystem( buffer );
+	_stprintf_s( tmp, BUF_SIZE, TEXT( "%s &" ), buffer );
+	_tsystem( tmp );
 	cd( app.dirName );
 
 	// saving cache
