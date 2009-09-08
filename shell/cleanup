@@ -1,14 +1,43 @@
 #! /bin/sh
 
-dir='.'
-if [ $# -eq 1 ] ; then
-	dir="$1"
-fi
+RM='rm -fv'
+CHMOD='chmod -c 644'
 
-find $dir -name 'Thumbs.db' -o \( -name '*~' -type f \) | while read path ; do
-	rm -fv "$path"
+target='.'
+rm_filter="-name Thumbs.db"
+
+set - `getopt bn $*`
+while true ; do
+	case $1 in
+	-b)
+		rm_filter="$rm_filter -o ( -name *~ -type f )"
+		shift
+		;;
+	-n)
+		RM='echo will be removed:'
+		CHMOD='echo will change to 644:'
+		shift
+		;;
+	--)
+		shift
+		break
+		;;
+	*)
+		echo 'Not supported.' >&2
+		exit 1
+		;;
+	esac
 done
 
-find $dir -type f -perm /133 | while read path ; do
-	chmod -c 644 "$path"
+if [ $# -ge 1 ] ; then
+	target="$1"
+	shift
+fi
+
+find $target $rm_filter | while read path ; do
+	$RM "$path"
+done
+
+find $target -type f -perm /133 | while read path ; do
+	$CHMOD "$path"
 done
