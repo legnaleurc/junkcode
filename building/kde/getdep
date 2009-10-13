@@ -47,10 +47,12 @@ libxml2-dev
 libxslt1-dev
 libgif-dev
 shared-mime-info
+libphonon-dev
 '
 KDEPIMLIBS='
 libsasl2-dev
 libical-dev
+libboost-graph-dev
 '
 KDEPIMLIBS_OPTIONAL='
 libboost-graph-dev
@@ -81,5 +83,5 @@ libqca2-dev
 libgmp3-dev
 '
 
-echo $BASE $KDESUPPORT $KDELIBS $KDEPIMLIBS $KDEGRAPHICS $EXTRAGEAR_MULTIMEDIA
-echo $KDESUPPORT_OPTIONAL $KDEBASE_OPTIONAL $KDENETWORK_OPTIONAL
+echo $BASE $KDESUPPORT $KDELIBS $KDEPIMLIBS #$KDEGRAPHICS $EXTRAGEAR_MULTIMEDIA
+#echo $KDESUPPORT_OPTIONAL $KDEBASE_OPTIONAL $KDENETWORK_OPTIONAL
