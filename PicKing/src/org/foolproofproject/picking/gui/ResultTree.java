@@ -5,13 +5,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -196,7 +202,30 @@ public class ResultTree extends JPanel {
 	
 	private void exportToK3B( File file, DefaultMutableTreeNode node ) {
 		try {
-			XMLStreamWriter xout = xmlFactory.createXMLStreamWriter( new PrintWriter( file, "UTF-8" ) );
+			FileOutputStream fout = new FileOutputStream( file );
+			ZipOutputStream zout = new ZipOutputStream( new BufferedOutputStream( fout ) );
+			
+			zout.putNextEntry( new ZipEntry( "mimetype" ) );
+			zout.write( "application/x-k3b".getBytes( "UTF-8" ) );
+			zout.closeEntry();
+			
+			zout.putNextEntry( new ZipEntry( "maindata.xml" ) );
+			writeK3BXML( zout, node );
+			zout.closeEntry();
+			
+			zout.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void writeK3BXML( ZipOutputStream zout, DefaultMutableTreeNode node ) {
+		try {
+			XMLStreamWriter xout = xmlFactory.createXMLStreamWriter( new OutputStreamWriter( zout, "UTF-8" ) );
 			xout.writeStartDocument( "UTF-8", "1.0" );
 			xout.writeDTD( "k3b_dvd_project" );
 			xout.writeStartElement( "k3b_dvd_project" );
@@ -320,7 +349,7 @@ public class ResultTree extends JPanel {
 		} catch (XMLStreamException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
