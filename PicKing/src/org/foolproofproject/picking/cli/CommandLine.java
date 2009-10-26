@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.foolproofproject.picking.Performer;
+import org.foolproofproject.picking.ShortFile;
 
 public class CommandLine {
 	
@@ -43,7 +44,7 @@ public class CommandLine {
 		while( !p.noItem() ) {
 			Performer.Result pair = p.once();
 			System.out.println( pair.getTitle() + ":" );
-			for( String item : pair.getItems() ) {
+			for( ShortFile item : pair.getItems() ) {
 				System.out.println( "\t" + item );
 			}
 			p.remove( pair.getItems() );
@@ -51,7 +52,7 @@ public class CommandLine {
 		
 		if( !p.noOverflow() ) {
 			System.out.println( "Overflow:" );
-			for( String item : p.getOverflow() ) {
+			for( ShortFile item : p.getOverflow() ) {
 				System.out.println( "\t" + item );
 			}
 		}

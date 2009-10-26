@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import org.foolproofproject.Pack;
 
@@ -11,8 +12,8 @@ public class Performer {
 	
 	public static class Result {
 		private String title;
-		private Vector< String > items;
-		public Result( long size, long eng, Vector< String > files ) {
+		private Vector< ShortFile > items;
+		public Result( long size, long eng, Vector< ShortFile > files ) {
 			title = ( size / ( long )Math.pow( 1024, eng ) ) + " " + unit[(int)eng];
 			Collections.sort( files );
 			this.items = files;
@@ -20,7 +21,7 @@ public class Performer {
 		public String getTitle() {
 			return title;
 		}
-		public Vector<String> getItems() {
+		public Vector< ShortFile > getItems() {
 			return items;
 		}
 	}
@@ -28,8 +29,8 @@ public class Performer {
 	private static final String[] unit = new String[4];
 	private final long limit, eng;
 	private long size;
-	private Hashtable< String, Long > items, table;
-	private Vector< String > overflow;
+	private Hashtable< ShortFile, Long > items, table;
+	private Vector< ShortFile > overflow;
 	
 	static {
 		unit[0] = "B";
@@ -42,27 +43,41 @@ public class Performer {
 		this.limit = limit * ( long )Math.pow( 1024, eng );
 		this.eng = eng;
 		size = 0L;
-		items = new Hashtable< String, Long >();
-		table = new Hashtable< String, Long >();
-		overflow = new Vector< String >();
+		items = new Hashtable< ShortFile, Long >();
+		table = new Hashtable< ShortFile, Long >();
+		overflow = new Vector< ShortFile >();
 		
-		for( File file : files ) {
-			put( file.getName(), Pack.getFileSize( file ) );
+		for( File f : files ) {
+			ShortFile file = new ShortFile( f );
+			put( file, file.getTotalSize() );
 		}
 	}
 	
 	public Result once() {
-		Pack r = ( size < limit ) ? new Pack( size, new Vector< String >( items.keySet() ) ) : Pack.pick( limit, items );
-		return new Result( r.getSize(), eng, r.getItems() );
+		Pack r = null;
+		if( size < limit ) {
+			r = new Pack( size, new Vector< Object >( items.keySet() ) );
+		} else {
+			Hashtable< Object, Long > tmp = new Hashtable< Object, Long >();
+			for( Entry< ShortFile, Long > e : items.entrySet() ) {
+				tmp.put( e.getKey(), e.getValue() );
+			}
+			r = Pack.pick( limit, tmp );
+		}
+		Vector< ShortFile > tmp = new Vector< ShortFile >();
+		for( Object o : r.getItems() ) {
+			tmp.add( ( ShortFile )o );
+		}
+		return new Result( r.getSize(), eng, tmp );
 	}
-	public void remove( Vector<String> keys ) {
-		for( String key : keys ) {
+	public void remove( Vector< ShortFile > keys ) {
+		for( ShortFile key : keys ) {
 			size -= items.get( key );
 			items.remove( key );
 		}
 	}
 	
-	public Hashtable<String,Long> getTable() {
+	public Hashtable< ShortFile, Long > getTable() {
 		return table;
 	}
 	public boolean noItem() {
@@ -71,11 +86,11 @@ public class Performer {
 	public boolean noOverflow() {
 		return overflow.isEmpty();
 	}
-	public Vector<String> getOverflow() {
+	public Vector< ShortFile > getOverflow() {
 		return overflow;
 	}
 	
-	private void put( String key, Long value ) {
+	private void put( ShortFile key, Long value ) {
 		if( value < limit ) {
 			size += value;
 			items.put( key, value );

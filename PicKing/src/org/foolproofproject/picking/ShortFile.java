@@ -1,4 +1,4 @@
-package org.foolproofproject.picking.gui;
+package org.foolproofproject.picking;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -54,6 +54,21 @@ public class ShortFile extends File {
 			return null;
 		} else {
 			return new ShortFile( parent );
+		}
+	}
+	
+	public long getTotalSize() {
+		if( isDirectory() ) {
+			long sum = length();
+			ShortFile[] files = listFiles();
+			if( files != null ) {
+				for( ShortFile file : files ) {
+					sum += file.getTotalSize();
+				}
+			}
+			return sum;
+		} else {
+			return length();
 		}
 	}
 

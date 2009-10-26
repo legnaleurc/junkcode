@@ -31,13 +31,15 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.foolproofproject.picking.ShortFile;
+
 
 public class ResultTree extends JPanel {
 
 	private static final long serialVersionUID = 3366458847085663811L;
 	private static XMLOutputFactory xmlFactory = XMLOutputFactory.newInstance(); 
 	private JTree view;
-	private Hashtable<String,Long> table;
+	private Hashtable< ShortFile, Long > table;
 	private JPopupMenu popup;
 	private DefaultMutableTreeNode selectedNode;
 	
@@ -132,11 +134,11 @@ public class ResultTree extends JPanel {
 		( ( DefaultTreeModel )view.getModel() ).setRoot( null );
 	}
 	
-	public void setTable( Hashtable<String, Long> table ) {
+	public void setTable( Hashtable< ShortFile, Long > table ) {
 		this.table = table;
 	}
 	
-	public void addResult( String title, Vector<String> items ) {
+	public void addResult( String title, Vector< ShortFile > items ) {
 		getRoot().add( createNewNode( title, items ) );
 	}
 	

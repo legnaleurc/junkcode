@@ -1,6 +1,5 @@
 package org.foolproofproject;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -9,13 +8,13 @@ import java.util.Map.Entry;
 public class Pack {
 
 	private long size;
-	private Vector< String > items;
+	private Vector< Object > items;
 	
 	private Pack() {
 		size = 0L;
-		items = new Vector< String >();
+		items = new Vector< Object >();
 	}
-	public Pack( long size, Vector<String> items ) {
+	public Pack( long size, Vector< Object > items ) {
 		this.size = size;
 		this.items = items;
 	}
@@ -25,7 +24,7 @@ public class Pack {
 	public long getSize() {
 		return size;
 	}
-	public Vector<String> getItems() {
+	public Vector< Object > getItems() {
 		return items;
 	}
 	
@@ -33,21 +32,21 @@ public class Pack {
 		
 		private class Cell implements Comparable< Cell > {
 			
-			private Hashtable< String, Boolean > table;
+			private Hashtable< Object, Boolean > table;
 			private Long size;
 			
-			public Cell( Hashtable<String,Boolean> table, Long size ) {
+			public Cell( Hashtable< Object, Boolean > table, Long size ) {
 				this.table = table;
 				this.size = size;
 			}
 			public Cell( Cell cell ) {
-				this.table = new Hashtable< String, Boolean >( cell.table );
+				this.table = new Hashtable< Object, Boolean >( cell.table );
 				this.size = new Long( cell.size );
 			}
-			public boolean canToggle( String key, Long value, Long limit ) {
+			public boolean canToggle( Object key, Long value, Long limit ) {
 				return ( table.get( key ) || size + value < limit );
 			}
-			public void toggle( String key, Long value ) {
+			public void toggle( Object key, Long value ) {
 				boolean tmp = table.get( key );
 				table.put( key, !tmp );
 				if( tmp ) {
@@ -56,7 +55,7 @@ public class Pack {
 					size += value;
 				}
 			}
-			public Hashtable<String,Boolean> getTable() {
+			public Hashtable< Object, Boolean > getTable() {
 				return table;
 			}
 			public Long getSize() {
@@ -72,10 +71,10 @@ public class Pack {
 		}
 		
 		private Long limit;
-		private Hashtable<String,Long> items;
+		private Hashtable< Object, Long > items;
 		private Vector< Cell > population;
 		
-		public GeneticAlgorithm( Long limit, Hashtable<String,Long> items ) {
+		public GeneticAlgorithm( Long limit, Hashtable< Object, Long > items ) {
 			this.limit = limit;
 			this.items = items;
 			
@@ -95,8 +94,8 @@ public class Pack {
 			}
 			
 			Cell survivor = population.get( 0 );
-			Pack result = new Pack( survivor.getSize(), new Vector< String >() );
-			for( Entry<String, Boolean> e : survivor.getTable().entrySet() ) {
+			Pack result = new Pack( survivor.getSize(), new Vector< Object >() );
+			for( Entry< Object, Boolean > e : survivor.getTable().entrySet() ) {
 				if( e.getValue() ) {
 					result.getItems().add( e.getKey() );
 				}
@@ -105,9 +104,9 @@ public class Pack {
 		}
 		
 		private Cell generatePopulation() {
-			Hashtable< String, Boolean > cell = new Hashtable< String, Boolean >();
+			Hashtable< Object, Boolean > cell = new Hashtable< Object, Boolean >();
 			Long sum = 0L;
-			for( Entry<String, Long> e : items.entrySet() ) {
+			for( Entry< Object, Long > e : items.entrySet() ) {
 				if( e.getValue() + sum >= limit || Math.random() * 2 < 1.0 ) {
 					cell.put( e.getKey(), false );
 				} else {
@@ -157,7 +156,7 @@ public class Pack {
 			for( int i = 0; i < length; ++i ) {
 				Cell new1 = new Cell( population.get( i ) );
 				Cell new2 = new Cell( population.get( selectParent() ) );
-				for( Entry<String, Long> e : items.entrySet() ) {
+				for( Entry< Object, Long > e : items.entrySet() ) {
 					if( new1.getTable().get( e.getKey() ) == new2.getTable().get( e.getKey() ) ) {
 						continue;
 					}
@@ -178,7 +177,7 @@ public class Pack {
 			final int length = population.size();
 			for( int i = 0; i < length; ++i ) {
 				Cell cell = population.get( i );
-				for( Entry<String, Long> e : items.entrySet() ) {
+				for( Entry< Object, Long > e : items.entrySet() ) {
 					if( cell.canToggle( e.getKey(), e.getValue(), limit) && Math.random() * items.size() < 1.0 ) {
 						cell.toggle( e.getKey(), e.getValue() );
 					}
@@ -188,7 +187,7 @@ public class Pack {
 		
 	}
 	
-	public static Pack pick( Long limit, Hashtable<String, Long> items ) {
+	public static Pack pick( Long limit, Hashtable< Object, Long > items ) {
 		if( items.size() < 16 ) {
 			return pickSmall( limit, items );
 		} else {
@@ -196,21 +195,21 @@ public class Pack {
 		}
 	}
 	
-	public static Pack pickLarge( Long limit, Hashtable<String,Long> items ) {
+	public static Pack pickLarge( Long limit, Hashtable< Object, Long > items ) {
 		GeneticAlgorithm ga = new GeneticAlgorithm( limit, items );
 		return ga.perform();
 	}
 	
-	public static Pack pickSmall( Long limit, Hashtable<String,Long> items ) {
+	public static Pack pickSmall( Long limit, Hashtable< Object, Long > items ) {
 		Vector< Pack > table = new Vector< Pack >();
 		table.add( new Pack() );
 		
-		for( Entry<String, Long> e : items.entrySet() ) {
+		for( Entry< Object, Long> e : items.entrySet() ) {
 			Vector< Pack > tmp = new Vector< Pack >();
 			for( Pack p : table ) {
 				Long newSize = p.getSize() + e.getValue();
 				if( newSize <= limit ) {
-					Vector< String > newDirs = new Vector< String >( p.getItems() );
+					Vector< Object > newDirs = new Vector< Object >( p.getItems() );
 					newDirs.add( e.getKey() );
 					tmp.add( new Pack( newSize, newDirs ) );
 				}
@@ -225,21 +224,6 @@ public class Pack {
 			}
 		}
 		return max;
-	}
-	
-	public static long getFileSize( File path ) {
-		if( path.isDirectory() ) {
-			long sum = path.length();
-			File[] files = path.listFiles();
-			if( files != null ) {
-				for( File file : files ) {
-					sum += getFileSize( file );
-				}
-			}
-			return sum;
-		} else {
-			return path.length();
-		}
 	}
 
 }

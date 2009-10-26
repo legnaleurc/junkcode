@@ -20,6 +20,8 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.foolproofproject.picking.ShortFile;
+
 
 public class DirectoryTree extends JPanel {
 	

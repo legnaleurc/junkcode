@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import org.foolproofproject.picking.Performer;
+import org.foolproofproject.picking.ShortFile;
 
 public class MainWindow extends JFrame {
 	

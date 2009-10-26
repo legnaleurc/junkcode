@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class PackTest {
 	
-	private static Hashtable<String,Long> table = new Hashtable<String,Long>();
+	private static Hashtable< Object, Long > table = new Hashtable< Object, Long >();
 	private static long limit = 0L;
 
 	@BeforeClass
