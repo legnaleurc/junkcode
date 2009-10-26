@@ -309,10 +309,7 @@ public class ResultTree extends JPanel {
 			xout.writeStartElement( "files" );
 			for( Enumeration< ? > e = node.children(); e.hasMoreElements(); ) {
 				DefaultMutableTreeNode child = (DefaultMutableTreeNode)e.nextElement();
-				ShortFile sf = (ShortFile)child.getUserObject();
-				xout.writeStartElement( "file" );
-				xout.writeCharacters( sf.getAbsolutePath() );
-				xout.writeEndElement();
+				writeK3BFilesNode( xout, (ShortFile)child.getUserObject() );
 			}
 			xout.writeEndElement();
 			
@@ -326,6 +323,24 @@ public class ResultTree extends JPanel {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	private void writeK3BFilesNode( XMLStreamWriter xout, ShortFile file ) throws XMLStreamException {
+		if( file.isDirectory() ) {
+			xout.writeStartElement( "directory" );
+			xout.writeAttribute( "name", file.toString() );
+			for( ShortFile child : file.listFiles() ) {
+				writeK3BFilesNode( xout, child );
+			}
+			xout.writeEndElement();
+		} else {
+			xout.writeStartElement( "file" );
+			xout.writeAttribute( "name", file.toString() );
+			xout.writeStartElement( "url" );
+			xout.writeCharacters( file.getAbsolutePath() );
+			xout.writeEndElement();
+			xout.writeEndElement();
 		}
 	}
 
