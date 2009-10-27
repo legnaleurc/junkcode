@@ -204,14 +204,13 @@ public class ResultTree extends JPanel {
 			}
 		}
 		String template = String.format( "%%%dd.k3b", String.valueOf( tmp.size() ).length() );
-		System.out.println( template );
 		for( int i = 0; i < tmp.size(); ++i ) {
 			try {
 				K3BUtility.export( new File( dout, String.format( template, i ) ), tmp.get( i ) );
-			} catch (IOException e1) {
-				LogDialog.getErrorLog().log( e1.getMessage() );
-			} catch (XMLStreamException e1) {
-				LogDialog.getErrorLog().log( e1.getMessage() );
+			} catch (IOException e) {
+				LogDialog.getErrorLog().log( e.getMessage() );
+			} catch (XMLStreamException e) {
+				LogDialog.getErrorLog().log( e.getMessage() );
 			}
 		}
 	}
