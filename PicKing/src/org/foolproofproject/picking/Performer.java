@@ -8,40 +8,46 @@ import java.util.Map.Entry;
 
 import org.foolproofproject.Pack;
 
+/**
+ * Algorithm performer.
+ * @author legnaleurc
+ *
+ */
 public class Performer {
 	
+	/**
+	 * Store picking result.
+	 * @author legnaleurc
+	 *
+	 */
 	public static class Result {
-		private String title;
+		private long size;
 		private Vector< ShortFile > items;
-		public Result( long size, long eng, Vector< ShortFile > files ) {
-			title = ( size / ( long )Math.pow( 1024, eng ) ) + " " + unit[(int)eng];
+		public Result( long size, Vector< ShortFile > files ) {
+			this.size = size;
 			Collections.sort( files );
 			this.items = files;
 		}
-		public String getTitle() {
-			return title;
+		public long getSize() {
+			return size;
 		}
 		public Vector< ShortFile > getItems() {
 			return items;
 		}
 	}
 	
-	private static final String[] unit = new String[4];
-	private final long limit, eng;
+	private final long limit;
 	private long size;
 	private Hashtable< ShortFile, Long > items, table;
 	private Vector< ShortFile > overflow;
 	
-	static {
-		unit[0] = "B";
-		unit[1] = "KB";
-		unit[2] = "MB";
-		unit[3] = "GB";
-	}
-	
-	public Performer( long limit, long eng, File[] files ) {
-		this.limit = limit * ( long )Math.pow( 1024, eng );
-		this.eng = eng;
+	/**
+	 * Constructor.
+	 * @param limit Combination maximum size
+	 * @param files
+	 */
+	public Performer( long limit, File[] files ) {
+		this.limit = limit;
 		size = 0L;
 		items = new Hashtable< ShortFile, Long >();
 		table = new Hashtable< ShortFile, Long >();
@@ -68,8 +74,9 @@ public class Performer {
 		for( Object o : r.getItems() ) {
 			tmp.add( ( ShortFile )o );
 		}
-		return new Result( r.getSize(), eng, tmp );
+		return new Result( r.getSize(), tmp );
 	}
+	
 	public void remove( Vector< ShortFile > keys ) {
 		for( ShortFile key : keys ) {
 			size -= items.get( key );

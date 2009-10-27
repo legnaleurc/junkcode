@@ -32,6 +32,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.foolproofproject.picking.Performer;
 import org.foolproofproject.picking.ShortFile;
+import org.foolproofproject.picking.UnitUtility;
 
 public class MainWindow extends JFrame {
 	
@@ -221,12 +222,8 @@ public class MainWindow extends JFrame {
 		size = new NeturalField();
 		limitPanel.add( size );
 		
-		unit = new JComboBox();
+		unit = UnitUtility.createComboBox();
 		limitPanel.add( unit );
-		unit.addItem( "B" );
-		unit.addItem( "KB" );
-		unit.addItem( "MB" );
-		unit.addItem( "GB" );
 		
 		JPanel viewPanel = new JPanel();
 		panel.add( viewPanel );
@@ -281,14 +278,13 @@ public class MainWindow extends JFrame {
 	public void perform() {
 		result.clear();
 		
-		long eng = unit.getSelectedIndex();
-		Performer p = new Performer( size.toLong(), eng, list.getSelectedFiles() );
+		Performer p = new Performer( UnitUtility.extract( size.toLong(), unit.getSelectedIndex() ), list.getSelectedFiles() );
 		
 		result.setTable( p.getTable() );
 		
 		while( !p.noItem() ) {
 			Performer.Result r = p.once();
-			result.addResult( r.getTitle(), r.getItems() );
+			result.addResult( UnitUtility.toString( r.getSize(), unit.getSelectedIndex() ), r.getItems() );
 			p.remove( r.getItems() );
 		}
 		

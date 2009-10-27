@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.foolproofproject.picking.Performer;
 import org.foolproofproject.picking.ShortFile;
+import org.foolproofproject.picking.UnitUtility;
 
 public class CommandLine {
 	
@@ -18,13 +19,13 @@ public class CommandLine {
 		} else {
 			long limit = Long.parseLong( m.group( 1 ) );
 			String unit = m.group( 2 );
-			long eng = 0L;
+			int eng = 0;
 			if( unit.startsWith( "G" ) ) {
-				eng = 3L;
+				eng = 3;
 			} else if( unit.startsWith( "M" ) ) {
-				eng = 2L;
+				eng = 2;
 			} else if( unit.startsWith( "K" ) ) {
-				eng = 1L;
+				eng = 1;
 			} else {
 				;
 			}
@@ -34,16 +35,16 @@ public class CommandLine {
 				path = new File( "." );
 			}
 			
-			perform( path.listFiles(), limit, eng );
+			perform( path.listFiles(), UnitUtility.extract( limit, eng ), eng );
 		}
 	}
 	
-	private static void perform( File[] files, long limit, long eng ) {
-		Performer p = new Performer( limit, eng, files );
+	private static void perform( File[] files, long limit, int eng ) {
+		Performer p = new Performer( limit, files );
 		
 		while( !p.noItem() ) {
 			Performer.Result pair = p.once();
-			System.out.println( pair.getTitle() + ":" );
+			System.out.println( UnitUtility.toString( pair.getSize(), eng ) + ":" );
 			for( ShortFile item : pair.getItems() ) {
 				System.out.println( "\t" + item );
 			}
