@@ -107,7 +107,7 @@ public class ResultTree extends JPanel {
 					return;
 				}
 				TreePath tp = view.getPathForLocation( e.getX(), e.getY() );
-				if( tp != null && view.getRowForPath( tp ) == 0 ) {
+				if( tp != null && tp.getPathCount() == 2 ) {
 					selectedNode = ( DefaultMutableTreeNode )tp.getLastPathComponent();
 					popup.show( view, e.getX(), e.getY());
 				}
