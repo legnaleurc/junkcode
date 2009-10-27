@@ -28,6 +28,7 @@ import javax.swing.tree.TreePath;
 import javax.xml.stream.XMLStreamException;
 import org.foolproofproject.picking.K3BUtility;
 import org.foolproofproject.picking.ShortFile;
+import org.foolproofproject.picking.UnitUtility;
 
 
 public class ResultTree extends JPanel {
@@ -79,14 +80,8 @@ public class ResultTree extends JPanel {
 				if( table != null && leaf ) {
 					DefaultMutableTreeNode node = ( DefaultMutableTreeNode )value;
 					Object item = node.getUserObject();
-					if( item instanceof String && table.containsKey( item ) ) {
-						double size = table.get( item ).doubleValue();
-						int pow = 0;
-						while( size >= 1024 ) {
-							++pow;
-							size /= 1024;
-						}
-						setToolTipText( String.format( "%.3f %s", size, getUnit( pow ) ) );
+					if( item instanceof ShortFile && table.containsKey( item ) ) {
+						setToolTipText( UnitUtility.toString( table.get( item ) ) );
 					}
 				}
 				return this;
@@ -133,21 +128,6 @@ public class ResultTree extends JPanel {
 	
 	public void addResult( String title, Vector< ShortFile > items ) {
 		getRoot().add( createNewNode( title, items ) );
-	}
-	
-	private String getUnit( int pow ) {
-		switch( pow ) {
-		case 0:
-			return "B";
-		case 1:
-			return "KB";
-		case 2:
-			return "MB";
-		case 3:
-			return "GB";
-		default:
-			return "";
-		}
 	}
 	
 	private DefaultMutableTreeNode getRoot() {

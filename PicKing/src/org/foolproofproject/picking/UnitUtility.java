@@ -21,6 +21,16 @@ public class UnitUtility {
 		return String.format( "%d %s", (long)( value / Math.pow( 1024, eng ) ), unit[eng] );
 	}
 	
+	public static String toString( long value ) {
+		double size = value;
+		int pow = 0;
+		while( size >= 1024 ) {
+			++pow;
+			size /= 1024;
+		}
+		return String.format( "%.3f %s", size, unit[pow] );
+	}
+	
 	public static JComboBox createComboBox() {
 		JComboBox tmp = new JComboBox();
 		for( String u : unit ) {
