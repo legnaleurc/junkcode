@@ -47,7 +47,7 @@ public class K3BUtility {
 	private void writeXML() throws UnsupportedEncodingException, XMLStreamException {
 		xout = xmlFactory.createXMLStreamWriter( new OutputStreamWriter( zout, "UTF-8" ) );
 		xout.writeStartDocument( "UTF-8", "1.0" );
-		xout.writeDTD( "k3b_dvd_project" );
+		xout.writeDTD( "<!DOCTYPE k3b_dvd_project>" );
 		xout.writeStartElement( "k3b_dvd_project" );
 		
 		xout.writeStartElement( "general" );
