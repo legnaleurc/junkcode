@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -19,7 +20,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -28,6 +28,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.foolproofproject.picking.Performer;
 import org.foolproofproject.picking.ShortFile;
@@ -263,11 +264,10 @@ public class MainWindow extends JFrame {
 	}
 	
 	public void save() {
-		JFileChooser fc = new JFileChooser();
-		switch( fc.showSaveDialog( this ) ) {
-		case JFileChooser.APPROVE_OPTION:
+		File file = FileDialog.getSaveFileName( this, new FileNameExtensionFilter( "Plain Text", "txt" ));
+		if( file != null ) {
 			try {
-				PrintStream fout = new PrintStream( fc.getSelectedFile(), "UTF-8" );
+				PrintStream fout = new PrintStream( file, "UTF-8" );
 				result.save( fout );
 				fout.close();
 			} catch (FileNotFoundException e) {
@@ -275,13 +275,6 @@ public class MainWindow extends JFrame {
 			} catch (UnsupportedEncodingException e) {
 				LogDialog.getErrorLog().log( e.getMessage() );
 			}
-			break;
-		case JFileChooser.CANCEL_OPTION:
-			break;
-		case JFileChooser.ERROR_OPTION:
-			break;
-		default:
-			;
 		}
 	}
 	

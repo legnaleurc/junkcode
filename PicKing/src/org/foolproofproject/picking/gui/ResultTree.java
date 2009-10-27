@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Enumeration;
@@ -12,7 +13,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -56,24 +56,15 @@ public class ResultTree extends JPanel {
 				if( selectedNode == null ) {
 					return;
 				}
-				JFileChooser fc = new JFileChooser();
-				fc.setFileFilter( new FileNameExtensionFilter( "K3B project", "k3b" ) );
-				switch( fc.showSaveDialog( view ) ) {
-				case JFileChooser.APPROVE_OPTION:
+				File file = FileDialog.getSaveFileName( view, new FileNameExtensionFilter( "K3B project", "k3b" ) );
+				if( file != null ) {
 					try {
-						K3BUtility.export( fc.getSelectedFile(), selectedNode );
+						K3BUtility.export( file, selectedNode );
 					} catch (IOException e1) {
 						LogDialog.getErrorLog().log( e1.getMessage() );
 					} catch (XMLStreamException e1) {
 						LogDialog.getErrorLog().log( e1.getMessage() );
 					}
-					break;
-				case JFileChooser.CANCEL_OPTION:
-					break;
-				case JFileChooser.ERROR_OPTION:
-					break;
-				default:
-					;
 				}
 			}
 		} );
