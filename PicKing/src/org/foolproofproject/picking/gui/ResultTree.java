@@ -19,6 +19,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -56,6 +57,7 @@ public class ResultTree extends JPanel {
 					return;
 				}
 				JFileChooser fc = new JFileChooser();
+				fc.setFileFilter( new FileNameExtensionFilter( "K3B project", "k3b" ) );
 				switch( fc.showSaveDialog( view ) ) {
 				case JFileChooser.APPROVE_OPTION:
 					try {
