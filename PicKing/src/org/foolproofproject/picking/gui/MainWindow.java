@@ -1,5 +1,6 @@
 package org.foolproofproject.picking.gui;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -127,6 +128,20 @@ public class MainWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				save();
+			}
+		} );
+		
+		JMenuItem export = new JMenuItem( "Export to K3B" );
+		file.add( export );
+		export.setMnemonic( KeyEvent.VK_E );
+		export.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK ) );
+		export.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File file = FileDialog.getExistingDirectory( (Component)e.getSource() );
+				if( file != null ) {
+					result.exportK3BProjectsTo( file );
+				}
 			}
 		} );
 		
@@ -284,12 +299,12 @@ public class MainWindow extends JFrame {
 		
 		while( !p.noItem() ) {
 			Performer.Result r = p.once();
-			result.addResult( UnitUtility.toString( r.getSize(), unit.getSelectedIndex() ), r.getItems() );
+			result.addResult( r.getSize(), unit.getSelectedIndex(), r.getItems() );
 			p.remove( r.getItems() );
 		}
 		
 		if( !p.noOverflow() ) {
-			result.addResult( "Overflow", p.getOverflow() );
+			result.addOverflow( p.getOverflow() );
 		}
 		
 		result.expandAll();

@@ -39,6 +39,18 @@ public class ResultTree extends JPanel {
 	private JPopupMenu popup;
 	private DefaultMutableTreeNode selectedNode;
 	
+	private class LabelNode extends DefaultMutableTreeNode {
+		private static final long serialVersionUID = -3736698920372921805L;
+		private int pow;
+		public LabelNode( Long size, int pow ) {
+			super( size );
+			this.pow = pow;
+		}
+		public String toString() {
+			return UnitUtility.toString( (Long)getUserObject(), pow );
+		}
+	}
+	
 	public ResultTree() {
 		view = new JTree();
 		view.setRootVisible( false );
@@ -126,8 +138,12 @@ public class ResultTree extends JPanel {
 		this.table = table;
 	}
 	
-	public void addResult( String title, Vector< ShortFile > items ) {
-		getRoot().add( createNewNode( title, items ) );
+	public void addResult( long size, int eng, Vector< ShortFile > items ) {
+		getRoot().add( createNewNode( size, eng, items ) );
+	}
+	
+	public void addOverflow( Vector< ShortFile > overflow ) {
+		getRoot().add( createNewNode( "Overflow", overflow ) );
 	}
 	
 	private DefaultMutableTreeNode getRoot() {
@@ -140,7 +156,15 @@ public class ResultTree extends JPanel {
 		return root;
 	}
 	
-	private DefaultMutableTreeNode createNewNode( Object title, Vector<?> items ) {
+	private DefaultMutableTreeNode createNewNode( long size, int eng, Vector<?> items ) {
+		DefaultMutableTreeNode newNode = new LabelNode( size, eng );
+		for( Object item : items ) {
+			newNode.add( new DefaultMutableTreeNode( item ) );
+		}
+		return newNode;
+	}
+	
+	private DefaultMutableTreeNode createNewNode( String title, Vector<?> items ) {
 		DefaultMutableTreeNode newNode = new DefaultMutableTreeNode( title );
 		for( Object item : items ) {
 			newNode.add( new DefaultMutableTreeNode( item ) );
@@ -164,6 +188,31 @@ public class ResultTree extends JPanel {
 		fout.println( sb.toString() );
 		for( Enumeration< ? > e = node.children(); e.hasMoreElements(); ) {
 			savePath( path.pathByAddingChild( e.nextElement() ), indent + 1, fout );
+		}
+	}
+	
+	public void exportK3BProjectsTo( File dout ) {
+		Long k3bBound = UnitUtility.extract( (Long)Configuration.get( "k3b_export_lower_bound" ), (Integer)Configuration.get( "k3b_export_bound_unit" ) );
+		Vector< DefaultMutableTreeNode > tmp = new Vector< DefaultMutableTreeNode >();
+		for( Enumeration< ? > e = getRoot().children(); e.hasMoreElements(); ) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.nextElement();
+			if( node instanceof LabelNode ) {
+				Long size = (Long)node.getUserObject();
+				if( size >= k3bBound ) {
+					tmp.add( node );
+				}
+			}
+		}
+		String template = String.format( "%%%dd.k3b", String.valueOf( tmp.size() ).length() );
+		System.out.println( template );
+		for( int i = 0; i < tmp.size(); ++i ) {
+			try {
+				K3BUtility.export( new File( dout, String.format( template, i ) ), tmp.get( i ) );
+			} catch (IOException e1) {
+				LogDialog.getErrorLog().log( e1.getMessage() );
+			} catch (XMLStreamException e1) {
+				LogDialog.getErrorLog().log( e1.getMessage() );
+			}
 		}
 	}
 

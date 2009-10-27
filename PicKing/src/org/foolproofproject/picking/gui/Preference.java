@@ -1,6 +1,7 @@
 package org.foolproofproject.picking.gui;
 
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,8 +11,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.foolproofproject.picking.UnitUtility;
 
 public class Preference extends JDialog {
 
@@ -21,6 +24,8 @@ public class Preference extends JDialog {
 	private JCheckBox debug;
 	private MainWindow parent;
 	private JCheckBox hidden;
+	private NeturalField k3bLB;
+	private JComboBox k3bUnit;
 	
 	public Preference( MainWindow window ) {
 		super( window );
@@ -39,12 +44,20 @@ public class Preference extends JDialog {
 		limit = new NeturalField();
 		limits.add( limit );
 		
-		unit = new JComboBox();
+		unit = UnitUtility.createComboBox();
 		limits.add( unit );
-		unit.addItem( "B" );
-		unit.addItem( "KB" );
-		unit.addItem( "MB" );
-		unit.addItem( "GB" );
+		
+		JPanel k3b = new JPanel();
+		pane.add( k3b );
+		k3b.setBorder( BorderFactory.createTitledBorder( "K3B" ) );
+		k3b.setLayout( new FlowLayout() );
+		
+		k3b.add( new JLabel( "Save upper then" ) );
+		k3bLB = new NeturalField( 4000 );
+		k3b.add( k3bLB );
+		k3bUnit = UnitUtility.createComboBox(); 
+		k3b.add( k3bUnit );
+		k3b.add( new JLabel( "results." ) );
 		
 		JPanel misc = new JPanel();
 		pane.add( misc );
@@ -98,6 +111,10 @@ public class Preference extends JDialog {
 		limit.setText( size.toString() );
 		unit.setSelectedIndex( index );
 		this.hidden.setSelected( hidden );
+		
+		k3bLB.setText( Configuration.get( "k3b_export_lower_bound" ).toString() );
+		k3bUnit.setSelectedIndex( (Integer)Configuration.get( "k3b_export_bound_unit" ) );
+		
 		setVisible( true );
 	}
 	
@@ -106,6 +123,8 @@ public class Preference extends JDialog {
 		Configuration.set( "unit", unit.getSelectedIndex() );
 		Configuration.set( "debug", debug.isSelected() );
 		Configuration.set( "hidden", false );
+		Configuration.set( "k3b_export_lower_bound", k3bLB.toLong() );
+		Configuration.set( "k3b_export_bound_unit", k3bUnit.getSelectedIndex() );
 	}
 
 }

@@ -13,7 +13,7 @@ import java.util.Hashtable;
 
 public class Configuration implements Serializable {
 	
-	private static final long serialVersionUID = 1450881336532749573L;
+	private static final long serialVersionUID = -6422237746611091558L;
 	private static final File file = new File( System.getProperty( "user.home" ) + File.separator + ".packing" );
 	private static Configuration self;
 	private Hashtable< String, Object > data;
@@ -54,6 +54,8 @@ public class Configuration implements Serializable {
 		data = new Hashtable< String, Object >();
 		data.put( "limit", 4483L );
 		data.put( "unit", 2 );
+		data.put( "k3b_export_lower_bound", 4000L );
+		data.put( "k3b_export_bound_unit", 2 );
 		data.put( "debug", false );
 		data.put( "hidden", false );
 	}
