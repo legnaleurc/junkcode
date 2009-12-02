@@ -1,59 +1,64 @@
 <?php
 class ListDir {
 
-	public function __construct( $id, $class, $dir_class = 'titles' ) {
-		$this->id = $id;
-		$this->class = $class;
-		$this->dir_class = $dir_class;
+	public function __construct( $id, $class, $dirClass = 'titles' ) {
+		$this->id_ = $id;
+		$this->class_ = $class;
+		$this->dirClass = $dirClass;
+		$this->path_ = '.';
+		$this->depth_ = 0;
+		$this->ignore_ = '(^\..*|(.+\.php$)|cgi-bin)';
+	}
+
+	public function setIgnorePattern( $ignore ) {
+		if( !ereg( $ignore, '.' ) || !ereg( $ignore, '..' ) ) {
+			$ignore = '^\.{1,2}$|' . $ignore;
+		}
+		$this->ignore_ = $ignore;
 	}
 
 	/**
 	 * @brief Traverse directories and files.
-	 * @param $path Start point of traversal.
-	 * @param $limit Traverse directory level.
-	 * @param $ignore Regular expression of ignore file.
 	 */
-	public function perform( $path = '.', $limit = 0, $ignore = '(^\..*|(.+\.php$)|cgi-bin)' ) {
+	public function perform() {
 		echo "<!-- listing directories BEGIN -->\n";
-		printf( '<div id="%s" class="%s">'."\n", $this->id, $this->class );
-		$this->traverse( $path, $limit, $ignore );
+		printf( '<div id="%s" class="%s">'."\n", $this->id_, $this->class_ );
+
+		$this->traverse( $this->path_, 0 );
+
 		echo "</div>\n";
 		echo "<!-- listing directories END -->\n";
 	}
 
-	private function traverse( $path, $limit, $ignore ) {
-		static $level = 0;
-		if( $limit == 0 || $level < $limit ) {
-			$indent = str_repeat( "\t", $level + 1 );
-			$dirHandler = opendir( $path );
-
-			printf( '%s<ul class="%s">'."\n", "$indent", $this->class );
-
-			if( !ereg( $ignore, '.' ) || !ereg( $ignore, '..' ) )
-				$ignore = '^\.{1,2}$|' . $ignore;
-			while( false !== ( $file = readdir( $dirHandler ) ) ) {
-				if( !ereg( $ignore, $file ) ) {
-					printf( '%s<li class="%s">'."\n", "$indent", $this->class );
-
-					if( is_dir( "$path/$file" ) ) {
-						printf( '%s<strong class="%s">%s</strong>'."\n", "$indent", ( ( $level == 0 ) ? "$this->dir_class $this->class" : '' ), $file );
-						$level++;
-						$this->traverse( "$path/$file", $limit, $ignore );
-						$level--;
-					} else {
-						printf( '%s<a title="%s" href="%s">%s</a>'."\n", "$indent", self::getSize( "$path/$file" ), "$path/$file", $file );
-					}
-
-					echo "$indent</li>\n";
-				}
+	private function traverse( $path, $level ) {
+		if( $this->depth_ == 0 || $level < $this->depth_ ) {
+			$contents = scandir( $path );
+			if( !$contents ) {
+				return;
 			}
 
-			echo "$indent</ul>\n";
+			printf( '<ul class="%s">'."\n", $this->class_ );
 
-			closedir( $dirHandler );
+			foreach( $contents as $entry ) {
+				if( ereg( $this->ignore_, $entry ) ) {
+					continue;
+				}
+
+				printf( '<li class="%s">'."\n", $this->class_ );
+
+				if( is_dir( "$path/$entry" ) ) {
+					printf( '<strong class="%s">%s</strong>'."\n", ( ( $level == 0 ) ? "$this->dirClass_ $this->class_" : '' ), $entry );
+					$this->traverse( "$path/$entry", $level + 1 );
+				} else {
+					printf( '<a title="%s" href="%s">%s</a>'."\n", self::getSize( "$path/$file" ), "$path/$entry", $entry );
+				}
+
+				echo "</li>\n";
+			}
+
+			echo "</ul>\n";
 		}
 	}
-
 
 	private static function getSize( $filepath ) {
 		$size = filesize( $filepath );
@@ -80,11 +85,12 @@ class ListDir {
 		}
 	}
 
-	private $id;
-
-	private $class;
-
-	private $dir_class;
+	private $id_;
+	private $class_;
+	private $dirClass_;
+	private $path_;
+	private $depth_;
+	private $ignore_;
 
 }
 ?>
