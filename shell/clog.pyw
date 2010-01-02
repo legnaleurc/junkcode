@@ -30,6 +30,7 @@ class InputArea( QWidget ):
 		self.__screen = QTextEdit( self )
 		self.__screen.setReadOnly( True )
 		self.__screen.setFontFamily( FONT )
+		self.__screen.setLineWrapMode( QTextEdit.NoWrap )
 		layout.addWidget( self.__screen )
 
 		inputBox = QHBoxLayout()
@@ -70,6 +71,7 @@ class MsgArea( QTextEdit ):
 
 		self.setReadOnly( True )
 		self.setFontFamily( FONT )
+		self.setLineWrapMode( QTextEdit.NoWrap )
 
 		listener = Listener( stream, self )
 		QObject.connect( listener, SIGNAL( 'readed( const QString & )' ), self.write )
