@@ -6,6 +6,8 @@ from PyQt4.QtCore import *
 from subprocess import Popen, PIPE
 import sys, os
 
+FONT = 'courier' if os.name == 'nt' else 'monospace'
+
 class Listener( QThread ):
 	def __init__( self, stream, parent = None ):
 		QThread.__init__( self, parent )
@@ -27,7 +29,7 @@ class InputArea( QWidget ):
 
 		self.__screen = QTextEdit( self )
 		self.__screen.setReadOnly( True )
-		self.__screen.setFontFamily( 'monospace' )
+		self.__screen.setFontFamily( FONT )
 		layout.addWidget( self.__screen )
 
 		inputBox = QHBoxLayout()
@@ -67,7 +69,7 @@ class MsgArea( QTextEdit ):
 		QTextEdit.__init__( self, parent )
 
 		self.setReadOnly( True )
-		self.setFontFamily( 'monospace' )
+		self.setFontFamily( FONT )
 
 		listener = Listener( stream, self )
 		QObject.connect( listener, SIGNAL( 'readed( const QString & )' ), self.write )
