@@ -93,23 +93,13 @@ class MsgArea( QTextEdit ):
 			fout.close()
 
 class MsgDlg( QWidget ):
-	def __init__( self, args, parent = None ):
+	def __init__( self, cmd, parent = None ):
 		QWidget.__init__( self, parent )
 
 		#FIXME: should be this:
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
 		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
 
-		# handle arguments
-		if len( args ) == 0:
-			cmd, ok = QInputDialog.getText( self, 'Enter command', 'Command:' )
-			if not ok:
-				self.close()
-			cmd = cmd.simplified()
-		elif args[0] == '-':
-			cmd = QString.fromLocal8Bit( sys.stdin.read() ).simplified()
-		else:
-			cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
 		self.setWindowTitle( u'Clog -- ' + cmd )
 
 		layout = QVBoxLayout( self )
@@ -143,8 +133,19 @@ def main( args = None ):
 	app = QApplication( args )
 	# hack arguments on Windows. DAMN THE WINDOWS!
 	args = QApplication.arguments()[2:] if os.name == 'nt' else QApplication.arguments()[1:]
+	# handle arguments
+	if len( args ) == 0:
+		cmd, ok = QInputDialog.getText( None, 'Enter command', 'Command:' )
+		if not ok:
+			app.quit()
+			return 0
+		cmd = cmd.simplified()
+	elif args[0] == '-':
+		cmd = QString.fromLocal8Bit( sys.stdin.read() ).simplified()
+	else:
+		cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
 
-	widget = MsgDlg( args )
+	widget = MsgDlg( cmd )
 	widget.setCurrentIndex( 2 )
 	widget.show()
 
