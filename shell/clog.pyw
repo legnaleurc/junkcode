@@ -4,7 +4,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from subprocess import Popen, PIPE
-import sys
+import sys, os
 
 class Listener( QThread ):
 	def __init__( self, stream, parent = None ):
@@ -137,8 +137,10 @@ def main( args = None ):
 		args = sys.argv
 
 	app = QApplication( args )
+	# hack arguments on Windows. DAMN THE WINDOWS!
+	args = QApplication.arguments()[2:] if os.name == 'nt' else QApplication.arguments()[1:]
 
-	widget = MsgDlg( QApplication.arguments()[1:] )
+	widget = MsgDlg( args )
 	widget.setCurrentIndex( 2 )
 	widget.show()
 
