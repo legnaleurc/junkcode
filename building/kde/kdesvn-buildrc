@@ -80,7 +80,7 @@ global
 # In addition, you can run kdesvn-build --no-install, and then
 # sudo kdesvn-build --install if you are unable to configure sudo to allow
 # make install with no password.
-	 make-install-prefix sudo -S
+#	 make-install-prefix sudo -S
 
 # purge-old-logs controls whether old log files should be removed after the
 # latest build finishes. Set to true to enable it.

@@ -4,7 +4,9 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from subprocess import Popen, PIPE
-import sys
+import sys, os
+
+FONT = 'courier' if os.name == 'nt' else 'monospace'
 
 class Listener( QThread ):
 	def __init__( self, stream, parent = None ):
@@ -27,7 +29,8 @@ class InputArea( QWidget ):
 
 		self.__screen = QTextEdit( self )
 		self.__screen.setReadOnly( True )
-		self.__screen.setFontFamily( 'monospace' )
+		self.__screen.setFontFamily( FONT )
+		self.__screen.setLineWrapMode( QTextEdit.NoWrap )
 		layout.addWidget( self.__screen )
 
 		inputBox = QHBoxLayout()
@@ -67,7 +70,8 @@ class MsgArea( QTextEdit ):
 		QTextEdit.__init__( self, parent )
 
 		self.setReadOnly( True )
-		self.setFontFamily( 'monospace' )
+		self.setFontFamily( FONT )
+		self.setLineWrapMode( QTextEdit.NoWrap )
 
 		listener = Listener( stream, self )
 		QObject.connect( listener, SIGNAL( 'readed( const QString & )' ), self.write )
@@ -89,23 +93,13 @@ class MsgArea( QTextEdit ):
 			fout.close()
 
 class MsgDlg( QWidget ):
-	def __init__( self, args, parent = None ):
+	def __init__( self, cmd, parent = None ):
 		QWidget.__init__( self, parent )
 
 		#FIXME: should be this:
 		#self.setWindowFlags( self.windowFlags() | Qt.CustomizeWindowHint ^ Qt.WindowCloseButtonHint )
 		self.setWindowFlags( Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint )
 
-		# handle arguments
-		if len( args ) == 0:
-			cmd, ok = QInputDialog.getText( self, 'Enter command', 'Command:' )
-			if not ok:
-				self.close()
-			cmd = cmd.simplified()
-		elif args[0] == '-':
-			cmd = QString.fromLocal8Bit( sys.stdin.read() ).simplified()
-		else:
-			cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
 		self.setWindowTitle( u'Clog -- ' + cmd )
 
 		layout = QVBoxLayout( self )
@@ -137,8 +131,21 @@ def main( args = None ):
 		args = sys.argv
 
 	app = QApplication( args )
+	# hack arguments on Windows. DAMN THE WINDOWS!
+	args = QApplication.arguments()[2:] if os.name == 'nt' else QApplication.arguments()[1:]
+	# handle arguments
+	if len( args ) == 0:
+		cmd, ok = QInputDialog.getText( None, 'Enter command', 'Command:' )
+		if not ok:
+			app.quit()
+			return 0
+		cmd = cmd.simplified()
+	elif args[0] == '-':
+		cmd = QString.fromLocal8Bit( sys.stdin.read() ).simplified()
+	else:
+		cmd = QStringList( map( lambda s: '"'+s+'"', args ) ).join( ' ' )
 
-	widget = MsgDlg( QApplication.arguments()[1:] )
+	widget = MsgDlg( cmd )
 	widget.setCurrentIndex( 2 )
 	widget.show()
 
