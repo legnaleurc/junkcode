@@ -3,6 +3,25 @@
 
 ( function() {
 
+	if( !Array.prototype.map ) {
+		Array.prototype.map = function( fun /*, thisp*/ ) {
+			var len = this.length;
+			if( typeof fun != "function" ) {
+				throw new TypeError();
+			}
+
+			var res = new Array( len );
+			var thisp = arguments[1];
+			for( var i = 0; i < len; i++ ) {
+				if( i in this ) {
+					res[i] = fun.call( thisp, this[i], i, this );
+				}
+			}
+
+			return res;
+		};
+	}
+
 	var Blog = {
 
 		targetLink: function( param ) {
@@ -204,6 +223,23 @@
 		}
 
 	};
+
+	SyntaxHighlighter.autoloader.apply( null, ( function() {
+		var result = [];
+		for( var i = 0; arguments[i]; ++i ) {
+			result.push( arguments[i].replace( '@', 'http://www2.cs.ccu.edu.tw/~pwc94u/lib/syntaxhighlighter/scripts' ) );
+		}
+		return result;
+	} )(
+		'bash			@/shBrushBash.js',
+		'c cpp			@/shBrushCpp.js',
+		'java			@/shBrushJava.js',
+		'js javascript		@/shBrushJScript.js',
+		'ruby			@/shBrushRuby.js',
+		'python			@/shBrushPython.js',
+		'php			@/shBrushPhp.js'
+	) );
+	SyntaxHighlighter.all();
 
 	$( function() {
 		/* link target */
