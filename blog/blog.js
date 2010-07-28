@@ -3,6 +3,7 @@
 
 ( function() {
 
+	// for JavaScript 1.6 compatibility
 	if( !Array.prototype.map ) {
 		Array.prototype.map = function( fun /*, thisp*/ ) {
 			var len = this.length;
@@ -224,21 +225,17 @@
 
 	};
 
-	SyntaxHighlighter.autoloader.apply( null, ( function() {
-		var result = [];
-		for( var i = 0; arguments[i]; ++i ) {
-			result.push( arguments[i].replace( '@', 'http://www2.cs.ccu.edu.tw/~pwc94u/lib/syntaxhighlighter/scripts' ) );
-		}
-		return result;
-	} )(
-		'bash			@/shBrushBash.js',
-		'c cpp			@/shBrushCpp.js',
-		'java			@/shBrushJava.js',
-		'js javascript		@/shBrushJScript.js',
-		'ruby			@/shBrushRuby.js',
-		'python			@/shBrushPython.js',
-		'php			@/shBrushPhp.js'
-	) );
+	SyntaxHighlighter.autoloader( [
+		'bash          @/shBrushBash.js',
+		'c cpp         @/shBrushCpp.js',
+		'java          @/shBrushJava.js',
+		'js javascript @/shBrushJScript.js',
+		'ruby          @/shBrushRuby.js',
+		'python        @/shBrushPython.js',
+		'php           @/shBrushPhp.js'
+	].map( function( path ) {
+		return path.replace( '@', 'http://www2.cs.ccu.edu.tw/~pwc94u/lib/syntaxhighlighter/scripts' );
+	} ) );
 	SyntaxHighlighter.all();
 
 	$( function() {
