@@ -225,7 +225,8 @@
 
 	};
 
-	SyntaxHighlighter.autoloader( [
+	/*
+	SyntaxHighlighter.autoloader.apply( null, [
 		'bash          @/shBrushBash.js',
 		'c cpp         @/shBrushCpp.js',
 		'java          @/shBrushJava.js',
@@ -236,6 +237,8 @@
 	].map( function( path ) {
 		return path.replace( '@', 'http://www2.cs.ccu.edu.tw/~pwc94u/lib/syntaxhighlighter/scripts' );
 	} ) );
+	*/
+	SyntaxHighlighter.config.bloggerMode = true;
 	SyntaxHighlighter.all();
 
 	$( function() {
