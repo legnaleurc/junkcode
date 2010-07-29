@@ -225,6 +225,7 @@
 
 	};
 
+	// for SyntaxHighlighter 3.0
 	/*
 	SyntaxHighlighter.autoloader.apply( null, [
 		'bash          @/shBrushBash.js',
@@ -242,6 +243,10 @@
 	SyntaxHighlighter.all();
 
 	$( function() {
+		// for link widgets
+		$( '.LinkList a' ).attr( 'rel', 'external' );
+		$( '.blog-list-container' ).removeAttr( 'target' ).attr( 'rel', 'external' );
+
 		/* link target */
 		Blog.targetLink( {
 			id: '#toggle',
