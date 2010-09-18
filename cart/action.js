@@ -21,16 +21,24 @@ $( function() {
 				if( textStatus == 'success' ) {
 					self.parent().parent().remove();
 				} else {
-					window.alert( data );
+					cerr( data );
 				}
 			}, 'json' );
 		} ) ) );
 	}
 
+	function cerr( msg ) {
+		$( '#stderr' ).text( msg );
+	}
+
 	jQuery.getJSON( 'load.php', function( data, textStatus ) {
-		$( data ).each( function( index, row ) {
-			$( '#cart' ).append( newRow( row ) );
-		} );
+		if( textStatus == 'success' ) {
+			$( data ).each( function( index, row ) {
+				$( '#cart' ).append( newRow( row ) );
+			} );
+		} else {
+			cerr( data );
+		}
 	} );
 
 	$( '#submit' ).click( function() {
@@ -39,20 +47,32 @@ $( function() {
 			uri: $( '#uri' ).val(),
 			date: $( '#date' ).val()
 		};
-		jQuery.post( 'save.php', args, function( data ) {
-			var done = false;
-			$( '#cart' ).children().each( function( index, self ) {
-				self = $( self );
-				if( self.children().filter( '.date' ).text() > args.date ) {
-					self.before( newRow( args ) );
-					done = true;
-					return false;
+		if( args.title == '' || args.uri == '' ) {
+			cerr( 'No empty field(s)' );
+			return;
+		}
+		if( !/\d\d\d\d\/\d\d\/\d\d/.test( args.date ) ) {
+			cerr( 'Wrong date: ' + args.date );
+			return;
+		}
+		jQuery.post( 'save.php', args, function( data, textStatus ) {
+			if( textStatus == 'success' ) {
+				var done = false;
+				$( '#cart' ).children().each( function( index, self ) {
+					self = $( self );
+					if( self.children().filter( '.date' ).text() > args.date ) {
+						self.before( newRow( args ) );
+						done = true;
+						return false;
+					}
+				} );
+				if( !done ) {
+					$( '#cart' ).append( newRow( args ) );
 				}
-			} );
-			if( !done ) {
-				$( '#cart' ).append( newRow( args ) );
+				$( '#stdin input[type=text]' ).val( '' );
+			} else {
+				cerr( data );
 			}
-			$( '#stdin input[type=text]' ).val( '' );
 		}, 'json' );
 	} );
 

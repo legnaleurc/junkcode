@@ -11,3 +11,7 @@ td, th {
 	border-style: inset;
 	border-color: gray;
 }
+
+#stderr {
+	color: red;
+}
