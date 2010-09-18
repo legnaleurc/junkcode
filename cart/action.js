@@ -60,7 +60,13 @@ $( function() {
 				var done = false;
 				$( '#cart' ).children().each( function( index, self ) {
 					self = $( self );
-					if( self.children().filter( '.date' ).text() > args.date ) {
+					if( self.children().filter( '.title' ).text() == args.title ) {
+						self.find( '.title a' ).attr( {
+							href: args.uri
+						} );
+						self.find( '.date' ).text( args.date );
+						return false;
+					} else if( self.children().filter( '.date' ).text() > args.date ) {
 						self.before( newRow( args ) );
 						done = true;
 						return false;
