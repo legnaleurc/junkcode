@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>Cart</title>
+		<script type="text/javascript" src="../lib/jquery/jquery.js"></script>
+		<script type="text/javascript" src="action.js"></script>
+	</head>
+	<body>
+		<div id="stdin">
+			Title:<input type="text" id="title" />
+			URI:<input type="text" id="uri" />
+			Date:<input type="text" id="date" />
+			<input type="reset" />
+			<input type="submit" id="submit" />
+		</div>
+		<table style="border: 1px solid;">
+			<tr>
+				<td><input type="checkbox" id="selectAll" /></td>
+				<th>Title</th>
+				<th>Date</th>
+				<td><input type="button" value="Delete" /></td>
+			</tr>
+			<tbody id="cart">
+			</tbody>
+		</table>
+	</body>
+</html>
