@@ -28,7 +28,7 @@ $( function() {
 	}
 
 	function cerr( msg ) {
-		$( '#stderr' ).text( msg );
+		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
 	}
 
 	jQuery.getJSON( 'load.php', function( data, textStatus ) {
