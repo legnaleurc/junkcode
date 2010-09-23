@@ -9,24 +9,28 @@
 		<script type="text/javascript" src="action.js"></script>
 	</head>
 	<body>
-		<div id="stdin">
-			Title:<input type="text" id="title" />
-			URI:<input type="text" id="uri" />
-			Date:<input type="text" id="date" />
-			<input type="reset" />
-			<input type="submit" id="submit" />
+		<div id="stdio">
+			<div id="stdin">
+				Title:<input type="text" id="title" />
+				URI:<input type="text" id="uri" />
+				Date:<input type="text" id="date" />
+				<input type="reset" />
+				<input type="submit" id="submit" />
+			</div>
+			<div id="stderr">
+			</div>
 		</div>
-		<div id="stderr">
+		<div id="outer">
+			<table>
+				<tr>
+					<td><input type="checkbox" id="selectAll" /></td>
+					<th>Title</th>
+					<th>Date</th>
+					<td><input type="button" value="Delete" /></td>
+				</tr>
+				<tbody id="cart">
+				</tbody>
+			</table>
 		</div>
-		<table>
-			<tr>
-				<td><input type="checkbox" id="selectAll" /></td>
-				<th>Title</th>
-				<th>Date</th>
-				<td><input type="button" value="Delete" /></td>
-			</tr>
-			<tbody id="cart">
-			</tbody>
-		</table>
 	</body>
 </html>

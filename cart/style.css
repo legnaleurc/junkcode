@@ -15,3 +15,15 @@ td, th {
 #stderr {
 	color: red;
 }
+
+#outer {
+	width: 800px;
+	height: 600px;
+	margin: auto;
+	overflow: auto;
+}
+
+#stdio {
+	width: 800px;
+	margin: auto;
+}
