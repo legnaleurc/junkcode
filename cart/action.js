@@ -56,29 +56,48 @@ $( function() {
 			return;
 		}
 		jQuery.post( 'save.php', args, function( data, textStatus ) {
-			if( textStatus == 'success' ) {
-				var done = false;
-				$( '#cart' ).children().each( function( index, self ) {
-					self = $( self );
-					if( self.children().filter( '.title' ).text() == args.title ) {
-						self.find( '.title a' ).attr( {
-							href: args.uri
-						} );
-						self.find( '.date' ).text( args.date );
-						return false;
-					} else if( self.children().filter( '.date' ).text() > args.date ) {
-						self.before( newRow( args ) );
-						done = true;
-						return false;
-					}
-				} );
-				if( !done ) {
-					$( '#cart' ).append( newRow( args ) );
-				}
-				$( '#stdin input[type=text]' ).val( '' );
-			} else {
+			if( textStatus != 'success' ) {
 				cerr( data );
+				return;
 			}
+			function compare( l, r ) {
+				if( l.date == r.date ) {
+					if( l.title == r.title ) {
+						return 0;
+					}
+					return ( l.title < r.title ) ? -1 : 1;
+				}
+				return ( l.date < r.date ) ? -1 : 1;
+			}
+			function binaryInsert( row, list, b, e ) {
+				var m = Math.floor( ( b + e ) / 2 );
+				var that = $( list[m] );
+				var tmp = compare( row, {
+					date: that.find( '.date' ).text(),
+					title: that.find( '.title' ).text()
+				} );
+				if( tmp < 0 ) {
+					if( e - b == 1 ) {
+						that.before( newRow( row ) );
+					} else {
+						binaryInsert( row, list, b, m );
+					}
+				} else if( tmp > 0 ) {
+					if( e - b == 1 ) {
+						that.after( newRow( row ) );
+					} else {
+						binaryInsert( row, list, m, e );
+					}
+				} else {
+					that.find( '.title a' ).attr( {
+						href: row.uri
+					} );
+					that.find( '.date' ).text( row.date );
+				}
+			}
+			var list = $( '#cart' ).children();
+			binaryInsert( args, list, 0, list.length );
+			$( '#stdin input[type=text]' ).val( '' );
 		}, 'json' );
 	} );
 
