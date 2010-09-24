@@ -106,4 +106,11 @@ $( function() {
 		this.select();
 	} );
 
+	$( '#select-all' ).change( function( event ) {
+		var self = $( this );
+		$( '.check' ).attr( {
+			checked: self.attr( 'checked' )
+		} );
+	} );
+
 } );
