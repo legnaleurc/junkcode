@@ -16,14 +16,21 @@ td, th {
 	color: red;
 }
 
-#outer {
+#page-body {
 	width: 800px;
 	height: 600px;
 	margin: auto;
 	overflow: auto;
 }
 
-#stdio {
+#page-head {
 	width: 800px;
 	margin: auto;
+	text-align: center;
+}
+
+#page-foot {
+	width: 800px;
+	margin: auto;
+	text-align: center;
 }

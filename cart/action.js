@@ -32,13 +32,14 @@ $( function() {
 	}
 
 	jQuery.getJSON( 'load.php', function( data, textStatus ) {
-		if( textStatus == 'success' ) {
-			$( data ).each( function( index, row ) {
-				$( '#cart' ).append( newRow( row ) );
-			} );
-		} else {
+		if( textStatus != 'success' ) {
 			cerr( data );
+			return;
 		}
+		var cart = $( '#cart' ).empty();
+		$( data ).each( function( index, row ) {
+			cart.append( newRow( row ) );
+		} );
 	} );
 
 	$( '#submit' ).click( function() {
