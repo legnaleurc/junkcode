@@ -1,0 +1,34 @@
+table {
+	border-width: 1px;
+	border-spacing: 2px;
+	border-style: outset;
+	border-color: gray;
+	border-collapse: separate;
+}
+
+td, th {
+	border-width: 1px;
+	border-style: inset;
+	border-color: gray;
+}
+
+#stderr {
+	color: red;
+}
+
+#page-body {
+	width: 800px;
+	margin: auto;
+}
+
+#page-head {
+	width: 800px;
+	margin: auto;
+	text-align: center;
+}
+
+#page-foot {
+	width: 800px;
+	margin: auto;
+	text-align: center;
+}
