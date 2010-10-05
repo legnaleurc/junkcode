@@ -113,4 +113,9 @@ $( function() {
 		} );
 	} );
 
+	$( 'a[rel=external]' ).click( function( event ) {
+		event.preventDefault();
+		window.open( $( this ).attr( 'href' ), '_blank' );
+	} );
+
 } );
