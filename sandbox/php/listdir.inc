@@ -50,7 +50,7 @@ class ListDir {
 					printf( '<strong class="%s">%s</strong>'."\n", ( ( $level == 0 ) ? "$this->dirClass_ $this->class_" : '' ), $entry );
 					$this->traverse( "$path/$entry", $level + 1 );
 				} else {
-					printf( '<a title="%s" href="%s">%s</a>'."\n", self::getSize( "$path/$file" ), "$path/$entry", $entry );
+					printf( '<a title="%s" href="%s">%s</a>'."\n", self::getSize( "$path/$entry" ), "$path/$entry", $entry );
 				}
 
 				echo "</li>\n";
