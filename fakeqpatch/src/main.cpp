@@ -232,9 +232,8 @@ int _tmain( int argc, _TCHAR * argv[] ) {
 				s.push_back( '\0' );
 			}
 
-#if 0
-			std::cout << "replace string: " << source.mid(start, endOfString - start).constData()
-			<< " with: " << s.constData() << std::endl;
+#ifdef _DEBUG
+			Stream::out << "replace string: " << &*start << " with: " << &s[0] << std::endl;
 #endif
 			fout.write( static_cast< const char * >( &s[0] ), s.size() );
 
