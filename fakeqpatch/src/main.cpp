@@ -206,7 +206,13 @@ int _tmain( int argc, _TCHAR * argv[] ) {
 			}
 
 			ByteArray::iterator endOfString = start;
-			std::advance( endOfString, lQtDirPath.size() + 1 );
+			std::advance( endOfString, lQtDirPath.size() );
+			for( ; endOfString != source.end(); ++endOfString ) {
+				if( *endOfString == '\0' ) {
+					break;
+				}
+			}
+			++endOfString;
 
 			if( index != start )	{
 				fout.write( static_cast< const char * >( &*index ), std::distance( index, start ) );
