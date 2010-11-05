@@ -96,6 +96,12 @@ $( function() {
 					that.find( '.date' ).text( row.date );
 				}
 			}
+			$( '#cart' ).children().each( function() {
+				var self = $( this );
+				if( self.find( '.title' ).text() == args.title || self.find( '.uri' ).text() == args.uri ) {
+					self.remove();
+				}
+			} );
 			var list = $( '#cart' ).children();
 			binaryInsert( args, list, 0, list.length );
 			$( '#stdin input[type=text]' ).val( '' );
