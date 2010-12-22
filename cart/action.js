@@ -114,7 +114,7 @@ $( function() {
 		this.select();
 	} );
 
-	$( '#select-all' ).change( function( event ) {
+	$( '#select-all-todo, #select-all-done' ).change( function( event ) {
 		var self = $( this );
 		$( '.check' ).attr( {
 			checked: self.attr( 'checked' )
