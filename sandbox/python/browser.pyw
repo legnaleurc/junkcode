@@ -2,9 +2,9 @@
 #-*- coding: utf-8 -*-
 
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtWebKit import *
+from PySide.QtCore import *
+from PySide.QtGui import *
+from PySide.QtWebKit import *
 
 def main( args = None ):
 	if args is None:
