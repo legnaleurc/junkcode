@@ -4,7 +4,7 @@
 import sys
 from PySide import QtCore, QtGui, QtWebKit
 
-from ui_mainwindow import Ui_MainWindow
+from ui.mainwindow import Ui_MainWindow
 
 class MainWindow( QtGui.QMainWindow ):
 	def __init__( self ):
