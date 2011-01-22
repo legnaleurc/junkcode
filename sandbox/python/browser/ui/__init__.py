@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 #-*- coding: utf-8 -*-
 
-import os
+import os, sys
+
+__uicPath__ = os.path.join( sys.prefix, 'Scripts', 'pyside-uic' )
 
 for root, dirs, files in os.walk( __path__[0] ):
 	for file in files:
@@ -16,4 +18,6 @@ for root, dirs, files in os.walk( __path__[0] ):
 			if pyMT < uiMT:
 				raise os.error
 		except os.error:
-			os.system( u'pyside-uic %s -o %s' % ( uiPath, pyPath ) )
+			cmd = u'%s %s -o %s' % ( __uicPath__, uiPath, pyPath )
+			print cmd
+			os.system( cmd )
