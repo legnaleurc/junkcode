@@ -3,7 +3,7 @@
 
 import os, sys
 
-__uicPath__ = os.path.join( sys.prefix, 'Scripts', 'pyside-uic' )
+__uicPath__ = os.path.join( sys.prefix, 'Scripts', 'pyside-uic' ) if os.name == 'nt' else 'pyside-uic'
 
 for root, dirs, files in os.walk( __path__[0] ):
 	for file in files:
