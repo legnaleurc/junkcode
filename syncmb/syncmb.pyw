@@ -10,9 +10,9 @@ class MainWindow( QtGui.QMainWindow ):
 		from ui.mainwindow import Ui_MainWindow
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi( self )
-		
+
 		self.connect( self.ui.action_Submit, QtCore.SIGNAL( 'triggered()' ), self.submit )
-		
+
 		#setup twitter
 		auth = tweepy.OAuthHandler( conf.api['twitter']['key'], conf.api['twitter']['secret'] )
 		if not conf.user.has_key( 'twitter' ):
@@ -21,17 +21,17 @@ class MainWindow( QtGui.QMainWindow ):
 			conf.user['twitter'] = { 'key': auth.access_token.key, 'secret': auth.access_token.secret }
 		auth.set_access_token( conf.user['twitter']['key'], conf.user['twitter']['secret'] )
 		self.tweet = tweepy.API( auth )
-		
+
 		#setup plurk
 		self.plurk = plurklib.PlurkAPI( conf.api['plurk']['key'] )
 		if not conf.user.has_key( 'plurk' ):
 			username, password = PlurkDialog.getUserAccount()
 			conf.user['plurk'] = { 'username': username, 'password': password }
 		self.plurk.login( conf.user['plurk']['username'], conf.user['plurk']['password'] )
-	
+
 	def __del__( self ):
 		self.plurk.logout()
-	
+
 	def submit( self ):
 		msg = self.ui.plainTextEdit.toPlainText()
 		try:
@@ -50,7 +50,7 @@ class OAuthDialog( QtGui.QDialog ):
 		from ui.oauthdialog import Ui_OAuthDialog
 		self.ui = Ui_OAuthDialog()
 		self.ui.setupUi( self )
-	
+
 	@staticmethod
 	def getPIN( url ):
 		this = OAuthDialog( None )
@@ -70,7 +70,7 @@ class PlurkDialog( QtGui.QDialog ):
 		from ui.plurkdialog import Ui_PlurkDialog
 		self.ui = Ui_PlurkDialog()
 		self.ui.setupUi( self )
-	
+
 	@staticmethod
 	def getUserAccount():
 		this = PlurkDialog( None )
@@ -86,10 +86,12 @@ class PlurkDialog( QtGui.QDialog ):
 
 def main( args ):
 	app = QtGui.QApplication( args )
-		
+
+	QtCore.QObject.connect( app, QtCore.SIGNAL( 'aboutToQuit()' ), conf.save )
+
 	window = MainWindow()
 	window.show()
-	
+
 	return app.exec_()
 
 if __name__ == '__main__':

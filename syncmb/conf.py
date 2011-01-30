@@ -20,13 +20,13 @@ def __load__( fileDir, fileName ):
 
 api = __load__( __DIR__, __API_FILE__ )
 user = __load__( __DIR__, __USER_FILE__ )
-	
+
 def save():
 	def __save__( fileDir, fileName, data ):
 		fout = QtCore.QFile( fileDir.filePath( fileName ) )
 		fout.open( QtCore.QIODevice.WriteOnly )
 		fout.write( json.dumps( data ) )
 		fout.close()
-	__save__( self.appDir, self.userFile, self.user )
+	__save__( __DIR__, __USER_FILE__, user )
 
 __all__ = [ 'api', 'user', 'save' ]
