@@ -11,7 +11,7 @@ class MainWindow( QtGui.QMainWindow ):
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi( self )
 
-		self.connect( self.ui.action_Submit, QtCore.SIGNAL( 'triggered()' ), self.submit )
+		self.ui.action_Submit.triggered.connect( self.submit )
 
 		#setup twitter
 		auth = tweepy.OAuthHandler( conf.api['twitter']['key'], conf.api['twitter']['secret'] )
@@ -87,7 +87,7 @@ class PlurkDialog( QtGui.QDialog ):
 def main( args ):
 	app = QtGui.QApplication( args )
 
-	QtCore.QObject.connect( app, QtCore.SIGNAL( 'aboutToQuit()' ), conf.save )
+	app.aboutToQuit.connect( conf.save )
 
 	window = MainWindow()
 	window.show()
