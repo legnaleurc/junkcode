@@ -1,5 +1,7 @@
 $( function() {
 
+	$( '#page-body' ).tabs();
+
 	function newRow( data ) {
 		return $( '<tr/>' ).append( $( '<td/>' ).append( $( '<input/>' ).attr( {
 				type: 'checkbox'
@@ -36,7 +38,7 @@ $( function() {
 			cerr( data );
 			return;
 		}
-		var cart = $( '#cart' ).empty();
+		var cart = $( '#todo .cart' ).empty();
 		$( data ).each( function( index, row ) {
 			cart.append( newRow( row ) );
 		} );
@@ -96,7 +98,13 @@ $( function() {
 					that.find( '.date' ).text( row.date );
 				}
 			}
-			var list = $( '#cart' ).children();
+			$( '#todo .cart' ).children().each( function() {
+				var self = $( this );
+				if( self.find( '.title' ).text() == args.title || self.find( '.uri' ).text() == args.uri ) {
+					self.remove();
+				}
+			} );
+			var list = $( '#todo .cart' ).children();
 			binaryInsert( args, list, 0, list.length );
 			$( '#stdin input[type=text]' ).val( '' );
 		}, 'json' );
@@ -106,7 +114,7 @@ $( function() {
 		this.select();
 	} );
 
-	$( '#select-all' ).change( function( event ) {
+	$( '#select-all-todo, #select-all-done' ).change( function( event ) {
 		var self = $( this );
 		$( '.check' ).attr( {
 			checked: self.attr( 'checked' )

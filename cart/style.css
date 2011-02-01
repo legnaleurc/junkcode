@@ -1,3 +1,8 @@
+body {
+	background-color: black;
+	color: white;
+}
+
 table {
 	border-width: 1px;
 	border-spacing: 2px;
@@ -17,14 +22,19 @@ td, th {
 }
 
 #page-body {
+	top: 30px;
 	width: 800px;
 	margin: auto;
 }
 
 #page-head {
-	width: 800px;
+	top: 0;
+	position: fixed;
+	z-index: 1;
+	width: 100%;
 	margin: auto;
 	text-align: center;
+	background-color: black;
 }
 
 #page-foot {
