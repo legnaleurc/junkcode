@@ -25,25 +25,28 @@
 
 	var Blog = {
 
+		blankTarget: true,
+
+		openLink: function( e ) {
+			if( Blog.blankTarget ) {
+				e.preventDefault();
+				window.open( $( e.target ).attr( 'href' ), '_blank' );
+			}
+		},
+
 		targetLink: function( param ) {
 			var toggle = $( param.id );
 			if( toggle.length == 0 ){
 				throw new Error( 'There is no element matched `' + param.id + '\' in this DOM!' );
 			}
 
-			var flag = true;
 			toggle.text( param.dft ).click( function( e ) {
 				e.preventDefault();
-				$( this ).text( flag ? param.ct : param.dft );
-				flag = !flag;
+				$( this ).text( Blog.blankTarget ? param.ct : param.dft );
+				Blog.blankTarget = !Blog.blankTarget;
 			} );
 
-			$( 'a[rel="external"]' ).bind( 'click.target', function( e ) {
-				if( flag ) {
-					e.preventDefault();
-					window.open( $( this ).attr( 'href' ), '_blank' );
-				}
-			} );
+			$( 'a[rel="external"]' ).bind( 'click.target', Blog.openLink );
 		},
 
 		/**
@@ -187,25 +190,29 @@
 
 				// processing video
 				$.fn.media.defaults.bgColor = '#000000';
-				$( 'a.Media' ).click( function( e ) {
+				$( 'a.Media' ).unbind( 'click.target' ).click( function( e ) {
 					if( Blog.Media.video && !e.ctrlKey ) {
 						e.preventDefault();
-						$( this ).unbind( 'click.target' ).media();
+						$( this ).media();
+					} else {
+						Blog.openLink( e );
 					}
 				} );
-				$( 'a.YouTube' ).click( function( e ) {
+				$( 'a.YouTube' ).unbind( 'click.target' ).click( function( e ) {
 					if( Blog.Media.video && !e.ctrlKey ) {
 						e.preventDefault();
 						var temp = $( this ).attr( 'href' ).match( /http:\/\/\w+\.youtube\.com\/watch\?(\w)=([\w-]+)/ );
 						if( temp == null ) {
 							throw new Error( 'URL not match!' );
 						}
-						$( this ).unbind( 'click.target' ).media( {
+						$( this ).media( {
 							src: 'http://www.youtube.com/' + temp[1] + '/' + temp[2] + '&hl=zh_TW&fs=1',
 							width: 425,
 							height: 344,
 							type: 'swf'
 						} );
+					} else {
+						Blog.openLink( e );
 					}
 				} );
 				$( 'a.GoogleVideo' ).click( function( e ) {
@@ -255,11 +262,13 @@
 		} );
 
 		/* hide posts */
+		/*
 		Blog.hideBlocks( {
 			selector: '.stealth',
 			collapsed: '<span class="switch" title="Expand Post">+More...</span>',
 			expanded: '<span class="switch" title="Collapse Post">-Less...</span>'
 		} );
+		*/
 		/* hide netabare */
 		Blog.hideBlocks( {
 			selector: '.netabare',
