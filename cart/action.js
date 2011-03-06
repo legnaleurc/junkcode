@@ -11,36 +11,154 @@ $( function() {
 		} ).text( data.title ).click( function( event ) {
 			event.preventDefault();
 			window.open( $( this ).attr( 'href' ), '_blank' );
-		} ) ) ).append( $( '<td/>' ).addClass( 'date' ).text( data.date ) ).append( $( '<td/>' ).append( $( '<input/>' ).attr( {
-			type: 'button',
-			value: 'Delete'
-		} ).click( function( event ) {
-			var self = $( this );
-			var key = self.parent().siblings( '.title' ).text();
-			jQuery.post( 'delete.php', {
-				title: key
-			}, function( data, textStatus ) {
-				if( textStatus == 'success' ) {
-					self.parent().parent().remove();
-				} else {
-					cerr( data );
-				}
-			}, 'json' );
-		} ) ) );
+		} ) ) ).append( $( '<td/>' ).addClass( 'date' ).text( data.date ) );
 	}
 
 	function cerr( msg ) {
 		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
 	}
 
+	// initialize table
 	jQuery.getJSON( 'load.php', function( data, textStatus ) {
 		if( textStatus != 'success' ) {
 			cerr( data );
 			return;
 		}
 		var cart = $( '#todo .cart' ).empty();
+		var done = $( '#done .cart' ).empty();
 		$( data ).each( function( index, row ) {
-			cart.append( newRow( row ) );
+			if( row.done == 0 ) {
+				cart.append( newRow( row ) );
+			} else {
+				done.append( newRow( row ) );
+			}
+		} );
+	} );
+
+	$( '#button-delete' ).click( function( ev ) {
+		var ck = $( '.cart > tr' ).filter( function( index ) {
+			return $( '.check', this ).attr( 'checked' );
+		} ).each( function( index, ele ) {
+			var self = $( this );
+			jQuery.post( 'delete.php', {
+				title: self.children( '.title' ).text()
+			}, function( data, textStatus ) {
+				if( textStatus == 'success' ) {
+					self.remove();
+				} else {
+					cerr( data );
+				}
+			}, 'json' );
+		} );
+	} );
+
+	function removeFromTableByKey( selector, key ) {
+		selector += ' > tbody > tr';
+		return $( selector ).filter( function( index ) {
+			return $( '.title', this ).text() == key;
+		} ).remove();
+	}
+
+	function compare( l, r ) {
+		if( l.date == r.date ) {
+			if( l.title == r.title ) {
+				return 0;
+			}
+			return ( l.title < r.title ) ? -1 : 1;
+		}
+		return ( l.date < r.date ) ? -1 : 1;
+	}
+
+	function binarySearch( row, list, begin, end ) {
+		var middle = Math.floor( ( begin + end ) / 2 );
+		var that = $( list[middle] );
+		var tmp = compare( row, {
+			date: that.find( '.date' ).text(),
+			title: that.find( '.title' ).text()
+		} );
+		if( tmp < 0 ) {
+			if( end - begin == 1 ) {
+				return {
+					found: false,
+					index: middle
+				};
+			} else {
+				return binarySearch( row, list, begin, middle );
+			}
+		} else if( tmp > 0 ) {
+			if( end - begin == 1 ) {
+				return {
+					found: false,
+					index: end
+				};
+			} else {
+				return binarySearch( row, list, middle, end );
+			}
+		} else {
+			return {
+				found: true,
+				index: middle
+			};
+		}
+	}
+
+	$( '#button-todo' ).click( function( ev ) {
+		var ck = $( '#done > tbody > tr' ).filter( function( index ) {
+			return $( '.check', this ).attr( 'checked' );
+		} ).each( function( index, ele ) {
+			var self = $( this );
+			var args = {
+				title: self.children( '.title' ).text(),
+				uri: self.find( 'a' ).attr( 'href' ),
+				date: self.children( '.date' ).text(),
+				done: 0
+			};
+			jQuery.post( 'save.php', args, function( data, textStatus ) {
+				if( textStatus == 'success' ) {
+					var list = $( '#todo > tbody > tr' );
+					list.filter( function( index ) {
+						return $( '.title', this ).text() == args.title;
+					} ).remove();
+					var result = binarySearch( args, list, 0, list.length );
+					if( result.index == list.length ) {
+						self.remove().insertAfter( list.last() ).find( '.check' ).attr( 'checked', false );
+					} else {
+						self.remove().insertBefore( list[result.index] ).find( '.check' ).attr( 'checked', false );
+					}
+				} else {
+					cerr( data );
+				}
+			}, 'json' );
+		} );
+	} );
+
+	$( '#button-done' ).click( function( ev ) {
+		var ck = $( '#todo > tbody > tr' ).filter( function( index ) {
+			return $( '.check', this ).attr( 'checked' );
+		} ).each( function( index, ele ) {
+			var self = $( this );
+			var args = {
+				title: self.children( '.title' ).text(),
+				uri: self.find( 'a' ).attr( 'href' ),
+				date: self.children( '.date' ).text(),
+				done: 1
+			};
+			jQuery.post( 'save.php', args, function( data, textStatus ) {
+				if( textStatus == 'success' ) {
+					var list = $( '#done > tbody > tr' );
+					list.filter( function( index ) {
+						return $( '.title', this ).text() == args.title;
+					} ).remove();
+					var result = binarySearch( args, list, 0, list.length );
+					if( result.index == list.length ) {
+						self.remove().insertAfter( list.last() ).find( '.check' ).attr( 'checked', false );
+					} else {
+						self.remove().insertBefore( list[result.index] ).find( '.check' ).attr( 'checked', false );
+					}
+				} else {
+					cerr( data );
+				}
+			}, 'json' );
 		} );
 	} );
 
@@ -48,7 +166,8 @@ $( function() {
 		var args = {
 			title: $( '#title' ).val(),
 			uri: $( '#uri' ).val(),
-			date: $( '#date' ).val()
+			date: $( '#date' ).val(),
+			done: 0
 		};
 		if( args.title == '' || args.uri == '' ) {
 			cerr( 'No empty field(s)' );
@@ -63,49 +182,17 @@ $( function() {
 				cerr( data );
 				return;
 			}
-			function compare( l, r ) {
-				if( l.date == r.date ) {
-					if( l.title == r.title ) {
-						return 0;
-					}
-					return ( l.title < r.title ) ? -1 : 1;
-				}
-				return ( l.date < r.date ) ? -1 : 1;
+			var list = $( '#todo > tbody > tr' );
+			list.filter( function( index ) {
+				return $( '.title', this ).text() == args.title;
+			} ).remove();
+			var result = binarySearch( args, list, 0, list.length );
+			if( result.index == list.length ) {
+				newRow( args ).insertAfter( list.last() );
+			} else {
+				newRow( args ).insertBefore( list[result.index] );
 			}
-			function binaryInsert( row, list, b, e ) {
-				var m = Math.floor( ( b + e ) / 2 );
-				var that = $( list[m] );
-				var tmp = compare( row, {
-					date: that.find( '.date' ).text(),
-					title: that.find( '.title' ).text()
-				} );
-				if( tmp < 0 ) {
-					if( e - b == 1 ) {
-						that.before( newRow( row ) );
-					} else {
-						binaryInsert( row, list, b, m );
-					}
-				} else if( tmp > 0 ) {
-					if( e - b == 1 ) {
-						that.after( newRow( row ) );
-					} else {
-						binaryInsert( row, list, m, e );
-					}
-				} else {
-					that.find( '.title a' ).attr( {
-						href: row.uri
-					} );
-					that.find( '.date' ).text( row.date );
-				}
-			}
-			$( '#todo .cart' ).children().each( function() {
-				var self = $( this );
-				if( self.find( '.title' ).text() == args.title || self.find( '.uri' ).text() == args.uri ) {
-					self.remove();
-				}
-			} );
-			var list = $( '#todo .cart' ).children();
-			binaryInsert( args, list, 0, list.length );
+			// clear input fields
 			$( '#stdin input[type=text]' ).val( '' );
 		}, 'json' );
 	} );

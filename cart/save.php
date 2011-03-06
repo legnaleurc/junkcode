@@ -21,10 +21,10 @@ if( !$result ) {
 	returnError( mysql_error( $link ) );
 }
 if( mysql_num_rows( $result ) > 0 ) {
-	$query = "UPDATE $TABLE SET uri='$args[uri]',date='$args[date]' WHERE title='$args[title]'";
+	$query = "UPDATE $TABLE SET uri='$args[uri]',date='$args[date]',done='$args[done]' WHERE title='$args[title]'";
 	$result = mysql_query( $query, $link );
 } else {
-	$query = "INSERT INTO $TABLE (title,uri,date,done) VALUES('$args[title]','$args[uri]','$args[date]',0)";
+	$query = "INSERT INTO $TABLE (title,uri,date,done) VALUES('$args[title]','$args[uri]','$args[date]','$args[done]')";
 	$result = mysql_query( $query, $link );
 }
 ?>

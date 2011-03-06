@@ -13,11 +13,18 @@
 	<body>
 		<div id="page-head">
 			<div id="stdin">
-				Title:<input type="text" id="title" />
-				URI:<input type="text" id="uri" />
-				Date:<input type="text" id="date" />
-				<input type="reset" />
-				<input type="submit" id="submit" />
+				<div>
+					Title:<input type="text" id="title" />
+					URI:<input type="text" id="uri" />
+					Date:<input type="text" id="date" />
+					<input type="reset" />
+					<input type="submit" id="submit" />
+				</div>
+				<div>
+					<button id="button-done">Done</button>
+					<button id="button-todo">Todo</button>
+					<button id="button-delete">Delete</button>
+				</div>
 			</div>
 			<div id="stderr">
 			</div>
@@ -33,7 +40,6 @@
 						<td><input type="checkbox" id="select-all-todo" value="noa" /></td>
 						<th>Title</th>
 						<th>Date</th>
-						<td><input type="button" value="Delete" /></td>
 					</tr>
 				</thead>
 				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
@@ -44,7 +50,6 @@
 						<td><input type="checkbox" id="select-all-done" value="noa" /></td>
 						<th>Title</th>
 						<th>Date</th>
-						<td><input type="button" value="Delete" /></td>
 					</tr>
 				</thead>
 				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
