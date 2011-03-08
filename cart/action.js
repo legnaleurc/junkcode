@@ -2,6 +2,10 @@ $( function() {
 
 	$( '#page-body' ).tabs();
 
+	function cerr( msg ) {
+		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
+	}
+
 	function newRow( data ) {
 		return $( '<tr/>' ).append( $( '<td/>' ).append( $( '<input/>' ).attr( {
 				type: 'checkbox'
@@ -11,11 +15,26 @@ $( function() {
 		} ).text( data.title ).click( function( event ) {
 			event.preventDefault();
 			window.open( $( this ).attr( 'href' ), '_blank' );
-		} ) ) ).append( $( '<td/>' ).addClass( 'date' ).text( data.date ) );
-	}
-
-	function cerr( msg ) {
-		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
+		} ) ) ).append( $( '<td class="date"/>' ).append( $( '<span/>' ).text( data.date ).dblclick( function( ev ) {
+			// this is text label
+			var self = $( this );
+			self.hide().next().width( self.width() ).val( self.text() ).show().select();
+		} ) ).append( $( '<input type="text"/>' ).hide().blur( function( ev ) {
+			// this is input field
+			var self = $( this );
+			if( /\d\d\d\d\/\d\d\/\d\d/.test( self.val() ) ) {
+				self.prev().text( self.val() );
+				jQuery.post( 'save.php', {
+					title: self.parent().prev().text(),
+					date: self.val()
+				}, function( data, textStatus ) {
+					if( textStatus != 'success' ) {
+						cerr( data );
+					}
+				} );
+			}
+			self.hide().prev().show();
+		} ) ) );
 	}
 
 	// initialize table
