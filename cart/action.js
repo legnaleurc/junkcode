@@ -22,7 +22,7 @@ $( function() {
 		} ) ).append( $( '<input type="text"/>' ).hide().blur( function( ev ) {
 			// this is input field
 			var self = $( this );
-			if( /\d\d\d\d\/\d\d\/\d\d/.test( self.val() ) ) {
+			if( self.val() != self.prev().text() && /\d\d\d\d\/\d\d\/\d\d/.test( self.val() ) ) {
 				self.prev().text( self.val() );
 				jQuery.post( 'save.php', {
 					title: self.parent().prev().text(),
