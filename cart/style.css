@@ -22,9 +22,8 @@ td, th {
 }
 
 #page-body {
-	top: 30px;
 	width: 800px;
-	margin: auto;
+	margin: 60px auto 120px auto;
 }
 
 #page-head {
@@ -38,7 +37,11 @@ td, th {
 }
 
 #page-foot {
-	width: 800px;
+	bottom: 0;
+	position: fixed;
+	z-index: 1;
+	width: 100%;
 	margin: auto;
+	background-color: black;
 	text-align: center;
 }
