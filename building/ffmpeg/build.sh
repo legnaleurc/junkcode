@@ -1,18 +1,21 @@
 #! /bin/sh
 
 LAME='--enable-libmp3lame'
-#SHARED='--disable-static --enable-shared --disable-stripping'
-OPT='--disable-optimizations'
+SHARED='--disable-static --enable-shared'
+OPT='--disable-optimizations --disable-stripping'
+CC='gcc'
 
 ../configure \
---cc='gcc-3.4' \
+--cc="$CC" \
+--extra-cflags='-pipe' \
 --prefix='/usr/local' \
 --enable-gpl \
+--enable-version3 \
 $SHARED \
 $LAME \
 $OPT \
 --disable-ffplay \
 --disable-ffserver \
---disable-network \
---disable-ipv6 \
+--enable-pic \
+--arch=amd64 \
 ;
