@@ -22,7 +22,7 @@ $( function() {
 		} ) ).append( $( '<input type="text"/>' ).hide().blur( function( ev ) {
 			// this is input field
 			var self = $( this );
-			if( self.val() != self.prev().text() && /\d\d\d\d\/\d\d\/\d\d/.test( self.val() ) ) {
+			if( self.val() != self.prev().text() && /^\d\d\d\d\/\d\d\/\d\d$/.test( self.val() ) ) {
 				self.prev().text( self.val() );
 				jQuery.post( 'save.php', {
 					title: self.parent().prev().text(),
@@ -192,7 +192,7 @@ $( function() {
 			cerr( 'No empty field(s)' );
 			return;
 		}
-		if( !/\d\d\d\d\/\d\d\/\d\d/.test( args.date ) ) {
+		if( !/^\d\d\d\d\/\d\d\/\d\d$/.test( args.date ) ) {
 			cerr( 'Wrong date: ' + args.date );
 			return;
 		}
