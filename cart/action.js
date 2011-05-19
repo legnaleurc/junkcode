@@ -24,7 +24,7 @@ $( function() {
 			var self = $( this );
 			if( self.val() != self.prev().text() && /^\d\d\d\d\/\d\d\/\d\d$/.test( self.val() ) ) {
 				self.prev().text( self.val() );
-				jQuery.post( 'save.php', {
+				jQuery.post( 'save.cgi', {
 					title: self.parent().prev().text(),
 					date: self.val()
 				}, function( data, textStatus ) {
@@ -38,7 +38,7 @@ $( function() {
 	}
 
 	// initialize table
-	jQuery.getJSON( 'load.php', function( data, textStatus ) {
+	jQuery.getJSON( 'load.cgi', function( data, textStatus ) {
 		if( textStatus != 'success' ) {
 			cerr( data );
 			return;
@@ -59,7 +59,7 @@ $( function() {
 			return $( '.check', this ).attr( 'checked' );
 		} ).each( function( index, ele ) {
 			var self = $( this );
-			jQuery.post( 'delete.php', {
+			jQuery.post( 'delete.cgi', {
 				title: self.children( '.title' ).text()
 			}, function( data, textStatus ) {
 				if( textStatus == 'success' ) {
@@ -132,7 +132,7 @@ $( function() {
 				date: self.children( '.date' ).text(),
 				done: 0
 			};
-			jQuery.post( 'save.php', args, function( data, textStatus ) {
+			jQuery.post( 'save.cgi', args, function( data, textStatus ) {
 				if( textStatus == 'success' ) {
 					var list = $( '#todo > tbody > tr' );
 					list.filter( function( index ) {
@@ -162,7 +162,7 @@ $( function() {
 				date: self.children( '.date' ).text(),
 				done: 1
 			};
-			jQuery.post( 'save.php', args, function( data, textStatus ) {
+			jQuery.post( 'save.cgi', args, function( data, textStatus ) {
 				if( textStatus == 'success' ) {
 					var list = $( '#done > tbody > tr' );
 					list.filter( function( index ) {
@@ -196,7 +196,7 @@ $( function() {
 			cerr( 'Wrong date: ' + args.date );
 			return;
 		}
-		jQuery.post( 'save.php', args, function( data, textStatus ) {
+		jQuery.post( 'save.cgi', args, function( data, textStatus ) {
 			if( textStatus != 'success' ) {
 				cerr( data );
 				return;
