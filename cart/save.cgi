@@ -14,7 +14,7 @@ form = cgi.FieldStorage()
 args = {}
 for key in form.keys():
 	args[key] = form.getfirst( key )
-if 'title' in args or len( args['title'] ) == 0:
+if 'title' not in args or len( args['title'] ) == 0:
 	print json.dumps( '`title` is empty' )
 	sys.exit( 0 )
 
