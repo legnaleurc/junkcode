@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 #-*- coding: utf-8 -*-
 
-import sqlite3, cgi, cgitb, cart
-cgitb.enable()
+import sqlite3, sys, json, cgi, cart
+
+print 'Content-Type: text/html'
+print
 
 link = sqlite3.connect( cart.database )
 link.row_factory = sqlite3.Row
@@ -13,7 +15,8 @@ args = {}
 for key in form.keys():
 	args[key] = form.getfirst( key )
 if 'title' in args or len( args['title'] ) == 0:
-	pass
+	print json.dumps( '`title` is empty' )
+	sys.exit( 0 )
 
 c.execute( 'SELECT * FROM %s WHERE `title`=:title' % cart.table, args )
 
@@ -31,6 +34,3 @@ else:
 
 link.commit()
 c.close()
-
-print 'Content-Type: text/html'
-print

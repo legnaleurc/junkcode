@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 #-*- coding: utf-8 -*-
 
-import sqlite3, json, cgitb, cart
-cgitb.enable()
+import sqlite3, json, cart
 
 link = sqlite3.connect( cart.database )
 link.row_factory = sqlite3.Row
