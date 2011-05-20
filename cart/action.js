@@ -220,11 +220,22 @@ $( function() {
 		this.select();
 	} );
 
-	$( '#select-all-todo, #select-all-done' ).change( function( event ) {
+	$( '#select-all-todo' ).change( function( event ) {
 		var self = $( this );
-		$( '.check' ).attr( {
-			checked: self.attr( 'checked' )
-		} );
+		if( self.is( ':checked' ) ) {
+			$( '#todo .check' ).attr( 'checked', 'checked' );
+		} else {
+			$( '#todo .check' ).removeAttr( 'checked' );
+		}
+	} );
+
+	$( '#select-all-done' ).change( function( event ) {
+		var self = $( this );
+		if( self.is( ':checked' ) ) {
+			$( '#done .check' ).attr( 'checked', 'checked' );
+		} else {
+			$( '#done .check' ).removeAttr( 'checked' );
+		}
 	} );
 
 	$( 'a[rel=external]' ).click( function( event ) {
