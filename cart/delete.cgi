@@ -3,8 +3,7 @@
 
 import sqlite3, sys, json, cgi, cart
 
-print 'Content-Type: text/html'
-print
+print 'Content-Type: text/plain\n'
 
 link = sqlite3.connect( cart.database )
 link.row_factory = sqlite3.Row
@@ -13,7 +12,7 @@ c = link.cursor()
 form = cgi.FieldStorage()
 args = {}
 for key in form.keys():
-	args[key] = form.getfirst( key )
+	args[key] = unicode( form.getfirst( key ), 'utf-8' )
 if 'title' not in args or len( args['title'] ) == 0:
 	print json.dumps( '`title` is empty' )
 	sys.exit( 0 )
