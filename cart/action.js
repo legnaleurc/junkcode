@@ -1,5 +1,21 @@
 $( function() {
 
+	// JavaScript 1.8.5
+	if ( !Function.prototype.bind ) {
+		Function.prototype.bind = function( obj ) {
+			var slice = [].slice, args = slice.call(arguments, 1), self = this, nop = function () {
+			}, bound = function () {
+				return self.apply( this instanceof nop ? this : ( obj || {} ), args.concat( slice.call(arguments) ) );
+			};
+
+			nop.prototype = self.prototype;
+
+			bound.prototype = new nop();
+
+			return bound;
+		};
+	}
+
 	$( '#page-body' ).tabs();
 
 	function cerr( msg ) {
@@ -7,34 +23,51 @@ $( function() {
 	}
 
 	function newRow( data ) {
-		return $( '<tr/>' ).append( $( '<td/>' ).append( $( '<input/>' ).attr( {
-				type: 'checkbox'
-			} ).addClass( 'check' ) ) ).append( $( '<td/>' ).addClass( 'title' ).append( $( '<a/>' ).attr( {
-			href: data.uri,
-			rel: 'external'
-		} ).text( data.title ).click( function( event ) {
+		function openEdit( self ) {
+			// this is text label
+			self.hide().next().width( self.parent().width() ).val( self.text() ).show().select();
+		}
+		function closeEdit( self ) {
+			// this is input field
+			self.hide().prev().show();
+		}
+		function saveEdit( self, key ) {
+			self.prev().text( self.val() );
+			var args = {
+				title: self.parent().parent().find( '.title' ).text()
+			};
+			args[key] = self.val();
+			jQuery.post( 'save.cgi', args, function( data, textStatus ) {
+				if( textStatus != 'success' ) {
+					cerr( data );
+				}
+			} );
+		}
+
+		var selector = $( '<td><input type="checkbox" class="check" /></td>' );
+		var title = $( '<td class="title"></td>' );
+		var link = $( '<a rel="external" />' ).click( function( event ) {
 			event.preventDefault();
 			window.open( $( this ).attr( 'href' ), '_blank' );
-		} ) ) ).append( $( '<td class="date"/>' ).append( $( '<span/>' ).text( data.date ).dblclick( function( ev ) {
-			// this is text label
+		} ).attr( 'href', data.uri ).text( data.title );
+		var vendorText = $( '<span />' ).text( data.vendor );
+		var vendor = $( '<td class="vendor" />' ).dblclick( openEdit.bind( null, $( vendorText ) ) );
+		var vendorEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
 			var self = $( this );
-			self.hide().next().width( self.width() ).val( self.text() ).show().select();
-		} ) ).append( $( '<input type="text"/>' ).hide().blur( function( ev ) {
-			// this is input field
+			saveEdit( self, 'vendor' );
+			closeEdit( self );
+		} );
+		var dateText = $( '<span />' ).text( data.date );
+		var date = $( '<td class="date" />' ).dblclick( openEdit.bind( null, $( dateText ) ) );
+		var dateEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
 			var self = $( this );
 			if( self.val() != self.prev().text() && /^\d\d\d\d\/\d\d\/\d\d$/.test( self.val() ) ) {
-				self.prev().text( self.val() );
-				jQuery.post( 'save.cgi', {
-					title: self.parent().prev().text(),
-					date: self.val()
-				}, function( data, textStatus ) {
-					if( textStatus != 'success' ) {
-						cerr( data );
-					}
-				} );
+				saveEdit( self, 'date' );
 			}
-			self.hide().prev().show();
-		} ) ) );
+			closeEdit( self );
+		} );
+
+		return $( '<tr />' ).append( selector ).append( title.append( link ) ).append( vendor.append( vendorText ).append( vendorEdit ) ).append( date.append( dateText ).append( dateEdit ) );
 	}
 
 	// initialize table

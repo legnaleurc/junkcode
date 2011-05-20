@@ -27,7 +27,7 @@ if result is None:
 else:
 	# item exists, update
 	tmp = []
-	for key in [ 'uri', 'date', 'done' ]:
+	for key in [ 'vendor', 'uri', 'date', 'done' ]:
 		if key in form:
 			tmp.append( '%s=:%s' % ( key, key ) )
 	c.execute( 'UPDATE %s SET %s WHERE title=:title' % ( cart.table, ','.join( tmp ) ), args )
