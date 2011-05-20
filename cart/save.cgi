@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #-*- coding: utf-8 -*-
 
-import sqlite3, sys, json, cgi, cart
+import cart, sqlite3, sys, json, cgi
 
 print 'Content-Type: text/html'
 print
@@ -10,7 +10,7 @@ link = sqlite3.connect( cart.database )
 link.row_factory = sqlite3.Row
 c = link.cursor()
 
-form = cgi.FieldStorage()
+form = cgi.FieldStorage( keep_blank_values = True )
 args = {}
 for key in form.keys():
 	args[key] = form.getfirst( key )
@@ -23,7 +23,7 @@ c.execute( 'SELECT * FROM %s WHERE `title`=:title' % cart.table, args )
 result = c.fetchone()
 if result is None:
 	# new item, insert
-	c.execute( 'INSERT INTO %s (title,uri,date,done) VALUES(:title,:uri,:date,:done)' % cart.table, args )
+	c.execute( 'INSERT INTO %s (title,vendor,uri,date,done,volume) VALUES(:title,:vendor,:uri,:date,:done,:volume)' % cart.table, args )
 else:
 	# item exists, update
 	tmp = []

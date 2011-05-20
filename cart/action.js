@@ -186,7 +186,9 @@ $( function() {
 			title: $( '#title' ).val(),
 			uri: $( '#uri' ).val(),
 			date: $( '#date' ).val(),
-			done: 0
+			done: 0,
+			vendor: '',
+			volume: -1
 		};
 		if( args.title == '' || args.uri == '' ) {
 			cerr( 'No empty field(s)' );
