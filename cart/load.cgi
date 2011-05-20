@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 #-*- coding: utf-8 -*-
 
-import sqlite3, json, cart
+import cart, sqlite3, json
 
 link = sqlite3.connect( cart.database )
 link.row_factory = sqlite3.Row
 c = link.cursor()
 
-c.execute( 'SELECT * FROM %s' % cart.table )
+c.execute( 'SELECT * FROM %s ORDER BY date, title' % cart.table )
 
 result = []
 for row in c:
@@ -18,13 +18,6 @@ for row in c:
 
 link.commit()
 c.close()
-
-def helper( l, r ):
-	c = cmp( l['date'], r['date'] )
-	if c != 0:
-		return c
-	return cmp( l['title'], r['title'] )
-result.sort( helper )
 
 print 'Content-Type: text/html'
 print
