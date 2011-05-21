@@ -222,20 +222,12 @@ $( function() {
 
 	$( '#select-all-todo' ).change( function( event ) {
 		var self = $( this );
-		if( self.is( ':checked' ) ) {
-			$( '#todo .check' ).attr( 'checked', 'checked' );
-		} else {
-			$( '#todo .check' ).removeAttr( 'checked' );
-		}
+		$( '#todo .check' ).attr( 'checked', self.is( ':checked' ) );
 	} );
 
 	$( '#select-all-done' ).change( function( event ) {
 		var self = $( this );
-		if( self.is( ':checked' ) ) {
-			$( '#done .check' ).attr( 'checked', 'checked' );
-		} else {
-			$( '#done .check' ).removeAttr( 'checked' );
-		}
+		$( '#done .check' ).attr( 'checked', self.is( ':checked' ) );
 	} );
 
 	$( 'a[rel=external]' ).click( function( event ) {
