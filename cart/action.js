@@ -21,20 +21,22 @@ $( function() {
 	}
 
 	function Row( data ) {
-		function openEdit( self ) {
-			// this is text label
-			self.hide().next().width( self.parent().width() ).val( self.text() ).show().select();
+		function openEdit( parent, label, input ) {
+			input.width( parent.width() ).val( label.hide().text() ).show().select();
 		}
-		function closeEdit( self ) {
-			// this is input field
-			self.hide().prev().show();
+		function closeEdit( label, input ) {
+			label.show();
+			input.hide();
 		}
-		function saveEdit( self, key ) {
-			self.prev().text( self.val() );
+		function saveEdit( label, input, key, field ) {
+			if( label.text() == input.val() ) {
+				return;
+			}
+			label.text( input.val() );
 			var args = {
-				title: self.parent().parent().find( '.title' ).text()
+				title: key
 			};
-			args[key] = self.val();
+			args[field] = input.val();
 			jQuery.post( 'save.cgi', args, function( data, textStatus ) {
 				if( textStatus != 'success' ) {
 					cerr( data );
@@ -57,25 +59,25 @@ $( function() {
 		this.title.append( this.link );
 
 		// vendor cell
+		this.vendor = $( '<td class="vendor" />' );
 		this.vendorText = $( '<span />' ).text( data.vendor );
-		this.vendor = $( '<td class="vendor" />' ).dblclick( openEdit.bind( null, this.vendorText ) );
 		this.vendorEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
-			var self = $( this );
-			saveEdit( self, 'vendor' );
-			closeEdit( self );
-		} );
+			saveEdit( this.vendorText, this.vendorEdit, this.title.text(), 'vendor' );
+			closeEdit( this.vendorText, this.vendorEdit );
+		}.bind( this ) );
+		this.vendor.dblclick( openEdit.bind( null, this.vendor, this.vendorText, this.vendorEdit ) );
 		this.vendor.append( this.vendorText ).append( this.vendorEdit );
 
 		// date cell
 		this.dateText = $( '<span />' ).text( data.date );
-		this.date = $( '<td class="date" />' ).dblclick( openEdit.bind( null, this.dateText ) );
+		this.date = $( '<td class="date" />' );
 		this.dateEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
-			var self = $( this );
-			if( self.val() != self.prev().text() && /^\d\d\d\d\/\d\d\/\d\d$/.test( self.val() ) ) {
-				saveEdit( self, 'date' );
+			if( /^\d\d\d\d\/\d\d\/\d\d$/.test( this.dateEdit.val() ) ) {
+				saveEdit( this.dateText, this.dateEdit, this.title.text(), 'date' );
 			}
-			closeEdit( self );
-		} );
+			closeEdit( this.dateText, this.dateEdit );
+		}.bind( this ) );
+		this.date.dblclick( openEdit.bind( null, this.date, this.dateText, this.dateEdit ) );
 		this.date.append( this.dateText ).append( this.dateEdit );
 
 		this.element.append( this.selector ).append( this.title ).append( this.vendor ).append( this.date );
