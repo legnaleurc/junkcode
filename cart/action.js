@@ -161,8 +161,6 @@ $( function() {
 			var self = $( this );
 			var args = {
 				title: self.children( '.title' ).text(),
-				uri: self.find( 'a' ).attr( 'href' ),
-				date: self.children( '.date' ).text(),
 				done: 0
 			};
 			jQuery.post( 'save.cgi', args, function( data, textStatus ) {
@@ -191,8 +189,6 @@ $( function() {
 			var self = $( this );
 			var args = {
 				title: self.children( '.title' ).text(),
-				uri: self.find( 'a' ).attr( 'href' ),
-				date: self.children( '.date' ).text(),
 				done: 1
 			};
 			jQuery.post( 'save.cgi', args, function( data, textStatus ) {
