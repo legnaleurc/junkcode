@@ -48,7 +48,9 @@ $( function() {
 		this.element = $( '<tr />' );
 
 		// checkbox cell
-		this.selector = $( '<td><input type="checkbox" class="check" /></td>' );
+		this.selector = $( '<td></td>' );
+		this.checkbox = $( '<input type="checkbox" class="check" />' );
+		this.selector.append( this.checkbox );
 
 		// title cell
 		this.title = $( '<td class="title"></td>' );
@@ -87,6 +89,14 @@ $( function() {
 		return this.element;
 	};
 
+	Row.prototype.isChecked = function() {
+		return this.checkbox.is( ":checked" );
+	};
+
+	Row.prototype.getTitle = function() {
+		return this.title.text();
+	};
+
 	var todoList = [];
 	var doneList = [];
 
@@ -111,19 +121,22 @@ $( function() {
 	} );
 
 	$( '#button-delete' ).click( function( ev ) {
-		var ck = $( '.cart > tr' ).filter( function( index ) {
-			return $( '.check', this ).attr( 'checked' );
-		} ).each( function( index, ele ) {
-			var self = $( this );
-			jQuery.post( 'delete.cgi', {
-				title: self.children( '.title' ).text()
-			}, function( data, textStatus ) {
-				if( textStatus == 'success' ) {
-					self.remove();
-				} else {
-					cerr( data );
+		jQuery.each( [ todoList, doneList ], function( i, list ) {
+			jQuery.each( list, function( index, value ) {
+				if( !value.isChecked() ) {
+					return;
 				}
-			}, 'json' );
+				jQuery.post( 'delete.cgi', {
+					title: value.getTitle()
+				}, function( data, textStatus ) {
+					if( textStatus == 'success' ) {
+						value.getElement().remove();
+						list.splice( index, 1 );
+					} else {
+						cerr( data );
+					}
+				}, 'json' );
+			} );
 		} );
 	} );
 
