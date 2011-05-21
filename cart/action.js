@@ -16,13 +16,11 @@ $( function() {
 		};
 	}
 
-	$( '#page-body' ).tabs();
-
 	function cerr( msg ) {
 		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
 	}
 
-	function newRow( data ) {
+	function Row( data ) {
 		function openEdit( self ) {
 			// this is text label
 			self.hide().next().width( self.parent().width() ).val( self.text() ).show().select();
@@ -44,31 +42,51 @@ $( function() {
 			} );
 		}
 
-		var selector = $( '<td><input type="checkbox" class="check" /></td>' );
-		var title = $( '<td class="title"></td>' );
-		var link = $( '<a rel="external" />' ).click( function( event ) {
+		// container element
+		this.element = $( '<tr />' );
+
+		// checkbox cell
+		this.selector = $( '<td><input type="checkbox" class="check" /></td>' );
+
+		// title cell
+		this.title = $( '<td class="title"></td>' );
+		this.link = $( '<a rel="external" />' ).click( function( event ) {
 			event.preventDefault();
 			window.open( $( this ).attr( 'href' ), '_blank' );
 		} ).attr( 'href', data.uri ).text( data.title );
-		var vendorText = $( '<span />' ).text( data.vendor );
-		var vendor = $( '<td class="vendor" />' ).dblclick( openEdit.bind( null, $( vendorText ) ) );
-		var vendorEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
+		this.title.append( this.link );
+
+		// vendor cell
+		this.vendorText = $( '<span />' ).text( data.vendor );
+		this.vendor = $( '<td class="vendor" />' ).dblclick( openEdit.bind( null, this.vendorText ) );
+		this.vendorEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
 			var self = $( this );
 			saveEdit( self, 'vendor' );
 			closeEdit( self );
 		} );
-		var dateText = $( '<span />' ).text( data.date );
-		var date = $( '<td class="date" />' ).dblclick( openEdit.bind( null, $( dateText ) ) );
-		var dateEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
+		this.vendor.append( this.vendorText ).append( this.vendorEdit );
+
+		// date cell
+		this.dateText = $( '<span />' ).text( data.date );
+		this.date = $( '<td class="date" />' ).dblclick( openEdit.bind( null, this.dateText ) );
+		this.dateEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
 			var self = $( this );
 			if( self.val() != self.prev().text() && /^\d\d\d\d\/\d\d\/\d\d$/.test( self.val() ) ) {
 				saveEdit( self, 'date' );
 			}
 			closeEdit( self );
 		} );
+		this.date.append( this.dateText ).append( this.dateEdit );
 
-		return $( '<tr />' ).append( selector ).append( title.append( link ) ).append( vendor.append( vendorText ).append( vendorEdit ) ).append( date.append( dateText ).append( dateEdit ) );
+		this.element.append( this.selector ).append( this.title ).append( this.vendor ).append( this.date );
 	}
+
+	Row.prototype.getElement = function() {
+		return this.element;
+	};
+
+	var todoList = [];
+	var doneList = [];
 
 	// initialize table
 	jQuery.getJSON( 'load.cgi', function( data, textStatus ) {
@@ -79,10 +97,13 @@ $( function() {
 		var cart = $( '#todo .cart' ).empty();
 		var done = $( '#done .cart' ).empty();
 		$( data ).each( function( index, row ) {
+			var tmp = new Row( row );
 			if( row.done == 0 ) {
-				cart.append( newRow( row ) );
+				todoList.push( tmp );
+				cart.append( tmp.getElement() );
 			} else {
-				done.append( newRow( row ) );
+				doneList.push( tmp );
+				done.append( tmp.getElement() );
 			}
 		} );
 	} );
@@ -265,5 +286,7 @@ $( function() {
 		event.preventDefault();
 		window.open( $( this ).attr( 'href' ), '_blank' );
 	} );
+
+	$( '#page-body' ).tabs();
 
 } );
