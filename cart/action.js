@@ -40,7 +40,7 @@ $( function() {
 			} else {
 				cerr( data );
 			}
-		}, 'json' );
+		}.bind( this ), 'json' );
 	};
 
 	Table.prototype.at = function( index ) {
@@ -223,7 +223,7 @@ $( function() {
 	$( '#button-delete' ).click( function( ev ) {
 		jQuery.each( [ todoList, doneList ], function( index, list ) {
 			for( var i = list.size() - 1; i >= 0; --i ) {
-				if( list[i].isChecked() ) {
+				if( list.at( i ).isChecked() ) {
 					list.remove( i );
 				}
 			}
@@ -284,16 +284,13 @@ $( function() {
 				cerr( data );
 				return;
 			}
-			var list = $( '#todo > tbody > tr' );
-			list.filter( function( index ) {
-				return $( '.title', this ).text() == args.title;
-			} ).remove();
-			var result = binarySearch( args, list, 0, list.length );
-			if( result.index == list.length ) {
-				newRow( args ).insertAfter( list.last() );
-			} else {
-				newRow( args ).insertBefore( list[result.index] );
+			var row = new Row( args );
+			var result = todoList.find( row );
+			if( result.found ) {
+				var taken = todoList.take( result.index );
+				taken.getElement().remove();
 			}
+			todoList.insert( result.index, row );
 			// clear input fields
 			$( '#stdin input[type=text]' ).val( '' );
 		}, 'json' );
