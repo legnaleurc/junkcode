@@ -20,6 +20,97 @@ $( function() {
 		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
 	}
 
+	function Table( selector ) {
+		this.items = [];
+		this.view = $( selector ).empty();
+	}
+
+	Table.prototype.append = function( row ) {
+		this.items.push( row );
+		this.view.append( row.getElement() );
+	};
+
+	Table.prototype.remove = function( index ) {
+		var itemTitle = this.items[index].getTitle();
+		jQuery.post( 'delete.cgi', {
+			title: itemTitle
+		}, function( data, textStatus ) {
+			if( textStatus == 'success' ) {
+				this.items.splice( index, 1 )[0].getElement().remove();
+			} else {
+				cerr( data );
+			}
+		}, 'json' );
+	};
+
+	Table.prototype.size = function() {
+		return this.items.length;
+	};
+
+	Table.prototype.find = function( row, compare ) {
+		if( compare === undefined ) {
+			compare = function( l, r ) {
+				if( l.getDate() == r.getDate() ) {
+					if( l.getTitle() == r.getTitle() ) {
+						return 0;
+					}
+					return ( l.getTitle() < r.getTitle() ) ? -1 : 1;
+				}
+				return ( l.getDate() < r.getDate() ) ? -1 : 1;
+			};
+		}
+		function binarySearch( row, list, begin, end ) {
+			var middle = Math.floor( ( begin + end ) / 2 );
+			var that = list[middle];
+			var tmp = compare( row, that );
+			if( tmp < 0 ) {
+				if( end - begin == 1 ) {
+					return {
+						found: false,
+						index: middle
+					};
+				} else {
+					return binarySearch( row, list, begin, middle );
+				}
+			} else if( tmp > 0 ) {
+				if( end - begin == 1 ) {
+					return {
+						found: false,
+						index: end
+					};
+				} else {
+					return binarySearch( row, list, middle, end );
+				}
+			} else {
+				return {
+					found: true,
+					index: middle
+				};
+			}
+		}
+		return binarySearch( row, this.items, 0, this.items.length );
+	};
+
+	Table.prototype.take = function( index ) {
+		var taken = this.items.splice( index, 1 )[0];
+		taken.getElement().detach();
+		return taken;
+	};
+
+	Table.prototype.insert = function( index, row ) {
+		if( index >= this.items.length ) {
+			this.items[ this.items.length - 1 ].getElement().after( row.getElement() );
+			this.items.push( row );
+		} else if( index > 0 ) {
+			this.items[index].getElement().before( row.getElement() );
+			this.items.splice( index, 0, row );
+		} else {
+			this.items[0].getElement().before( row.getElement() );
+			this.items.splice( 0, 0, row );
+		}
+		return this;
+	};
+
 	function Row( data ) {
 		function openEdit( parent, label, input ) {
 			input.width( parent.width() ).val( label.hide().text() ).show().select();
@@ -93,12 +184,21 @@ $( function() {
 		return this.checkbox.is( ":checked" );
 	};
 
+	Row.prototype.setChecked = function( checked ) {
+		this.checkbox.attr( 'checked', checked );
+		return this;
+	};
+
 	Row.prototype.getTitle = function() {
 		return this.title.text();
 	};
 
-	var todoList = [];
-	var doneList = [];
+	Row.prototype.getDate = function() {
+		return this.dateText.text();
+	};
+
+	var todoList = new Table( '#todo .cart' );
+	var doneList = new Table( '#done .cart' );
 
 	// initialize table
 	jQuery.getJSON( 'load.cgi', function( data, textStatus ) {
@@ -106,144 +206,56 @@ $( function() {
 			cerr( data );
 			return;
 		}
-		var cart = $( '#todo .cart' ).empty();
-		var done = $( '#done .cart' ).empty();
 		$( data ).each( function( index, row ) {
 			var tmp = new Row( row );
 			if( row.done == 0 ) {
-				todoList.push( tmp );
-				cart.append( tmp.getElement() );
+				todoList.append( tmp );
 			} else {
-				doneList.push( tmp );
-				done.append( tmp.getElement() );
+				doneList.append( tmp );
 			}
 		} );
 	} );
 
 	$( '#button-delete' ).click( function( ev ) {
-		jQuery.each( [ todoList, doneList ], function( i, list ) {
-			jQuery.each( list, function( index, value ) {
-				if( !value.isChecked() ) {
-					return;
+		jQuery.each( [ todoList, doneList ], function( index, list ) {
+			for( var i = list.size() - 1; i >= 0; --i ) {
+				if( list[i].isChecked() ) {
+					list.remove( i );
 				}
-				jQuery.post( 'delete.cgi', {
-					title: value.getTitle()
-				}, function( data, textStatus ) {
-					if( textStatus == 'success' ) {
-						value.getElement().remove();
-						list.splice( index, 1 );
-					} else {
-						cerr( data );
-					}
-				}, 'json' );
-			} );
+			}
 		} );
 	} );
 
-	function removeFromTableByKey( selector, key ) {
-		selector += ' > tbody > tr';
-		return $( selector ).filter( function( index ) {
-			return $( '.title', this ).text() == key;
-		} ).remove();
-	}
+	function setItemDone( isDone ) {
+		var fromList = isDone ? todoList : doneList;
+		var toList = isDone ? doneList : todoList;
+		var done_ = isDone ? 1 : 0;
 
-	function compare( l, r ) {
-		if( l.date == r.date ) {
-			if( l.title == r.title ) {
-				return 0;
+		for( var i = 0; i < fromList.size(); ++i ) {
+			if( !fromList[i].isChecked() ) {
+				continue;
 			}
-			return ( l.title < r.title ) ? -1 : 1;
-		}
-		return ( l.date < r.date ) ? -1 : 1;
-	}
-
-	function binarySearch( row, list, begin, end ) {
-		var middle = Math.floor( ( begin + end ) / 2 );
-		var that = $( list[middle] );
-		var tmp = compare( row, {
-			date: that.find( '.date' ).text(),
-			title: that.find( '.title' ).text()
-		} );
-		if( tmp < 0 ) {
-			if( end - begin == 1 ) {
-				return {
-					found: false,
-					index: middle
-				};
-			} else {
-				return binarySearch( row, list, begin, middle );
-			}
-		} else if( tmp > 0 ) {
-			if( end - begin == 1 ) {
-				return {
-					found: false,
-					index: end
-				};
-			} else {
-				return binarySearch( row, list, middle, end );
-			}
-		} else {
-			return {
-				found: true,
-				index: middle
-			};
+			jQuery.post( 'save.cgi', {
+				title: fromList[i].getTitle(),
+				done: done_
+			}, function( data, textStatus ) {
+				if( textStatus != 'success' ) {
+					cerr( data );
+					return;
+				}
+				var result = toList.find( fromList[i] );
+				var removed = fromList.take( i ).setChecked( false );
+				toList.insert( result.index, removed );
+			}, 'json' );
 		}
 	}
 
 	$( '#button-todo' ).click( function( ev ) {
-		var ck = $( '#done > tbody > tr' ).filter( function( index ) {
-			return $( '.check', this ).attr( 'checked' );
-		} ).each( function( index, ele ) {
-			var self = $( this );
-			var args = {
-				title: self.children( '.title' ).text(),
-				done: 0
-			};
-			jQuery.post( 'save.cgi', args, function( data, textStatus ) {
-				if( textStatus == 'success' ) {
-					var list = $( '#todo > tbody > tr' );
-					list.filter( function( index ) {
-						return $( '.title', this ).text() == args.title;
-					} ).remove();
-					var result = binarySearch( args, list, 0, list.length );
-					if( result.index == list.length ) {
-						self.remove().insertAfter( list.last() ).find( '.check' ).attr( 'checked', false );
-					} else {
-						self.remove().insertBefore( list[result.index] ).find( '.check' ).attr( 'checked', false );
-					}
-				} else {
-					cerr( data );
-				}
-			}, 'json' );
-		} );
+		setItemDone( false );
 	} );
 
 	$( '#button-done' ).click( function( ev ) {
-		var ck = $( '#todo > tbody > tr' ).filter( function( index ) {
-			return $( '.check', this ).attr( 'checked' );
-		} ).each( function( index, ele ) {
-			var self = $( this );
-			var args = {
-				title: self.children( '.title' ).text(),
-				done: 1
-			};
-			jQuery.post( 'save.cgi', args, function( data, textStatus ) {
-				if( textStatus == 'success' ) {
-					var list = $( '#done > tbody > tr' );
-					list.filter( function( index ) {
-						return $( '.title', this ).text() == args.title;
-					} ).remove();
-					var result = binarySearch( args, list, 0, list.length );
-					if( result.index == list.length ) {
-						self.remove().insertAfter( list.last() ).find( '.check' ).attr( 'checked', false );
-					} else {
-						self.remove().insertBefore( list[result.index] ).find( '.check' ).attr( 'checked', false );
-					}
-				} else {
-					cerr( data );
-				}
-			}, 'json' );
-		} );
+		setItemDone( true );
 	} );
 
 	$( '#submit' ).click( function() {
