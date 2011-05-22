@@ -19,7 +19,7 @@ $( function() {
 	function bind( fn ) {
 		var args = Array.prototype.slice.call( arguments, 1 );
 		return function() {
-			fn.apply( this, args );
+			fn.apply( this, args.concat( Array.prototype.slice.call( arguments ) ) );
 		};
 	}
 
@@ -169,7 +169,7 @@ $( function() {
 			saveEdit( this.vendorText, this.vendorEdit, this.title.text(), 'vendor' );
 			closeEdit( this.vendorText, this.vendorEdit );
 		}.bind( this ) );
-		this.vendor.dblclick( openEdit.bind( null, this.vendor, this.vendorText, this.vendorEdit ) );
+		this.vendor.dblclick( bind( openEdit, this.vendor, this.vendorText, this.vendorEdit ) );
 		this.vendor.append( this.vendorText ).append( this.vendorEdit );
 
 		// date cell
@@ -181,7 +181,7 @@ $( function() {
 			}
 			closeEdit( this.dateText, this.dateEdit );
 		}.bind( this ) );
-		this.date.dblclick( openEdit.bind( null, this.date, this.dateText, this.dateEdit ) );
+		this.date.dblclick( bind( openEdit, this.date, this.dateText, this.dateEdit ) );
 		this.date.append( this.dateText ).append( this.dateEdit );
 
 		this.element.append( this.selector ).append( this.title ).append( this.vendor ).append( this.date );
@@ -249,7 +249,7 @@ $( function() {
 			jQuery.post( 'save.cgi', {
 				title: fromList.at( i ).getTitle(),
 				done: done_
-			}, function( index, data, textStatus ) {
+			}, bind( function( index, data, textStatus ) {
 				if( textStatus != 'success' ) {
 					cerr( data );
 					return;
@@ -257,7 +257,7 @@ $( function() {
 				var result = toList.find( fromList.at( index ) );
 				var removed = fromList.take( index ).setChecked( false );
 				toList.insert( result.index, removed );
-			}.bind( null, i ), 'json' );
+			}, i ), 'json' );
 		}
 	}
 
