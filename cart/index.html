@@ -21,8 +21,8 @@
 					<input type="submit" id="submit" />
 				</div>
 				<div>
-					<button id="button-done">Done</button>
-					<button id="button-todo">Todo</button>
+					<button id="button-to-phase-1">Get</button>
+					<button id="button-to-phase-0">Todo</button>
 					<button id="button-delete">Delete</button>
 				</div>
 			</div>
@@ -31,13 +31,15 @@
 		</div>
 		<div id="page-body">
 			<ul>
-				<li><a href="#todo">TODO</a></li>
-				<li><a href="#done">DONE</a></li>
+				<li><a href="#phase-0">TODO</a></li>
+				<li><a href="#phase-1">GET</a></li>
+				<li><a href="#phase-2">OPENED</a></li>
+				<li><a href="#phase-3">FINISHED</a></li>
 			</ul>
-			<table id="todo">
+			<table id="phase-0">
 				<thead>
 					<tr>
-						<td><input type="checkbox" id="select-all-todo" value="noa" /></td>
+						<td><input type="checkbox" class="select-all" value="noa" /></td>
 						<th>Title</th>
 						<th>Vendor</th>
 						<th>Date</th>
@@ -45,10 +47,32 @@
 				</thead>
 				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
 			</table>
-			<table id="done">
+			<table id="phase-1">
 				<thead>
 					<tr>
-						<td><input type="checkbox" id="select-all-done" value="noa" /></td>
+						<td><input type="checkbox" class="select-all" value="noa" /></td>
+						<th>Title</th>
+						<th>Vendor</th>
+						<th>Date</th>
+					</tr>
+				</thead>
+				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
+			</table>
+			<table id="phase-2">
+				<thead>
+					<tr>
+						<td><input type="checkbox" class="select-all" value="noa" /></td>
+						<th>Title</th>
+						<th>Vendor</th>
+						<th>Date</th>
+					</tr>
+				</thead>
+				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
+			</table>
+			<table id="phase-3">
+				<thead>
+					<tr>
+						<td><input type="checkbox" class="select-all" value="noa" /></td>
 						<th>Title</th>
 						<th>Vendor</th>
 						<th>Date</th>

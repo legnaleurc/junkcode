@@ -16,6 +16,13 @@ $( function() {
 		};
 	}
 
+	function bind( fn ) {
+		var args = Array.prototype.slice.call( arguments, 1 );
+		return function() {
+			fn.apply( this, args );
+		};
+	}
+
 	function cerr( msg ) {
 		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
 	}
@@ -201,8 +208,8 @@ $( function() {
 		return this.dateText.text();
 	};
 
-	var todoList = new Table( '#todo .cart' );
-	var doneList = new Table( '#done .cart' );
+	var todoList = new Table( '#phase-0 .cart' );
+	var doneList = new Table( '#phase-1 .cart' );
 
 	// initialize table
 	jQuery.getJSON( 'load.cgi', function( data, textStatus ) {
@@ -230,7 +237,7 @@ $( function() {
 		} );
 	} );
 
-	function setItemDone( isDone ) {
+	function setItemPhase( phase ) {
 		var fromList = isDone ? todoList : doneList;
 		var toList = isDone ? doneList : todoList;
 		var done_ = isDone ? 1 : 0;
@@ -254,12 +261,12 @@ $( function() {
 		}
 	}
 
-	$( '#button-todo' ).click( function( ev ) {
-		setItemDone( false );
+	$( '#button-to-phase-0' ).click( function( ev ) {
+		setItemPhase( false );
 	} );
 
-	$( '#button-done' ).click( function( ev ) {
-		setItemDone( true );
+	$( '#button-to-phase-1' ).click( function( ev ) {
+		setItemPhase( true );
 	} );
 
 	$( '#submit' ).click( function() {
@@ -300,15 +307,12 @@ $( function() {
 		this.select();
 	} );
 
-	$( '#select-all-todo' ).change( function( event ) {
-		var self = $( this );
-		$( '#todo .check' ).attr( 'checked', self.is( ':checked' ) );
-	} );
-
-	$( '#select-all-done' ).change( function( event ) {
-		var self = $( this );
-		$( '#done .check' ).attr( 'checked', self.is( ':checked' ) );
-	} );
+	// select all setting
+	for( var i = 0; i < 4; ++i ) {
+		$( '#phase-' + i + ' .select-all' ).change( bind( function( index, event ) {
+			$( '#phase-' + index + ' .check' ).attr( 'checked', $( this ).is( ':checked' ) );
+		}, i ) );
+	}
 
 	$( 'a[rel=external]' ).click( function( event ) {
 		event.preventDefault();
