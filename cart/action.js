@@ -43,6 +43,10 @@ $( function() {
 		}, 'json' );
 	};
 
+	Table.prototype.at = function( index ) {
+		return this.items[index];
+	};
+
 	Table.prototype.size = function() {
 		return this.items.length;
 	};
@@ -232,21 +236,21 @@ $( function() {
 		var done_ = isDone ? 1 : 0;
 
 		for( var i = 0; i < fromList.size(); ++i ) {
-			if( !fromList[i].isChecked() ) {
+			if( !fromList.at( i ).isChecked() ) {
 				continue;
 			}
 			jQuery.post( 'save.cgi', {
-				title: fromList[i].getTitle(),
+				title: fromList.at( i ).getTitle(),
 				done: done_
-			}, function( data, textStatus ) {
+			}, function( index, data, textStatus ) {
 				if( textStatus != 'success' ) {
 					cerr( data );
 					return;
 				}
-				var result = toList.find( fromList[i] );
-				var removed = fromList.take( i ).setChecked( false );
+				var result = toList.find( fromList.at( index ) );
+				var removed = fromList.take( index ).setChecked( false );
 				toList.insert( result.index, removed );
-			}, 'json' );
+			}.bind( null, i ), 'json' );
 		}
 	}
 
