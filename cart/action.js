@@ -101,7 +101,10 @@ $( function() {
 				};
 			}
 		}
-		return binarySearch( row, this.items, 0, this.items.length );
+		return ( this.items.length == 0 ) ? {
+			found: false,
+			index: 0
+		} : binarySearch( row, this.items, 0, this.items.length );
 	};
 
 	Table.prototype.take = function( index ) {
@@ -111,7 +114,9 @@ $( function() {
 	};
 
 	Table.prototype.insert = function( index, row ) {
-		if( index >= this.items.length ) {
+		if( this.items.length == 0 ) {
+			this.append( row );
+		} else if( index >= this.items.length ) {
 			this.items[ this.items.length - 1 ].getElement().after( row.getElement() );
 			this.items.push( row );
 		} else if( index > 0 ) {
