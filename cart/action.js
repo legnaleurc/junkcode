@@ -1,21 +1,5 @@
 $( function() {
 
-	// JavaScript 1.8.5
-	if ( !Function.prototype.bind ) {
-		Function.prototype.bind = function( obj ) {
-			var slice = [].slice, args = slice.call(arguments, 1), self = this, nop = function () {
-			}, bound = function () {
-				return self.apply( this instanceof nop ? this : ( obj || {} ), args.concat( slice.call(arguments) ) );
-			};
-
-			nop.prototype = self.prototype;
-
-			bound.prototype = new nop();
-
-			return bound;
-		};
-	}
-
 	function bind( fn ) {
 		var args = Array.prototype.slice.call( arguments, 1 );
 		return function() {
@@ -177,22 +161,22 @@ $( function() {
 		// vendor cell
 		this.vendor = $( '<td class="vendor" />' );
 		this.vendorText = $( '<span />' ).text( data.vendor );
-		this.vendorEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
-			saveEdit( this.vendorText, this.vendorEdit, this.title.text(), 'vendor' );
-			closeEdit( this.vendorText, this.vendorEdit );
-		}.bind( this ) );
+		this.vendorEdit = $( '<input type="text" style="display: none;" />' ).blur( bind( function( row ) {
+			saveEdit( row.vendorText, row.vendorEdit, row.title.text(), 'vendor' );
+			closeEdit( row.vendorText, row.vendorEdit );
+		}, this ) );
 		this.vendor.dblclick( bind( openEdit, this.vendor, this.vendorText, this.vendorEdit ) );
 		this.vendor.append( this.vendorText ).append( this.vendorEdit );
 
 		// date cell
 		this.dateText = $( '<span />' ).text( data.date );
 		this.date = $( '<td class="date" />' );
-		this.dateEdit = $( '<input type="text" style="display: none;" />' ).blur( function() {
-			if( /^\d\d\d\d\/\d\d\/\d\d$/.test( this.dateEdit.val() ) ) {
-				saveEdit( this.dateText, this.dateEdit, this.title.text(), 'date' );
+		this.dateEdit = $( '<input type="text" style="display: none;" />' ).blur( bind( function( row ) {
+			if( /^\d\d\d\d\/\d\d\/\d\d$/.test( row.dateEdit.val() ) ) {
+				saveEdit( row.dateText, row.dateEdit, row.title.text(), 'date' );
 			}
-			closeEdit( this.dateText, this.dateEdit );
-		}.bind( this ) );
+			closeEdit( row.dateText, row.dateEdit );
+		}, this ) );
 		this.date.dblclick( bind( openEdit, this.date, this.dateText, this.dateEdit ) );
 		this.date.append( this.dateText ).append( this.dateEdit );
 
