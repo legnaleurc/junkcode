@@ -40,16 +40,21 @@ $( function() {
 	};
 
 	Table.prototype.remove = function( index ) {
-		var itemTitle = this.items[index].getTitle();
+		var taken = this.take( index );
+		var title_ = taken.getTitle();
+		taken.getElement().remove();
+
+		if( !isWritable ) {
+			return this;
+		}
 		jQuery.post( 'delete.cgi', {
-			title: itemTitle
+			title: title_
 		}, function( data, textStatus ) {
-			if( textStatus == 'success' ) {
-				this.items.splice( index, 1 )[0].getElement().remove();
-			} else {
+			if( textStatus != 'success' ) {
 				cerr( data );
 			}
-		}.bind( this ), 'json' );
+		}, 'json' );
+		return this;
 	};
 
 	Table.prototype.at = function( index ) {
