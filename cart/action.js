@@ -27,6 +27,8 @@ $( function() {
 		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
 	}
 
+	var isWritable = true;
+
 	function Table( selector ) {
 		this.items = [];
 		this.view = $( selector ).empty();
@@ -208,8 +210,7 @@ $( function() {
 		return this.dateText.text();
 	};
 
-	var todoList = new Table( '#phase-0 .cart' );
-	var doneList = new Table( '#phase-1 .cart' );
+	var carts = [ new Table( '#phase-0 .cart' ), new Table( '#phase-1 .cart' ), new Table( '#phase-2 .cart' ), new Table( '#phase-3 .cart' ) ];
 
 	// initialize table
 	jQuery.getJSON( 'load.cgi', function( data, textStatus ) {
@@ -219,16 +220,12 @@ $( function() {
 		}
 		$( data ).each( function( index, row ) {
 			var tmp = new Row( row );
-			if( row.done == 0 ) {
-				todoList.append( tmp );
-			} else {
-				doneList.append( tmp );
-			}
+			carts[row.done].append( tmp );
 		} );
 	} );
 
 	$( '#button-delete' ).click( function( ev ) {
-		jQuery.each( [ todoList, doneList ], function( index, list ) {
+		jQuery.each( carts, function( index, list ) {
 			for( var i = list.size() - 1; i >= 0; --i ) {
 				if( list.at( i ).isChecked() ) {
 					list.remove( i );
@@ -238,35 +235,53 @@ $( function() {
 	} );
 
 	function setItemPhase( phase ) {
-		var fromList = isDone ? todoList : doneList;
-		var toList = isDone ? doneList : todoList;
-		var done_ = isDone ? 1 : 0;
+		var movingItem = [];
+		for( var i = 0; i < carts.length; ++i ) {
+			if( i == phase ) {
+				continue;
+			}
+			// this loop will remove items from array
+			for( var j = carts[i].size() - 1; j >= 0; --j ) {
+				if( !carts[i].at( j ).isChecked() ) {
+					continue;
+				}
+				movingItem.push( carts[i].take( j ).setChecked( false ) );
+			}
+		}
+		for( i = 0; i < movingItem.length; ++i ) {
+			var result = carts[phase].find( movingItem[i] );
+			carts[phase].insert( result.index, movingItem[i] );
 
-		for( var i = 0; i < fromList.size(); ++i ) {
-			if( !fromList.at( i ).isChecked() ) {
+			// do query
+			if( !isWritable ) {
 				continue;
 			}
 			jQuery.post( 'save.cgi', {
-				title: fromList.at( i ).getTitle(),
-				done: done_
-			}, bind( function( index, data, textStatus ) {
+				title: movingItem[i].getTitle(),
+				done: phase
+			}, function( data, textStatus ) {
 				if( textStatus != 'success' ) {
 					cerr( data );
 					return;
 				}
-				var result = toList.find( fromList.at( index ) );
-				var removed = fromList.take( index ).setChecked( false );
-				toList.insert( result.index, removed );
-			}, i ), 'json' );
+			}, 'json' );
 		}
 	}
 
-	$( '#button-to-phase-0' ).click( function( ev ) {
-		setItemPhase( false );
+	$( '#button-to-phase-0' ).click( function() {
+		setItemPhase( 0 );
 	} );
 
-	$( '#button-to-phase-1' ).click( function( ev ) {
-		setItemPhase( true );
+	$( '#button-to-phase-1' ).click( function() {
+		setItemPhase( 1 );
+	} );
+
+	$( '#button-to-phase-2' ).click( function() {
+		setItemPhase( 2 );
+	} );
+
+	$( '#button-to-phase-3' ).click( function() {
+		setItemPhase( 3 );
 	} );
 
 	$( '#submit' ).click( function() {
