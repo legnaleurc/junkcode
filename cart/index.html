@@ -14,11 +14,16 @@
 		<div id="page-head">
 			<form id="stdin">
 				<div>
-					Title:<input type="text" id="title" name="title" />
-					URI:<input type="text" id="uri" name="uri" />
-					Date:<input type="text" id="date" name="date" />
-					<input type="hidden" id="vendor" name="vendor" value="" />
-					<input type="hidden" id="phase" name="phase" value="0" />
+					<label for="title">Title</label><input type="text" id="title" name="title" />
+					<label for="vendor">Vendor</label><input type="text" id="vendor" name="vendor" />
+					<label for="uri">URI</label><input type="text" id="uri" name="uri" />
+					<label for="date">Date</label><input type="text" id="date" name="date" />
+					<select id="phase" name="phase">
+						<option value="0">Todo</option>
+						<option value="1">Get</option>
+						<option value="2">Opened</option>
+						<option value="3">Finished</option>
+					</select>
 					<input type="hidden" id="volume" name="volume" value="-1" />
 					<input type="reset" />
 					<input type="submit" />
