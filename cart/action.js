@@ -214,7 +214,7 @@ $( function() {
 		}
 		$( data ).each( function( index, row ) {
 			var tmp = new Row( row );
-			carts[row.done].append( tmp );
+			carts[row.phase].append( tmp );
 		} );
 	} );
 
@@ -252,7 +252,7 @@ $( function() {
 			}
 			jQuery.post( 'save.cgi', {
 				title: movingItem[i].getTitle(),
-				done: phase
+				phase: phase
 			}, function( data, textStatus ) {
 				if( textStatus != 'success' ) {
 					cerr( data );
@@ -278,38 +278,41 @@ $( function() {
 		setItemPhase( 3 );
 	} );
 
-	$( '#submit' ).click( function() {
+	$( '#stdin' ).submit( function() {
 		var args = {
 			title: $( '#title' ).val(),
 			uri: $( '#uri' ).val(),
 			date: $( '#date' ).val(),
-			done: 0,
-			vendor: '',
-			volume: -1
+			phase: parseInt( $( '#phase' ).val(), 10 ),
+			vendor: $( '#vendor' ).val(),
+			volume: parseInt( $( '#volume' ).val(), 10 )
 		};
 		if( args.title == '' || args.uri == '' ) {
 			cerr( 'No empty field(s)' );
-			return;
+			return false;
 		}
 		if( !/^\d\d\d\d\/\d\d\/\d\d$/.test( args.date ) ) {
 			cerr( 'Wrong date: ' + args.date );
-			return;
+			return false;
 		}
+
+		var row = new Row( args );
+		var result = carts[args.phase].find( row );
+		if( result.found ) {
+			var taken = carts[args.phase].take( result.index );
+			taken.getElement().remove();
+		}
+		carts[args.phase].insert( result.index, row );
+
 		jQuery.post( 'save.cgi', args, function( data, textStatus ) {
 			if( textStatus != 'success' ) {
 				cerr( data );
 				return;
 			}
-			var row = new Row( args );
-			var result = todoList.find( row );
-			if( result.found ) {
-				var taken = todoList.take( result.index );
-				taken.getElement().remove();
-			}
-			todoList.insert( result.index, row );
 			// clear input fields
 			$( '#stdin input[type=text]' ).val( '' );
 		}, 'json' );
+		return false;
 	} );
 
 	$( '#stdin input[type=text]' ).focus( function() {

@@ -17,11 +17,11 @@ if 'title' not in args or len( args['title'] ) == 0:
 	print json.dumps( '`title` is empty' )
 	sys.exit( 0 )
 
-c.execute( 'SELECT `title` FROM %s WHERE `title`=:title' % cart.table, args )
+c.execute( 'SELECT `title` FROM {0} WHERE `title`=:title'.format( cart.table ), args )
 
 result = c.fetchone()
 if result is not None:
-	c.execute( 'DELETE FROM %s WHERE `title`=:title' % cart.table, args )
+	c.execute( 'DELETE FROM {0} WHERE `title`=:title'.format( cart.table ), args )
 
 link.commit()
 c.close()

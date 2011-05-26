@@ -12,13 +12,16 @@
 	</head>
 	<body>
 		<div id="page-head">
-			<div id="stdin">
+			<form id="stdin">
 				<div>
-					Title:<input type="text" id="title" />
-					URI:<input type="text" id="uri" />
-					Date:<input type="text" id="date" />
+					Title:<input type="text" id="title" name="title" />
+					URI:<input type="text" id="uri" name="uri" />
+					Date:<input type="text" id="date" name="date" />
+					<input type="hidden" id="vendor" name="vendor" value="" />
+					<input type="hidden" id="phase" name="phase" value="0" />
+					<input type="hidden" id="volume" name="volume" value="-1" />
 					<input type="reset" />
-					<input type="submit" id="submit" />
+					<input type="submit" />
 				</div>
 				<div>
 					<button id="button-to-phase-0">Todo</button>
@@ -27,7 +30,7 @@
 					<button id="button-to-phase-3">Finished</button>
 					<button id="button-delete">Delete</button>
 				</div>
-			</div>
+			</form>
 			<div id="stderr">
 			</div>
 		</div>
