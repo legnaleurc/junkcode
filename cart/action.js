@@ -154,6 +154,7 @@ $( function() {
 		this.vendorText = $( '<span />' ).text( this.vendor );
 		this.vendorEdit = $( '<input type="text" style="display: none;" />' ).blur( bind( function( row ) {
 			saveEdit( row.vendorText, row.vendorEdit, row.title, 'vendor' );
+			row.vendor = row.vendorText.text();
 			closeEdit( row.vendorText, row.vendorEdit );
 		}, this ) );
 		this.vendorCell.dblclick( bind( openEdit, this.vendorCell, this.vendorText, this.vendorEdit ) );
@@ -165,6 +166,7 @@ $( function() {
 		this.dateEdit = $( '<input type="text" style="display: none;" />' ).blur( bind( function( row ) {
 			if( /^\d\d\d\d\/\d\d\/\d\d$/.test( row.dateEdit.val() ) ) {
 				saveEdit( row.dateText, row.dateEdit, row.title, 'date' );
+				row.date = row.dateText.text();
 			}
 			closeEdit( row.dateText, row.dateEdit );
 		}, this ) );
@@ -199,16 +201,35 @@ $( function() {
 		this.element.remove();
 
 		if( !isWritable ) {
-			return this;
+			return;
 		}
-		jQuery.post( 'delete.cgi', {
+		return jQuery.post( 'delete.cgi', {
 			title: this.title
 		}, function( data, textStatus ) {
 			if( textStatus != 'success' ) {
 				cerr( data );
 			}
 		}, 'json' );
-	}
+	};
+
+	Row.prototype.save = function() {
+		if( !isWritable ) {
+			return;
+		}
+		return jQuery.post( 'save.cgi', {
+			title: this.title,
+			vendor: this.vendor,
+			date: this.date,
+			uri: this.uri,
+			phase: this.phase,
+			volume: this.volume
+		}, function( data, textStatus ) {
+			if( textStatus != 'success' ) {
+				cerr( data );
+				return;
+			}
+		}, 'json' );
+	};
 
 	var carts = [ new Table( '#phase-0 .cart' ), new Table( '#phase-1 .cart' ), new Table( '#phase-2 .cart' ), new Table( '#phase-3 .cart' ) ];
 
@@ -253,18 +274,7 @@ $( function() {
 			carts[phase].insert( result.index, movingItem[i] );
 
 			// do query
-			if( !isWritable ) {
-				continue;
-			}
-			jQuery.post( 'save.cgi', {
-				title: movingItem[i].getTitle(),
-				phase: phase
-			}, function( data, textStatus ) {
-				if( textStatus != 'success' ) {
-					cerr( data );
-					return;
-				}
-			}, 'json' );
+			movingItem[i].save();
 		}
 	}
 
@@ -284,7 +294,9 @@ $( function() {
 		setItemPhase( 3 );
 	} );
 
-	$( '#stdin' ).submit( function() {
+	$( '#stdin' ).submit( function( event ) {
+		event.preventDefault();
+
 		var args = {
 			title: $( '#title' ).val(),
 			uri: $( '#uri' ).val(),
@@ -309,15 +321,10 @@ $( function() {
 		}
 		carts[args.phase].insert( result.index, row );
 
-		jQuery.post( 'save.cgi', args, function( data, textStatus ) {
-			if( textStatus != 'success' ) {
-				cerr( data );
-				return;
-			}
+		row.save().success( function() {
 			// clear input fields
 			$( '#stdin input[type=text]' ).val( '' );
-		}, 'json' );
-		return false;
+		} );
 	} );
 
 	$( '#stdin input[type=text]' ).focus( function() {
