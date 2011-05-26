@@ -21,23 +21,12 @@ $( function() {
 	Table.prototype.append = function( row ) {
 		this.items.push( row );
 		this.view.append( row.getElement() );
+		return this;
 	};
 
 	Table.prototype.remove = function( index ) {
 		var taken = this.take( index );
-		var title_ = taken.getTitle();
-		taken.getElement().remove();
-
-		if( !isWritable ) {
-			return this;
-		}
-		jQuery.post( 'delete.cgi', {
-			title: title_
-		}, function( data, textStatus ) {
-			if( textStatus != 'success' ) {
-				cerr( data );
-			}
-		}, 'json' );
+		taken.remove();
 		return this;
 	};
 
@@ -203,6 +192,21 @@ $( function() {
 	Row.prototype.getDate = function() {
 		return this.dateText.text();
 	};
+
+	Row.prototype.remove = function() {
+		this.element.remove();
+
+		if( !isWritable ) {
+			return this;
+		}
+		jQuery.post( 'delete.cgi', {
+			title: this.title.text()
+		}, function( data, textStatus ) {
+			if( textStatus != 'success' ) {
+				cerr( data );
+			}
+		}, 'json' );
+	}
 
 	var carts = [ new Table( '#phase-0 .cart' ), new Table( '#phase-1 .cart' ), new Table( '#phase-2 .cart' ), new Table( '#phase-3 .cart' ) ];
 
