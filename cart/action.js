@@ -24,12 +24,6 @@ $( function() {
 		return this;
 	};
 
-	Table.prototype.remove = function( index ) {
-		var taken = this.take( index );
-		taken.remove();
-		return this;
-	};
-
 	Table.prototype.at = function( index ) {
 		return this.items[index];
 	};
@@ -226,7 +220,7 @@ $( function() {
 		jQuery.each( carts, function( index, list ) {
 			for( var i = list.size() - 1; i >= 0; --i ) {
 				if( list.at( i ).isChecked() ) {
-					list.remove( i );
+					list.take( i ).remove();
 				}
 			}
 		} );
@@ -303,8 +297,7 @@ $( function() {
 		var row = new Row( args );
 		var result = carts[args.phase].find( row );
 		if( result.found ) {
-			var taken = carts[args.phase].take( result.index );
-			taken.getElement().remove();
+			carts[args.phase].take( result.index ).remove();
 		}
 		carts[args.phase].insert( result.index, row );
 
