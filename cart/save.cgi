@@ -14,8 +14,11 @@ args = {}
 for key in form.keys():
 	if key in [ 'phase', 'volume' ]:
 		args[key] = int( form.getfirst( key ) )
-	else:
+	elif key in [ 'title', 'vendor', 'uri', 'date' ]:
 		args[key] = unicode( form.getfirst( key ), 'utf-8' )
+	else:
+		# ignore invalid fields
+		pass
 
 if 'title' not in args or len( args['title'] ) == 0:
 	print json.dumps( '`title` is empty' )

@@ -10,10 +10,8 @@ link.row_factory = sqlite3.Row
 c = link.cursor()
 
 form = cgi.FieldStorage()
-args = {}
-for key in form.keys():
-	args[key] = unicode( form.getfirst( key ), 'utf-8' )
-if 'title' not in args or len( args['title'] ) == 0:
+args = { 'title': form.getfirst( 'title' ) }
+if args['title'] is None:
 	print json.dumps( '`title` is empty' )
 	sys.exit( 0 )
 
