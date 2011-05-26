@@ -8,7 +8,7 @@ $( function() {
 	}
 
 	function cerr( msg ) {
-		$( '#stderr' ).show().text( msg ).fadeOut( 5 );
+		$( '#stderr' ).show().text( msg ).fadeOut( 5000 );
 	}
 
 	var isWritable = true;
@@ -125,6 +125,14 @@ $( function() {
 			} );
 		}
 
+		// data
+		this.title = data.title;
+		this.vendor = data.vendor;
+		this.date = data.date;
+		this.uri = data.uri;
+		this.phase = data.phase;
+		this.volume = data.volume;
+
 		// container element
 		this.element = $( '<tr />' );
 
@@ -134,36 +142,36 @@ $( function() {
 		this.selector.append( this.checkbox );
 
 		// title cell
-		this.title = $( '<td class="title"></td>' );
+		this.titleCell = $( '<td class="title"></td>' );
 		this.link = $( '<a rel="external" />' ).click( function( event ) {
 			event.preventDefault();
 			window.open( $( this ).attr( 'href' ), '_blank' );
-		} ).attr( 'href', data.uri ).text( data.title );
-		this.title.append( this.link );
+		} ).attr( 'href', this.uri ).text( this.title );
+		this.titleCell.append( this.link );
 
 		// vendor cell
-		this.vendor = $( '<td class="vendor" />' );
-		this.vendorText = $( '<span />' ).text( data.vendor );
+		this.vendorCell = $( '<td class="vendor" />' );
+		this.vendorText = $( '<span />' ).text( this.vendor );
 		this.vendorEdit = $( '<input type="text" style="display: none;" />' ).blur( bind( function( row ) {
-			saveEdit( row.vendorText, row.vendorEdit, row.title.text(), 'vendor' );
+			saveEdit( row.vendorText, row.vendorEdit, row.title, 'vendor' );
 			closeEdit( row.vendorText, row.vendorEdit );
 		}, this ) );
-		this.vendor.dblclick( bind( openEdit, this.vendor, this.vendorText, this.vendorEdit ) );
-		this.vendor.append( this.vendorText ).append( this.vendorEdit );
+		this.vendorCell.dblclick( bind( openEdit, this.vendorCell, this.vendorText, this.vendorEdit ) );
+		this.vendorCell.append( this.vendorText ).append( this.vendorEdit );
 
 		// date cell
-		this.dateText = $( '<span />' ).text( data.date );
-		this.date = $( '<td class="date" />' );
+		this.dateCell = $( '<td class="date" />' );
+		this.dateText = $( '<span />' ).text( this.date );
 		this.dateEdit = $( '<input type="text" style="display: none;" />' ).blur( bind( function( row ) {
 			if( /^\d\d\d\d\/\d\d\/\d\d$/.test( row.dateEdit.val() ) ) {
-				saveEdit( row.dateText, row.dateEdit, row.title.text(), 'date' );
+				saveEdit( row.dateText, row.dateEdit, row.title, 'date' );
 			}
 			closeEdit( row.dateText, row.dateEdit );
 		}, this ) );
-		this.date.dblclick( bind( openEdit, this.date, this.dateText, this.dateEdit ) );
-		this.date.append( this.dateText ).append( this.dateEdit );
+		this.dateCell.dblclick( bind( openEdit, this.dateCell, this.dateText, this.dateEdit ) );
+		this.dateCell.append( this.dateText ).append( this.dateEdit );
 
-		this.element.append( this.selector ).append( this.title ).append( this.vendor ).append( this.date );
+		this.element.append( this.selector ).append( this.titleCell ).append( this.vendorCell ).append( this.dateCell );
 	}
 
 	Row.prototype.getElement = function() {
@@ -180,11 +188,11 @@ $( function() {
 	};
 
 	Row.prototype.getTitle = function() {
-		return this.title.text();
+		return this.title;
 	};
 
 	Row.prototype.getDate = function() {
-		return this.dateText.text();
+		return this.date;
 	};
 
 	Row.prototype.remove = function() {
@@ -194,7 +202,7 @@ $( function() {
 			return this;
 		}
 		jQuery.post( 'delete.cgi', {
-			title: this.title.text()
+			title: this.title
 		}, function( data, textStatus ) {
 			if( textStatus != 'success' ) {
 				cerr( data );
