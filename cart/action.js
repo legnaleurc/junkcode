@@ -166,7 +166,11 @@ $( function() {
 		this.dateEdit = $( '<input type="text" style="display: none;" />' ).blur( bind( function( row ) {
 			if( /^\d\d\d\d\/\d\d\/\d\d$/.test( row.dateEdit.val() ) ) {
 				saveEdit( row.dateText, row.dateEdit, row.title, 'date' );
+				var result = carts[row.phase].find( row );
+				carts[row.phase].take( result.index );
 				row.date = row.dateText.text();
+				result = carts[row.phase].find( row );
+				carts[row.phase].insert( result.index, row );
 			}
 			closeEdit( row.dateText, row.dateEdit );
 		}, this ) );
