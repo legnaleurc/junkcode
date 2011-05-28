@@ -201,6 +201,11 @@ $( function() {
 		return this.date;
 	};
 
+	Row.prototype.setPhase = function( phase ) {
+		this.phase = phase;
+		return this;
+	};
+
 	Row.prototype.remove = function() {
 		this.element.remove();
 
@@ -270,7 +275,7 @@ $( function() {
 				if( !carts[i].at( j ).isChecked() ) {
 					continue;
 				}
-				movingItem.push( carts[i].take( j ).setChecked( false ) );
+				movingItem.push( carts[i].take( j ).setPhase( phase ).setChecked( false ) );
 			}
 		}
 		for( i = 0; i < movingItem.length; ++i ) {
