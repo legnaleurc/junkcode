@@ -287,6 +287,28 @@ $( function() {
 		}
 	}
 
+	$( '#fetch' ).click( function() {
+		var uri = $( '#uri' ).val();
+		if( uri == '' ) {
+			return;
+		}
+		jQuery.post( 'fetch.cgi', {
+			uri: uri
+		}, function( data, textStatus, message ) {
+			if( textStatus != 'success' ) {
+				cerr( message );
+				return;
+			}
+			if( data == null ) {
+				cerr( 'Fetched nothing.' );
+				return;
+			}
+			$( '#title' ).val( data.title );
+			$( '#vendor' ).val( data.vendor );
+			$( '#date' ).val( data.date );
+		}, 'json' );
+	} );
+
 	$( '#button-to-phase-0' ).click( function() {
 		setItemPhase( 0 );
 	} );
