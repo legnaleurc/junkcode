@@ -18,6 +18,9 @@ class Parser( HTMLParser.HTMLParser ):
 				return
 		self.currentID = None
 
+	def handle_endtag( self, tag ):
+		self.currentID = None
+
 	def handle_data( self, data ):
 		if self.currentID is not None:
 			self.data[self.currentID] = data.strip()
