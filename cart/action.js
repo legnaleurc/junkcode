@@ -309,6 +309,10 @@ $( function() {
 		}, 'json' );
 	} );
 
+	$( '#button-dump' ).click( function() {
+		window.location.href = 'dump.cgi';
+	} );
+
 	$( '#button-to-phase-0' ).click( function() {
 		setItemPhase( 0 );
 	} );
