@@ -38,5 +38,6 @@ else:
 			tmp.append( '{0}=:{0}'.format( key ) )
 	c.execute( 'UPDATE %s SET %s WHERE title=:title' % ( cart.table, ','.join( tmp ) ), args )
 
-link.commit()
 c.close()
+link.commit()
+link.close()

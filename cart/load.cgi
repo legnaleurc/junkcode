@@ -16,8 +16,8 @@ for row in c:
 		tmp[key] = row[key]
 	result.append( tmp )
 
-link.commit()
 c.close()
+link.close()
 
 print 'Content-Type: text/plain; charset="utf-8"'
 print
