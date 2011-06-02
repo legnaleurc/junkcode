@@ -10,7 +10,7 @@ link.row_factory = sqlite3.Row
 c = link.cursor()
 
 form = cgi.FieldStorage()
-args = { 'title': form.getfirst( 'title' ) }
+args = { 'title': form.getfirst( 'title' ).decode( 'UTF-8' ) }
 if args['title'] is None:
 	print json.dumps( '`title` is empty' )
 	sys.exit( 0 )
@@ -20,6 +20,8 @@ c.execute( 'SELECT `title` FROM {0} WHERE `title`=:title'.format( cart.table ), 
 result = c.fetchone()
 if result is not None:
 	c.execute( 'DELETE FROM {0} WHERE `title`=:title'.format( cart.table ), args )
+else:
+	print json.dumps( '{0} is not found'.format( args['title'] ) )
 
 link.commit()
 c.close()
