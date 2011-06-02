@@ -19,6 +19,6 @@ for row in c:
 link.commit()
 c.close()
 
-print 'Content-Type: text/plain'
+print 'Content-Type: text/plain; charset="utf-8"'
 print
 print json.dumps( result )

@@ -6,7 +6,7 @@ import cart, sqlite3
 link = sqlite3.connect( cart.database )
 
 print 'Content-Disposition: attachment; filename="cart.sql"'
-print 'Content-Type: text/plain'
+print 'Content-Type: text/plain; charset="utf-8"'
 print 'Cache-Control: private, no-cache'
 print
 

@@ -3,7 +3,7 @@
 
 import sqlite3, sys, json, cgi, cart
 
-print 'Content-Type: text/plain\n'
+print 'Content-Type: text/plain; charset="utf-8"\n'
 
 link = sqlite3.connect( cart.database )
 link.row_factory = sqlite3.Row

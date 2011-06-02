@@ -7,6 +7,6 @@ form = cgi.FieldStorage()
 uri = form.getfirst( 'uri' )
 data = sites.fetch( uri )
 
-print 'Content-Type: text/plain\n'
+print 'Content-Type: text/plain; charset="utf-8"\n'
 
 print json.dumps( data )
