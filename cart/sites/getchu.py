@@ -9,7 +9,7 @@ class Parser( HTMLParser.HTMLParser ):
 	def __init__( self ):
 		HTMLParser.HTMLParser.__init__( self )
 		self.currentID = None
-		self.data = {}
+		self.data = { 'error': [], 'log': [] }
 
 	def handle_starttag( self, tag, attrs ):
 		for key, value in attrs:
@@ -22,8 +22,9 @@ class Parser( HTMLParser.HTMLParser ):
 		self.currentID = None
 
 	def handle_data( self, data ):
-		if self.currentID is not None:
-			self.data[self.currentID] = data.strip()
+		text = data.strip()
+		if self.currentID is not None and len( text ) != 0:
+			self.data[self.currentID] = text
 
 def verify( uri ):
 	if uri.netloc == 'www.getchu.com':
@@ -40,14 +41,19 @@ def create( uri ):
 	uri_ = urlparse.urlunsplit( ( uri.scheme, uri.netloc, uri.path, urllib.urlencode( query ), '' ) )
 
 	link = urllib2.urlopen( uri_ )
-	content = link.read().decode( 'EUC-JP' )
-	link.close()
-
 	parser = Parser()
+	for line in link:
+		try:
+			line = line.decode( 'EUC-JP' )
+			parser.feed( line )
+		except UnicodeError as e:
+			parser.data['error'].append( [ unicode( e ), line.decode( 'EUC-JP', 'replace' ) ] )
+		except HTMLParser.HTMLParseError as e:
+			parser.data['error'].append( [ unicode( e ), line ] )
 	try:
-		parser.feed( content )
 		parser.close()
-	except HTMLParser.HTMLParseError as e:
-		parser.data['error'] = str( e )
+	except Exception as e:
+		parser.data['error'].append( unicode( e ) )
+	link.close()
 
 	return parser.data
