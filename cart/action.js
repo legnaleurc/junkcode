@@ -385,5 +385,6 @@ $( function() {
 		$( '.phases' ).hide();
 		$( '#phase-' + v ).show();
 	} );
+	$( '#phase-filter-0' ).click();
 
 } );
