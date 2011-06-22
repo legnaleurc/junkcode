@@ -4,10 +4,10 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<title>Cart</title>
-		<link rel="stylesheet" type="text/css" href="../lib/jquery/ui/css/ui-darkness/jquery-ui-1.8.13.custom.css" />
+		<link rel="stylesheet" type="text/css" href="/javascript/jquery-ui/css/smoothness/jquery-ui.css" />
 		<link rel="stylesheet" href="style.css" type="text/css" />
-		<script type="text/javascript" src="../lib/jquery/jquery.js"></script>
-		<script type="text/javascript" src="../lib/jquery/ui/js/jquery-ui-1.8.13.custom.min.js"></script>
+		<script type="text/javascript" src="/javascript/jquery/jquery.min.js"></script>
+		<script type="text/javascript" src="/javascript/jquery-ui/jquery-ui.js"></script>
 		<script type="text/javascript" src="action.js"></script>
 	</head>
 	<body>
@@ -38,17 +38,17 @@
 				<button id="button-delete">Delete</button>
 				<button id="button-dump">Dump</button>
 			</div>
+			<div id="phase-filter">
+				<input type="radio" value="0" id="phase-filter-0" name="phase-filter" checked="checked" /><label for="phase-filter-0">TODO</label>
+				<input type="radio" value="1" id="phase-filter-1" name="phase-filter" /><label for="phase-filter-1">GET</label>
+				<input type="radio" value="2" id="phase-filter-2" name="phase-filter" /><label for="phase-filter-2">OPENED</label>
+				<input type="radio" value="3" id="phase-filter-3" name="phase-filter" /><label for="phase-filter-3">FINISHED</label>
+			</div>
 			<div id="stderr">
 			</div>
 		</div>
 		<div id="page-body">
-			<ul>
-				<li><a href="#phase-0">TODO</a></li>
-				<li><a href="#phase-1">GET</a></li>
-				<li><a href="#phase-2">OPENED</a></li>
-				<li><a href="#phase-3">FINISHED</a></li>
-			</ul>
-			<table id="phase-0">
+			<table id="phase-0" class="phases">
 				<thead>
 					<tr>
 						<td><input type="checkbox" class="select-all" value="noa" /></td>
@@ -59,7 +59,7 @@
 				</thead>
 				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
 			</table>
-			<table id="phase-1">
+			<table id="phase-1" class="phases">
 				<thead>
 					<tr>
 						<td><input type="checkbox" class="select-all" value="noa" /></td>
@@ -70,7 +70,7 @@
 				</thead>
 				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
 			</table>
-			<table id="phase-2">
+			<table id="phase-2" class="phases">
 				<thead>
 					<tr>
 						<td><input type="checkbox" class="select-all" value="noa" /></td>
@@ -81,7 +81,7 @@
 				</thead>
 				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
 			</table>
-			<table id="phase-3">
+			<table id="phase-3" class="phases">
 				<thead>
 					<tr>
 						<td><input type="checkbox" class="select-all" value="noa" /></td>

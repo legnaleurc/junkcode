@@ -378,6 +378,12 @@ $( function() {
 		window.open( $( this ).attr( 'href' ), '_blank' );
 	} );
 
-	$( '#page-body' ).tabs();
+	// apply filter buttons
+	$( '#phase-filter' ).buttonset();
+	$( 'input[name=phase-filter]' ).change( function( event ) {
+		var v = $( 'input[name=phase-filter]:checked' ).val();
+		$( '.phases' ).hide();
+		$( '#phase-' + v ).show();
+	} );
 
 } );
