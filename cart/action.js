@@ -240,7 +240,7 @@ $( function() {
 		}, 'json' );
 	};
 
-	var carts = [ new Table( '#phase-0 .cart' ), new Table( '#phase-1 .cart' ), new Table( '#phase-2 .cart' ), new Table( '#phase-3 .cart' ) ];
+	var carts = [ new Table( '#phase-0 .cart' ), new Table( '#phase-1 .cart' ), new Table( '#phase-2 .cart' ), new Table( '#phase-3 .cart' ), new Table( '#phase-4 .cart' ) ];
 
 	// initialize table
 	jQuery.getJSON( 'load.cgi', function( data, textStatus ) {
@@ -313,21 +313,13 @@ $( function() {
 		window.location.href = 'dump.cgi';
 	} );
 
-	$( '#button-to-phase-0' ).click( function() {
-		setItemPhase( 0 );
-	} );
-
-	$( '#button-to-phase-1' ).click( function() {
-		setItemPhase( 1 );
-	} );
-
-	$( '#button-to-phase-2' ).click( function() {
-		setItemPhase( 2 );
-	} );
-
-	$( '#button-to-phase-3' ).click( function() {
-		setItemPhase( 3 );
-	} );
+	( function() {
+		for( var i = 0; i < 5; ++i ) {
+			$( '#button-to-phase-' + i ).click( bind( function( index, event ) {
+				setItemPhase( index );
+			}, i ) );
+		}
+	} )();
 
 	$( '#stdin' ).submit( function( event ) {
 		event.preventDefault();
@@ -367,11 +359,13 @@ $( function() {
 	} );
 
 	// select all setting
-	for( var i = 0; i < 4; ++i ) {
-		$( '#phase-' + i + ' .select-all' ).change( bind( function( index, event ) {
-			$( '#phase-' + index + ' .check' ).attr( 'checked', $( this ).is( ':checked' ) );
-		}, i ) );
-	}
+	( function() {
+		for( var i = 0; i < 5; ++i ) {
+			$( '#phase-' + i + ' .select-all' ).change( bind( function( index, event ) {
+				$( '#phase-' + index + ' .check' ).attr( 'checked', $( this ).is( ':checked' ) );
+			}, i ) );
+		}
+	} )();
 
 	$( 'a[rel=external]' ).click( function( event ) {
 		event.preventDefault();

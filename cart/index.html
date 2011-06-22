@@ -22,7 +22,8 @@
 						<option value="0">Todo</option>
 						<option value="1">Get</option>
 						<option value="2">Opened</option>
-						<option value="3">Finished</option>
+						<option value="3">Half</option>
+						<option value="4">Finished</option>
 					</select>
 					<input type="hidden" id="volume" name="volume" value="-1" />
 					<input type="reset" />
@@ -34,7 +35,8 @@
 				<button id="button-to-phase-0">Todo</button>
 				<button id="button-to-phase-1">Get</button>
 				<button id="button-to-phase-2">Opened</button>
-				<button id="button-to-phase-3">Finished</button>
+				<button id="button-to-phase-3">Half</button>
+				<button id="button-to-phase-4">Finished</button>
 				<button id="button-delete">Delete</button>
 				<button id="button-dump">Dump</button>
 			</div>
@@ -42,7 +44,8 @@
 				<input type="radio" value="0" id="phase-filter-0" name="phase-filter" /><label for="phase-filter-0">TODO</label>
 				<input type="radio" value="1" id="phase-filter-1" name="phase-filter" /><label for="phase-filter-1">GET</label>
 				<input type="radio" value="2" id="phase-filter-2" name="phase-filter" /><label for="phase-filter-2">OPENED</label>
-				<input type="radio" value="3" id="phase-filter-3" name="phase-filter" /><label for="phase-filter-3">FINISHED</label>
+				<input type="radio" value="3" id="phase-filter-3" name="phase-filter" /><label for="phase-filter-3">HALF</label>
+				<input type="radio" value="4" id="phase-filter-4" name="phase-filter" /><label for="phase-filter-4">FINISHED</label>
 			</div>
 			<div id="stderr">
 			</div>
@@ -82,6 +85,17 @@
 				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
 			</table>
 			<table id="phase-3" class="phases">
+				<thead>
+					<tr>
+						<td><input type="checkbox" class="select-all" value="noa" /></td>
+						<th>Title</th>
+						<th>Vendor</th>
+						<th>Date</th>
+					</tr>
+				</thead>
+				<tbody class="cart"><tr style="display: none;"><td></td></tr></tbody>
+			</table>
+			<table id="phase-4" class="phases">
 				<thead>
 					<tr>
 						<td><input type="checkbox" class="select-all" value="noa" /></td>
