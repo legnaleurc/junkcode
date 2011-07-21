@@ -3,8 +3,9 @@ package org.sandbox;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Arrays;
 
@@ -59,12 +60,12 @@ public class SimpleSocket {
 		this.readyRead_ = new Signal( this );
 	}
 
-	public Boolean connectToServer( SocketAddress endpoint ) {
+	public Boolean connectToServer( InetAddress addr, Integer port ) {
 		if( this.listener_.socket == null ) {
 			return false;
 		}
 		try {
-			this.listener_.socket.connect( endpoint );
+			this.listener_.socket.connect( new InetSocketAddress( addr, port ) );
 		} catch( IOException e ) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

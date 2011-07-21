@@ -1,9 +1,10 @@
 package org.sandbox;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 
 public class SimpleServer {
 
@@ -42,12 +43,12 @@ public class SimpleServer {
 		this.listener_ = new Listener();
 	}
 
-	public Boolean listen( SocketAddress endpoint ) {
+	public Boolean listen( InetAddress addr, Integer port ) {
 		if( this.listener_.server == null ) {
 			return false;
 		}
 		try {
-			this.listener_.server.bind( endpoint );
+			this.listener_.server.bind( new InetSocketAddress( addr, port ) );
 		} catch( IOException e ) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

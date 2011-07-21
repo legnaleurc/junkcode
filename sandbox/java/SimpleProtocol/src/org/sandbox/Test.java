@@ -1,11 +1,7 @@
 package org.sandbox;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -33,13 +29,13 @@ public class Test {
 	
 	public Test() {
 		SimpleServer server = new SimpleServer();
-		if( !server.listen( new InetSocketAddress( ( InetAddress )null, 6000 ) ) ) {
+		if( !server.listen( null, 6000 ) ) {
 			System.err.println( "Server Down" );
 		}
 		
 		this.socket_ = new SimpleSocket();
 		try {
-			this.socket_.connectToServer( new InetSocketAddress( InetAddress.getLocalHost(), 6000 ) );
+			this.socket_.connectToServer( InetAddress.getLocalHost(), 6000 );
 		} catch( UnknownHostException e ) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
