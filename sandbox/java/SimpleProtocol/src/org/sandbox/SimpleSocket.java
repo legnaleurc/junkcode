@@ -59,12 +59,12 @@ public class SimpleSocket {
 		this.readyRead_ = new Signal( this );
 	}
 
-	public Boolean connectToServer( SocketAddress bindpoint ) {
+	public Boolean connectToServer( SocketAddress endpoint ) {
 		if( this.listener_.socket == null ) {
 			return false;
 		}
 		try {
-			this.listener_.socket.bind( bindpoint );
+			this.listener_.socket.connect( endpoint );
 		} catch( IOException e ) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
