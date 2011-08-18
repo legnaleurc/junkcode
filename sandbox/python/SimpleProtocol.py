@@ -4,7 +4,7 @@
 from PySide import QtNetwork, QtCore
 
 class Socket( QtCore.QObject ):
-	messageReceived = QtCore.Signal( unicode, object )
+	readyRead = QtCore.Signal()
 	connected = QtCore.Signal()
 	disconnected = QtCore.Signal()
 
@@ -17,19 +17,46 @@ class Socket( QtCore.QObject ):
 			self.socket = QtNetwork.QTcpSocket( self )
 		self.socket.connected.connect( self.connected )
 		self.socket.disconnected.connect( self.disconnected )
-		self.socket.readyRead.connect( self.onReadyRead )
+		self.socket.readyRead.connect( self.__onReadyRead )
 
 		self.blockSize = 0L
 		self.buffer = QtCore.QByteArray()
 		self.din = QtCore.QDataStream( self.buffer, QtCore.QIODevice.ReadOnly )
 
+		self.queue = []
+
 	def connectToHost( self, host, port ):
 		return self.socket.connectToHost( host, port )
 
 	def disconnectFromHost( self ):
-		self.socket.disconnectFromHost();
+		self.socket.disconnectFromHost()
 
-	def sendMessage( self, command, data ):
+	def read( self ):
+		if len( self.queue ) > 0:
+			packet = self.queue[0]
+			del self.queue[0]
+			return packet
+		else:
+			return ( None, None )
+
+	def waitForConnected( self, msecs = 30000 ):
+		return self.socket.waitForConnected( msecs )
+
+	def waitForDisconnected( self, msecs = 30000 ):
+		return self.socket.waitForDisconnected( msecs )
+
+	def waitForReadyRead( self, msecs = 30000 ):
+		wait = QtCore.QEventLoop()
+		self.readyRead.connect( wait.quit )
+		if msecs > 0:
+			timer = QtCore.QTimer()
+			timer.setSingleShot( True )
+			timer.setInterval( msecs )
+			timer.timeout.connect( wait.quit )
+		wait.exec_()
+		return len( self.queue ) > 0
+
+	def write( self, command, data ):
 		block = QtCore.QByteArray()
 		dout = QtCore.QDataStream( block, QtCore.QIODevice.WriteOnly )
 		dout.writeInt64( 0L )
@@ -40,18 +67,19 @@ class Socket( QtCore.QObject ):
 
 		self.socket.write( block )
 
-	def onReadyRead( self ):
+	def __onReadyRead( self ):
 		self.buffer.append( self.socket.readAll() )
 
-		while self.readBlockSize():
+		while self.__readBlockSize():
 			command = self.din.readQString()
 			data = self.din.readQVariant()
 			self.din.device().seek( 0 )
 			self.buffer.remove( 0, self.blockSize )
 			self.blockSize = 0L
-			self.messageReceived.emit( command, data )
+			self.queue.append( ( command, data ) )
+			self.readyRead.emit()
 
-	def readBlockSize( self ):
+	def __readBlockSize( self ):
 		if self.blockSize <= 0L and self.buffer.size() >= 8:
 			self.blockSize = self.din.readInt64()
 			self.din.device().seek( 0 )
@@ -65,7 +93,7 @@ class Server( QtCore.QObject ):
 		QtCore.QObject.__init__( self, parent )
 
 		self.server = QtNetwork.QTcpServer( self )
-		self.server.newConnection.connect( self.onNewConnection )
+		self.server.newConnection.connect( self.__onNewConnection )
 
 	def close( self ):
 		self.server.close()
@@ -73,7 +101,7 @@ class Server( QtCore.QObject ):
 	def listen( self, host, port ):
 		return self.server.listen( host, port )
 
-	def onNewConnection( self ):
+	def __onNewConnection( self ):
 		while self.server.hasPendingConnections():
 			socket = Socket( socket = self.server.nextPendingConnection(), parent = self )
 			self.newConnection.emit( socket )
