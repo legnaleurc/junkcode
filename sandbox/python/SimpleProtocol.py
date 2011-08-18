@@ -12,38 +12,38 @@ class Socket( QtCore.QObject ):
 		QtCore.QObject.__init__( self, parent )
 
 		if socket is not None:
-			self.socket = socket
+			self.__socket = socket
 		else:
-			self.socket = QtNetwork.QTcpSocket( self )
-		self.socket.connected.connect( self.connected )
-		self.socket.disconnected.connect( self.disconnected )
-		self.socket.readyRead.connect( self.__onReadyRead )
+			self.__socket = QtNetwork.QTcpSocket( self )
+		self.__socket.connected.connect( self.connected )
+		self.__socket.disconnected.connect( self.disconnected )
+		self.__socket.readyRead.connect( self.__onReadyRead )
 
-		self.blockSize = 0L
-		self.buffer = QtCore.QByteArray()
-		self.din = QtCore.QDataStream( self.buffer, QtCore.QIODevice.ReadOnly )
+		self.__blockSize = 0L
+		self.__buffer = QtCore.QByteArray()
+		self.__din = QtCore.QDataStream( self.__buffer, QtCore.QIODevice.ReadOnly )
 
-		self.queue = []
+		self.__queue = []
 
 	def connectToHost( self, host, port ):
-		return self.socket.connectToHost( host, port )
+		return self.__socket.connectToHost( host, port )
 
 	def disconnectFromHost( self ):
-		self.socket.disconnectFromHost()
+		self.__socket.disconnectFromHost()
 
 	def read( self ):
-		if len( self.queue ) > 0:
-			packet = self.queue[0]
-			del self.queue[0]
+		if len( self.__queue ) > 0:
+			packet = self.__queue[0]
+			del self.__queue[0]
 			return packet
 		else:
 			return ( None, None )
 
 	def waitForConnected( self, msecs = 30000 ):
-		return self.socket.waitForConnected( msecs )
+		return self.__socket.waitForConnected( msecs )
 
 	def waitForDisconnected( self, msecs = 30000 ):
-		return self.socket.waitForDisconnected( msecs )
+		return self.__socket.waitForDisconnected( msecs )
 
 	def waitForReadyRead( self, msecs = 30000 ):
 		wait = QtCore.QEventLoop()
@@ -54,7 +54,7 @@ class Socket( QtCore.QObject ):
 			timer.setInterval( msecs )
 			timer.timeout.connect( wait.quit )
 		wait.exec_()
-		return len( self.queue ) > 0
+		return len( self.__queue ) > 0
 
 	def write( self, command, data ):
 		block = QtCore.QByteArray()
@@ -65,26 +65,26 @@ class Socket( QtCore.QObject ):
 		dout.device().seek( 0 )
 		dout.writeInt64( long( len( block ) - 8 ) )
 
-		self.socket.write( block )
+		self.__socket.write( block )
 
 	def __onReadyRead( self ):
-		self.buffer.append( self.socket.readAll() )
+		self.__buffer.append( self.__socket.readAll() )
 
 		while self.__readBlockSize():
-			command = self.din.readQString()
-			data = self.din.readQVariant()
-			self.din.device().seek( 0 )
-			self.buffer.remove( 0, self.blockSize )
-			self.blockSize = 0L
-			self.queue.append( ( command, data ) )
+			command = self.__din.readQString()
+			data = self.__din.readQVariant()
+			self.__din.device().seek( 0 )
+			self.__buffer.remove( 0, self.__blockSize )
+			self.__blockSize = 0L
+			self.__queue.append( ( command, data ) )
 			self.readyRead.emit()
 
 	def __readBlockSize( self ):
-		if self.blockSize <= 0L and self.buffer.size() >= 8:
-			self.blockSize = self.din.readInt64()
-			self.din.device().seek( 0 )
-			self.buffer.remove( 0, 8 )
-		return self.blockSize > 0L and self.buffer.size() >= self.blockSize
+		if self.__blockSize <= 0L and self.__buffer.size() >= 8:
+			self.__blockSize = self.__din.readInt64()
+			self.__din.device().seek( 0 )
+			self.__buffer.remove( 0, 8 )
+		return self.__blockSize > 0L and self.__buffer.size() >= self.__blockSize
 
 class Server( QtCore.QObject ):
 	newConnection = QtCore.Signal( Socket )
