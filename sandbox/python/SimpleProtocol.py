@@ -52,6 +52,7 @@ class Socket( QtCore.QObject ):
 			timer = QtCore.QTimer()
 			timer.setSingleShot( True )
 			timer.setInterval( msecs )
+			self.readyRead.connect( timer.stop )
 			timer.timeout.connect( wait.quit )
 		wait.exec_()
 		return len( self.__queue ) > 0
