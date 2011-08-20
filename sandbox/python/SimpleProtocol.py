@@ -88,21 +88,29 @@ class Socket( QtCore.QObject ):
 		return self.__blockSize > 0L and self.__buffer.size() >= self.__blockSize
 
 class Server( QtCore.QObject ):
-	newConnection = QtCore.Signal( Socket )
+	newConnection = QtCore.Signal()
 
 	def __init__( self, parent = None ):
 		QtCore.QObject.__init__( self, parent )
 
-		self.server = QtNetwork.QTcpServer( self )
-		self.server.newConnection.connect( self.__onNewConnection )
+		self.__server = QtNetwork.QTcpServer( self )
+		self.__server.newConnection.connect( self.__onNewConnection )
+
+		self.__queue = []
 
 	def close( self ):
-		self.server.close()
+		self.__server.close()
 
 	def listen( self, host, port ):
-		return self.server.listen( host, port )
+		return self.__server.listen( host, port )
+
+	def nextPendingConnection( self ):
+		socket = self.__queue[0]
+		del self.__queue[0]
+		return socket
 
 	def __onNewConnection( self ):
-		while self.server.hasPendingConnections():
+		while self.__server.hasPendingConnections():
 			socket = Socket( socket = self.server.nextPendingConnection(), parent = self )
-			self.newConnection.emit( socket )
+			self.__queue.append( socket )
+		self.newConnection.emit()
