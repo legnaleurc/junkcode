@@ -36,11 +36,14 @@ class Socket( QtCore.QObject ):
 
 	def read( self ):
 		if len( self.__queue ) > 0:
-			packet = self.__queue[0]
-			del self.__queue[0]
-			return packet
+			return self.__queue.pop( 0 )
 		else:
-			return ( None, None )
+			return None
+
+	def readAll( self ):
+		tmp = self.__queue
+		self.__queue = []
+		return tmp
 
 	def waitForConnected( self, msecs = 30000 ):
 		return self.__socket.waitForConnected( msecs )
@@ -104,16 +107,40 @@ class Server( QtCore.QObject ):
 	def close( self ):
 		self.__server.close()
 
+	def errorString( self ):
+		return self.__server.errorString()
+
 	def hasPendingConnections( self ):
 		return len( self.__queue ) > 0
 
+	def isListening( self ):
+		return self.__server.isListening()
+
 	def listen( self, host, port ):
 		return self.__server.listen( host, port )
+
+	def maxPendingConnections( self ):
+		return self.__server.maxPendingConnections()
 
 	def nextPendingConnection( self ):
 		socket = self.__queue[0]
 		del self.__queue[0]
 		return socket
+
+	def proxy( self ):
+		return self.__server.proxy()
+
+	def serverAddress( self ):
+		return self.__server.serverAddress()
+
+	def serverError( self ):
+		return self.__server.serverError()
+
+	def serverPort( self ):
+		return self.__server.serverPort()
+
+	def setMaxPendingConnections( self, numConnections ):
+		self.__server.setMaxPendingConnections( numConnections )
 
 	def __onNewConnection( self ):
 		while self.__server.hasPendingConnections():
