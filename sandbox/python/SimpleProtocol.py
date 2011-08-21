@@ -25,6 +25,9 @@ class Socket( QtCore.QObject ):
 
 		self.__queue = []
 
+	def atEnd( self ):
+		return len( self.__queue ) <= 0
+
 	def connectToHost( self, host, port ):
 		return self.__socket.connectToHost( host, port )
 
@@ -101,6 +104,9 @@ class Server( QtCore.QObject ):
 	def close( self ):
 		self.__server.close()
 
+	def hasPendingConnections( self ):
+		return len( self.__queue ) > 0
+
 	def listen( self, host, port ):
 		return self.__server.listen( host, port )
 
@@ -111,6 +117,7 @@ class Server( QtCore.QObject ):
 
 	def __onNewConnection( self ):
 		while self.__server.hasPendingConnections():
-			socket = Socket( socket = self.server.nextPendingConnection(), parent = self )
+			socket = Socket( socket = self.__server.nextPendingConnection(), parent = self )
+			socket.disconnected.connect( socket.deleteLater )
 			self.__queue.append( socket )
 		self.newConnection.emit()
