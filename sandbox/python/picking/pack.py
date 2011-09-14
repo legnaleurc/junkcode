@@ -39,7 +39,7 @@ class GeneticAlgorithm:
 			self.population = self.population[:len( self.table )]
 
 		survivor = self.population[0]
-		result = ( survivor.value, survivor.table.keys() )
+		result = ( survivor.value, filter( lambda k: survivor.table[k], survivor.table.iterkeys() ) )
 		return result
 
 	def canStop( self ):
