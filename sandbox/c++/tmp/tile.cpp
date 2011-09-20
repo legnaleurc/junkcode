@@ -58,17 +58,19 @@ int dag( const Vector & v ) {
 	using namespace std;
 	vector< int > lengthTo( v.size() );
 	fill( lengthTo.begin(), lengthTo.end(), 1 );
-	for( int row = 0; row < v.size() - 1; ++row ) {
-		for( int col = row + 1; col < v.size(); ++col ) {
+	for( int row = 0; row < v.size(); ++row ) {
+		for( int col = 1; col < v.size(); ++col ) {
+//	for( int row = 0; row < v.size() - 1; ++row ) {
+//		for( int col = row + 1; col < v.size(); ++col ) {
 			int m = v[row].match( v[col] );
-			if( lengthTo[col] <= lengthTo[row] + m ) {
+			if( m > 0 && lengthTo[col] < lengthTo[row] + m ) {
 				lengthTo[col] = lengthTo[row] + m;
 			}
 		}
 	}
-// 	for( int i = 0; i < lengthTo.size(); ++i ) {
-// 		cout << "> " << i << endl;
-// 	}
+ 	for( int i = 0; i < lengthTo.size(); ++i ) {
+ 		cout << "> " << i << endl;
+ 	}
 	return *max_element( lengthTo.begin(), lengthTo.end() );
 }
 
