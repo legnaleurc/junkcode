@@ -1,21 +1,27 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <memory>
+#include <set>
+#include <queue>
+#include <list>
 
 class Tile {
 public:
 	explicit Tile( std::istream & in );
-	int match( const Tile & that ) const;
+	void link( Tile & that );
+	const std::list< Tile * > & getNodes() const;
 	void debug() const;
 private:
 	std::size_t size_;
 	std::string top_;
 	std::string bottom_;
+	std::list< Tile * > nodes_;
 };
 
-typedef std::vector< Tile > Vector;
+typedef std::vector< std::shared_ptr< Tile > > Vector;
 
-Tile::Tile( std::istream & in ): size_( 0 ), top_(), bottom_() {
+Tile::Tile( std::istream & in ): size_( 0 ), top_(), bottom_(), nodes_() {
 	using namespace std;
 	size_t begin = string::npos, end = string::npos;
 
@@ -40,11 +46,17 @@ Tile::Tile( std::istream & in ): size_( 0 ), top_(), bottom_() {
 	getline( in, line );
 }
 
-int Tile::match( const Tile & that ) const {
+void Tile::link( Tile & that ) {
 	if( this->size_ >= that.size_ && this->top_ == that.bottom_ ) {
-		return 1;
+		this->nodes_.push_back( &that );
 	}
-	return 0;
+	if( that.size_ >= this->size_ && that.top_ == this->bottom_ ) {
+		that.nodes_.push_back( this );
+	}
+}
+
+const std::list< Tile * > & Tile::getNodes() const {
+	return this->nodes_;
 }
 
 void Tile::debug() const {
@@ -54,22 +66,32 @@ void Tile::debug() const {
 	cout << this->size_ << endl;
 }
 
-int dag( const Vector & v ) {
+std::size_t bfs( const Vector & v ) {
 	using namespace std;
-	vector< int > lengthTo( v.size() );
-	fill( lengthTo.begin(), lengthTo.end(), 1 );
-	for( int row = 0; row < v.size(); ++row ) {
-		for( int col = 1; col < v.size(); ++col ) {
-			if( row == col ) {
-				continue;
-			}
-			int m = v[row].match( v[col] );
-			if( lengthTo[col] < lengthTo[row] + m ) {
-				lengthTo[col] = lengthTo[row] + m;
+
+	size_t maxlen = 0;
+	queue< pair< Tile *, set< Tile * > > > q;
+	q.push( make_pair( v[0].get(), set< Tile * >() ) );
+	q.back().second.insert( v[0].get() );
+
+	while( !q.empty() ) {
+		pair< Tile *, set< Tile * > > path( q.front() );
+		q.pop();
+		Tile * node = path.first;
+		int counter = 0;
+		for( typename list< Tile * >::const_iterator it = node->getNodes().begin(); it != node->getNodes().end(); ++it ) {
+			if( path.second.find( *it ) == path.second.end() ) {
+				q.push( make_pair( *it, path.second ) );
+				q.back().second.insert( *it );
+				++counter;
 			}
 		}
+		if( counter <= 0 && maxlen < path.second.size() ) {
+			maxlen = path.second.size();
+		}
 	}
-	return *max_element( lengthTo.begin(), lengthTo.end() );
+
+	return maxlen;
 }
 
 int main() {
@@ -82,9 +104,13 @@ int main() {
 		cin.ignore();
 		Vector v;
 		while( m-- ) {
-			v.push_back( Tile( cin ) );
+			shared_ptr< Tile > tile( new Tile( cin ) );
+			for_each( v.begin(), v.end(), [tile]( shared_ptr< Tile > leaf ) {
+				leaf->link( *tile );
+			} );
+			v.push_back( tile );
 		}
-		cout << dag( v ) << endl;
+		cout << bfs( v ) << endl;
 	}
 
 	return 0;

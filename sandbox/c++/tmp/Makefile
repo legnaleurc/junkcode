@@ -4,7 +4,7 @@ all: release
 
 release: tile
 tile: tile.cpp
-	$(CXX) -o $@ -O3 $^
+	$(CXX) -o $@ -O3 -std=c++0x $^
 
 debug: tiled
 tiled: tile.cpp
