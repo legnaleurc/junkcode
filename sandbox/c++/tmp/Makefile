@@ -1,4 +1,4 @@
-.PHONY: all release debug
+.PHONY: all release debug test
 
 all: release
 
@@ -8,7 +8,7 @@ tile: tile.cpp
 
 debug: tiled
 tiled: tile.cpp
-	$(CXX) -o $@ -g $^
+	$(CXX) -o $@ -g -std=c++0x $^
 
 test: release
-	@./tile < input.txt
+	@$(PWD)/tile < input.txt
