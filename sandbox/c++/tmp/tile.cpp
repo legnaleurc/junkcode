@@ -5,6 +5,7 @@
 #include <set>
 #include <queue>
 #include <list>
+#include <map>
 
 class Tile {
 public:
@@ -73,10 +74,17 @@ std::size_t bfs( const Vector & v ) {
 	queue< pair< Tile *, set< Tile * > > > q;
 	q.push( make_pair( v[0].get(), set< Tile * >() ) );
 	q.back().second.insert( v[0].get() );
+	map< Tile *, size_t > cache;
+	for_each( v.begin(), v.end(), [&]( shared_ptr< Tile > tile ) {
+		cache.insert( make_pair( tile.get(), 0 ) );
+	} );
 
 	while( !q.empty() ) {
 		pair< Tile *, set< Tile * > > path( q.front() );
 		q.pop();
+		if( cache[path.first] >= path.second.size() ) {
+			continue;
+		}
 		int counter = 0;
 		for_each( path.first->getNodes().begin(), path.first->getNodes().end(), [&]( Tile * const node ) {
 			if( path.second.find( node ) == path.second.end() ) {
