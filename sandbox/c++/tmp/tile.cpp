@@ -12,7 +12,6 @@ public:
 	explicit Tile( std::istream & in );
 	void link( Tile & that );
 	const std::list< Tile * > & getNodes() const;
-	void debug() const;
 private:
 	std::size_t size_;
 	std::string top_;
@@ -60,13 +59,6 @@ const std::list< Tile * > & Tile::getNodes() const {
 	return this->nodes_;
 }
 
-void Tile::debug() const {
-	using namespace std;
-	cout << this->top_ << endl;
-	cout << this->bottom_ << endl;
-	cout << this->size_ << endl;
-}
-
 std::size_t bfs( const Vector & v ) {
 	using namespace std;
 
@@ -85,6 +77,7 @@ std::size_t bfs( const Vector & v ) {
 		if( cache[path.first] >= path.second.size() ) {
 			continue;
 		}
+		cache[path.first] = path.second.size();
 		int counter = 0;
 		for_each( path.first->getNodes().begin(), path.first->getNodes().end(), [&]( Tile * const node ) {
 			if( path.second.find( node ) == path.second.end() ) {
