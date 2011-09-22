@@ -11,4 +11,4 @@ tiled: tile.cpp
 	$(CXX) -o $@ -g $^
 
 test: release
-	./tile < input.txt
+	@./tile < input.txt

@@ -77,15 +77,14 @@ std::size_t bfs( const Vector & v ) {
 	while( !q.empty() ) {
 		pair< Tile *, set< Tile * > > path( q.front() );
 		q.pop();
-		Tile * node = path.first;
 		int counter = 0;
-		for( typename list< Tile * >::const_iterator it = node->getNodes().begin(); it != node->getNodes().end(); ++it ) {
-			if( path.second.find( *it ) == path.second.end() ) {
-				q.push( make_pair( *it, path.second ) );
-				q.back().second.insert( *it );
+		for_each( path.first->getNodes().begin(), path.first->getNodes().end(), [&]( Tile * const node ) {
+			if( path.second.find( node ) == path.second.end() ) {
+				q.push( make_pair( node, path.second ) );
+				q.back().second.insert( node );
 				++counter;
 			}
-		}
+		} );
 		if( counter <= 0 && maxlen < path.second.size() ) {
 			maxlen = path.second.size();
 		}
