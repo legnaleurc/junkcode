@@ -1,6 +1,9 @@
-.PHONY: all release debug profile test
+.PHONY: all clean release debug profile test
 
 all: release
+
+clean:
+	@rm -f tile tiled tilep *~
 
 release: tile
 tile: tile.cpp
