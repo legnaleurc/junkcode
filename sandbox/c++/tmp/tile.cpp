@@ -29,7 +29,11 @@ Tile::Tile( std::istream & in ): size_( 0 ), top_(), bottom_(), nodes_() {
 	this->size_ = this->top_.size();
 	begin = this->top_.find_first_of( "0" );
 	end = this->top_.find_last_of( "0" );
-	this->top_ = this->top_.substr( begin, end + 1 - begin );
+	if( begin == string::npos || end == string::npos ) {
+		this->top_.clear();
+	} else {
+		this->top_ = this->top_.substr( begin, end + 1 - begin );
+	}
 	replace( this->top_.begin(), this->top_.end(), '0', '-' );
 
 	getline( in, this->bottom_ );
