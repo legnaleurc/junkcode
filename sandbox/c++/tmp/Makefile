@@ -12,7 +12,7 @@ tiled: tile.cpp
 
 profile: tilep
 tilep: tile.cpp
-	$(CXX) -o $@ -O3 -g -pg -std=c++0x $^
+	$(CXX) -o $@ -O3 -pg -std=c++0x $^
 
 test: release
 	@$(PWD)/tile < input.txt
