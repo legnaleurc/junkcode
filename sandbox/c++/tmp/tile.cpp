@@ -77,9 +77,9 @@ void dfs_( const Vector & v, size_t begin, std::vector< size_t > & cache, size_t
 
 	v[begin]->walked() = true;
 
-	for_each( v[begin]->getNodes().begin(), v[begin]->getNodes().end(), [&]( size_t node ) {
-		dfs_( v, node, cache, length + 1 );
-	} );
+	for( list< size_t >::const_iterator it = v[begin]->getNodes().begin(); it != v[begin]->getNodes().end(); ++it ) {
+		dfs_( v, *it, cache, length + 1 );
+	}
 
 	v[begin]->walked() = false;
 }
