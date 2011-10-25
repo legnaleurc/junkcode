@@ -17,9 +17,8 @@ public:
 	bool isInBoundry() const;
 
 	void rotateLeft( std::size_t arm );
-	void rotateRight( std::size_t arm );
 
-	std::size_t dfs();
+	int dfs();
 
 private:
 	typedef std::vector< std::pair< double, double > > Vector;
@@ -86,132 +85,41 @@ void Robot::rotateLeft( std::size_t arm ) {
 		it->first = x + base.first;
 		it->second = y + base.second;
 	}
-
-// 	this->debug_();
 }
 
-void Robot::rotateRight( std::size_t arm ) {
-	using namespace std;
-
-	Vector::iterator it = this->arms_.begin();
-	advance( it, arm );
-
-	pair< double, double > base( 0.0, 0.0 );
-	if( arm > 0 ) {
-		base = this->arms_.at( arm - 1 );
-	}
-
-	for( ; it != this->arms_.end(); ++it ) {
-		it->first -= base.first;
-		it->second -= base.second;
-
-		double x = RIGHT_COS * it->first - RIGHT_SIN * it->second;
-		double y = RIGHT_SIN * it->first + RIGHT_COS * it->second;
-
-		it->first = x + base.first;
-		it->second = y + base.second;
-	}
-
-// 	this->debug_();
-}
-
-std::size_t Robot::dfs() {
+int Robot::dfs() {
 	using namespace std;
 	size_t minimal = UINT_MAX;
 	this->dfs_( 0, 0, minimal );
 
-	return minimal;
+	return ( minimal == UINT_MAX ) ? ( -1 ) : ( static_cast< int >( minimal ) );
 }
 
 void Robot::dfs_( std::size_t begin, std::size_t times, std::size_t & minimal ) {
 	using namespace std;
 
-	if( begin == this->arms_.size() ) {
+	if( begin == this->arms_.size() || times >= minimal ) {
 		return;
 	}
 
-	if( this->isInBoundry() ) {
-		minimal = min( times, minimal );
-		return;
-	} else {
-		this->dfs_( begin + 1, times, minimal );
-	}
+	Vector backup( this->arms_ );
 
-	this->rotateLeft( begin );
-	times += 1;
-	if( this->isInBoundry() ) {
-		minimal = min( times, minimal );
-		return;
-	} else {
-		this->dfs_( begin + 1, times, minimal );
+	for( size_t i = 0; i < 8; ++i ) {
+		size_t diff = ( i > 4 ) ? ( 8 - i ) : ( i );
+		if( this->isInBoundry() ) {
+			minimal = min( times + diff, minimal );
+			this->arms_ = backup;
+			return;
+		} else {
+			this->dfs_( begin + 1, times + diff, minimal );
+		}
+		this->rotateLeft( begin );
 	}
-	this->rotateLeft( begin );
-	times += 1;
-	if( this->isInBoundry() ) {
-		minimal = min( times, minimal );
-		return;
-	} else {
-		this->dfs_( begin + 1, times, minimal );
-	}
-	this->rotateLeft( begin );
-	times += 1;
-	if( this->isInBoundry() ) {
-		minimal = min( times, minimal );
-		return;
-	} else {
-		this->dfs_( begin + 1, times, minimal );
-	}
-	this->rotateLeft( begin );
-	times += 1;
-	if( this->isInBoundry() ) {
-		minimal = min( times, minimal );
-		return;
-	} else {
-		this->dfs_( begin + 1, times, minimal );
-	}
-	this->rotateRight( begin );
-	times -= 1;
-	this->rotateRight( begin );
-	times -= 1;
-	this->rotateRight( begin );
-	times -= 1;
-	this->rotateRight( begin );
-	times -= 1;
-
-	this->rotateRight( begin );
-	times += 1;
-	if( this->isInBoundry() ) {
-		minimal = min( times, minimal );
-		return;
-	} else {
-		this->dfs_( begin + 1, times, minimal );
-	}
-	this->rotateRight( begin );
-	times += 1;
-	if( this->isInBoundry() ) {
-		minimal = min( times, minimal );
-		return;
-	} else {
-		this->dfs_( begin + 1, times, minimal );
-	}
-	this->rotateRight( begin );
-	times += 1;
-	if( this->isInBoundry() ) {
-		minimal = min( times, minimal );
-		return;
-	} else {
-		this->dfs_( begin + 1, times, minimal );
-	}
-	this->rotateLeft( begin );
-	times -= 1;
-	this->rotateLeft( begin );
-	times -= 1;
-	this->rotateLeft( begin );
-	times -= 1;
 }
 
 void Robot::debug_() const {
 	for_each( this->arms_.begin(), this->arms_.end(), []( const std::pair< double, double > & e ) {
-		std::cout << "(" << e.first << "," << e.second << ")" << std::endl;
+		std::cout << "(" << e.first << "," << e.second << ")";
 	} );
+	std::cout << std::endl;
 }
