@@ -1,4 +1,4 @@
-.PHONY: all release debug
+.PHONY: all release debug test
 
 all: release
 
@@ -11,3 +11,6 @@ debug: joind
 
 joind: join.cpp
 	$(CXX) -std=c++0x -g $+ -o $@
+
+test: join
+	./join < input.txt
