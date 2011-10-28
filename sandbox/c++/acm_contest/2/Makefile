@@ -18,4 +18,4 @@ joinp: join.cpp
 	$(CXX) -std=c++0x -O3 -pg $+ -o $@
 
 test: join
-	./join < input.txt
+	@./join < input.txt
