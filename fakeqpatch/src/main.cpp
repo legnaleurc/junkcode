@@ -206,47 +206,48 @@ int wmain( int argc, wchar_t * argv[] ) {
 		}
 	} );
 
-	/*
-	for_each( textFiles.begin(), textFiles.end(), [ &appName, &qtDirPath, &newQtPath ]( Stream::String fileName ) {
-		typedef StreamTrait< _TCHAR > Stream;
+	std::for_each( textFiles.begin(), textFiles.end(), [ &appName, &qtDirPath, &newQtPath ]( const String & fileName ) {
+		typedef std::wstring String;
+		String prefix = newQtPath;
 
-		Stream::String prefix = newQtPath;
-
-		if( prefix.back() != _T( '\\' ) ) {
-			prefix += _T( '\\' );
+		if( prefix.back() != L'\\' ) {
+			prefix += L'\\';
 		}
-		for( std::size_t i = fileName.find( _T( "/" ), 0 ); i != Stream::String::npos; i = fileName.find( _T( "/" ), i ) ) {
-			fileName.replace( i, 1, _T( "\\" ) );
+		String sFileName( fileName );
+		for( std::size_t i = fileName.find( L"/", 0 ); i != String::npos; i = fileName.find( L"/", i ) ) {
+			sFileName.replace( i, 1, L"\\" );
 		}
 
-		fileName = prefix + fileName;
+		sFileName = prefix + sFileName;
 
-		ifstream fin( fileName );
+		std::ifstream fin( fileName );
 		if ( !fin.is_open() ) {
-			Stream::err << appName << _T( ": warning: file `" ) << fileName << _T( "' not found" ) << std::endl;
+			std::cerr << toLocal8Bits( appName ) << L": warning: file `" << toLocal8Bits( fileName ) << L"' not found" << std::endl;
 			return;
 		}
 		std::vector< std::string > text;
 		std::string line;
 		while( std::getline( fin, line ) != 0 ) {
-			Stream::String tmp( Stream::fromUTF8( line ) );
-			for( std::size_t i = tmp.find( qtDirPath, 0 ); i != Stream::String::npos; i = tmp.find( qtDirPath, i ) ) {
+			String tmp( fromUTF8( line ) );
+			for( std::size_t i = tmp.find( qtDirPath, 0 ); i != String::npos; i = tmp.find( qtDirPath, i ) ) {
 				tmp.replace( i, qtDirPath.size(), newQtPath );
+#ifdef _DEBUG
+				std::cerr << "replace string: " << toLocal8Bits( qtDirPath ) << " with: " << toLocal8Bits( newQtPath ) << std::endl;
+#endif
 			}
-			text.push_back( Stream::toUTF8( tmp ) );
+			text.push_back( toUTF8( tmp ) );
 		}
 		fin.close();
 
-		ofstream fout( fileName );
+		std::ofstream fout( fileName );
 		if( !fout.is_open() ) {
-			Stream::err << appName << _T( ": error: file `" ) << fileName << _T( "' not writable" ) << std::endl;
+			std::cerr << toLocal8Bits( appName ) << L": error: file `" << toLocal8Bits( fileName ) << L"' not writable" << std::endl;
 			return;
 		}
 		std::for_each( text.begin(), text.end(), [&fout]( const std::string & line ) {
 			fout << line << std::endl;
 		} );
 	} );
-	*/
 
 	return 0;
 }
