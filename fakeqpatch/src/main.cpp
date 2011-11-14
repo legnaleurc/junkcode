@@ -61,10 +61,10 @@ std::string toUTF8( const std::wstring & unicode ) {
 }
 
 std::wstring getFileName( const std::wstring & path ) {
-	_TCHAR drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	errno_t ret = _tsplitpath_s( path.c_str(), drive, dir, fname, ext );
+	wchar_t drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	errno_t ret = _wsplitpath_s( path.c_str(), drive, dir, fname, ext );
 	if( ret != 0 ) {
-		return _T( "" );
+		return L"";
 	}
 	return fname;
 }
