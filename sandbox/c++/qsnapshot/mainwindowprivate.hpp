@@ -5,6 +5,7 @@
 #include "ui_mainwindow.h"
 #include "snapshottimer.hpp"
 #include "regiongrabber.hpp"
+#include "windowgrabber.hpp"
 
 namespace qsnapshot {
 	namespace widget {
@@ -18,16 +19,16 @@ namespace qsnapshot {
 			void performGrab();
 			void updatePreview();
 			void setPreview( const QPixmap & pixmap );
-//			void updateCaption();
-//			void setCaption();
 
 			int delay() const;
 			int mode() const;
+			bool includeDecorations() const;
 
 		public slots:
 			void grab();
 			void startUndelayedGrab();
-			void onRegionGrabbed();
+			void onRegionGrabbed( const QPixmap & p );
+			void onWindowGrabbed( const QPixmap & p );
 			void onGrabTimerTimeout();
 
 		public:
@@ -36,8 +37,11 @@ namespace qsnapshot {
 			QWidget * grabber;
 			SnapshotTimer * grabTimer;
 			RegionGrabber * regionGrabber;
+			WindowGrabber * windowGrabber;
 			QPixmap snapshot;
+			QPixmap pixmap;
 			QPoint savedPosition;
+			bool modified;
 		};
 
 	}

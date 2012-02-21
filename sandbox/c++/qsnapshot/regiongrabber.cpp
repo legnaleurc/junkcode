@@ -2,6 +2,32 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
+#include <QtGui/QPainter>
+#include <QtGui/QToolTip>
+#include <QtGui/QMouseEvent>
+
+namespace {
+
+	void drawRect( QPainter * painter, const QRect & r, const QColor & outline, const QColor & fill = QColor() ) {
+		QRegion clip( r );
+		clip = clip.subtracted( r.adjusted( 1, 1, -1, -1 ) );
+
+		painter->save();
+		painter->setClipRegion( clip );
+		painter->setPen( Qt::NoPen );
+		painter->setBrush( outline );
+		painter->drawRect( r );
+		if ( fill.isValid() ) {
+			painter->setClipping( false );
+			painter->setBrush( fill );
+			painter->drawRect( r.adjusted( 1, 1, -1, -1 ) );
+		}
+		painter->restore();
+	}
+
+	const int HANDLE_SIZE = 10;
+
+}
 
 using namespace qsnapshot::widget;
 
@@ -11,11 +37,20 @@ selection(),
 selectionBeforeDrag(),
 helpTextRect(),
 dragStartPoint(),
-mouseOverHandle( 0 ),
+mouseOverHandle( NULL ),
 grabbing( false ),
 showHelp( false ),
 mouseDown( false ),
-newSelection( false ) {
+newSelection( false ),
+TLHandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ),
+TRHandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ),
+BLHandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ),
+BRHandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ),
+LHandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ),
+THandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ),
+RHandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ),
+BHandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ) {
+	this->handles << &this->TLHandle << &this->TRHandle << &this->BLHandle << &this->BRHandle << &this->LHandle << &this->THandle << &this->RHandle << &this->BHandle;
 }
 
 void RegionGrabber::Private::grabRect() {
@@ -26,14 +61,14 @@ void RegionGrabber::Private::grabRect() {
 	}
 }
 
-void RegionGrabber::Private::limitPointToRect( const QPoint & p, const QRect & r ) const {
+QPoint RegionGrabber::Private::limitPointToRect( const QPoint & p, const QRect & r ) const {
 	QPoint q;
 	q.setX( p.x() < r.x() ? r.x() : p.x() < r.right() ? p.x() : r.right() );
 	q.setY( p.y() < r.y() ? r.y() : p.y() < r.bottom() ? p.y() : r.bottom() );
 	return q;
 }
 
-void RegionGrabber::Private::normalizeSelection( const QRect & r ) const {
+QRect RegionGrabber::Private::normalizeSelection( const QRect & r ) const {
 	QRect s = r;
 	if( s.width() <= 0 ) {
 		int l = s.left();
@@ -50,8 +85,39 @@ void RegionGrabber::Private::normalizeSelection( const QRect & r ) const {
 	return s;
 }
 
+QRegion RegionGrabber::Private::handleMask( MaskType type ) const {
+	// note: not normalized QRects are bad here, since they will not be drawn
+	QRegion mask;
+	foreach( QRect * rect, this->handles ) {
+		if( type == StrokeMask ) {
+			QRegion r( *rect );
+			mask += r.subtracted( rect->adjusted( 1, 1, -1, -1 ) );
+		} else {
+			mask += QRegion( rect->adjusted( 1, 1, -1, -1 ) );
+		}
+	}
+	return mask;
+}
+
+void RegionGrabber::Private::updateHandles() {
+	QRect r = this->selection;
+	int s2 = HANDLE_SIZE / 2;
+
+	this->TLHandle.moveTopLeft( r.topLeft() );
+	this->TRHandle.moveTopRight( r.topRight() );
+	this->BLHandle.moveBottomLeft( r.bottomLeft() );
+	this->BRHandle.moveBottomRight( r.bottomRight() );
+
+	this->LHandle.moveTopLeft( QPoint( r.x(), r.y() + r.height() / 2 - s2 ) );
+	this->THandle.moveTopLeft( QPoint( r.x() + r.width() / 2 - s2, r.y() ) );
+	this->RHandle.moveTopRight( QPoint( r.right(), r.y() + r.height() / 2 - s2 ) );
+	this->BHandle.moveBottomLeft( QPoint( r.x() + r.width() / 2 - s2, r.bottom() ) );
+}
+
 RegionGrabber::RegionGrabber( QWidget * parent ):
-QWidget( parent, Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool ) {
+AbstractGrabber( parent, Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool ),
+p_( new Private ) {
+	this->setMouseTracking( true );
 }
 
 void RegionGrabber::grab() {
@@ -79,7 +145,7 @@ void RegionGrabber::paintEvent( QPaintEvent * /*event*/ ) {
 	QColor overlayColor( 0, 0, 0, 160 );
 	QColor textColor = palette.color( QPalette::Active, QPalette::Text );
 	QColor textBackgroundColor = palette.color( QPalette::Active, QPalette::Base );
-	painter.drawPixmap( 0, 0, pixmap );
+	painter.drawPixmap( 0, 0, this->p_->pixmap );
 	painter.setFont( font );
 
 	QRect r( this->p_->selection );
@@ -115,9 +181,9 @@ void RegionGrabber::paintEvent( QPaintEvent * /*event*/ ) {
 	QRect textRect( painter.boundingRect( this->rect(), Qt::AlignLeft, txt ) );
 	QRect boundingRect( textRect.adjusted( -4, 0, 0, 0 ) );
 
-	if( textRect.width() < r.width() - 2 * handleSize
+	if( textRect.width() < r.width() - 2 * HANDLE_SIZE
 		&&
-		textRect.height() < r.height() - 2 * handleSize
+		textRect.height() < r.height() - 2 * HANDLE_SIZE
 		&&
 		( r.width() > 100 && r.height() > 100 )
 	) {	// center, unsuitable for small selections
@@ -147,15 +213,15 @@ void RegionGrabber::paintEvent( QPaintEvent * /*event*/ ) {
 
 	painter.drawText( textRect, txt );
 
-	if( ( r.height() > handleSize*2 && r.width() > handleSize*2 ) || !mouseDown ) {
+	if( ( r.height() > HANDLE_SIZE * 2 && r.width() > HANDLE_SIZE * 2 ) || !this->p_->mouseDown ) {
 		this->p_->updateHandles();
 		painter.setPen( Qt::NoPen );
 		painter.setBrush( handleColor );
-		painter.setClipRegion( this->p_->handleMask( StrokeMask ) );
+		painter.setClipRegion( this->p_->handleMask( Private::StrokeMask ) );
 		painter.drawRect( rect() );
 		handleColor.setAlpha( 60 );
 		painter.setBrush( handleColor );
-		painter.setClipRegion( this->p_->handleMask( FillMask ) );
+		painter.setClipRegion( this->p_->handleMask( Private::FillMask ) );
 		painter.drawRect( this->rect() );
 	}
 }
@@ -204,8 +270,8 @@ void RegionGrabber::mouseMoveEvent( QMouseEvent * event ) {
 		if( this->p_->newSelection ) {
 			QPoint p = event->pos();
 			QRect r = this->rect();
-			this->p_->selection = this->p_->normalizeSelection( QRect( dragStartPoint, limitPointToRect( p, r ) ) );
-		} else if( this->p_->mouseOverHandle == 0 ) { // moving the whole selection
+			this->p_->selection = this->p_->normalizeSelection( QRect( this->p_->dragStartPoint, this->p_->limitPointToRect( p, r ) ) );
+		} else if( this->p_->mouseOverHandle == NULL ) { // moving the whole selection
 			QRect r = this->rect().normalized(), s = this->p_->selectionBeforeDrag.normalized();
 			QPoint p = s.topLeft() + event->pos() - this->p_->dragStartPoint;
 			r.setBottomRight( r.bottomRight() - QPoint( s.width(), s.height() ) + QPoint( 1, 1 ) );
@@ -216,19 +282,19 @@ void RegionGrabber::mouseMoveEvent( QMouseEvent * event ) {
 			QRect r = this->p_->selectionBeforeDrag;
 			QPoint offset = event->pos() - this->p_->dragStartPoint;
 
-			if( this->p_->mouseOverHandle == &TLHandle || this->p_->mouseOverHandle == &THandle || this->p_->mouseOverHandle == &TRHandle ) {	// dragging one of the top handles
+			if( this->p_->mouseOverHandle == &this->p_->TLHandle || this->p_->mouseOverHandle == &this->p_->THandle || this->p_->mouseOverHandle == &this->p_->TRHandle ) {	// dragging one of the top handles
 				r.setTop( r.top() + offset.y() );
 			}
 
-			if( this->p_->mouseOverHandle == &TLHandle || this->p_->mouseOverHandle == &LHandle || this->p_->mouseOverHandle == &BLHandle ) {	// dragging one of the left handles
+			if( this->p_->mouseOverHandle == &this->p_->TLHandle || this->p_->mouseOverHandle == &this->p_->LHandle || this->p_->mouseOverHandle == &this->p_->BLHandle ) {	// dragging one of the left handles
 				r.setLeft( r.left() + offset.x() );
 			}
 
-			if( this->p_->mouseOverHandle == &BLHandle || this->p_->mouseOverHandle == &BHandle || this->p_->mouseOverHandle == &BRHandle ) {	// dragging one of the bottom handles
+			if( this->p_->mouseOverHandle == &this->p_->BLHandle || this->p_->mouseOverHandle == &this->p_->BHandle || this->p_->mouseOverHandle == &this->p_->BRHandle ) {	// dragging one of the bottom handles
 				r.setBottom( r.bottom() + offset.y() );
 			}
 
-			if( this->p_->mouseOverHandle == &TRHandle || this->p_->mouseOverHandle == &RHandle || this->p_->mouseOverHandle == &BRHandle ) {	// dragging one of the right handles
+			if( this->p_->mouseOverHandle == &this->p_->TRHandle || this->p_->mouseOverHandle == &this->p_->RHandle || this->p_->mouseOverHandle == &this->p_->BRHandle ) {	// dragging one of the right handles
 				r.setRight( r.right() + offset.x() );
 			}
 			r.setTopLeft( this->p_->limitPointToRect( r.topLeft(), rect() ) );
@@ -241,7 +307,7 @@ void RegionGrabber::mouseMoveEvent( QMouseEvent * event ) {
 			return;
 		}
 		bool found = false;
-		foreach( QRect * r, handles ) {
+		foreach( QRect * r, this->p_->handles ) {
 			if( r->contains( event->pos() ) ) {
 				this->p_->mouseOverHandle = r;
 				found = true;
@@ -249,23 +315,23 @@ void RegionGrabber::mouseMoveEvent( QMouseEvent * event ) {
 			}
 		}
 		if ( !found ) {
-			this->p_->mouseOverHandle = 0;
+			this->p_->mouseOverHandle = NULL;
 			if ( this->p_->selection.contains( event->pos() ) )
 				this->setCursor( Qt::OpenHandCursor );
 			else
 				this->setCursor( Qt::CrossCursor );
 		} else {
-			if ( mouseOverHandle == &TLHandle || mouseOverHandle == &BRHandle ) {
-				setCursor( Qt::SizeFDiagCursor );
+			if ( this->p_->mouseOverHandle == &this->p_->TLHandle || this->p_->mouseOverHandle == &this->p_->BRHandle ) {
+				this->setCursor( Qt::SizeFDiagCursor );
 			}
-			if ( mouseOverHandle == &TRHandle || mouseOverHandle == &BLHandle ) {
-				setCursor( Qt::SizeBDiagCursor );
+			if ( this->p_->mouseOverHandle == &this->p_->TRHandle || this->p_->mouseOverHandle == &this->p_->BLHandle ) {
+				this->setCursor( Qt::SizeBDiagCursor );
 			}
-			if ( mouseOverHandle == &LHandle || mouseOverHandle == &RHandle ) {
-				setCursor( Qt::SizeHorCursor );
+			if ( this->p_->mouseOverHandle == &this->p_->LHandle || this->p_->mouseOverHandle == &this->p_->RHandle ) {
+				this->setCursor( Qt::SizeHorCursor );
 			}
-			if ( mouseOverHandle == &THandle || mouseOverHandle == &BHandle ) {
-				setCursor( Qt::SizeVerCursor );
+			if ( this->p_->mouseOverHandle == &this->p_->THandle || this->p_->mouseOverHandle == &this->p_->BHandle ) {
+				this->setCursor( Qt::SizeVerCursor );
 			}
 		}
 	}

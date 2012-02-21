@@ -14,7 +14,10 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     snapshottimer.cpp \
     abstractgrabber.cpp \
-    regiongrabber.cpp
+    regiongrabber.cpp \
+    windowgrabber.cpp \
+    uiinspector_x11.cpp \
+    uiinspector_win.cpp
 
 HEADERS  += mainwindow.hpp \
     mainwindowprivate.hpp \
@@ -22,6 +25,9 @@ HEADERS  += mainwindow.hpp \
     snapshottimerprivate.hpp \
     abstractgrabber.hpp \
     regiongrabber.hpp \
-    regiongrabberprivate.hpp
+    regiongrabberprivate.hpp \
+    windowgrabber.hpp \
+    uiinspector.hpp \
+    windowgrabberprivate.hpp
 
 FORMS    += mainwindow.ui

@@ -9,7 +9,7 @@ namespace qsnapshot {
 		class AbstractGrabber : public QWidget {
 			Q_OBJECT
 		public:
-			explicit AbstractGrabber( QWidget * parent );
+			AbstractGrabber( QWidget * parent, Qt::WindowFlags f );
 
 		signals:
 

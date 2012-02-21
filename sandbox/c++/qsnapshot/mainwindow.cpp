@@ -5,6 +5,13 @@
 
 #include <QtCore/QtDebug>
 
+namespace {
+const int ChildWindow = 0;
+const int WindowUnderCursor = 0;
+const int CurrentScreen = 0;
+const int Region = 0;
+}
+
 using namespace qsnapshot::widget;
 
 MainWindow::Private::Private( MainWindow * host ):
@@ -15,8 +22,11 @@ ui(),
 grabber( new QWidget( host, Qt::X11BypassWindowManagerHint ) ),
 grabTimer( new SnapshotTimer( host ) ),
 regionGrabber( new RegionGrabber( this->host ) ),
+windowGrabber( new WindowGrabber( this->host ) ),
 snapshot(),
-savedPosition() {
+pixmap(),
+savedPosition(),
+modified( false ) {
 	this->ui.setupUi( host );
 
 	this->ui.snapshotDelay->setSuffix( QObject::tr( " second(s)", "" ) );
@@ -47,6 +57,7 @@ savedPosition() {
 	this->connect( this->ui.newSnapshot, SIGNAL( clicked() ), SLOT( grab() ) );
 	this->connect( this->grabTimer, SIGNAL( timeout() ), SLOT( onGrabTimerTimeout() ) );
 	this->connect( this->regionGrabber, SIGNAL( regionGrabbed( const QPixmap & ) ), SLOT( onRegionGrabbed( const QPixmap & ) ) );
+	this->connect( this->windowGrabber, SIGNAL( windowGrabbed( const QPixmap & ) ), SLOT( onWindowGrabbed( const QPixmap & ) ) );
 }
 
 void MainWindow::Private::grab() {
@@ -78,26 +89,24 @@ void MainWindow::Private::performGrab() {
 
 	// TODO command pattern
 	if( this->mode() == ChildWindow ) {
+		this->windowGrabber->show();
 		// TODO event scope
-		WindowGrabber wndGrab;
-		this->connect( &wndGrab, SIGNAL( windowGrabbed( const QPixmap & ) ), SLOT( onWindowGrabbed( const QPixmap & ) ) );
-		wndGrab.exec();
-		QPoint offset = wndGrab.lastWindowPosition();
-		x = offset.x();
-		y = offset.y();
-		qDebug() << "last window position is" << offset;
+//		QPoint offset = WindowGrabber::lastWindowPosition();
+//		x = offset.x();
+//		y = offset.y();
+//		qDebug() << "last window position is" << offset;
 	} else if ( this->mode() == WindowUnderCursor ) {
 		this->snapshot = WindowGrabber::grabCurrent( this->includeDecorations() );
 
-		QPoint offset = WindowGrabber::lastWindowPosition();
-		x = offset.x();
-		y = offset.y();
+//		QPoint offset = WindowGrabber::lastWindowPosition();
+//		x = offset.x();
+//		y = offset.y();
 
 		// If we're showing decorations anyway then we'll add the title and window
 		// class to the output image meta data.
 		if( this->includeDecorations() ) {
-			title = WindowGrabber::lastWindowTitle();
-			windowClass = WindowGrabber::lastWindowClass();
+//			title = WindowGrabber::lastWindowTitle();
+//			windowClass = WindowGrabber::lastWindowClass();
 		}
 	} else if ( this->mode() == CurrentScreen ) {
 		QDesktopWidget * desktop = QApplication::desktop();
@@ -126,11 +135,11 @@ void MainWindow::Private::performGrab() {
 }
 
 void MainWindow::Private::updatePreview() {
-	this->setPreview( pixmap );
+	this->setPreview( this->pixmap );
 }
 
 void MainWindow::Private::setPreview( const QPixmap & pixmap ) {
-	this->ui.preview->setToolTip( QObject::tr( "Preview of the snapshot image (%1 x %2)" , pixmap.width(), pixmap.height() ) );
+	this->ui.preview->setToolTip( QObject::tr( "Preview of the snapshot image (%1 x %2)" ).arg( pixmap.width() ).arg( pixmap.height() ) );
 
 //	this->ui.preview->setPreview( pixmap );
 	this->ui.preview->adjustSize();
@@ -144,20 +153,22 @@ int MainWindow::Private::mode() const {
 	return this->ui.captureMode->currentIndex();
 }
 
+bool MainWindow::Private::includeDecorations() const {
+	return this->ui.includeDecorations->isChecked();
+}
+
 void MainWindow::Private::startUndelayedGrab() {
-	if( mode() == Region ) {
+	if( this->mode() == Region ) {
 		this->grabRegion();
-	} else if ( mode() == FreeRegion ) {
-		this->grabFreeRegion();
 	} else {
 		this->grabber->show();
 		this->grabber->grabMouse( Qt::CrossCursor );
 	}
 }
 
-void MainWindow::Private::onRegionGrabbed() {
-	if( !pix.isNull() ) {
-		this->snapshot = pix;
+void MainWindow::Private::onRegionGrabbed( const QPixmap & p ) {
+	if( !p.isNull() ) {
+		this->snapshot = p;
 		this->updatePreview();
 		modified = true;
 //		updateCaption();
@@ -175,8 +186,6 @@ void MainWindow::Private::onRegionGrabbed() {
 void MainWindow::Private::onGrabTimerTimeout() {
 	if( this->mode() == Region ) {
 		this->grabRegion();
-	} else if ( mode() == FreeRegion ) {
-		this->grabFreeRegion();
 	} else {
 		this->performGrab();
 	}
