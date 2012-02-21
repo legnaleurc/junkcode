@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
-#include <QMainWindow>
+#include <QtGui/QMainWindow>
 
 namespace qsnapshot {
 	namespace widget {
@@ -13,7 +13,7 @@ namespace qsnapshot {
 			explicit MainWindow( QWidget * parent = 0 );
 
 		protected:
-			void changeEvent( QEvent * e );
+			virtual void changeEvent( QEvent * e );
 
 		private:
 			class Private;
