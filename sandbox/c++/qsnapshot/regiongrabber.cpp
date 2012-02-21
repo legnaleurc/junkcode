@@ -173,6 +173,10 @@ void RegionGrabber::paintEvent( QPaintEvent * /*event*/ ) {
 		painter.drawRect( this->rect() );
 		painter.setClipRect( this->rect() );
 		drawRect( &painter, r, handleColor );
+	} else {
+		painter.setPen( Qt::NoPen );
+		painter.setBrush( overlayColor );
+		painter.drawRect( this->rect() );
 	}
 
 	if( this->p_->showHelp ) {
