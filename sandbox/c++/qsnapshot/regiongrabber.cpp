@@ -6,6 +6,8 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QMouseEvent>
 
+#include <QtCore/QtDebug>
+
 namespace {
 
 	void drawRect( QPainter * painter, const QRect & r, const QColor & outline, const QColor & fill = QColor() ) {
@@ -31,7 +33,8 @@ namespace {
 
 using namespace qsnapshot::widget;
 
-RegionGrabber::Private::Private():
+RegionGrabber::Private::Private( RegionGrabber * host ):
+host( host ),
 pixmap(),
 selection(),
 selectionBeforeDrag(),
@@ -57,6 +60,10 @@ void RegionGrabber::Private::grabRect() {
 	QRect r = this->selection;
 	if ( !r.isNull() && r.isValid() ) {
 		this->grabbing = true;
+		this->finishGrab();
+//		qDebug() << r;
+//		qDebug() << this->pixmap.isNull() << this->pixmap.size();
+//		qDebug() << this->pixmap.copy( r ).size();
 		emit this->regionGrabbed( this->pixmap.copy( r ) );
 	}
 }
@@ -114,10 +121,18 @@ void RegionGrabber::Private::updateHandles() {
 	this->BHandle.moveBottomLeft( QPoint( r.x() + r.width() / 2 - s2, r.bottom() ) );
 }
 
+void RegionGrabber::Private::finishGrab() {
+	this->host->hide();
+	this->host->releaseMouse();
+	this->host->releaseKeyboard();
+}
+
 RegionGrabber::RegionGrabber( QWidget * parent ):
 AbstractGrabber( parent, Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool ),
-p_( new Private ) {
+p_( new Private( this ) ) {
 	this->setMouseTracking( true );
+
+	this->connect( this->p_, SIGNAL( regionGrabbed( const QPixmap & ) ), SIGNAL( regionGrabbed( const QPixmap & ) ) );
 }
 
 void RegionGrabber::grab() {
@@ -352,6 +367,7 @@ void RegionGrabber::mouseDoubleClickEvent( QMouseEvent * /*event*/ ) {
 
 void RegionGrabber::keyPressEvent( QKeyEvent * event ) {
 	if( event->key() == Qt::Key_Escape ) {
+		this->p_->finishGrab();
 		emit this->regionGrabbed( QPixmap() );
 	} else if ( event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return ) {
 		this->p_->grabRect();

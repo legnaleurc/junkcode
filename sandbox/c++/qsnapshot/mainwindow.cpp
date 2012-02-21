@@ -61,7 +61,7 @@ modified( false ) {
 }
 
 void MainWindow::Private::grab() {
-	savedPosition = this->host->pos();
+	this->savedPosition = this->host->pos();
 	this->host->hide();
 
 	if( this->delay() > 0 ) {
@@ -142,7 +142,7 @@ void MainWindow::Private::updatePreview() {
 void MainWindow::Private::setPreview( const QPixmap & pixmap ) {
 	this->ui.preview->setToolTip( QObject::tr( "Preview of the snapshot image (%1 x %2)" ).arg( pixmap.width() ).arg( pixmap.height() ) );
 
-//	this->ui.preview->setPreview( pixmap );
+	this->ui.preview->setPixmap( pixmap );
 	this->ui.preview->adjustSize();
 }
 
@@ -170,6 +170,7 @@ void MainWindow::Private::startUndelayedGrab() {
 void MainWindow::Private::onRegionGrabbed( const QPixmap & p ) {
 	if( !p.isNull() ) {
 		this->snapshot = p;
+		this->pixmap = this->snapshot;
 		this->updatePreview();
 		modified = true;
 //		updateCaption();
@@ -187,6 +188,7 @@ void MainWindow::Private::onRegionGrabbed( const QPixmap & p ) {
 void MainWindow::Private::onWindowGrabbed( const QPixmap & p ) {
 	if ( !p.isNull() ) {
 		this->snapshot = p;
+		this->pixmap = this->snapshot;
 		this->updatePreview();
 		this->modified = true;
 //		updateCaption();

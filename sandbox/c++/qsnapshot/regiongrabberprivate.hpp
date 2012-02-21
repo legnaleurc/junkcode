@@ -16,18 +16,20 @@ namespace qsnapshot {
 				FillMask
 			};
 
-			Private();
+			explicit Private( RegionGrabber * host );
 
 			void grabRect();
 			QPoint limitPointToRect( const QPoint & p , const QRect & r ) const;
 			QRect normalizeSelection( const QRect & r ) const;
 			QRegion handleMask( MaskType type ) const;
 			void updateHandles();
+			void finishGrab();
 
 		signals:
 			void regionGrabbed( const QPixmap & pixmap );
 
 		public:
+			RegionGrabber * host;
 			QPixmap pixmap;
 			QRect selection;
 			QRect selectionBeforeDrag;
