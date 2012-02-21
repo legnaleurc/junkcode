@@ -35,7 +35,7 @@ class FacebookWidget( QtGui.QWidget ):
 
 	def onLoadFinished( self, ok ):
 		if not ok:
-			pass
+			return
 		url = self.view.url()
 		if url.path() == u'/oauth/access_token':
 			response = self.view.page().mainFrame().toPlainText()
