@@ -18,6 +18,8 @@ namespace qsnapshot {
 
 			WindowGrabber( QWidget * parent );
 
+			void grab();
+
 		protected:
 			virtual void mousePressEvent( QMouseEvent * event );
 			virtual void mouseReleaseEvent( QMouseEvent * event );

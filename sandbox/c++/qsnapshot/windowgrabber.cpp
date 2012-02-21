@@ -61,9 +61,10 @@ WindowGrabber::WindowGrabber( QWidget * parent ):
 AbstractGrabber( parent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint ),
 p_( new Private( this ) ) {
 	this->setWindowModality( Qt::WindowModal );
+}
 
+void WindowGrabber::grab() {
 	QPixmap pm( grabWindow( this->p_->windows ) );
-
 	QPalette p = this->palette();
 	p.setBrush( this->backgroundRole(), QBrush( pm ) );
 	this->setPalette( p );
