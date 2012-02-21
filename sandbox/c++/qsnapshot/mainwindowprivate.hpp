@@ -4,6 +4,7 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 #include "snapshottimer.hpp"
+#include "regiongrabber.hpp"
 
 namespace qsnapshot {
 	namespace widget {
@@ -14,7 +15,6 @@ namespace qsnapshot {
 			explicit Private( MainWindow * host );
 
 			void grabRegion();
-			void grabFreeRegion();
 			void performGrab();
 			void updatePreview();
 			void setPreview( const QPixmap & pixmap );
@@ -35,6 +35,7 @@ namespace qsnapshot {
 			Ui::MainWindow ui;
 			QWidget * grabber;
 			SnapshotTimer * grabTimer;
+			RegionGrabber * regionGrabber;
 			QPixmap snapshot;
 			QPoint savedPosition;
 		};

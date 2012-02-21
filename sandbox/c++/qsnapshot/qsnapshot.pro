@@ -12,11 +12,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    snapshottimer.cpp
+    snapshottimer.cpp \
+    abstractgrabber.cpp \
+    regiongrabber.cpp
 
 HEADERS  += mainwindow.hpp \
     mainwindowprivate.hpp \
     snapshottimer.hpp \
-    snapshottimerprivate.hpp
+    snapshottimerprivate.hpp \
+    abstractgrabber.hpp \
+    regiongrabber.hpp \
+    regiongrabberprivate.hpp
 
 FORMS    += mainwindow.ui

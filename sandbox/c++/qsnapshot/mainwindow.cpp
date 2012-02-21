@@ -3,6 +3,8 @@
 #include <QtGui/QDesktopWidget>
 #include <QtCore/QTimer>
 
+#include <QtCore/QtDebug>
+
 using namespace qsnapshot::widget;
 
 MainWindow::Private::Private( MainWindow * host ):
@@ -12,6 +14,7 @@ ui(),
 // NOTE Windows and Mac OS X flag
 grabber( new QWidget( host, Qt::X11BypassWindowManagerHint ) ),
 grabTimer( new SnapshotTimer( host ) ),
+regionGrabber( new RegionGrabber( this->host ) ),
 snapshot(),
 savedPosition() {
 	this->ui.setupUi( host );
@@ -43,6 +46,7 @@ savedPosition() {
 
 	this->connect( this->ui.newSnapshot, SIGNAL( clicked() ), SLOT( grab() ) );
 	this->connect( this->grabTimer, SIGNAL( timeout() ), SLOT( onGrabTimerTimeout() ) );
+	this->connect( this->regionGrabber, SIGNAL( regionGrabbed( const QPixmap & ) ), SLOT( onRegionGrabbed( const QPixmap & ) ) );
 }
 
 void MainWindow::Private::grab() {
@@ -58,14 +62,7 @@ void MainWindow::Private::grab() {
 
 // FIXME polymorphithm
 void MainWindow::Private::grabRegion() {
-	this->rgnGrab = new RegionGrabber;
-	this->connect( this->rgnGrab, SIGNAL( regionGrabbed( const QPixmap & ) ), SLOT( onRegionGrabbed( const QPixmap & ) ) );
-}
-
-// FIXME polymorphithm
-void MainWindow::Private::grabFreeRegion() {
-	this->freeRgnGrab = new FreeRegionGrabber;
-	this->connect( this->freeRgnGrab, SIGNAL( freeRegionGrabbed( const QPixmap & ) ), SLOT( onRegionGrabbed( const QPixmap & ) ) );
+	this->regionGrabber->grab();
 }
 
 void MainWindow::Private::performGrab() {
@@ -74,7 +71,7 @@ void MainWindow::Private::performGrab() {
 
 	this->grabber->releaseMouse();
 	this->grabber->hide();
-	this->grabTimer.stop();
+	this->grabTimer->stop();
 
 //	title.clear();
 //	windowClass.clear();
@@ -163,15 +160,13 @@ void MainWindow::Private::onRegionGrabbed() {
 		this->snapshot = pix;
 		this->updatePreview();
 		modified = true;
-		updateCaption();
+//		updateCaption();
 	}
 
 	// FIXME polymorphithm
-	if( this->mode() == KSnapshotObject::Region ) {
-		this->rgnGrab->deleteLater();
-	} else if( this->mode() == KSnapshotObject::FreeRegion ) {
-		this->freeRgnGrab->deleteLater();
-	}
+//	if( this->mode() == KSnapshotObject::Region ) {
+//		this->regionGrabber->deleteLater();
+//	}
 
 	QApplication::restoreOverrideCursor();
 	this->host->show();

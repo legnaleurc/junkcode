@@ -1,0 +1,295 @@
+#include "regiongrabberprivate.hpp"
+
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
+
+using namespace qsnapshot::widget;
+
+RegionGrabber::Private::Private():
+pixmap(),
+selection(),
+selectionBeforeDrag(),
+helpTextRect(),
+dragStartPoint(),
+mouseOverHandle( 0 ),
+grabbing( false ),
+showHelp( false ),
+mouseDown( false ),
+newSelection( false ) {
+}
+
+void RegionGrabber::Private::grabRect() {
+	QRect r = this->selection;
+	if ( !r.isNull() && r.isValid() ) {
+		this->grabbing = true;
+		emit this->regionGrabbed( this->pixmap.copy( r ) );
+	}
+}
+
+void RegionGrabber::Private::limitPointToRect( const QPoint & p, const QRect & r ) const {
+	QPoint q;
+	q.setX( p.x() < r.x() ? r.x() : p.x() < r.right() ? p.x() : r.right() );
+	q.setY( p.y() < r.y() ? r.y() : p.y() < r.bottom() ? p.y() : r.bottom() );
+	return q;
+}
+
+void RegionGrabber::Private::normalizeSelection( const QRect & r ) const {
+	QRect s = r;
+	if( s.width() <= 0 ) {
+		int l = s.left();
+		int w = s.width();
+		s.setLeft( l + w - 1 );
+		s.setRight( l );
+	}
+	if( s.height() <= 0) {
+		int t = s.top();
+		int h = s.height();
+		s.setTop( t + h - 1 );
+		s.setBottom( t );
+	}
+	return s;
+}
+
+RegionGrabber::RegionGrabber( QWidget * parent ):
+QWidget( parent, Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool ) {
+}
+
+void RegionGrabber::grab() {
+	this->p_->pixmap = QPixmap::grabWindow( QApplication::desktop()->winId() );
+	this->resize( this->p_->pixmap.size() );
+	this->move( 0, 0 );
+	this->setCursor( Qt::CrossCursor );
+	this->show();
+	this->grabMouse();
+	this->grabKeyboard();
+}
+
+void RegionGrabber::paintEvent( QPaintEvent * /*event*/ ) {
+	if( this->p_->grabbing ) {	// grabWindow() should just get the background
+		return;
+	}
+
+	QPainter painter( this );
+
+	QPalette palette( QToolTip::palette() );
+	QFont font( QToolTip::font() );
+
+	QColor handleColor = palette.color( QPalette::Active, QPalette::Highlight );
+	handleColor.setAlpha( 160 );
+	QColor overlayColor( 0, 0, 0, 160 );
+	QColor textColor = palette.color( QPalette::Active, QPalette::Text );
+	QColor textBackgroundColor = palette.color( QPalette::Active, QPalette::Base );
+	painter.drawPixmap( 0, 0, pixmap );
+	painter.setFont( font );
+
+	QRect r( this->p_->selection );
+	if( !this->p_->selection.isNull() ) {
+		QRegion grey( this->rect() );
+		grey = grey.subtracted( r );
+		painter.setClipRegion( grey );
+		painter.setPen( Qt::NoPen );
+		painter.setBrush( overlayColor );
+		painter.drawRect( this->rect() );
+		painter.setClipRect( this->rect() );
+		drawRect( &painter, r, handleColor );
+	}
+
+	if( this->p_->showHelp ) {
+		painter.setPen( textColor );
+		painter.setBrush( textBackgroundColor );
+		QString helpText( QObject::tr( "Select a region using the mouse. To take the snapshot, press the Enter key or double click. Press Esc to quit." ) );
+		this->p_->helpTextRect = painter.boundingRect( rect().adjusted( 2, 2, -2, -2 ), Qt::TextWordWrap, helpText );
+		this->p_->helpTextRect.adjust( -2, -2, 4, 2 );
+		drawRect( &painter, this->p_->helpTextRect, textColor, textBackgroundColor );
+		painter.drawText( this->p_->helpTextRect.adjusted( 3, 3, -3, -3 ), helpText );
+	}
+
+	if( this->p_->selection.isNull() ) {
+		return;
+	}
+
+	// The grabbed region is everything which is covered by the drawn
+	// rectangles (border included). This means that there is no 0px
+	// selection, since a 0px wide rectangle will always be drawn as a line.
+	QString txt( QString( "%1x%2" ).arg( this->p_->selection.width() ).arg( this->p_->selection.height() ) );
+	QRect textRect( painter.boundingRect( this->rect(), Qt::AlignLeft, txt ) );
+	QRect boundingRect( textRect.adjusted( -4, 0, 0, 0 ) );
+
+	if( textRect.width() < r.width() - 2 * handleSize
+		&&
+		textRect.height() < r.height() - 2 * handleSize
+		&&
+		( r.width() > 100 && r.height() > 100 )
+	) {	// center, unsuitable for small selections
+		boundingRect.moveCenter( r.center() );
+		textRect.moveCenter( r.center() );
+	} else if( r.y() - 3 > textRect.height()
+			&&
+			r.x() + textRect.width() < rect().right()
+	) { // on top, left aligned
+		boundingRect.moveBottomLeft( QPoint( r.x(), r.y() - 3 ) );
+		textRect.moveBottomLeft( QPoint( r.x() + 2, r.y() - 3 ) );
+	} else if( r.x() - 3 > textRect.width() ) { // left, top aligned
+		boundingRect.moveTopRight( QPoint( r.x() - 3, r.y() ) );
+		textRect.moveTopRight( QPoint( r.x() - 5, r.y() ) );
+	} else if( r.bottom() + 3 + textRect.height() < rect().bottom()
+		&&
+		r.right() > textRect.width()
+	) { // at bottom, right aligned
+		boundingRect.moveTopRight( QPoint( r.right(), r.bottom() + 3 ) );
+		textRect.moveTopRight( QPoint( r.right() - 2, r.bottom() + 3 ) );
+	} else if( r.right() + textRect.width() + 3 < rect().width() ) { // right, bottom aligned
+		boundingRect.moveBottomLeft( QPoint( r.right() + 3, r.bottom() ) );
+		textRect.moveBottomLeft( QPoint( r.right() + 5, r.bottom() ) );
+	}
+	// if the above didn't catch it, you are running on a very tiny screen...
+	drawRect( &painter, boundingRect, textColor, textBackgroundColor );
+
+	painter.drawText( textRect, txt );
+
+	if( ( r.height() > handleSize*2 && r.width() > handleSize*2 ) || !mouseDown ) {
+		this->p_->updateHandles();
+		painter.setPen( Qt::NoPen );
+		painter.setBrush( handleColor );
+		painter.setClipRegion( this->p_->handleMask( StrokeMask ) );
+		painter.drawRect( rect() );
+		handleColor.setAlpha( 60 );
+		painter.setBrush( handleColor );
+		painter.setClipRegion( this->p_->handleMask( FillMask ) );
+		painter.drawRect( this->rect() );
+	}
+}
+
+void RegionGrabber::resizeEvent( QResizeEvent * /*event*/ ) {
+	if( this->p_->selection.isNull() ) {
+		return;
+	}
+	QRect r = this->p_->selection;
+	r.setTopLeft( this->p_->limitPointToRect( r.topLeft(), rect() ) );
+	r.setBottomRight( this->p_->limitPointToRect( r.bottomRight(), rect() ) );
+	if( r.width() <= 1 || r.height() <= 1 ) //this just results in ugly drawing...
+		this->p_->selection = QRect();
+	else
+		this->p_->selection = this->p_->normalizeSelection( r );
+}
+
+void RegionGrabber::mousePressEvent( QMouseEvent * event ) {
+	this->p_->showHelp = !this->p_->helpTextRect.contains( event->pos() );
+	if( event->button() == Qt::LeftButton ) {
+		this->p_->mouseDown = true;
+		this->p_->dragStartPoint = event->pos();
+		this->p_->selectionBeforeDrag = this->p_->selection;
+		if ( !this->p_->selection.contains( event->pos() ) ) {
+			this->p_->newSelection = true;
+			this->p_->selection = QRect();
+		} else {
+			this->setCursor( Qt::ClosedHandCursor );
+		}
+	} else if( event->button() == Qt::RightButton ) {
+		this->p_->newSelection = false;
+		this->p_->selection = QRect();
+		this->setCursor( Qt::CrossCursor );
+	}
+	this->update();
+}
+
+void RegionGrabber::mouseMoveEvent( QMouseEvent * event ) {
+	bool shouldShowHelp = !this->p_->helpTextRect.contains( event->pos() );
+	if( shouldShowHelp != this->p_->showHelp ) {
+		this->p_->showHelp = shouldShowHelp;
+		this->update();
+	}
+
+	if( this->p_->mouseDown ) {
+		if( this->p_->newSelection ) {
+			QPoint p = event->pos();
+			QRect r = this->rect();
+			this->p_->selection = this->p_->normalizeSelection( QRect( dragStartPoint, limitPointToRect( p, r ) ) );
+		} else if( this->p_->mouseOverHandle == 0 ) { // moving the whole selection
+			QRect r = this->rect().normalized(), s = this->p_->selectionBeforeDrag.normalized();
+			QPoint p = s.topLeft() + event->pos() - this->p_->dragStartPoint;
+			r.setBottomRight( r.bottomRight() - QPoint( s.width(), s.height() ) + QPoint( 1, 1 ) );
+			if ( !r.isNull() && r.isValid() ) {
+				this->p_->selection.moveTo( this->p_->limitPointToRect( p, r ) );
+			}
+		} else { // dragging a handle
+			QRect r = this->p_->selectionBeforeDrag;
+			QPoint offset = event->pos() - this->p_->dragStartPoint;
+
+			if( this->p_->mouseOverHandle == &TLHandle || this->p_->mouseOverHandle == &THandle || this->p_->mouseOverHandle == &TRHandle ) {	// dragging one of the top handles
+				r.setTop( r.top() + offset.y() );
+			}
+
+			if( this->p_->mouseOverHandle == &TLHandle || this->p_->mouseOverHandle == &LHandle || this->p_->mouseOverHandle == &BLHandle ) {	// dragging one of the left handles
+				r.setLeft( r.left() + offset.x() );
+			}
+
+			if( this->p_->mouseOverHandle == &BLHandle || this->p_->mouseOverHandle == &BHandle || this->p_->mouseOverHandle == &BRHandle ) {	// dragging one of the bottom handles
+				r.setBottom( r.bottom() + offset.y() );
+			}
+
+			if( this->p_->mouseOverHandle == &TRHandle || this->p_->mouseOverHandle == &RHandle || this->p_->mouseOverHandle == &BRHandle ) {	// dragging one of the right handles
+				r.setRight( r.right() + offset.x() );
+			}
+			r.setTopLeft( this->p_->limitPointToRect( r.topLeft(), rect() ) );
+			r.setBottomRight( this->p_->limitPointToRect( r.bottomRight(), rect() ) );
+			this->p_->selection = this->p_->normalizeSelection(r);
+		}
+		this->update();
+	} else {
+		if( this->p_->selection.isNull() ) {
+			return;
+		}
+		bool found = false;
+		foreach( QRect * r, handles ) {
+			if( r->contains( event->pos() ) ) {
+				this->p_->mouseOverHandle = r;
+				found = true;
+				break;
+			}
+		}
+		if ( !found ) {
+			this->p_->mouseOverHandle = 0;
+			if ( this->p_->selection.contains( event->pos() ) )
+				this->setCursor( Qt::OpenHandCursor );
+			else
+				this->setCursor( Qt::CrossCursor );
+		} else {
+			if ( mouseOverHandle == &TLHandle || mouseOverHandle == &BRHandle ) {
+				setCursor( Qt::SizeFDiagCursor );
+			}
+			if ( mouseOverHandle == &TRHandle || mouseOverHandle == &BLHandle ) {
+				setCursor( Qt::SizeBDiagCursor );
+			}
+			if ( mouseOverHandle == &LHandle || mouseOverHandle == &RHandle ) {
+				setCursor( Qt::SizeHorCursor );
+			}
+			if ( mouseOverHandle == &THandle || mouseOverHandle == &BHandle ) {
+				setCursor( Qt::SizeVerCursor );
+			}
+		}
+	}
+}
+
+void RegionGrabber::mouseReleaseEvent( QMouseEvent * event ) {
+	this->p_->mouseDown = false;
+	this->p_->newSelection = false;
+	if( this->p_->mouseOverHandle == 0 && this->p_->selection.contains( event->pos() ) ) {
+		this->setCursor( Qt::OpenHandCursor );
+	}
+	this->update();
+}
+
+void RegionGrabber::mouseDoubleClickEvent( QMouseEvent * /*event*/ ) {
+	this->p_->grabRect();
+}
+
+void RegionGrabber::keyPressEvent( QKeyEvent * event ) {
+	if( event->key() == Qt::Key_Escape ) {
+		emit this->regionGrabbed( QPixmap() );
+	} else if ( event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return ) {
+		this->p_->grabRect();
+	} else {
+		event->ignore();
+	}
+}
