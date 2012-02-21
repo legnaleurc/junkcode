@@ -53,7 +53,7 @@ void WindowGrabber::Private::decreaseScope( const QPoint & pos ) {
 	this->host->repaint();
 }
 
-QPixmap WindowGrabber::grabCurrent( bool includeDecorations ) {
+std::tuple< QPixmap, QPoint > WindowGrabber::grabCurrent( bool includeDecorations ) {
 	return qsnapshot::utility::grabCurrent( includeDecorations );
 }
 
@@ -61,8 +61,6 @@ WindowGrabber::WindowGrabber( QWidget * parent ):
 AbstractGrabber( parent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint ),
 p_( new Private( this ) ) {
 	this->setWindowModality( Qt::WindowModal );
-	int y, x;
-	uint w, h;
 
 	QPixmap pm( grabWindow( this->p_->windows ) );
 
@@ -71,7 +69,7 @@ p_( new Private( this ) ) {
 	this->setPalette( p );
 	this->setFixedSize( pm.size() );
 	this->setMouseTracking( true );
-	this->setGeometry( x, y, w, h );
+//	this->setGeometry( QRect() );
 	this->p_->current = this->p_->windowIndex( this->mapFromGlobal( QCursor::pos() ) );
 }
 

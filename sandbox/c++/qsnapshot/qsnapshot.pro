@@ -15,9 +15,12 @@ SOURCES += main.cpp\
     snapshottimer.cpp \
     abstractgrabber.cpp \
     regiongrabber.cpp \
-    windowgrabber.cpp \
-    uiinspector_x11.cpp \
-    uiinspector_win.cpp
+	windowgrabber.cpp
+
+win32:SOURCES += uiinspector_win.cpp
+unix:SOURCES += uiinspector_x11.cpp
+
+QMAKE_CXXFLAGS += -std=c++0x
 
 HEADERS  += mainwindow.hpp \
     mainwindowprivate.hpp \

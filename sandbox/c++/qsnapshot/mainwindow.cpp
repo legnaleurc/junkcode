@@ -9,7 +9,7 @@ namespace {
 const int ChildWindow = 0;
 const int WindowUnderCursor = 0;
 const int CurrentScreen = 0;
-const int Region = 0;
+const int Region_ = 0;
 }
 
 using namespace qsnapshot::widget;
@@ -96,11 +96,12 @@ void MainWindow::Private::performGrab() {
 //		y = offset.y();
 //		qDebug() << "last window position is" << offset;
 	} else if ( this->mode() == WindowUnderCursor ) {
-		this->snapshot = WindowGrabber::grabCurrent( this->includeDecorations() );
+		std::tuple< QPixmap, QPoint > t( WindowGrabber::grabCurrent( this->includeDecorations() ) );
+		this->snapshot = std::get< 0 >( t );
 
-//		QPoint offset = WindowGrabber::lastWindowPosition();
-//		x = offset.x();
-//		y = offset.y();
+		QPoint offset = std::get< 1 >( t );
+		x = offset.x();
+		y = offset.y();
 
 		// If we're showing decorations anyway then we'll add the title and window
 		// class to the output image meta data.
@@ -158,7 +159,7 @@ bool MainWindow::Private::includeDecorations() const {
 }
 
 void MainWindow::Private::startUndelayedGrab() {
-	if( this->mode() == Region ) {
+	if( this->mode() == Region_ ) {
 		this->grabRegion();
 	} else {
 		this->grabber->show();
@@ -183,8 +184,20 @@ void MainWindow::Private::onRegionGrabbed( const QPixmap & p ) {
 	this->host->show();
 }
 
+void MainWindow::Private::onWindowGrabbed( const QPixmap & p ) {
+	if ( !p.isNull() ) {
+		this->snapshot = p;
+		this->updatePreview();
+		this->modified = true;
+//		updateCaption();
+	}
+
+	QApplication::restoreOverrideCursor();
+	this->host->show();
+}
+
 void MainWindow::Private::onGrabTimerTimeout() {
-	if( this->mode() == Region ) {
+	if( this->mode() == Region_ ) {
 		this->grabRegion();
 	} else {
 		this->performGrab();

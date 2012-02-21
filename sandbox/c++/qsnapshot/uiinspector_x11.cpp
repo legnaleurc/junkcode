@@ -1,19 +1,129 @@
 #include "uiinspector.hpp"
 
+#include <X11/Xlib.h>
+#ifdef HAVE_X11_EXTENSIONS_SHAPE_H
+#include <X11/extensions/shape.h>
+#endif // HAVE_X11_EXTENSIONS_SHAPE_H
+
+#include <QtGui/QX11Info>
+
+#include <algorithm>
+
+bool operator< ( const QRect& r1, const QRect& r2 ) {
+	return r1.width() * r1.height() < r2.width() * r2.height();
+}
+
 namespace {
+
+	const int minSize = 8;
+
+	/*
+	class WindowInfo {
+	public:
+		WindowInfo( Window id, unsigned long prop, unsigned long prop2 ):
+		info( NULL ) {
+			if( prop & NET::WMVisibleIconName )
+				prop |= NET::WMIconName | NET::WMVisibleName; // force, in case it will be used as a fallback
+			if( prop & NET::WMVisibleName )
+				prop |= NET::WMName; // force, in case it will be used as a fallback
+			if( prop2 & NET::WM2ExtendedStrut )
+				prop |= NET::WMStrut; // will be used as fallback
+			if( prop & NET::WMWindowType )
+				properties2 |= NET::WM2TransientFor; // will be used when type is not set
+			if( ( prop & NET::WMDesktop ) && KWindowSystem::mapViewport() )
+				prop |= NET::WMGeometry; // for viewports, the desktop (workspace) is determined from the geometry
+			prop |= NET::XAWMState; // force to get error detection for valid()
+			unsigned long props[ 2 ] = { prop, prop2 };
+			this->info = new NETWinInfo( QX11Info::display(), id, QX11Info::appRootWindow(), props, 2 );
+			this->id = id;
+			if( prop & NET::WMName ) {
+				if( this->info->name() && this->info->name()[ 0 ] != '\0' )
+					this->name_ = QString::fromUtf8( this->info->name() );
+				else
+					this->name_ = KWindowSystem::readNameProperty( id, XA_WM_NAME );
+			}
+		}
+		QString name() const {
+			return this->name_;
+		}
+		QString visibleName() const {
+			return ( this->info->visibleName() && this->info->visibleName()[ 0 ] != '\0' ) ? QString::fromUtf8( this->info->visibleName() ) : this->name();
+		}
+		QString windowClassName() const {
+			return this->info->windowClassName();
+		}
+	private:
+		NETWinInfo * info;
+		Window id;
+		QString name_;
+		QString iconic_name_;
+	};
+	*/
+
+	Window findRealWindow( Window w, int depth = 0 ) {
+		if( depth > 5 ) {
+			return None;
+		}
+
+		static Atom wm_state = XInternAtom( QX11Info::display(), "WM_STATE", False );
+		Atom type;
+		int format;
+		unsigned long nitems, after;
+		unsigned char* prop;
+
+		if( XGetWindowProperty( QX11Info::display(), w, wm_state, 0, 0, False, AnyPropertyType,
+								&type, &format, &nitems, &after, &prop ) == Success ) {
+			if( prop != NULL ) {
+				XFree( prop );
+			}
+
+			if( type != None ) {
+				return w;
+			}
+		}
+
+		Window root, parent;
+		Window* children;
+		unsigned int nchildren;
+		Window ret = None;
+
+		if( XQueryTree( QX11Info::display(), w, &root, &parent, &children, &nchildren ) != 0 ) {
+			for( unsigned int i = 0;
+				 i < nchildren && ret == None;
+				 ++i ) {
+				ret = findRealWindow( children[ i ], depth + 1 );
+			}
+
+			if( children != NULL ) {
+				XFree( children );
+			}
+		}
+
+		return ret;
+	}
 
 	QPixmap grabWindow( Window child, int x, int y, uint w, uint h, uint border, QString * title = 0, QString * windowClass = 0 ) {
 		QPixmap pm( QPixmap::grabWindow( QX11Info::appRootWindow(), x, y, w, h ) );
 
-		KWindowInfo winInfo( findRealWindow(child), NET::WMVisibleName, NET::WM2WindowClass );
+		/*
+		Atom atomPID;
+		Atom type;
+		int format;
+		unsigned long nItems;
+		unsigned long bytesAfter;
+		unsigned char * propPID = NULL;
+		XGetWindowProperty( QX11Info::display(), child, atomPID, 0L, 1L, False, XA_CARDINAL, &type, &format, &nItems, &bytesAfter, &propPID );
+		*/
 
-		if ( title ) {
-			(*title) = winInfo.visibleName();
-		}
+//		WindowInfo winInfo( findRealWindow(child), NET::WMVisibleName, NET::WM2WindowClass );
 
-		if ( windowClass ) {
-			(*windowClass) = winInfo.windowClassName();
-		}
+//		if ( title ) {
+//			(*title) = winInfo.visibleName();
+//		}
+
+//		if ( windowClass ) {
+//			(*windowClass) = winInfo.windowClassName();
+//		}
 
 #ifdef HAVE_X11_EXTENSIONS_SHAPE_H
 		int tmp1, tmp2;
@@ -95,8 +205,7 @@ namespace {
 		XWindowAttributes atts;
 		XGetWindowAttributes( QX11Info::display(), w, &atts );
 
-		if ( atts.map_state == IsViewable &&
-			 atts.width >= minSize && atts.height >= minSize ) {
+		if ( atts.map_state == IsViewable && atts.width >= minSize && atts.height >= minSize ) {
 			int x = 0, y = 0;
 			if ( depth ) {
 				x = atts.x + rx;
@@ -104,8 +213,8 @@ namespace {
 			}
 
 			QRect r( x, y, atts.width, atts.height );
-			if ( std::find( windows->begin(), windows->end(), r ) == windows->end() ) {
-				windows->push_back( r );
+			if( std::find( windows.begin(), windows.end(), r ) == windows.end() ) {
+				windows.push_back( r );
 			}
 
 			Window root, parent;
@@ -124,27 +233,31 @@ namespace {
 		}
 
 		if ( depth == 0 ) {
-			std::sort( windows->begin(), windows->end() );
+			std::sort( windows.begin(), windows.end() );
 		}
 	}
 
 }
 
 QPixmap qsnapshot::utility::grabWindow( std::vector< QRect > & windows ) {
-	uint border, depth;
+	int x = 0, y = 0;
+	uint w = 0, h = 0;
+	uint border = 0, depth = 0;
 	Window root;
 	XGrabServer( QX11Info::display() );
 	Window child = windowUnderCursor();
 	XGetGeometry( QX11Info::display(), child, &root, &x, &y, &w, &h, &border, &depth );
 	XUngrabServer( QX11Info::display() );
+	QString title;
+	QString windowClass;
 
-	QPixmap pm( grabWindow( child, x, y, w, h, border, &title, &windowClass ) );
+	QPixmap pm( ::grabWindow( child, x, y, w, h, border, &title, &windowClass ) );
 	getWindowsRecursive( windows, child );
 
 	return pm;
 }
 
-QPixmap qsnapshot::utility::grabCurrent( bool includeDecorations ) {
+std::tuple< QPixmap, QPoint > qsnapshot::utility::grabCurrent( bool includeDecorations ) {
 	int x, y;
 	Window root;
 	uint w, h, border, depth;
@@ -172,9 +285,10 @@ QPixmap qsnapshot::utility::grabCurrent( bool includeDecorations ) {
 			y = newy;
 		}
 	}
+	QString title;
+	QString windowClass;
 
-	windowPosition = QPoint(x,y);
-	QPixmap pm( grabWindow( child, x, y, w, h, border, &title, &windowClass ) );
+	QPixmap pm( ::grabWindow( child, x, y, w, h, border, &title, &windowClass ) );
 	XUngrabServer( QX11Info::display() );
-	return pm;
+	return std::make_tuple( pm, QPoint( x, y ) );
 }

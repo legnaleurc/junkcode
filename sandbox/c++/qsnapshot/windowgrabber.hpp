@@ -3,13 +3,18 @@
 
 #include "abstractgrabber.hpp"
 
+#include <QtGui/QPixmap>
+#include <QtCore/QPoint>
+
+#include <tuple>
+
 namespace qsnapshot {
 	namespace widget {
 
 		class WindowGrabber : public AbstractGrabber {
 			Q_OBJECT
 		public:
-			static QPixmap grabCurrent( bool includeDecorations );
+			static std::tuple< QPixmap, QPoint > grabCurrent( bool includeDecorations );
 
 			WindowGrabber( QWidget * parent );
 

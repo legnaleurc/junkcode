@@ -2,12 +2,15 @@
 #define UIINSPECTOR_HPP
 
 #include <QtGui/QPixmap>
+#include <QtCore/QPoint>
+
+#include <tuple>
 
 namespace qsnapshot {
 	namespace utility {
 
 		QPixmap grabWindow( std::vector< QRect > & windows );
-		QPixmap grabCurrent( bool includeDecorations );
+		std::tuple< QPixmap, QPoint > grabCurrent( bool includeDecorations );
 
 	}
 }
