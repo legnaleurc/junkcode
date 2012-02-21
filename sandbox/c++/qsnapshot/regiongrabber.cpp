@@ -6,7 +6,7 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QMouseEvent>
 
-#include <QtCore/QtDebug>
+#include <algorithm>
 
 namespace {
 
@@ -59,11 +59,7 @@ BHandle( 0, 0, HANDLE_SIZE, HANDLE_SIZE ) {
 void RegionGrabber::Private::grabRect() {
 	QRect r = this->selection;
 	if ( !r.isNull() && r.isValid() ) {
-		this->grabbing = true;
 		this->finishGrab();
-//		qDebug() << r;
-//		qDebug() << this->pixmap.isNull() << this->pixmap.size();
-//		qDebug() << this->pixmap.copy( r ).size();
 		emit this->regionGrabbed( this->pixmap.copy( r ) );
 	}
 }
@@ -125,6 +121,10 @@ void RegionGrabber::Private::finishGrab() {
 	this->host->hide();
 	this->host->releaseMouse();
 	this->host->releaseKeyboard();
+	std::for_each( std::begin( this->handles ), std::end( this->handles ), []( QRect * r )->void {
+		r->moveTo( 0, 0 );
+	} );
+	this->selection = QRect();
 }
 
 RegionGrabber::RegionGrabber( QWidget * parent ):
