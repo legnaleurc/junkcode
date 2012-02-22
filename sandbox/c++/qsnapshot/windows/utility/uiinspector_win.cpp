@@ -1,4 +1,4 @@
-#include "uiinspector.hpp"
+#include "utility/uiinspector.hpp"
 
 #include <QtGui/QCursor>
 

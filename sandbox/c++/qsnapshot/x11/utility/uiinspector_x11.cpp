@@ -1,4 +1,4 @@
-#include "uiinspector.hpp"
+#include "utility/uiinspector.hpp"
 
 #include <X11/Xlib.h>
 #ifdef HAVE_X11_EXTENSIONS_SHAPE_H
