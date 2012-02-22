@@ -2,14 +2,15 @@
 
 #include <QtGui/QDesktopWidget>
 #include <QtCore/QTimer>
+#include <QtGui/QMouseEvent>
 
 #include <QtCore/QtDebug>
 
 namespace {
-const int ChildWindow = 0;
-const int WindowUnderCursor = 0;
+const int ChildWindow = 3;
+const int WindowUnderCursor = 1;
 const int CurrentScreen = 0;
-const int Region_ = 0;
+const int Region_ = 2;
 }
 
 using namespace qsnapshot::widget;
@@ -19,7 +20,7 @@ QObject( host ),
 host( host ),
 ui(),
 // NOTE Windows and Mac OS X flag
-grabber( new QWidget( host, Qt::X11BypassWindowManagerHint ) ),
+grabber( new QWidget( 0, Qt::X11BypassWindowManagerHint ) ),
 grabTimer( new SnapshotTimer( host ) ),
 regionGrabber( new RegionGrabber( this->host ) ),
 windowGrabber( new WindowGrabber( this->host ) ),
@@ -136,7 +137,7 @@ void MainWindow::Private::performGrab() {
 }
 
 void MainWindow::Private::updatePreview() {
-	this->setPreview( this->pixmap );
+	this->setPreview( this->snapshot );
 }
 
 void MainWindow::Private::setPreview( const QPixmap & pixmap ) {
@@ -170,7 +171,6 @@ void MainWindow::Private::startUndelayedGrab() {
 void MainWindow::Private::onRegionGrabbed( const QPixmap & p ) {
 	if( !p.isNull() ) {
 		this->snapshot = p;
-		this->pixmap = this->snapshot;
 		this->updatePreview();
 		modified = true;
 //		updateCaption();
@@ -188,7 +188,6 @@ void MainWindow::Private::onRegionGrabbed( const QPixmap & p ) {
 void MainWindow::Private::onWindowGrabbed( const QPixmap & p ) {
 	if ( !p.isNull() ) {
 		this->snapshot = p;
-		this->pixmap = this->snapshot;
 		this->updatePreview();
 		this->modified = true;
 //		updateCaption();
@@ -222,4 +221,17 @@ void MainWindow::changeEvent( QEvent * e ) {
 	default:
 		break;
 	}
+}
+
+bool MainWindow::eventFilter( QObject * object, QEvent * event ) {
+	if( object == this->p_->grabber.get() && event->type() == QEvent::MouseButtonPress ) {
+		QMouseEvent * me = dynamic_cast< QMouseEvent * >( event );
+		if( this->QWidget::mouseGrabber() != this->p_->grabber.get() ) {
+			return false;
+		}
+		if( me->button() == Qt::LeftButton ) {
+			this->p_->performGrab();
+		}
+	}
+	return false;
 }

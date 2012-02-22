@@ -7,6 +7,8 @@
 #include "regiongrabber.hpp"
 #include "windowgrabber.hpp"
 
+#include <memory>
+
 namespace qsnapshot {
 	namespace widget {
 
@@ -34,7 +36,7 @@ namespace qsnapshot {
 		public:
 			MainWindow * host;
 			Ui::MainWindow ui;
-			QWidget * grabber;
+			std::shared_ptr< QWidget > grabber;
 			SnapshotTimer * grabTimer;
 			RegionGrabber * regionGrabber;
 			WindowGrabber * windowGrabber;
