@@ -20,7 +20,7 @@ QObject( host ),
 host( host ),
 ui(),
 // NOTE Windows and Mac OS X flag
-grabber( new QWidget( 0, Qt::X11BypassWindowManagerHint ) ),
+grabber( new QWidget( 0, Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint ) ),
 grabTimer( new SnapshotTimer( host ) ),
 regionGrabber( new RegionGrabber( this->host ) ),
 windowGrabber( new WindowGrabber( 0 ) ),
@@ -32,6 +32,7 @@ modified( false ) {
 
 	this->ui.snapshotDelay->setSuffix( QObject::tr( " second(s)", "" ) );
 
+	this->grabber->setWindowOpacity( 0.0 );
 	this->grabber->installEventFilter( host );
 	this->grabber->show();
 	this->grabber->grabMouse();
