@@ -53,6 +53,10 @@ void WindowGrabber::Private::decreaseScope( const QPoint & pos ) {
 	this->host->repaint();
 }
 
+void WindowGrabber::Private::finishGrab() {
+	this->host->hide();
+}
+
 std::tuple< QPixmap, QPoint > WindowGrabber::grabCurrent( bool includeDecorations ) {
 	return qsnapshot::utility::grabCurrent( includeDecorations );
 }
@@ -64,6 +68,7 @@ p_( new Private( this ) ) {
 }
 
 void WindowGrabber::grab() {
+	this->show();
 	QPixmap pm( grabWindow( this->p_->windows ) );
 	QPalette p = this->palette();
 	p.setBrush( this->backgroundRole(), QBrush( pm ) );
@@ -98,6 +103,7 @@ void WindowGrabber::mousePressEvent( QMouseEvent * event ) {
 			this->p_->windowPosition = QPoint(0,0);
 			emit this->windowGrabbed( QPixmap() );
 		}
+		this->p_->finishGrab();
 	}
 }
 

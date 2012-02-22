@@ -23,7 +23,7 @@ ui(),
 grabber( new QWidget( 0, Qt::X11BypassWindowManagerHint ) ),
 grabTimer( new SnapshotTimer( host ) ),
 regionGrabber( new RegionGrabber( this->host ) ),
-windowGrabber( new WindowGrabber( this->host ) ),
+windowGrabber( new WindowGrabber( 0 ) ),
 snapshot(),
 pixmap(),
 savedPosition(),
@@ -58,7 +58,7 @@ modified( false ) {
 	this->connect( this->ui.newSnapshot, SIGNAL( clicked() ), SLOT( grab() ) );
 	this->connect( this->grabTimer, SIGNAL( timeout() ), SLOT( onGrabTimerTimeout() ) );
 	this->connect( this->regionGrabber, SIGNAL( regionGrabbed( const QPixmap & ) ), SLOT( onRegionGrabbed( const QPixmap & ) ) );
-	this->connect( this->windowGrabber, SIGNAL( windowGrabbed( const QPixmap & ) ), SLOT( onWindowGrabbed( const QPixmap & ) ) );
+	this->connect( this->windowGrabber.get(), SIGNAL( windowGrabbed( const QPixmap & ) ), SLOT( onWindowGrabbed( const QPixmap & ) ) );
 }
 
 void MainWindow::Private::grab() {
@@ -90,7 +90,7 @@ void MainWindow::Private::performGrab() {
 
 	// TODO command pattern
 	if( this->mode() == ChildWindow ) {
-		this->windowGrabber->show();
+		this->windowGrabber->grab();
 		// TODO event scope
 //		QPoint offset = WindowGrabber::lastWindowPosition();
 //		x = offset.x();

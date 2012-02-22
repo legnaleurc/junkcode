@@ -17,6 +17,7 @@ namespace qsnapshot {
 			int windowIndex( const QPoint & pos ) const;
 			void increaseScope( const QPoint & pos );
 			void decreaseScope( const QPoint & pos );
+			void finishGrab();
 
 			WindowGrabber * host;
 			std::vector< QRect > windows;

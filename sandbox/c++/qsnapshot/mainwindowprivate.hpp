@@ -39,7 +39,7 @@ namespace qsnapshot {
 			std::shared_ptr< QWidget > grabber;
 			SnapshotTimer * grabTimer;
 			RegionGrabber * regionGrabber;
-			WindowGrabber * windowGrabber;
+			std::shared_ptr< WindowGrabber > windowGrabber;
 			QPixmap snapshot;
 			QPixmap pixmap;
 			QPoint savedPosition;
