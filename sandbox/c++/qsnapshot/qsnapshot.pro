@@ -21,7 +21,7 @@ SOURCES += main.cpp\
 win32:SOURCES += uiinspector_win.cpp
 unix:SOURCES += uiinspector_x11.cpp
 
-QMAKE_CXXFLAGS += -std=c++0x
+unix:QMAKE_CXXFLAGS += -std=c++0x
 
 HEADERS  += mainwindow.hpp \
     mainwindowprivate.hpp \
