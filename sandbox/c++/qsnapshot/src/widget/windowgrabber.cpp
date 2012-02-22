@@ -1,5 +1,5 @@
 #include "windowgrabberprivate.hpp"
-#include "uiinspector.hpp"
+#include "utility/uiinspector.hpp"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
