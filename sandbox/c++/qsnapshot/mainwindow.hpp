@@ -13,7 +13,7 @@ namespace qsnapshot {
 			explicit MainWindow( QWidget * parent = 0 );
 
 		protected:
-			virtual void changeEvent( QEvent * e );
+			virtual void changeEvent( QEvent * event );
 			virtual bool eventFilter( QObject * object, QEvent * event );
 
 		private:

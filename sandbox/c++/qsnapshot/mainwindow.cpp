@@ -143,7 +143,7 @@ void MainWindow::Private::updatePreview() {
 void MainWindow::Private::setPreview( const QPixmap & pixmap ) {
 	this->ui.preview->setToolTip( QObject::tr( "Preview of the snapshot image (%1 x %2)" ).arg( pixmap.width() ).arg( pixmap.height() ) );
 
-	this->ui.preview->setPixmap( pixmap );
+	this->ui.preview->setPixmap( pixmap.scaled( this->ui.preview->size(), Qt::KeepAspectRatio ) );
 	this->ui.preview->adjustSize();
 }
 
