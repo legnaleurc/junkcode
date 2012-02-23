@@ -33,7 +33,6 @@ modified( false ) {
 	this->ui.snapshotDelay->setSuffix( QObject::tr( " second(s)", "" ) );
 
 	this->grabber->setWindowOpacity( 0.0 );
-	this->grabber->installEventFilter( host );
 	this->grabber->show();
 	this->grabber->grabMouse();
 
@@ -211,6 +210,9 @@ void MainWindow::Private::onGrabTimerTimeout() {
 MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent),
 p_( new Private( this ) ) {
+	// NOTE somehow eventFilter will be triggered between
+	// new Private( this ) and p_ = new Private
+	this->p_->grabber->installEventFilter( this );
 }
 
 void MainWindow::changeEvent( QEvent * e ) {
