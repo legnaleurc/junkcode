@@ -6,3 +6,7 @@ QPixmap qsnapshot::utility::grabWindow( std::vector< QRect > & windows ) {
 	QPixmap pm( inspector.grabWindow( windows ) );
 	return pm;
 }
+
+std::tuple< QPixmap, QPoint > qsnapshot::utility::grabCurrent( bool ) {
+	return std::make_tuple( QPixmap(), QPoint() );
+}
