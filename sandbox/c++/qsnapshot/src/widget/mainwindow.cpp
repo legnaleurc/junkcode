@@ -33,8 +33,6 @@ modified( false ) {
 	this->ui.snapshotDelay->setSuffix( QObject::tr( " second(s)", "" ) );
 
 	this->grabber->setWindowOpacity( 0.0 );
-	this->grabber->show();
-	this->grabber->grabMouse();
 
 #ifdef HAVE_X11_EXTENSIONS_XFIXES_H
 	{
@@ -110,13 +108,13 @@ void MainWindow::Private::performGrab() {
 //			title = WindowGrabber::lastWindowTitle();
 //			windowClass = WindowGrabber::lastWindowClass();
 		}
-	} else if ( this->mode() == CurrentScreen ) {
-		QDesktopWidget * desktop = QApplication::desktop();
-		int screenId = desktop->screenNumber( QCursor::pos() );
-		QRect geom = desktop->screenGeometry( screenId );
-		x = geom.x();
-		y = geom.y();
-		this->snapshot = QPixmap::grabWindow( desktop->winId(), x, y, geom.width(), geom.height() );
+//	} else if ( this->mode() == CurrentScreen ) {
+//		QDesktopWidget * desktop = QApplication::desktop();
+//		int screenId = desktop->screenNumber( QCursor::pos() );
+//		QRect geom = desktop->screenGeometry( screenId );
+//		x = geom.x();
+//		y = geom.y();
+//		this->snapshot = QPixmap::grabWindow( desktop->winId(), x, y, geom.width(), geom.height() );
 	} else {
 		this->snapshot = QPixmap::grabWindow( QApplication::desktop()->winId() );
 	}
@@ -162,6 +160,8 @@ bool MainWindow::Private::includeDecorations() const {
 void MainWindow::Private::startUndelayedGrab() {
 	if( this->mode() == Region_ ) {
 		this->grabRegion();
+	} else if( this->mode() == CurrentScreen ) {
+		this->performGrab();
 	} else {
 		this->grabber->show();
 		this->grabber->grabMouse( Qt::CrossCursor );
