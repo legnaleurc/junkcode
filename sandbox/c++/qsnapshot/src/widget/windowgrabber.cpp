@@ -68,8 +68,14 @@ p_( new Private( this ) ) {
 }
 
 void WindowGrabber::grab() {
-	this->show();
 	QPixmap pm( grabWindow( this->p_->windows ) );
+	this->show();
+	this->move( this->p_->windows.back().topLeft() );
+	this->resize( pm.size() );
+	// NOTE hack for macosx
+	for( std::vector< QRect >::iterator it = this->p_->windows.begin(); it != this->p_->windows.end(); ++it ) {
+		it->translate( -this->pos() );
+	}
 	QPalette p = this->palette();
 	p.setBrush( this->backgroundRole(), QBrush( pm ) );
 	this->setPalette( p );

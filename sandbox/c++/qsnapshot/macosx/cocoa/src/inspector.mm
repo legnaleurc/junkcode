@@ -44,7 +44,9 @@ NSArray * subelementsFromElement( AXUIElementRef element ) {
 
 QRect rectOfElement( AXUIElementRef element ) {
 	NSRect bounds = [UIElementUtilities frameOfUIElement:element];
-	return QRect( bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height );
+	// NOTE y position is count from bottom in Cocoa
+	int realY = QApplication::desktop()->screenGeometry().height() - bounds.origin.y - bounds.size.height;
+	return QRect( bounds.origin.x, realY, bounds.size.width, bounds.size.height );
 }
 
 void getWindows( std::vector< QRect > & windows, AXUIElementRef element ) {
