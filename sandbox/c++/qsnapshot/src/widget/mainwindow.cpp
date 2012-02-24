@@ -32,7 +32,9 @@ modified( false ) {
 
 	this->ui.snapshotDelay->setSuffix( QObject::tr( " second(s)", "" ) );
 
-	this->grabber->setWindowOpacity( 0.0 );
+	this->grabber->setWindowOpacity( 0.1 );
+	this->grabber->resize( QApplication::desktop()->screenGeometry().size() );
+	this->grabber->move( 0, 0 );
 
 #ifdef HAVE_X11_EXTENSIONS_XFIXES_H
 	{

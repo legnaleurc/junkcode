@@ -9,9 +9,15 @@
 
 #import <QtCore/QtDebug>
 
+const int MIN_SIZE = 8;
+
 AXUIElementRef lineageOfUIElement( AXUIElementRef element ) {
 	AXUIElementRef parent = [UIElementUtilities parentOfUIElement:element];
 	while( parent ) {
+		NSString * roleName = [UIElementUtilities roleOfUIElement:element];
+		if( [roleName isEqualToString:@"AXMenuBar"] || [roleName isEqualToString:@"AXWindow"] ) {
+			return element;
+		}
 		element = parent;
 		parent = [UIElementUtilities parentOfUIElement:element];
 	}
@@ -46,7 +52,11 @@ void getWindows( std::vector< QRect > & windows, AXUIElementRef element ) {
 	NSEnumerator * e = [children objectEnumerator];
 	AXUIElementRef child;
 	while( child = ( AXUIElementRef )[e nextObject] ) {
-		windows.push_back( rectOfElement( child ) );
+		QRect r( rectOfElement( child ) );
+		if( r.width() < MIN_SIZE || r.height() < MIN_SIZE ) {
+			continue;
+		}
+		windows.push_back( r );
 		getWindows( windows, child );
 	}
 }
@@ -91,10 +101,13 @@ QPixmap Inspector::grabWindow( std::vector< QRect > & windows ) {
 	AXError result = AXUIElementCopyElementAtPosition( this->p_->systemWideElement, pointAsCGPoint.x, pointAsCGPoint.y, &newElement );
 	if( result == kAXErrorSuccess && newElement && ( this->p_->getCurrentUIElement() == NULL || ! CFEqual( this->p_->getCurrentUIElement(), newElement ) ) ) {
 		this->p_->setCurrentUIElement( lineageOfUIElement( newElement ) );
+		QRect r( rectOfElement( this->p_->getCurrentUIElement() ) );
+		windows.push_back( r );
 		getWindows( windows, this->p_->getCurrentUIElement() );
 		std::sort( windows.begin(), windows.end() );
-		QRect r( rectOfElement( this->p_->getCurrentUIElement() ) );
-		qDebug() << r;
+		if ( r.isNull() ) {
+			return QPixmap();
+		}
 		return QPixmap::grabWindow( QApplication::desktop()->winId(), r.x(), r.y(), r.width(), r.height() );
 	}
 
