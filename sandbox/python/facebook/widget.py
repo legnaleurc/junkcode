@@ -13,6 +13,7 @@ class FacebookWidget( QtGui.QWidget ):
 		self.view = QtWebKit.QWebView( self )
 		self.view.setWindowFlags( QtCore.Qt.Dialog )
 		self.input = QtGui.QLineEdit( self )
+		self.picture = QtGui.QLineEdit( self )
 		self.output = QtGui.QTextBrowser( self )
 		self.nasm = QtNetwork.QNetworkAccessManager( self )
 		self.accessToken = None
@@ -20,6 +21,7 @@ class FacebookWidget( QtGui.QWidget ):
 		layout = QtGui.QVBoxLayout( self )
 		self.setLayout( layout )
 		layout.addWidget( self.input )
+		layout.addWidget( self.picture )
 		layout.addWidget( self.output )
 
 		self.view.loadFinished.connect( self.onLoadFinished )
@@ -63,6 +65,8 @@ class FacebookWidget( QtGui.QWidget ):
 		url = QtCore.QUrl( u'https://graph.facebook.com/me/feed' )
 		url.addQueryItem( u'access_token', self.accessToken )
 		url.addQueryItem( u'message', self.input.text() )
+		if len( self.picture.text() ) > 0:
+			url.addQueryItem( u'picture', self.picture.text() )
 		self.reply = self.nasm.post( QtNetwork.QNetworkRequest( url ), url.encodedQuery() )
 		self.reply.finished.connect( self.onReply )
 
