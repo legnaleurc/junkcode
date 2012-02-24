@@ -2,7 +2,7 @@
 
 getSite() {
 	if [ "x`echo "$1" | grep '^\(sid\|wheezy\|squeeze\)$'`" = "x$1" ] ; then
-		echo 'http://ftp.twaren.net/debian/'
+		echo 'http://ftp.jp.debian.org/debian/'
 	elif [ "x`echo "$1" | grep '^\(hardy\|karmic\|lucid\|maverick\|natty\|oneiric\)$'`" = "x$1" ] ; then
 		echo 'http://tw.archive.ubuntu.com/ubuntu/'
 	else
@@ -19,6 +19,7 @@ create() {
 	[ -d "$dir" ] || mkdir "$dir"
 	debootstrap --arch "$arch" "$distro" "$dir" "`getSite $distro`" || exit 1
 	[ -d "${dir}/dev/input" ] || mkdir "${dir}/dev/input"
+	# add deb information
 	cat >> "${dir}/root/.bashrc" <<EOF
 
 export DEBFULLNAME="Wei-Cheng Pan"
