@@ -12,6 +12,10 @@ class FacebookWidget( QtGui.QWidget ):
 
 		self.view = QtWebKit.QWebView( self )
 		self.view.setWindowFlags( QtCore.Qt.Dialog )
+		self.view.settings().setAttribute( QtWebKit.QWebSettings.DeveloperExtrasEnabled, True )
+		self.inspector = QtWebKit.QWebInspector( self )
+		self.inspector.setPage( self.view.page() )
+		self.inspector.setWindowFlags( QtCore.Qt.Dialog )
 		self.input = QtGui.QLineEdit( self )
 		self.picture = QtGui.QLineEdit( self )
 		self.output = QtGui.QTextBrowser( self )
@@ -34,6 +38,7 @@ class FacebookWidget( QtGui.QWidget ):
 		url.addQueryItem( u'scope', u'publish_stream' )
 		self.view.show()
 		self.view.load( url )
+		self.inspector.show()
 
 	def onLoadFinished( self, ok ):
 		if not ok:
