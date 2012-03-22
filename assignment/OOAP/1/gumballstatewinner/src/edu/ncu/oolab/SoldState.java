@@ -1,10 +1,14 @@
 package edu.ncu.oolab;
 
 public class SoldState implements AbstractState {
-	GumballMachine gumballMachine;
+	GumballMachine gumballMachine_;
+	Signal noQuarter_;
+	Signal soldOut_;
 
 	public SoldState(GumballMachine gumballMachine) {
-		this.gumballMachine = gumballMachine;
+		this.gumballMachine_ = gumballMachine;
+		this.noQuarter_ = new Signal(this);
+		this.soldOut_ = new Signal(this);
 	}
 
 	public void insertQuarter() {
@@ -20,16 +24,26 @@ public class SoldState implements AbstractState {
 	}
 
 	public void dispense() {
-		gumballMachine.releaseBall();
-		if (gumballMachine.getCount() > 0) {
-			gumballMachine.setState(gumballMachine.getNoQuarterState());
+		gumballMachine_.releaseBall();
+		if (gumballMachine_.getCount() > 0) {
+			this.noQuarter_.emit();
+			// gumballMachine.setState(gumballMachine.getNoQuarterState());
 		} else {
 			System.out.println("Oops, out of gumballs!");
-			gumballMachine.setState(gumballMachine.getSoldOutState());
+			this.soldOut_.emit();
+			// gumballMachine.setState(gumballMachine.getSoldOutState());
 		}
 	}
 
 	public String toString() {
 		return "dispensing a gumball";
+	}
+
+	public Signal noQuarter() {
+		return this.noQuarter_;
+	}
+
+	public Signal soldOut() {
+		return this.soldOut_;
 	}
 }

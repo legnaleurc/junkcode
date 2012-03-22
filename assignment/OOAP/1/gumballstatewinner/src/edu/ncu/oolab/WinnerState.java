@@ -1,10 +1,14 @@
 package edu.ncu.oolab;
 
 public class WinnerState implements AbstractState {
-	GumballMachine gumballMachine;
+	GumballMachine gumballMachine_;
+	Signal soldOut_;
+	Signal noQuarter_;
 
 	public WinnerState(GumballMachine gumballMachine) {
-		this.gumballMachine = gumballMachine;
+		this.gumballMachine_ = gumballMachine;
+		this.soldOut_ = new Signal(this);
+		this.noQuarter_ = new Signal(this);
 	}
 
 	public void insertQuarter() {
@@ -21,21 +25,32 @@ public class WinnerState implements AbstractState {
 
 	public void dispense() {
 		System.out.println("YOU'RE A WINNER! You get two gumballs for your quarter");
-		gumballMachine.releaseBall();
-		if (gumballMachine.getCount() == 0) {
-			gumballMachine.setState(gumballMachine.getSoldOutState());
+		gumballMachine_.releaseBall();
+		if (gumballMachine_.getCount() == 0) {
+			this.soldOut_.emit();
+			// gumballMachine_.setState(gumballMachine_.getSoldOutState());
 		} else {
-			gumballMachine.releaseBall();
-			if (gumballMachine.getCount() > 0) {
-				gumballMachine.setState(gumballMachine.getNoQuarterState());
+			gumballMachine_.releaseBall();
+			if (gumballMachine_.getCount() > 0) {
+				this.noQuarter_.emit();
+				// gumballMachine_.setState(gumballMachine_.getNoQuarterState());
 			} else {
 				System.out.println("Oops, out of gumballs!");
-				gumballMachine.setState(gumballMachine.getSoldOutState());
+				this.soldOut_.emit();
+				// gumballMachine_.setState(gumballMachine_.getSoldOutState());
 			}
 		}
 	}
 
 	public String toString() {
 		return "despensing two gumballs for your quarter, because YOU'RE A WINNER!";
+	}
+
+	public Signal soldOut() {
+		return this.soldOut_;
+	}
+
+	public Signal noQuarter() {
+		return this.noQuarter_;
 	}
 }

@@ -2,25 +2,77 @@ package edu.ncu.oolab;
 
 public class GumballMachine {
 
-	AbstractState soldOutState;
-	AbstractState noQuarterState;
-	AbstractState hasQuarterState;
-	AbstractState soldState;
-	AbstractState winnerState;
+	SoldOutState soldOutState_;
+	NoQuarterState noQuarterState_;
+	HasQuarterState hasQuarterState_;
+	SoldState soldState_;
+	WinnerState winnerState_;
 
-	AbstractState state = soldOutState;
+	AbstractState state = soldOutState_;
 	int count = 0;
 
 	public GumballMachine(int numberGumballs) {
-		soldOutState = new SoldOutState(this);
-		noQuarterState = new NoQuarterState(this);
-		hasQuarterState = new HasQuarterState(this);
-		soldState = new SoldState(this);
-		winnerState = new WinnerState(this);
+		this.soldOutState_ = new SoldOutState(this);
+		this.noQuarterState_ = new NoQuarterState(this);
+		this.hasQuarterState_ = new HasQuarterState(this);
+		this.soldState_ = new SoldState(this);
+		this.winnerState_ = new WinnerState(this);
+
+		this.noQuarterState_.inserted().connect(new Signal.Slot() {
+			@Override
+			public void call(Object sender, Object... args) {
+				GumballMachine.this.state = GumballMachine.this.hasQuarterState_;
+			}
+		});
+
+		this.hasQuarterState_.ejected().connect(new Signal.Slot() {
+			@Override
+			public void call(Object sender, Object... args) {
+				GumballMachine.this.state = GumballMachine.this.noQuarterState_;
+			}
+		});
+		this.hasQuarterState_.won().connect(new Signal.Slot() {
+			@Override
+			public void call(Object sender, Object... args) {
+				GumballMachine.this.state = GumballMachine.this.winnerState_;
+			}
+		});
+		this.hasQuarterState_.sold().connect(new Signal.Slot() {
+			@Override
+			public void call(Object sender, Object... args) {
+				GumballMachine.this.state = GumballMachine.this.soldState_;
+			}
+		});
+
+		this.soldState_.noQuarter().connect(new Signal.Slot() {
+			@Override
+			public void call(Object sender, Object... args) {
+				GumballMachine.this.state = GumballMachine.this.noQuarterState_;
+			}
+		});
+		this.soldState_.soldOut().connect(new Signal.Slot() {
+			@Override
+			public void call(Object sender, Object... args) {
+				GumballMachine.this.state = GumballMachine.this.soldOutState_;
+			}
+		});
+
+		this.winnerState_.noQuarter().connect(new Signal.Slot() {
+			@Override
+			public void call(Object sender, Object... args) {
+				GumballMachine.this.state = GumballMachine.this.noQuarterState_;
+			}
+		});
+		this.winnerState_.soldOut().connect(new Signal.Slot() {
+			@Override
+			public void call(Object sender, Object... args) {
+				GumballMachine.this.state = GumballMachine.this.soldOutState_;
+			}
+		});
 
 		this.count = numberGumballs;
 		if (numberGumballs > 0) {
-			state = noQuarterState;
+			state = noQuarterState_;
 		}
 	}
 
@@ -54,31 +106,11 @@ public class GumballMachine {
 
 	void refill(int count) {
 		this.count = count;
-		state = noQuarterState;
+		state = noQuarterState_;
 	}
 
 	public AbstractState getState() {
 		return state;
-	}
-
-	public AbstractState getSoldOutState() {
-		return soldOutState;
-	}
-
-	public AbstractState getNoQuarterState() {
-		return noQuarterState;
-	}
-
-	public AbstractState getHasQuarterState() {
-		return hasQuarterState;
-	}
-
-	public AbstractState getSoldState() {
-		return soldState;
-	}
-
-	public AbstractState getWinnerState() {
-		return winnerState;
 	}
 
 	public String toString() {

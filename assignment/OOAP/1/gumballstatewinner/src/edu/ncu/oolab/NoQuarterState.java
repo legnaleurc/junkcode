@@ -1,15 +1,18 @@
 package edu.ncu.oolab;
 
 public class NoQuarterState implements AbstractState {
-	GumballMachine gumballMachine;
+	GumballMachine gumballMachine_;
+	Signal inserted_;
 
 	public NoQuarterState(GumballMachine gumballMachine) {
-		this.gumballMachine = gumballMachine;
+		this.gumballMachine_ = gumballMachine;
+		this.inserted_ = new Signal(this);
 	}
 
 	public void insertQuarter() {
 		System.out.println("You inserted a quarter");
-		gumballMachine.setState(gumballMachine.getHasQuarterState());
+		this.inserted().emit();
+		// gumballMachine_.setState(gumballMachine_.getHasQuarterState());
 	}
 
 	public void ejectQuarter() {
@@ -26,5 +29,9 @@ public class NoQuarterState implements AbstractState {
 
 	public String toString() {
 		return "waiting for quarter";
+	}
+
+	public Signal inserted() {
+		return this.inserted_;
 	}
 }
