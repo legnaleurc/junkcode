@@ -1,6 +1,6 @@
 package edu.ncu.oolab;
 
-public interface State {
+public interface AbstractState {
 	public void insertQuarter();
 
 	public void ejectQuarter();

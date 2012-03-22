@@ -1,6 +1,6 @@
 package edu.ncu.oolab;
 
-public class NoQuarterState implements State {
+public class NoQuarterState implements AbstractState {
 	GumballMachine gumballMachine;
 
 	public NoQuarterState(GumballMachine gumballMachine) {

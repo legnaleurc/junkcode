@@ -1,6 +1,6 @@
 package edu.ncu.oolab;
 
-public class WinnerState implements State {
+public class WinnerState implements AbstractState {
 	GumballMachine gumballMachine;
 
 	public WinnerState(GumballMachine gumballMachine) {

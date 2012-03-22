@@ -2,13 +2,13 @@ package edu.ncu.oolab;
 
 public class GumballMachine {
 
-	State soldOutState;
-	State noQuarterState;
-	State hasQuarterState;
-	State soldState;
-	State winnerState;
+	AbstractState soldOutState;
+	AbstractState noQuarterState;
+	AbstractState hasQuarterState;
+	AbstractState soldState;
+	AbstractState winnerState;
 
-	State state = soldOutState;
+	AbstractState state = soldOutState;
 	int count = 0;
 
 	public GumballMachine(int numberGumballs) {
@@ -37,7 +37,7 @@ public class GumballMachine {
 		state.dispense();
 	}
 
-	void setState(State state) {
+	void setState(AbstractState state) {
 		this.state = state;
 	}
 
@@ -57,27 +57,27 @@ public class GumballMachine {
 		state = noQuarterState;
 	}
 
-	public State getState() {
+	public AbstractState getState() {
 		return state;
 	}
 
-	public State getSoldOutState() {
+	public AbstractState getSoldOutState() {
 		return soldOutState;
 	}
 
-	public State getNoQuarterState() {
+	public AbstractState getNoQuarterState() {
 		return noQuarterState;
 	}
 
-	public State getHasQuarterState() {
+	public AbstractState getHasQuarterState() {
 		return hasQuarterState;
 	}
 
-	public State getSoldState() {
+	public AbstractState getSoldState() {
 		return soldState;
 	}
 
-	public State getWinnerState() {
+	public AbstractState getWinnerState() {
 		return winnerState;
 	}
 

@@ -2,7 +2,7 @@ package edu.ncu.oolab;
 
 import java.util.Random;
 
-public class HasQuarterState implements State {
+public class HasQuarterState implements AbstractState {
 	Random randomWinner = new Random(System.currentTimeMillis());
 	GumballMachine gumballMachine;
 
