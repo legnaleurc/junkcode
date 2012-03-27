@@ -12,28 +12,30 @@ void NApplication::Private::destroy( NApplication * p ) {
 
 void NApplication::Private::onWindowChanged( int sig ) {
 	int rows = 0, cols = 0;
-	getmaxyx( self->p_->screen, rows, cols );
+	getmaxyx( self->p_->screen.get(), rows, cols );
 	self->p_->resize( rows, cols );
 }
 
 NApplication::Private::Private():
-focusWidget( NULL ),
-screen( initscr() ),
+focusWidget( nullptr ),
+screen( initscr(), []( WINDOW * w ) {
+	delwin( w );
+	endwin();
+} ),
 widgets() {
-	if( this->screen == NULL ) {
+	if( !this->screen ) {
 		assert( !"" );
 	}
 	noecho();
 	cbreak();
-	keypad( this->screen, true );
+	keypad( this->screen.get(), TRUE );
 	refresh();
 }
 
 NApplication::Private::~Private() {
-	keypad( this->screen, false );
+	keypad( this->screen.get(), FALSE );
 	nocbreak();
 	echo();
-	endwin();
 }
 
 void NApplication::Private::addWidget( NWidget * widget ) {
@@ -53,8 +55,8 @@ void NApplication::Private::removeWidget( NWidget * widget ) {
 }
 
 void NApplication::Private::resize( int rows, int cols ) {
-	wresize( this->screen, rows, cols );
-	wrefresh( this->screen );
+	wresize( this->screen.get(), rows, cols );
+	wrefresh( this->screen.get() );
 	// FIXME top widget only
 	std::for_each( std::begin( this->widgets ), std::end( this->widgets ), [rows, cols]( NWidget * w ) {
 		w->resize( rows, cols );

@@ -22,7 +22,7 @@ public:
 	void resize( int rows, int cols );
 
 	NWidget * focusWidget;
-	WINDOW * screen;
+	std::shared_ptr< WINDOW > screen;
 	std::vector< NWidget * > widgets;
 };
 
