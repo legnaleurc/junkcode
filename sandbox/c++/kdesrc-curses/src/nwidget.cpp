@@ -46,8 +46,11 @@ const NPoint & NWidget::pos() const {
 	return this->p_->pos;
 }
 
+// FIXME recreate window here, should be more elegant
 void NWidget::resize( int rows, int cols ) {
-	wresize( this->p_->window, rows, cols );
+	NPoint pos = this->pos();
+	delwin( this->p_->window );
+	this->p_->window = newwin( rows, cols, pos.y(), pos.x() );
 	box( this->p_->window, 0, 0 );
 	// TODO update children geo
 }
