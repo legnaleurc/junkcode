@@ -30,13 +30,11 @@ p_( new Private( parent ) ) {
 	if( parent != NULL ) {
 		parent->p_->children.push_back( this );
 	}
-	// FIXME thread safety
-	NApplication::instance().p_->widgets.push_back( this );
+	NApplication::instance().p_->addWidget( this );
 }
 
 NWidget::~NWidget() {
-	// FIXME thread safety
-	NApplication::instance().p_->widgets.erase( std::remove( std::begin( NApplication::instance().p_->widgets ), std::end( NApplication::instance().p_->widgets ), this ), std::end( NApplication::instance().p_->widgets ) );
+	NApplication::instance().p_->removeWidget( this );
 }
 
 NWidget * NWidget::parent() const {

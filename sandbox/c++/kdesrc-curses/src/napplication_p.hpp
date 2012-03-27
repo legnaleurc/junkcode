@@ -16,6 +16,9 @@ public:
 	Private();
 	~Private();
 
+	void addWidget( NWidget * widget );
+	void removeWidget( NWidget * widget );
+
 	WINDOW * screen;
 	std::vector< NWidget * > widgets;
 };

@@ -27,6 +27,16 @@ NApplication::Private::~Private() {
 	endwin();
 }
 
+void NApplication::Private::addWidget( NWidget * widget ) {
+	// FIXME thread safety
+	this->widgets.push_back( widget );
+}
+
+void NApplication::Private::removeWidget( NWidget * widget ) {
+	// FIXME thread safety
+	this->widgets.erase( std::remove( std::begin( this->widgets ), std::end( this->widgets ), widget ), std::end( this->widgets ) );
+}
+
 NApplication & NApplication::instance() {
 	if( !Private::self ) {
 		Private::self.reset( new NApplication, Private::destroy );
