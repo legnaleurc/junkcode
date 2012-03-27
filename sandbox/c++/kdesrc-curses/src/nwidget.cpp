@@ -64,12 +64,11 @@ const NSize & NWidget::size() const {
 	return this->p_->size;
 }
 
-// FIXME recreate window here, should be more elegant
 void NWidget::resize( int rows, int cols ) {
 	this->p_->size.rows() = rows;
 	this->p_->size.cols() = cols;
-	NPoint pos = this->pos();
-	this->p_->window.reset( newwin( rows, cols, pos.y(), pos.x() ), destory );
+	wresize( this->p_->window.get(), rows, cols );
+	werase( this->p_->window.get() );
 	box( this->p_->window.get(), 0, 0 );
 	// TODO update children geo
 }
