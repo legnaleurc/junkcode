@@ -12,12 +12,14 @@ class NApplication::Private {
 public:
 	static std::shared_ptr< NApplication > self;
 	static void destroy( NApplication * );
+	static void onWindowChanged( int sig );
 
 	Private();
 	~Private();
 
 	void addWidget( NWidget * widget );
 	void removeWidget( NWidget * widget );
+	void resize( int rows, int cols );
 
 	NWidget * focusWidget;
 	WINDOW * screen;

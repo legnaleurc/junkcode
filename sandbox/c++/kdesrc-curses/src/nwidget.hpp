@@ -15,6 +15,7 @@ public:
 
 	NWidget * parent() const;
 	const NPoint & pos() const;
+	void resize( int rows, int cols );
 	void update();
 
 	boost::signal< void ( int ) > & keyPressed();

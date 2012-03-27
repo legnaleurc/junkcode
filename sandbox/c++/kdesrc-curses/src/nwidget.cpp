@@ -46,6 +46,12 @@ const NPoint & NWidget::pos() const {
 	return this->p_->pos;
 }
 
+void NWidget::resize( int rows, int cols ) {
+	wresize( this->p_->window, rows, cols );
+	box( this->p_->window, 0, 0 );
+	// TODO update children geo
+}
+
 void NWidget::update() {
 	wrefresh( this->p_->window );
 }

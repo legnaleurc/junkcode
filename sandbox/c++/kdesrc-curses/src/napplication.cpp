@@ -2,11 +2,18 @@
 
 #include <algorithm>
 #include <cassert>
+#include <csignal>
 
 std::shared_ptr< NApplication > NApplication::Private::self;
 
 void NApplication::Private::destroy( NApplication * p ) {
 	delete p;
+}
+
+void NApplication::Private::onWindowChanged( int sig ) {
+	int rows = 0, cols = 0;
+	getmaxyx( self->p_->screen, rows, cols );
+	self->p_->resize( rows, cols );
 }
 
 NApplication::Private::Private():
@@ -19,6 +26,7 @@ widgets() {
 	noecho();
 	cbreak();
 	keypad( this->screen, true );
+	refresh();
 }
 
 NApplication::Private::~Private() {
@@ -44,6 +52,16 @@ void NApplication::Private::removeWidget( NWidget * widget ) {
 	}
 }
 
+void NApplication::Private::resize( int rows, int cols ) {
+	wresize( this->screen, rows, cols );
+	wrefresh( this->screen );
+	// FIXME top widget only
+	std::for_each( std::begin( this->widgets ), std::end( this->widgets ), [rows, cols]( NWidget * w ) {
+		w->resize( rows, cols );
+		w->update();
+	} );
+}
+
 NApplication & NApplication::instance() {
 	if( !Private::self ) {
 		Private::self.reset( new NApplication, Private::destroy );
@@ -60,14 +78,19 @@ NApplication::~NApplication() {
 }
 
 int NApplication::exec() {
-	refresh();
 	for(;;) {
 		std::for_each( std::begin( this->p_->widgets ), std::end( this->p_->widgets ), []( NWidget * w ) {
 			w->update();
 		} );
 		// TODO dispatch events to focusing widget
 		int c = getch();
-		this->p_->focusWidget->inputEvent( c );
+		switch( c ) {
+		case KEY_RESIZE:
+			Private::onWindowChanged( SIGWINCH );
+			break;
+		default:
+			this->p_->focusWidget->inputEvent( c );
+		}
 	}
 	return 0;
 }
