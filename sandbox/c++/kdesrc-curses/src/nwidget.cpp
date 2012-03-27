@@ -16,10 +16,12 @@ parent( parent ),
 pos(),
 window() {
 	if( !parent ) {
+		// no parent, screen-wide
 		this->window.reset( newwin( 0, 0, 0, 0 ), destory );
 	} else {
 		NPoint pos = parent->pos();
 		this->window.reset( newwin( 0, 0, pos.y(), pos.x() ), destory );
+		this->pos = pos;
 	}
 	box( this->window.get(), 0, 0 );
 }
