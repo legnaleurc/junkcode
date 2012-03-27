@@ -27,7 +27,7 @@ window() {
 		NSize size = parent->size();
 		size.rows() -= 2;
 		size.cols() -= 2;
-		this->window.reset( newwin( size.rows(), size.cols(), pos.y(), pos.x() ), destory );
+		this->window.reset( derwin( parent->p_->window.get(), size.rows(), size.cols(), pos.y(), pos.x() ), destory );
 		this->pos = pos;
 		this->size = size;
 	}
@@ -70,7 +70,11 @@ void NWidget::resize( int rows, int cols ) {
 	wresize( this->p_->window.get(), rows, cols );
 	werase( this->p_->window.get() );
 	box( this->p_->window.get(), 0, 0 );
-	// TODO update children geo
+
+	// update children
+	std::for_each( std::begin( this->p_->children ), std::end( this->p_->children ), [rows, cols]( NWidget * w ) {
+		w->resize( rows - 2, cols - 2 );
+	} );
 }
 
 void NWidget::update() {

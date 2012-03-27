@@ -25,6 +25,7 @@ public:
 	NWidget * focusWidget;
 	std::shared_ptr< WINDOW > screen;
 	NSize size;
+	NWidget * topLevelWidget;
 	std::vector< NWidget * > widgets;
 };
 

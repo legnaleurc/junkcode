@@ -23,6 +23,7 @@ screen( initscr(), []( WINDOW * w ) {
 	endwin();
 } ),
 size(),
+topLevelWidget( nullptr ),
 widgets() {
 	if( !this->screen ) {
 		assert( !"" );
@@ -41,19 +42,23 @@ NApplication::Private::~Private() {
 	echo();
 }
 
+// FIXME thread safety
 void NApplication::Private::addWidget( NWidget * widget ) {
-	// FIXME thread safety
-	this->widgets.push_back( widget );
-	if( this->widgets.size() == 1 ) {
+	if( this->widgets.empty() ) {
 		this->focusWidget = widget;
+		this->topLevelWidget = widget;
 	}
+	this->widgets.push_back( widget );
 }
 
+// FIXME thread safety
 void NApplication::Private::removeWidget( NWidget * widget ) {
-	// FIXME thread safety
 	this->widgets.erase( std::remove( std::begin( this->widgets ), std::end( this->widgets ), widget ), std::end( this->widgets ) );
 	if( this->focusWidget == widget ) {
-		this->focusWidget = NULL;
+		this->focusWidget = nullptr;
+	}
+	if( this->topLevelWidget == widget ) {
+		this->topLevelWidget = nullptr;
 	}
 }
 
@@ -62,11 +67,10 @@ void NApplication::Private::resize( int rows, int cols ) {
 	this->size.cols() = cols;
 	wresize( this->screen.get(), rows, cols );
 	wrefresh( this->screen.get() );
-	// FIXME top widget only
-	std::for_each( std::begin( this->widgets ), std::end( this->widgets ), [rows, cols]( NWidget * w ) {
-		w->resize( rows, cols );
-		w->update();
-	} );
+	if( this->topLevelWidget ) {
+		this->topLevelWidget->resize( rows, cols );
+		this->topLevelWidget->update();
+	}
 }
 
 NApplication & NApplication::instance() {
@@ -96,7 +100,9 @@ int NApplication::exec() {
 			Private::onWindowChanged( SIGWINCH );
 			break;
 		default:
-			this->p_->focusWidget->inputEvent( c );
+			if( this->p_->focusWidget ) {
+				this->p_->focusWidget->inputEvent( c );
+			}
 		}
 	}
 	return 0;
