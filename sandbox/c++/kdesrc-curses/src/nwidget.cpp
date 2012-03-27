@@ -3,32 +3,36 @@
 
 #include <algorithm>
 
+namespace {
+	void destory( WINDOW * w ) {
+		delwin( w );
+	}
+}
+
 NWidget::Private::Private( NWidget * parent ):
 children(),
 keyPressed(),
 parent( parent ),
 pos(),
-window( NULL ) {
-	if( parent == NULL ) {
-		this->window = newwin( 0, 0, 0, 0 );
+window() {
+	if( !parent ) {
+		this->window.reset( newwin( 0, 0, 0, 0 ), destory );
 	} else {
 		NPoint pos = parent->pos();
-		this->window = newwin( 0, 0, pos.y(), pos.x() );
+		this->window.reset( newwin( 0, 0, pos.y(), pos.x() ), destory );
 	}
-	box( this->window, 0, 0 );
+	box( this->window.get(), 0, 0 );
 }
 
 NWidget::Private::~Private() {
 	std::for_each( std::begin( this->children ), std::end( this->children ), []( NWidget * c ) {
 		delete c;
 	} );
-
-	delwin( this->window );
 }
 
 NWidget::NWidget( NWidget * parent ):
 p_( new Private( parent ) ) {
-	if( parent != NULL ) {
+	if( !parent ) {
 		parent->p_->children.push_back( this );
 	}
 	NApplication::instance().p_->addWidget( this );
@@ -49,14 +53,13 @@ const NPoint & NWidget::pos() const {
 // FIXME recreate window here, should be more elegant
 void NWidget::resize( int rows, int cols ) {
 	NPoint pos = this->pos();
-	delwin( this->p_->window );
-	this->p_->window = newwin( rows, cols, pos.y(), pos.x() );
-	box( this->p_->window, 0, 0 );
+	this->p_->window.reset( newwin( rows, cols, pos.y(), pos.x() ), destory );
+	box( this->p_->window.get(), 0, 0 );
 	// TODO update children geo
 }
 
 void NWidget::update() {
-	wrefresh( this->p_->window );
+	wrefresh( this->p_->window.get() );
 }
 
 boost::signal< void ( int ) > & NWidget::keyPressed() {

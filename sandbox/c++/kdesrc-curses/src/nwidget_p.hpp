@@ -17,7 +17,7 @@ public:
 	boost::signal< void ( int ) > keyPressed;
 	NWidget * parent;
 	NPoint pos;
-	WINDOW * window;
+	std::shared_ptr< WINDOW > window;
 };
 
 #endif
