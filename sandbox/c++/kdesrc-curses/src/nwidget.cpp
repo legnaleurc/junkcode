@@ -32,7 +32,7 @@ NWidget::Private::~Private() {
 
 NWidget::NWidget( NWidget * parent ):
 p_( new Private( parent ) ) {
-	if( !parent ) {
+	if( parent ) {
 		parent->p_->children.push_back( this );
 	}
 	NApplication::instance().p_->addWidget( this );
