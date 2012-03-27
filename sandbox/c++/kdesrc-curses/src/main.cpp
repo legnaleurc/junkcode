@@ -9,5 +9,6 @@ int main( int argc, char * argv[] ) {
 			a.quit();
 		}
 	} );
+	NWidget * c = new NWidget( &w );
 	return a.exec();
 }

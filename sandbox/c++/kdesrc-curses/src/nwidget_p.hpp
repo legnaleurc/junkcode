@@ -3,6 +3,7 @@
 
 #include "nwidget.hpp"
 #include "npoint.hpp"
+#include "nsize.hpp"
 
 #include <ncurses.h>
 
@@ -17,6 +18,7 @@ public:
 	boost::signal< void ( int ) > keyPressed;
 	NWidget * parent;
 	NPoint pos;
+	NSize size;
 	std::shared_ptr< WINDOW > window;
 };
 

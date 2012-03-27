@@ -3,6 +3,7 @@
 
 #include <memory>
 
+class NSize;
 class NWidget;
 
 class NApplication {
@@ -10,6 +11,7 @@ public:
 	static NApplication & instance();
 
 	int exec();
+	const NSize & size() const;
 	void quit();
 
 private:

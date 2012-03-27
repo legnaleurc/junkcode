@@ -14,14 +14,22 @@ children(),
 keyPressed(),
 parent( parent ),
 pos(),
+size(),
 window() {
 	if( !parent ) {
 		// no parent, screen-wide
 		this->window.reset( newwin( 0, 0, 0, 0 ), destory );
+		this->size = NApplication::instance().size();
 	} else {
 		NPoint pos = parent->pos();
-		this->window.reset( newwin( 0, 0, pos.y(), pos.x() ), destory );
+		pos.y() += 1;
+		pos.x() += 1;
+		NSize size = parent->size();
+		size.rows() -= 2;
+		size.cols() -= 2;
+		this->window.reset( newwin( size.rows(), size.cols(), pos.y(), pos.x() ), destory );
 		this->pos = pos;
+		this->size = size;
 	}
 	box( this->window.get(), 0, 0 );
 }
@@ -52,8 +60,14 @@ const NPoint & NWidget::pos() const {
 	return this->p_->pos;
 }
 
+const NSize & NWidget::size() const {
+	return this->p_->size;
+}
+
 // FIXME recreate window here, should be more elegant
 void NWidget::resize( int rows, int cols ) {
+	this->p_->size.rows() = rows;
+	this->p_->size.cols() = cols;
 	NPoint pos = this->pos();
 	this->p_->window.reset( newwin( rows, cols, pos.y(), pos.x() ), destory );
 	box( this->p_->window.get(), 0, 0 );

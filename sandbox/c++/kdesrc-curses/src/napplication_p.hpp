@@ -2,6 +2,7 @@
 #define NAPPLICATION_P_HPP
 
 #include "napplication.hpp"
+#include "nsize.hpp"
 #include "nwidget.hpp"
 
 #include <ncurses.h>
@@ -23,6 +24,7 @@ public:
 
 	NWidget * focusWidget;
 	std::shared_ptr< WINDOW > screen;
+	NSize size;
 	std::vector< NWidget * > widgets;
 };
 

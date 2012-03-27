@@ -7,6 +7,7 @@
 
 class NApplication;
 class NPoint;
+class NSize;
 
 class NWidget {
 public:
@@ -15,6 +16,7 @@ public:
 
 	NWidget * parent() const;
 	const NPoint & pos() const;
+	const NSize & size() const;
 	void resize( int rows, int cols );
 	void update();
 

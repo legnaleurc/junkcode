@@ -22,6 +22,7 @@ screen( initscr(), []( WINDOW * w ) {
 	delwin( w );
 	endwin();
 } ),
+size(),
 widgets() {
 	if( !this->screen ) {
 		assert( !"" );
@@ -30,6 +31,8 @@ widgets() {
 	cbreak();
 	keypad( this->screen.get(), TRUE );
 	refresh();
+
+	getmaxyx( this->screen.get(), this->size.rows(), this->size.cols() );
 }
 
 NApplication::Private::~Private() {
@@ -55,6 +58,8 @@ void NApplication::Private::removeWidget( NWidget * widget ) {
 }
 
 void NApplication::Private::resize( int rows, int cols ) {
+	this->size.rows() = rows;
+	this->size.cols() = cols;
 	wresize( this->screen.get(), rows, cols );
 	wrefresh( this->screen.get() );
 	// FIXME top widget only
@@ -95,6 +100,10 @@ int NApplication::exec() {
 		}
 	}
 	return 0;
+}
+
+const NSize & NApplication::size() const {
+	return this->p_->size;
 }
 
 void NApplication::quit() {
