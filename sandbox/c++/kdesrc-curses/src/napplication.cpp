@@ -10,6 +10,7 @@ void NApplication::Private::destroy( NApplication * p ) {
 }
 
 NApplication::Private::Private():
+focusWidget( NULL ),
 screen( initscr() ),
 widgets() {
 	if( this->screen == NULL ) {
@@ -30,11 +31,17 @@ NApplication::Private::~Private() {
 void NApplication::Private::addWidget( NWidget * widget ) {
 	// FIXME thread safety
 	this->widgets.push_back( widget );
+	if( this->widgets.size() == 1 ) {
+		this->focusWidget = widget;
+	}
 }
 
 void NApplication::Private::removeWidget( NWidget * widget ) {
 	// FIXME thread safety
 	this->widgets.erase( std::remove( std::begin( this->widgets ), std::end( this->widgets ), widget ), std::end( this->widgets ) );
+	if( this->focusWidget == widget ) {
+		this->focusWidget = NULL;
+	}
 }
 
 NApplication & NApplication::instance() {
@@ -60,9 +67,11 @@ int NApplication::exec() {
 		} );
 		// TODO dispatch events to focusing widget
 		int c = getch();
-		if( c == 'q' ) {
-			break;
-		}
+		this->p_->focusWidget->inputEvent( c );
 	}
 	return 0;
+}
+
+void NApplication::quit() {
+	std::exit( 0 );
 }

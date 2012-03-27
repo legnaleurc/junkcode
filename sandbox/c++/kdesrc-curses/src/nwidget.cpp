@@ -5,6 +5,7 @@
 
 NWidget::Private::Private( NWidget * parent ):
 children(),
+keyPressed(),
 parent( parent ),
 pos(),
 window( NULL ) {
@@ -47,4 +48,12 @@ const NPoint & NWidget::pos() const {
 
 void NWidget::update() {
 	wrefresh( this->p_->window );
+}
+
+boost::signal< void ( int ) > & NWidget::keyPressed() {
+	return this->p_->keyPressed;
+}
+
+void NWidget::inputEvent( int keyCode ) {
+	this->p_->keyPressed( keyCode );
 }

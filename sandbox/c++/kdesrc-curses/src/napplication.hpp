@@ -10,6 +10,8 @@ public:
 	static NApplication & instance();
 
 	int exec();
+	void quit();
+
 private:
 	NApplication();
 	NApplication( const NApplication & );

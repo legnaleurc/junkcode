@@ -14,6 +14,7 @@ public:
 	~Private();
 
 	std::vector< NWidget * > children;
+	boost::signal< void ( int ) > keyPressed;
 	NWidget * parent;
 	NPoint pos;
 	WINDOW * window;

@@ -19,6 +19,7 @@ public:
 	void addWidget( NWidget * widget );
 	void removeWidget( NWidget * widget );
 
+	NWidget * focusWidget;
 	WINDOW * screen;
 	std::vector< NWidget * > widgets;
 };
