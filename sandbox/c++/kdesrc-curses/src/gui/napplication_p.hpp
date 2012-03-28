@@ -1,9 +1,9 @@
 #ifndef NAPPLICATION_P_HPP
 #define NAPPLICATION_P_HPP
 
-#include "napplication.hpp"
-#include "nsize.hpp"
-#include "nwidget.hpp"
+#include "gui/napplication.hpp"
+#include "core/nsize.hpp"
+#include "gui/nwidget.hpp"
 
 #include <ncurses.h>
 

@@ -1,4 +1,4 @@
-#include "napplication_p.hpp"
+#include "gui/napplication_p.hpp"
 
 #include <algorithm>
 #include <cassert>

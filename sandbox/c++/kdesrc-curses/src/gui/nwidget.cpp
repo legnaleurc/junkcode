@@ -1,5 +1,5 @@
-#include "nwidget_p.hpp"
-#include "napplication_p.hpp"
+#include "gui/nwidget_p.hpp"
+#include "gui/napplication_p.hpp"
 
 #include <algorithm>
 

@@ -1,9 +1,9 @@
 #ifndef NWIDGET_P_HPP
 #define NWIDGET_P_HPP
 
-#include "nwidget.hpp"
-#include "npoint.hpp"
-#include "nsize.hpp"
+#include "gui/nwidget.hpp"
+#include "core/npoint.hpp"
+#include "core/nsize.hpp"
 
 #include <ncurses.h>
 

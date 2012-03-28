@@ -1,7 +1,7 @@
 #ifndef NPOINT_P_HPP
 #define NPOINT_P_HPP
 
-#include "npoint.hpp"
+#include "core/npoint.hpp"
 
 class NPoint::Private {
 public:

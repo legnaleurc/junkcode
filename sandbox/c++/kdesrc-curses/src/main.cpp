@@ -1,5 +1,5 @@
-#include "napplication.hpp"
-#include "nwidget.hpp"
+#include "gui/napplication.hpp"
+#include "gui/nwidget.hpp"
 
 int main( int argc, char * argv[] ) {
 	NApplication & a = NApplication::instance();

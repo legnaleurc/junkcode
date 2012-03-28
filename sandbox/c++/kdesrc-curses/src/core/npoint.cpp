@@ -1,4 +1,4 @@
-#include "npoint_p.hpp"
+#include "core/npoint_p.hpp"
 
 NPoint::Private::Private( int x, int y ):
 x( x ),

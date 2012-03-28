@@ -1,7 +1,7 @@
 #ifndef NSIZE_P_HPP
 #define NSIZE_P_HPP
 
-#include "nsize.hpp"
+#include "core/nsize.hpp"
 
 class NSize::Private {
 public:

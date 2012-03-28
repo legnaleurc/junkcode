@@ -1,4 +1,4 @@
-#include "nsize_p.hpp"
+#include "core/nsize_p.hpp"
 
 NSize::Private::Private( int rows, int cols ):
 rows( rows ),
