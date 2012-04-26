@@ -1,12 +1,21 @@
-create circuit wulala
-add gate NAND test
-add gate NOT negate
-add line A START input 0 END test i1
-add line B START input 0 END test i2
-add line C START test o1 END negate i1
-add line D START negate o1 END output 0
+create circuit eda
+add gate AND and1
+add gate AND and2
+add gate NOT not1
+add gate OR or1
+add gate NOT not2
+add line A START input 0 END and2 i2
+add line B START input 0 END not1 i1
+add line C START input 0 END and1 i2
+add line D START input 0 END not2 i1
+add line E START not1 o1 END and2 i1
+add line F START not2 o1 END and1 i1
+add line G START and1 o1 END or1 i1
+add line H START and2 o1 END or1 i2
+add line I START or1 o1 END output 0
 list
-evaluate A 1 B 1
-evaluate A 1 B 1
+evaluate A 1 B 1 C 1 D 1
+evaluate A 1 B 0 C 1 D 1
+evaluate A 0 B 1 C 1 D 0
 delete
 quit
