@@ -6,12 +6,11 @@ class Gate:
 		self.input2 = -1
 		self.outputLines = []
 
-	def push( self ):
-		for line in self.outputLines:
-			line()
+	def __str__( self ):
+		return '{0} {1}'.format( self.name, self.type_ )
 
 	def __call__( self ):
-		print 'GATE {0} {1} {2}'.format( self.name, self.input1, self.input2 )
+#		print 'GATE {0} {1} {2}'.format( self.name, self.input1, self.input2 )
 		if self.input1  == -1 or ( self.type_ != 'NOT' and self.input2 == -1 ):
 			return
 
