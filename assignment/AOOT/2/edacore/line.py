@@ -28,7 +28,6 @@ class Line:
 		return 'Line {0}: {1} {2}'.format( self.name, inputName, outputName )
 
 	def __call__( self ):
-#		print 'LINE {0} {1}'.format( self.name, self.value )
 		if self.value == -1:
 			return
 
