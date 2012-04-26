@@ -2,7 +2,9 @@ class Circuit:
 	def __init__( self, name ):
 		self.name = name
 		self.gates = {}
+		self.gateOrder = []
 		self.lines = {}
+		self.lineOrder = []
 		self.inputGates = {}
 		self.result = -1
 		self.lastLine = None
@@ -10,9 +12,11 @@ class Circuit:
 
 	def addGate( self, gate ):
 		self.gates[gate.name] = gate
+		self.gateOrder.append( gate.name )
 
 	def addLine( self, line ):
 		self.lines[line.name] = line
+		self.lineOrder.append( line.name )
 		if line.end == None:
 			self.lastLine = line
 
@@ -33,8 +37,8 @@ class Circuit:
 
 	def listAll( self ):
 		print 'Gate information:'
-		for n, g in self.gates.iteritems():
-			print g
+		for n in self.gateOrder:
+			print self.gates[n]
 		print 'Line information:'
-		for n, l in self.lines.iteritems():
-			print l
+		for n in self.lineOrder:
+			print self.lines[n]
