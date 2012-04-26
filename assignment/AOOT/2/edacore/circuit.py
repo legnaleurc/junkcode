@@ -4,7 +4,7 @@ class Circuit:
 		self.gates = {}
 		self.lines = {}
 		self.inputGates = {}
-		self.result = 0
+		self.result = -1
 
 	def addGate( self, gate ):
 		self.gates[gate.name] = gate
@@ -16,10 +16,6 @@ class Circuit:
 		for i in data:
 			self.lines[i[0]].value = i[1]
 			self.lines[i[0]]()
-		for n, g in self.gates.iteritems():
-			g()
-		for n, g in self.gates.iteritems():
-			g.push()
 		print self.result
 
 	def getGate( self, name ):

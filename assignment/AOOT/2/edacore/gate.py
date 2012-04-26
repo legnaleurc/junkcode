@@ -2,8 +2,8 @@ class Gate:
 	def __init__( self, type_, name ):
 		self.type_ = type_
 		self.name = name
-		self.input1 = 0
-		self.input2 = 0
+		self.input1 = -1
+		self.input2 = -1
 		self.outputLines = []
 
 	def push( self ):
@@ -12,6 +12,8 @@ class Gate:
 
 	def __call__( self ):
 		print 'GATE {0} {1} {2}'.format( self.name, self.input1, self.input2 )
+		if self.input1  == -1 or ( self.type_ != 'NOT' and self.input2 == -1 ):
+			return
 
 		if self.type_ == 'AND':
 			output = 1 if self.input1 == 1 and self.input2 == 1 else 0
@@ -26,3 +28,5 @@ class Gate:
 
 		for line in self.outputLines:
 			line.value = output
+		for line in self.outputLines:
+			line()
