@@ -3,8 +3,8 @@
 getSite() {
 	if [ "x`echo "$1" | grep '^\(sid\|wheezy\|squeeze\)$'`" = "x$1" ] ; then
 		echo 'http://ftp.jp.debian.org/debian/'
-	elif [ "x`echo "$1" | grep '^\(hardy\|karmic\|lucid\|maverick\|natty\|oneiric\)$'`" = "x$1" ] ; then
-		echo 'http://tw.archive.ubuntu.com/ubuntu/'
+	elif [ "x`echo "$1" | grep '^\(hardy\|lucid\|natty\|oneiric\|precise\)$'`" = "x$1" ] ; then
+		echo 'http://jp.archive.ubuntu.com/ubuntu/'
 	else
 		echo "unknown distro: $1"
 		exit 1
