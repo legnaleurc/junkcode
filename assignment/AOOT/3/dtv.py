@@ -24,7 +24,8 @@ class DtvFile:
 		fin.close()
 
 class Image:
-	def __init__( self, x, y, size ):
+	def __init__( self, x, y, size, type_ ):
 		self.x = x
 		self.y = y
 		self.size = size
+		self.type_ = type_
