@@ -39,31 +39,60 @@ class Viewer( QtGui.QGraphicsView ):
 		fin.close()
 
 class ProxyItem( QtGui.QGraphicsItem ):
+
 	def __init__( self, filePath, offset, size, type_ ):
+		super( ProxyItem, self ).__init__()
+
 		self.filePath = filePath
 		self.offset = offset
 		self.size = size
 		self.boundry = self.__getBoundry( type_ )
+		print self.boundry
 
 	def __getBoundry( self, type_ ):
 		import struct
 		if type_ == 'PNG':
-			fin = open( filePath, 'rb' )
-			fin.seek( 1 )
+			fin = open( self.filePath, 'rb' )
+			fin.seek( self.offset + 1 )
 			chunk = fin.read( 3 )
 			if chunk != 'PNG':
 				raise FileCorruptedError()
-			fin.seek( 8 + 4 )
+			fin.seek( self.offset + 8 + 4 )
 			chunk = fin.read( 4 )
 			if chunk != 'IHDR':
 				raise FileCorruptedError()
-			fin.seek( 8 + 8 )
+			fin.seek( self.offset + 8 + 8 )
 			chunk = fin.read( 4 )
-			width = struct.unpack( '<i', chunk )
+			width = struct.unpack( '>i', chunk )[0]
 			chunk = fin.read( 4 )
-			height = struct.unpack( '<i', chunk )
+			height = struct.unpack( '>i', chunk )[0]
 			fin.close()
 			return ( width, height )
+		if type_ == 'JPG':
+			fin = open( self.filePath, 'rb' )
+			fin.seek( self.offset )
+			chunk = fin.read( 2 )
+			if chunk != '\xFF\xD8':
+				raise FileCorruptedError()
+			while True:
+				chunk = fin.read( 2 )
+				if len( chunk ) < 2:
+					break
+				if chunk != '\xFF\xC0':
+					# skip
+					chunk = fin.read( 2 )
+					length = struct.unpack( '>h', chunk )[0]
+					# length contains size field itself
+					fin.seek( length - 2, 1 )
+				else:
+					# skip length byte and depth byte
+					fin.seek( 2 + 1, 1 )
+					chunk = fin.read( 2 )
+					height = struct.unpack( '>h', chunk )[0]
+					chunk = fin.read( 2 )
+					width = struct.unpack( '>h', chunk )[0]
+					return ( width, height )
+			return ( 0.0, 0.0 )
 		else:
 			return ( 0.0, 0.0 )
 

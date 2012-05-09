@@ -9,5 +9,6 @@ a = QtGui.QApplication( sys.argv )
 
 view = dtv.Viewer()
 view.show()
+view.openDtv( u'input.dtv' )
 
 a.exec_()
