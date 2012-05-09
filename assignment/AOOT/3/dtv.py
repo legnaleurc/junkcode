@@ -1,4 +1,4 @@
-from PySide import QtGui
+from PySide import QtCore, QtGui
 
 class Viewer( QtGui.QGraphicsView ):
 
@@ -47,7 +47,21 @@ class ProxyItem( QtGui.QGraphicsItem ):
 		self.offset = offset
 		self.size = size
 		self.boundry = self.__getBoundry( type_ )
-		print self.boundry
+
+	def boundingRect( self ):
+		return QtCore.QRectF( self.pos(), QtCore.QSizeF( self.boundry[0], self.boundry[1] ) )
+
+	def paint( self, painter, option, widget ):
+		# TODO open a thread
+		fin = open( self.filePath, 'rb' )
+		fin.seek( self.offset )
+		chunk = fin.read( self.size )
+		fin.close()
+		chunk = QtCore.QByteArray( chunk )
+		buffer_ = QtCore.QBuffer( chunk )
+		reader = QtGui.QImageReader( buffer_ )
+		pixmap = QtGui.QPixmap.fromImageReader( reader )
+		painter.drawPixmap( self.boundingRect().toRect(), pixmap )
 
 	def __getBoundry( self, type_ ):
 		import struct
