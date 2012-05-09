@@ -8,7 +8,6 @@ class Viewer( QtGui.QGraphicsView ):
 		scene = QtGui.QGraphicsScene( self )
 		scene.setSceneRect( 0.0, 0.0, 10000.0, 10000.0 )
 		self.setScene( scene )
-		self.images = []
 		self.lastMousePos = QtCore.QPoint()
 
 	def mouseMoveEvent( self, event ):
@@ -47,7 +46,6 @@ class Viewer( QtGui.QGraphicsView ):
 			item = ProxyItem( filePath, offset, size, type_ )
 			self.scene().addItem( item )
 			item.setPos( x, y )
-			self.images.append( item )
 			offset = offset + size
 		fin.close()
 
@@ -60,43 +58,43 @@ class ProxyItem( QtGui.QGraphicsItem ):
 	def __init__( self, filePath, offset, size, type_ ):
 		super( ProxyItem, self ).__init__()
 
-		self.filePath = filePath
-		self.offset = offset
-		self.size = size
-		self.boundry = self.__getBoundry( type_ )
-		self.pixmap = QtGui.QPixmap()
-		self.loader = None
+		self.__filePath = filePath
+		self.__offset = offset
+		self.__size = size
+		self.__boundry = self.__getBoundry( type_ )
+		self.__pixmap = QtGui.QPixmap()
+		self.__loader = None
 
 	def boundingRect( self ):
-		return QtCore.QRectF( self.pos(), QtCore.QSizeF( self.boundry[0], self.boundry[1] ) )
+		return QtCore.QRectF( self.pos(), QtCore.QSizeF( self.__boundry[0], self.__boundry[1] ) )
 
 	def paint( self, painter, option, widget ):
-		if self.pixmap.isNull():
-			if self.loader == None:
-				self.loader = ImageLoader( self.filePath, self.offset, self.size )
-				self.loader.finished.connect( self.__imagePrepared )
-				QtCore.QThreadPool.globalInstance().start( self.loader )
+		if self.__pixmap.isNull():
+			if self.__loader == None:
+				self.__loader = ImageLoader( self.__filePath, self.__offset, self.__size )
+				self.__loader.finished.connect( self.__imagePrepared )
+				QtCore.QThreadPool.globalInstance().start( self.__loader )
 			painter.drawRect( self.boundingRect().toRect() )
 		else:
-			painter.drawPixmap( self.boundingRect().toRect(), self.pixmap )
+			painter.drawPixmap( self.boundingRect().toRect(), self.__pixmap )
 
 	def __imagePrepared( self, image ):
-		self.pixmap = QtGui.QPixmap.fromImage( image )
-		self.loader = None
+		self.__pixmap = QtGui.QPixmap.fromImage( image )
+		self.__loader = None
 
 	def __getBoundry( self, type_ ):
 		import struct
 		if type_ == 'PNG':
-			fin = open( self.filePath, 'rb' )
-			fin.seek( self.offset + 1 )
+			fin = open( self.__filePath, 'rb' )
+			fin.seek( self.__offset + 1 )
 			chunk = fin.read( 3 )
 			if chunk != 'PNG':
 				raise FileCorruptedError()
-			fin.seek( self.offset + 8 + 4 )
+			fin.seek( self.__offset + 8 + 4 )
 			chunk = fin.read( 4 )
 			if chunk != 'IHDR':
 				raise FileCorruptedError()
-			fin.seek( self.offset + 8 + 8 )
+			fin.seek( self.__offset + 8 + 8 )
 			chunk = fin.read( 4 )
 			width = struct.unpack( '>i', chunk )[0]
 			chunk = fin.read( 4 )
@@ -104,8 +102,8 @@ class ProxyItem( QtGui.QGraphicsItem ):
 			fin.close()
 			return ( width, height )
 		if type_ == 'JPG':
-			fin = open( self.filePath, 'rb' )
-			fin.seek( self.offset )
+			fin = open( self.__filePath, 'rb' )
+			fin.seek( self.__offset )
 			chunk = fin.read( 2 )
 			if chunk != '\xFF\xD8':
 				raise FileCorruptedError()
@@ -139,14 +137,14 @@ class ImageLoader( QtCore.QObject, QtCore.QRunnable ):
 		QtCore.QObject.__init__( self )
 		QtCore.QRunnable.__init__( self )
 
-		self.filePath = filePath
-		self.offset = offset
-		self.size = size
+		self.__filePath = filePath
+		self.__offset = offset
+		self.__size = size
 
 	def run( self ):
-		fin = open( self.filePath, 'rb' )
-		fin.seek( self.offset )
-		chunk = fin.read( self.size )
+		fin = open( self.__filePath, 'rb' )
+		fin.seek( self.__offset )
+		chunk = fin.read( self.__size )
 		fin.close()
 		chunk = QtCore.QByteArray( chunk )
 		image = QtGui.QImage.fromData( chunk )
