@@ -20,7 +20,7 @@ for filePath, type_ in files:
 	y = random.randint( 0, 10000 )
 	sys.stdout.write( '{0: 5}'.format( y ) )
 	size = os.path.getsize( filePath )
-	sys.stdout.write( '{0: 9}'.format( y ) )
+	sys.stdout.write( '{0: 9}'.format( size ) )
 	sys.stdout.write( type_ )
 
 for filePath, type_ in files:
