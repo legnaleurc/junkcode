@@ -81,6 +81,7 @@ class ProxyItem( QtGui.QGraphicsItem ):
 	def __imagePrepared( self, image ):
 		self.__pixmap = QtGui.QPixmap.fromImage( image )
 		self.__loader = None
+		self.update()
 
 	def __getBoundry( self, type_ ):
 		import struct
