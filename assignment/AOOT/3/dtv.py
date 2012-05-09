@@ -74,7 +74,7 @@ class ProxyItem( QtGui.QGraphicsItem ):
 				self.__loader = ImageLoader( self.__filePath, self.__offset, self.__size )
 				self.__loader.finished.connect( self.__imagePrepared )
 				QtCore.QThreadPool.globalInstance().start( self.__loader )
-			painter.drawRect( self.boundingRect().toRect() )
+			painter.fillRect( self.boundingRect(), QtGui.QColor( 'gray' ) )
 		else:
 			painter.drawPixmap( self.boundingRect().toRect(), self.__pixmap )
 
