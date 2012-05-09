@@ -64,11 +64,19 @@ class ProxyItem( QtGui.QGraphicsItem ):
 		self.offset = offset
 		self.size = size
 		self.boundry = self.__getBoundry( type_ )
+		self.pixmap = QtGui.QPixmap()
 
 	def boundingRect( self ):
 		return QtCore.QRectF( self.pos(), QtCore.QSizeF( self.boundry[0], self.boundry[1] ) )
 
 	def paint( self, painter, option, widget ):
+		if self.pixmap.isNull():
+			self.__preparePixmap()
+			painter.drawRect( self.boundingRect().toRect() )
+		else:
+			painter.drawPixmap( self.boundingRect().toRect(), self.pixmap )
+
+	def __preparePixmap( self ):
 		# TODO open a thread
 		fin = open( self.filePath, 'rb' )
 		fin.seek( self.offset )
@@ -77,8 +85,7 @@ class ProxyItem( QtGui.QGraphicsItem ):
 		chunk = QtCore.QByteArray( chunk )
 		buffer_ = QtCore.QBuffer( chunk )
 		reader = QtGui.QImageReader( buffer_ )
-		pixmap = QtGui.QPixmap.fromImageReader( reader )
-		painter.drawPixmap( self.boundingRect().toRect(), pixmap )
+		self.pixmap = QtGui.QPixmap.fromImageReader( reader )
 
 	def __getBoundry( self, type_ ):
 		import struct
