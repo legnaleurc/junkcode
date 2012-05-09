@@ -115,16 +115,16 @@ class ProxyItem( QtGui.QGraphicsItem ):
 				if chunk != '\xFF\xC0':
 					# skip
 					chunk = fin.read( 2 )
-					length = struct.unpack( '>h', chunk )[0]
+					length = struct.unpack( '>H', chunk )[0]
 					# length contains size field itself
 					fin.seek( length - 2, 1 )
 				else:
 					# skip length byte and depth byte
 					fin.seek( 2 + 1, 1 )
 					chunk = fin.read( 2 )
-					height = struct.unpack( '>h', chunk )[0]
+					height = struct.unpack( '>H', chunk )[0]
 					chunk = fin.read( 2 )
-					width = struct.unpack( '>h', chunk )[0]
+					width = struct.unpack( '>H', chunk )[0]
 					return ( width, height )
 			return ( 0.0, 0.0 )
 		else:
