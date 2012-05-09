@@ -65,27 +65,24 @@ class ProxyItem( QtGui.QGraphicsItem ):
 		self.size = size
 		self.boundry = self.__getBoundry( type_ )
 		self.pixmap = QtGui.QPixmap()
+		self.loader = None
 
 	def boundingRect( self ):
 		return QtCore.QRectF( self.pos(), QtCore.QSizeF( self.boundry[0], self.boundry[1] ) )
 
 	def paint( self, painter, option, widget ):
 		if self.pixmap.isNull():
-			self.__preparePixmap()
+			if self.loader == None:
+				self.loader = ImageLoader( self.filePath, self.offset, self.size )
+				self.loader.finished.connect( self.__imagePrepared )
+				QtCore.QThreadPool.globalInstance().start( self.loader )
 			painter.drawRect( self.boundingRect().toRect() )
 		else:
 			painter.drawPixmap( self.boundingRect().toRect(), self.pixmap )
 
-	def __preparePixmap( self ):
-		# TODO open a thread
-		fin = open( self.filePath, 'rb' )
-		fin.seek( self.offset )
-		chunk = fin.read( self.size )
-		fin.close()
-		chunk = QtCore.QByteArray( chunk )
-		buffer_ = QtCore.QBuffer( chunk )
-		reader = QtGui.QImageReader( buffer_ )
-		self.pixmap = QtGui.QPixmap.fromImageReader( reader )
+	def __imagePrepared( self, image ):
+		self.pixmap = QtGui.QPixmap.fromImage( image )
+		self.loader = None
 
 	def __getBoundry( self, type_ ):
 		import struct
@@ -133,6 +130,27 @@ class ProxyItem( QtGui.QGraphicsItem ):
 			return ( 0.0, 0.0 )
 		else:
 			return ( 0.0, 0.0 )
+
+class ImageLoader( QtCore.QObject, QtCore.QRunnable ):
+
+	finished = QtCore.Signal( QtGui.QImage )
+
+	def __init__( self, filePath, offset, size ):
+		QtCore.QObject.__init__( self )
+		QtCore.QRunnable.__init__( self )
+
+		self.filePath = filePath
+		self.offset = offset
+		self.size = size
+
+	def run( self ):
+		fin = open( self.filePath, 'rb' )
+		fin.seek( self.offset )
+		chunk = fin.read( self.size )
+		fin.close()
+		chunk = QtCore.QByteArray( chunk )
+		image = QtGui.QImage.fromData( chunk )
+		self.finished.emit( image )
 
 class FileCorruptedError( Exception ):
 	pass
