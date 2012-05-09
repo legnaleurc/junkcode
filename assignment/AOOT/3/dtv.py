@@ -9,6 +9,19 @@ class Viewer( QtGui.QGraphicsView ):
 		scene.setSceneRect( 0.0, 0.0, 10000.0, 10000.0 )
 		self.setScene( scene )
 		self.images = []
+		self.lastMousePos = QtCore.QPoint()
+
+	def mouseMoveEvent( self, event ):
+		if not event.buttons() & QtCore.Qt.LeftButton:
+			return
+		d = self.lastMousePos - event.pos()
+		self.__moveScrollBars( d.x(), d.y() )
+		self.lastMousePos = event.pos()
+
+	def mousePressEvent( self, event ):
+		if not event.buttons() & QtCore.Qt.LeftButton:
+			return
+		self.lastMousePos = event.pos()
 
 	def openDtv( self, filePath ):
 		fin = open( filePath, 'rb' )
@@ -37,6 +50,10 @@ class Viewer( QtGui.QGraphicsView ):
 			self.images.append( item )
 			offset = offset + size
 		fin.close()
+
+	def __moveScrollBars( self, x, y ):
+		self.horizontalScrollBar().setValue( self.horizontalScrollBar().value() + x )
+		self.verticalScrollBar().setValue( self.verticalScrollBar().value() + y )
 
 class ProxyItem( QtGui.QGraphicsItem ):
 
