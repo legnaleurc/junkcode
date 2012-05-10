@@ -2,8 +2,8 @@ from PySide import QtCore, QtGui
 
 class Viewer( QtGui.QGraphicsView ):
 
-	def __init__( self ):
-		super( Viewer, self ).__init__()
+	def __init__( self, parent ):
+		super( Viewer, self ).__init__( parent )
 
 		scene = QtGui.QGraphicsScene( self )
 		scene.setSceneRect( 0.0, 0.0, 10000.0, 10000.0 )
