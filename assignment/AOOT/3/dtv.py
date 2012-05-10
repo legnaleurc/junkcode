@@ -1,4 +1,5 @@
 from PySide import QtCore, QtGui
+import struct
 
 class Viewer( QtGui.QGraphicsView ):
 
@@ -54,7 +55,6 @@ class Viewer( QtGui.QGraphicsView ):
 		self.verticalScrollBar().setValue( self.verticalScrollBar().value() + y )
 
 def __pngParser( filePath, offset, size ):
-	import struct
 	fin = open( filePath, 'rb' )
 	fin.seek( offset + 1 )
 	chunk = fin.read( 3 )
@@ -72,7 +72,6 @@ def __pngParser( filePath, offset, size ):
 	return ( width, height )
 
 def __jpgParser( filePath, offset, size ):
-	import struct
 	fin = open( filePath, 'rb' )
 	fin.seek( offset )
 	chunk = fin.read( 2 )
@@ -99,7 +98,6 @@ def __jpgParser( filePath, offset, size ):
 	raise FileCorruptedError()
 
 def __gifParser( filePath, offset, size ):
-	import struct
 	fin = open( filePath, 'rb' )
 	fin.seek( offset )
 	chunk = fin.read( 3 )
