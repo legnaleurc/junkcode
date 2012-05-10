@@ -20,7 +20,12 @@ class MainWindow( QtGui.QMainWindow ):
 		fileName, selectedFilter = QtGui.QFileDialog.getOpenFileName( self )
 		if len( fileName ) == 0:
 			return
-		self.ui.graphicsView.openDtv( fileName )
+		try:
+			self.ui.graphicsView.openDtv( fileName )
+		except dtv.FileCorruptedError:
+			QtGui.QMessageBox.critical( self, u'Invalid File', u'File corrupted.' )
+		except Exception:
+			QtGui.QMessageBox.critical( self, u'Unknown Error', u'Unknown error.' )
 
 a = QtGui.QApplication( sys.argv )
 
