@@ -46,7 +46,7 @@ class Viewer( QtGui.QGraphicsView ):
 			type_ = chunk
 			item = ProxyItem( filePath, offset, size, type_ )
 			self.scene().addItem( item )
-			item.setPos( x, y )
+			item.setPos( x / 2.0, y / 2.0 )
 			offset = offset + size
 		fin.close()
 
