@@ -7,8 +7,8 @@ class Viewer( QtGui.QGraphicsView ):
 		super( Viewer, self ).__init__( parent )
 
 		scene = QtGui.QGraphicsScene( self )
-		scene.setSceneRect( 0.0, 0.0, 10000.0, 10000.0 )
 		self.setScene( scene )
+		self.setSceneRect( 0.0, 0.0, 10000.0, 10000.0 )
 		self.lastMousePos = QtCore.QPoint()
 
 	def mouseMoveEvent( self, event ):
