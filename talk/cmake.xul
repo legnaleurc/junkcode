@@ -365,12 +365,52 @@ Ubuntu
 你還是可以
 土炮
 ----
+安裝以下套件
+----
 dh-make
 fakeroot
 devscripts
 quilt
 ----
+git-buildpackage
+----
+製作專案壓縮檔
+<name>_<version>.orig.tar.gz
+----
+e.g.
+[[PRE:git archive --prefix=komix-0.1.1/ v0.1.1 | gzip > ../komix_0.1.1.orig.tar.gz]]
+----
+建立新的 git repo
+[[PRE:
+mkdir ../komix_0.1.1 && cd ../komix_0.1.1
+git init
+]]
+----
+資料夾名稱一定要是
+<name>-<version>
+----
+e.g.:
+komix-0.1.1
+----
+匯入專案
+[[PRE:
+git-import-orig ../komix_0.1.1.orig.tar.gz
+]]
+----
+Debian 化
+[[PRE:
 dh_make
+]]
+----
+歷史記錄
+[[PRE:debian/changelog]]
+----
+套件控制
+[[PRE:debian/control]]
+----
+參考資料
+[[Ubuntu Wiki|http://wiki.ubuntu-tw.org/index.php?title=DebPackaging]] [(有點舊)]
+[[Debian New Maintainer Guide|http://www.debian.org/doc/manuals/maint-guide/index.zh-tw.html]]
 ]]></html:textarea>
  
 <!-- Built-in Style --> 
