@@ -1,0 +1,3637 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!--
+	高橋メソッドなプレゼンツール in XUL リターンズ
+	made by Piro
+	http://piro.sakura.ne.jp/
+
+	based on
+	高橋メソッドなプレゼン作成ツール ver.2 made by mala
+	http://la.ma.la/blog/diary_200504080545.htm
+	もんたメソッドなプレゼン作成ツール made by mala
+	http://la.ma.la/blog/diary_200505310749.htm
+-->
+ 
+<!-- ***** BEGIN LICENSE BLOCK ***** 
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is the Takahashi-Method-based Presentation Tool
+   - in XUL/Returns.
+   -
+   - The Initial Developer of the Original Code is SHIMODA Hiroshi.
+   - Portions created by the Initial Developer are Copyright (C) 2005-2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s): SHIMODA Hiroshi <piro.outsider.reflex@gmail.com>
+   -                 dynamis <dynamis@mozilla-japan.org>
+   -                 matobaa <matobaa@lily.freemail.ne.jp>
+   -
+   - ***** END LICENSE BLOCK ***** -->
+ 
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?> 
+<?xml-stylesheet href="#builtinStyle" type="text/css"?>
+ 
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+	id="presentation"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	orient="vertical"
+	onkeypress="Presentation.onKeyPress(event);">
+	 
+<!-- Built-in Content --> 
+<html:textarea id="builtinCode" style="visibility: collapse"><![CDATA[
+TITLE::你所不知道的 CMake
+GLOBAL-SIZE::9
+你所不知道的
+CMake
+----
+HEADER::你所不知道的 CMake
+CHAPTER::Who Am I
+你誰啊？
+Who Am I?
+----
+煙酒生
+----
+__CA__
+legnaleurc
+----
+CHAPTER::Introduction
+什麼什麼 CMake?
+What is CMake?
+----
+HEADER::What is CMake
+建置專案
+Build Project
+----
+跨平台
+Cross Toolchain
+----
+如果你更愛
+If You Prefer
+----
+Python
+---
+Perl
+---
+Ruby
+----
+JavaScript
+---
+CoffeeScript
+----
+[[IMG src="01.jpg"]]
+----
+Just Kidding :)
+----
+HEADER::
+誰在用 CMake?
+Who uses CMake?
+----
+HEADER::Who uses CMake
+KDE
+----
+Awesome
+----
+Compiz
+----
+LLVM
+----
+Clang
+----
+MySQL
+----
+OGRE
+----
+libpng
+----
+zlib
+----
+HEADER::Why CMake
+為什麼要用 CMake
+Why Bother?
+----
+太多編譯工具
+Too Many Toolchains
+----
+GNU/Linux
+---
+gcc
+----
+Microsoft Windows
+---
+Microsoft Visual C++
+----
+Mac OS
+---
+XCode
+----
+FreeBSD 10
+---
+clang
+----
+不同的版本
+Different Version
+---
+不同的參數
+Different Flags
+----
+外部函式庫
+External Libraries
+----
+標頭檔在哪？
+Headers?
+----
+連結哪些函式庫？
+Linker?
+----
+編成執行檔？
+Executable Binary File?
+---
+靜態函式庫？
+Static Linking Library?
+---
+動態函式庫？
+Dynamic Loading Library?
+----
+解決方案？
+Solutions?
+----
+pkg-config
+----
+[[PRE:
+pkg-config --cflags --libs libavformat
+]]
+---
+[[PRE:
+-I/usr/local/include -L/usr/local/lib -lavformat
+]]
+----
+autotools
+----
+[[PRE:
+./configure --blah
+make
+make install
+]]
+----
+它們是好工具
+There Are Great Tool
+---
+如果在 GNU 系統上
+On GNU Systems
+----
+qmake
+----
+渣
+Sucks
+----
+外部支援很鳥
+Less External Library Support
+----
+文件難找
+Hidden Commands
+----
+CMake 表示:
+CMake says:
+---
+Yes I Can!
+----
+CHAPTER::Build
+Let's
+---
+Live Demo!
+----
+支援多種專案類型
+Many Generators
+----
+執行檔
+[[ADD_EXECUTABLE|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:add_executable]]
+---
+函式庫
+[[ADD_LIBRARY|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:add_library]]
+----
+原始碼
+Source
+----
+檔案操作
+[[FILE|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:file]]
+----
+連結
+Linker
+----
+連結函式庫
+[[TARGET_LINK_LIBRARIES|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:target_link_libraries]]
+----
+範例
+Example
+----
+外部相依
+External Dependency
+[[FIND_PACKAGE|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:find_package]]
+----
+你可以土炮
+----
+pkg-config
+PKG_CHECK_MODULES
+----
+尋找檔案路徑
+[[FIND_PATH|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:find_path]]
+----
+尋找函式庫
+[[FIND_LIBRARY|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:find_library]]
+----
+範例
+Example
+----
+巢狀專案
+[[ADD_SUBDIRECTORY|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:add_subdirectory]]
+----
+還有更多
+Something More
+----
+條件判斷
+[[IF|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:if]]
+---
+迴圈控制
+[[FOREACH|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:foreach]]
+----
+巨集
+[[MACRO|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:macro]]
+---
+函式
+[[FUNCTION|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:function]]
+----
+平台判斷
+Platform Support
+----
+[MSVC] [APPLE]
+[UNIX] [CYGWIN]
+----
+[[CMake Useful Variable|http://www.cmake.org/Wiki/CMake_Useful_Variables]]
+----
+CHAPTER::
+安裝
+Install
+----
+CHAPTER::Install
+[[PRE:make install]]
+----
+安裝設定
+[[INSTALL|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#command:install]]
+----
+打包
+Packaging
+----
+[[PRE:include(CPack)]]
+----
+[[PRE:make package]]
+----
+Microsoft Windows
+---
+NSIS
+----
+Mac OS
+---
+DragNDrop
+----
+只要微笑就好了
+----
+GNU/Linux
+---
+RPM
+---
+DEB
+----
+相容性地獄
+Dependency Hell
+----
+系統基本相依性
+[[PRE:include(InstallRequiredSystemLibraries)]]
+----
+msvcr100.dll
+msvcp100.dll
+----
+[[BundleUtilities|http://www.cmake.org/cmake/help/v2.8.8/cmake.html#module:BundleUtilities]]
+FIXUP_BUNDLE
+----
+Linux?
+----
+?!
+----
+忽略 [[PRE:/usr/lib]]
+Ignore [[PRE:/usr/lib]]
+----
+套件很複雜
+Packaging Is Complex
+----
+相依的是套件
+Dependent Package
+----
+夭壽多的版本
+Fxcking Many Editions
+----
+Debian
+----
+Stable
+----
+Testing
+----
+Unstable
+----
+Ubuntu
+----
+12.04
+(LTS)
+----
+11.10
+----
+11.04
+----
+10.10
+---
+(died)
+----
+10.04
+(LTS)
+----
+你還是可以
+土炮
+----
+dh-make
+fakeroot
+devscripts
+quilt
+----
+dh_make
+]]></html:textarea>
+ 
+<!-- Built-in Style --> 
+<html:style id="builtinStyle" type="text/css" style="visibility: collapse">
+<![CDATA[
+@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
+@namespace html url(http:/www.w3.org/1999/xhtml);
+
+#canvas {
+	background: white !important;
+	color: black !important;
+	font-family:
+		"ゴシックMB101U",
+		"ニューセザンヌ-EB",
+		"セザンヌ-EB",
+		"ＤＨＰ極太ゴシック体",
+		"ＤＦＰ極太ゴシック体",
+		"DHPGothic UB",
+		"DFPGothic UB",
+		"ＤＨＰ特太ゴシック体",
+		"ＤＦＰ特太ゴシック体",
+		"DHPGothic EB",
+		"DFPGothic EB",
+		"セイビイサラゴUB-P",
+		"AR Pゴシック体 S",
+		"Arphic PGothic SuperBold JIS",
+/*		"Arial Black",*/
+		"ＤＦ特太ゴシック体",
+		"DFGothic EB",
+		"セイビイサラゴUB",
+		"AR ゴシック体 S",
+		"Arphic Gothic SuperBold JIS",
+		"HGP創英角ｺﾞｼｯｸUB",
+		"HGPSoeiKakugothicUB",
+		"HGS創英角ｺﾞｼｯｸUB",
+		"HG創英角ｺﾞｼｯｸUB",
+		"HGSoeiKakugothicUB",
+		"小塚ゴシック Pro H",
+		"モトヤゴシック 6",
+		"ヒラギノ角ゴ Std W8",
+		sans-serif !important;
+	font-weight: 900;
+}
+
+.em {
+	color: red !important;
+	font-size: 120%;
+}
+
+.link-text {
+	color: blue !important;
+	text-decoration: underline !important;
+}
+.link-text:hover {
+	color: #3366FF !important;
+}
+.link-text:active {
+	color: red !important;
+}
+
+.pre.block {
+	border: 1px dashed gray;
+	padding: 0.3em;
+	margin: 0.3em;
+	font-size: 80%;
+}
+
+.monta-label {
+	background-color: white;
+	background-repeat: no-repeat;
+/*	background-image: url("./monta-label.png");*/
+}
+
+
+.ss {
+	font-size: 50%;
+}
+
+.s {
+	font-size: 70%;
+}
+
+.l {
+	font-size: 150%;
+}
+
+.ll {
+	font-size: 200%;
+}
+
+
+
+#canvas row > * {
+	border: 1px solid gray;
+	-moz-box-pack: center;
+}
+#canvas row + row {
+	margin-top: -1px;
+}
+#canvas column + column {
+	margin-left: -1px;
+}
+
+#canvas grid .special {
+	background: #CFCFCF;
+}
+
+
+
+
+
+#header,
+#footer {
+	color: #666;
+}
+
+
+#indicatorBar {
+	color: #BFBFBF;
+	background: black;
+}
+
+progressmeter {
+	margin: 0;
+	padding: 0;
+}
+progressmeter,
+progressmeter .progress-bar,
+progressmeter .progress-remainder {
+	-moz-appearance: none;
+	background: transparent;
+	border: none;
+	outline: none;
+	min-height: 0;
+}
+#remainingTimeIndicator .progress-bar {
+	background: #333333;
+}
+#remainingPageIndicator .progress-bar {
+	background: #444444;
+}
+
+
+#plainTextBox,
+#noteTextBox {
+	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1wYGCSMfVbRtUAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAAAGElEQVR42mNkYGCoZyACMDEQCUYVUkchANsIAJN3G7QXAAAAAElFTkSuQmCC');
+}
+
+#plainTextField,
+#noteTextField {
+	font-family: monospace;
+	font-size: medium;
+	color: black;
+	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1wYGCTURrpT1gAAAAB10RVh0Q29tbWVudABDcmVhdGVkIHdpdGggVGhlIEdJTVDvZCVuAAAAGUlEQVR42mP8////fgYiABMDkWBUIXUUAgAEGgPQ5w4kBAAAAABJRU5ErkJggg==');
+	border: 2px solid gray;
+	border-color: black white white black;
+	-moz-appearance: none;
+}
+
+
+/* Eva Mode */
+
+#canvas[eva="true"] {
+	background: black !important;
+	color: white !important;
+	font-family:
+		"リュウミンU-KL"
+		"リュウミンH-KL"
+		"マティス-EB"
+		"RFファイン-ME"
+		"ＤＨＰ極太明朝体"
+		"ＤＦＰ極太明朝体"
+		"DHPMincho UB"
+		"DFPMincho UB"
+		"AR P明朝体U"
+		"Arphic PMincho Ultra JIS"
+		"AR明朝体U"
+		"Arphic Mincho Ultra JIS"
+		"HGP平成明朝体W9"
+		"HGPHeiseiMinchotaiW9"
+		"HGS平成明朝体W9"
+		"HGSHeiseiMinchotaiW9"
+		"HG平成明朝体W9"
+		"HGHeiseiMinchotaiW9"
+		"ヒラギノ明朝 Pro W6"
+		serif !important;
+}
+#canvas[eva="true"] .em {
+	color: green !important;
+}
+#canvas[eva="true"] .link-text {
+	color: red !important;
+	text-decoration: none !important;
+}
+#canvas[eva="true"] .link-text:hover {
+	color: pink !important;
+}
+#canvas[eva="true"] .link-text:active {
+	color: orange !important;
+}
+
+#canvas[eva="true"] #header,
+#canvas[eva="true"] #footer {
+	color: #AAA;
+}
+
+
+#canvas[eva="true"] .monta-label {
+	background-color: black;
+}
+
+
+
+
+
+.stroke-dot {
+	background: red;
+	width: 3px;
+	height: 3px;
+}
+
+
+.aa {
+	line-height: 1 !important;
+	font-family:
+		"\ff2d \ff33  \ff30 \30b4 \30b7 \30c3 \30af ",
+		"IPA \30e2 \30ca \30fc  P\30b4 \30b7 \30c3 \30af ",
+		Mona !important;
+	font-weight: normal !important;
+	text-align: left !important;
+	white-space: pre !important;
+}
+
+
+
+
+/* System:: DO NOT CHANGE FOLLOWING LINES!! */
+
+#content > hbox {
+	-moz-box-align: center;
+}
+#content > vbox {
+	-moz-box-pack: center;
+}
+
+
+#canvas * {
+	cursor: pointer !important;
+}
+
+#canvas image {
+	width: auto;
+	height: auto;
+}
+#canvas[rendering="true"] image {
+	display: none;
+}
+
+#canvas[rendering="true"] #canvasMain *,
+#canvas[rendering="true"] #canvasMain .text-link {
+	color: inherit !important;
+}
+
+#canvas[rendering="true"] #contentBox {
+	visibility: hidden;
+}
+
+
+
+
+
+
+.pre {
+	font-family: -moz-fixed !important;
+	white-space: pre !important;
+	font-weight: normal;
+}
+
+
+
+.raw {
+	font-family: sans-serif !important;
+	font-size: medium !important;
+}
+#canvas .raw * {
+	cursor: default !important;
+}
+
+
+
+
+
+tabbox, tabpanels, tabpanel {
+	margin: 0;
+	padding: 0;
+}
+
+
+.dropmarker-button > image {
+	display: none !important;
+}
+.dropmarker-button > label {
+	width: 0 !important;
+	overflow: hidden !important;
+}
+
+#pages-list-button {
+	min-width: 0;
+}
+#pages-list-button > label {
+	display: none;
+}
+#pages-list-button menupopup {
+	max-width: 20em;
+}
+#pages-list-button menuitem image {
+	max-width: 32px;
+	max-height: 32px;
+}
+
+
+
+
+#headerBox,
+#footerBox {
+	margin: 1em;
+}
+
+
+#indicatorBar,
+#indicatorBar hbox,
+#nextPage {
+	-moz-box-align: center;
+	-moz-box-pack: center;
+}
+
+#noteButton {
+	-moz-appearance: none;
+	color: #ff6600;
+	background: #ffe660;
+	border: #ff6600 1px solid;
+	border-width: 1px 1px 0 0;
+	-moz-border-radius: 0 1em 0 0;
+	margin: 0;
+	padding: 0.5em 0.5em 0.2em 0.2em;
+	min-width: 0;
+}
+#noteButton:hover {
+	background: #fff690;
+}
+#noteButton:active {
+	background: #ffd680;
+}
+
+
+.monta-label {
+	padding: 0.05em;
+	margin: -0.05em;
+}
+.monta-label[monta-hidden="true"],
+.monta-label[monta-hidden="progress"] {
+	background-position: -100px 0;
+}
+.monta-label[monta-hidden="progress"] {
+	background-color: transparent;
+}
+.monta-label[monta-hidden="false"] {
+	background: transparent !important;
+}
+
+
+
+#canvas row description {
+	border: 1px solid transparent;
+	white-space: pre;
+	line-height: 1;
+}
+
+
+[hidden-line="true"],
+[hidden-row="true"] {
+	visibility: hidden;
+}
+
+
+
+#canvasToolbar {
+	position: relative;
+	z-index: 1000;
+}
+
+#sourceEditField,
+#pageEditFields textbox {
+	font-family: -moz-fixed !important;
+	font-size: medium;
+}
+
+#pageEditFields {
+	overflow: auto;
+}
+#pageEditFields textbox {
+	height: 6em;
+}
+
+
+
+
+#stroke-canvas-box {
+	position: relative;
+	display: block;
+}
+#stroke-canvas-box,
+#stroke-canvas-box *|canvas {
+	line-height: 1;
+}
+
+.stroke-dot {
+	position: absolute;
+	display: block;
+	z-index: 100;
+}
+
+
+
+.monta-label {
+	background-image: url("data:image/png;base64,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AAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwgRAAAAAAAgTAAEAAAAgTAAEAAAAgDABEAAAAADCBEAAAAAACBMAAQAAACBMAAQAAACAMAEQAAAAAMIEQAAAAAAIEwABAAAAIEwABAAAAIAwARAAAAAAwv60rDzN2YM6WgAAAABJRU5ErkJggg==");
+}
+
+]]>
+</html:style>
+ 
+<!-- Interface --> 
+	
+<deck flex="1" id="deck"> 
+	 
+<vbox flex="1"> 
+	<toolbox id="canvasToolbar">
+		<toolbar>
+			<toolbarbutton oncommand="Presentation.home()" label="|&lt;&lt;"
+				observes="canBack"/>
+			<toolbarbutton oncommand="Presentation.back()" label="&lt;"
+				observes="canBack"/>
+			<toolbarbutton oncommand="Presentation.forward()" label="&gt;"
+				observes="canForward"/>
+			<toolbarbutton oncommand="Presentation.end()" label="&gt;&gt;|"
+				observes="canForward"/>
+			<toolbarseparator/>
+			<hbox align="center">
+				<textbox id="current_page" size="4"
+					oninput="if (this.value) Presentation.showPage(parseInt(this.value)-1);"/>
+				<toolbarbutton id="pages-list-button"
+					type="menu"
+					label="Select Page"
+					tooltiptext="Select Page"
+					class="dropmarker-button">
+					<menupopup id="pages-list"
+						onpopupshowing="if (event.target == this) Presentation.preventToShowHideToolbar = true;"
+						onpopuphiding="if (event.target == this) Presentation.preventToShowHideToolbar = false;"
+						oncommand="Presentation.showPage(parseInt(event.target.value));"/>
+				</toolbarbutton>
+				<description value="/"/>
+				<description id="max_page"/>
+			</hbox>
+			<toolbarseparator/>
+			<vbox flex="2">
+				<spacer flex="1"/>
+				<scrollbar id="scroller"
+					align="center" orient="horizontal"
+					oncommand="Presentation.showPage(parseInt(event.target.getAttribute('curpos')));"
+					onclick="Presentation.showPage(parseInt(event.target.getAttribute('curpos')));"
+					onmousedown="Presentation.onScrollerDragStart();"
+					onmousemove="Presentation.onScrollerDragMove();"
+					onmouseup="Presentation.onScrollerDragDrop();"/>
+				<spacer flex="1"/>
+			</vbox>
+			<toolbarseparator/>
+			<toolbarbutton label="Pen"
+				id="penButton"
+				type="checkbox"
+				autoCheck="false"
+				oncommand="StrokablePresentationService.toggleCheck();"/>
+			<spacer flex="1"/>
+			<toolbarbutton id="func-menu-button"
+				type="menu"
+				label="Function">
+				<menupopup
+					onpopupshowing="if (event.target == this) { Presentation.preventToShowHideToolbar = true; Presentation.updateTimerItem(); }"
+					onpopuphiding="if (event.target == this) Presentation.preventToShowHideToolbar = false;">
+					<menuitem id="timerItem"
+						label="Set Timer"
+						label-normal="Set Timer"
+						label-active="Reset Timer (rest %smin)"
+						oncommand="Presentation.setTimer();" />
+					<menuseparator/>
+					<menuitem label="Start Auto-Cruise"
+						id="autoButton"
+						type="checkbox"
+						autoCheck="false"
+						oncommand="Presentation.toggleAutoCruiseMode();" />
+					<menu id="auto-interval-button"
+						label="Change Interval">
+						<menupopup id="auto-interval-list"
+							onpopupshowing="(this.getElementsByAttribute('value', Presentation.autoCruiseInterval)[0] || this.lastChild).setAttribute('checked', true);"
+							oncommand="Presentation.changeAutoCruiseInterval(parseInt(event.target.value));">
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="1 sec" value="1000"/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="2 sec" value="2000"/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="3 sec" value="3000"/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="4 sec" value="4000"/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="5 sec" value="5000"/>
+							<menuseparator/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="1 min" value="60000"/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="2 min" value="120000"/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="3 min" value="180000"/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="4 min" value="240000"/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="5 min" value="300000"/>
+							<menuseparator/>
+							<menuitem type="radio" radiogroup="autocruise-interval"
+								label="Custom"
+								oncommand="
+									var current = Presentation.autoCruiseInterval;
+									var val = parseInt(prompt('input interval (sec)', parseInt(current/1000)));
+									if (isNaN(val)) {
+										event.preventBubble();
+										return;
+									}
+									else
+										val = val * 1000;
+									this.value = val;
+								"/>
+						</menupopup>
+					</menu>
+					<menuseparator/>
+					<menuitem oncommand="Presentation.print();" label="Print"/>
+					<menu id="auto-interval-button"
+						label="Thumbnail Format">
+						<menupopup
+							onpopupshowing="(this.getElementsByAttribute('value', Presentation.imageType)[0] || this.firstChild).setAttribute('checked', true);"
+							oncommand="Presentation.imageType = event.target.value;">
+							<menuitem type="radio" radiogroup="print-image-type"
+								label="PNG" value="png"/>
+							<menuitem type="radio" radiogroup="print-image-type"
+								label="JPEG (50%)" value="jpeg"/>
+						</menupopup>
+					</menu>
+					<menuseparator/>
+					<menuitem id="showPlainText" label="View Source"
+						key="key_plainText"
+						oncommand="Presentation.showPlainText();"/>
+					<menuseparator/>
+					<menuitem id="toggleEva" label="Eva Mode"
+						key="key_toggleEvaMode"
+						type="checkbox"
+						autoCheck="false"
+						oncommand="Presentation.toggleEvaMode();"/>
+				</menupopup>
+			</toolbarbutton>
+			<toolbarseparator/>
+			<toolbarbutton label="Edit"
+				oncommand="Presentation.toggleEditMode();"/>
+			<toolbarbutton oncommand="Presentation.reload();" label="Reload"/>
+			<toolbarbutton label="Note"
+				oncommand="Presentation.toggleNote();"/>
+		</toolbar>
+	</toolbox>
+	<vbox flex="1" id="canvas">
+		<stack flex="1">
+			<vbox flex="1">
+				<hbox id="headerBox" flex="1">
+					<label id="header"/>
+					<spacer flex="1"/>
+					<vbox>
+						<image id="logo"/>
+						<spacer flex="1"/>
+					</vbox>
+				</hbox>
+				<spacer flex="19"/>
+				<hbox id="footerBox" flex="1">
+					<spacer flex="1"/>
+					<label id="footer"/>
+				</hbox>
+			</vbox>
+			<vbox id="canvasMain"
+				flex="1"
+				onmouseup="Presentation.handleEvent(event);"
+				onmousedown="Presentation.handleEvent(event);"
+				onmousemove="Presentation.handleEvent(event);"
+				onclick="Presentation.onPresentationClick(event);">
+				<spacer flex="1"/>
+				<hbox flex="1" id="contentBox">
+					<spacer flex="1"/>
+					<vbox id="content"/>
+					<spacer flex="1"/>
+				</hbox>
+				<spacer flex="1"/>
+			</vbox>
+			<hbox id="noteButtonBox" bottom="0" left="0"
+				hidden="true">
+				<button id="noteButton" label="Note!"
+					oncommand="Presentation.showNoteText(); event.stopPropagation();"/>
+			</hbox>
+			<vbox id="noteTextBox"
+				hidden="true"
+				flex="1"
+				onclick="Presentation.hideNoteText();"
+				align="center"
+				pack="center">
+				<textbox id="noteTextField" multiline="true"
+					readonly="true"
+					onkeypress="if (event.keyCode == event.DOM_VK_ESCAPE) Presentation.hideNoteText();"
+					onclick="event.stopPropagation();"/>
+			</vbox>
+			<vbox id="plainTextBox"
+				hidden="true"
+				flex="1"
+				onclick="Presentation.hidePlainText();"
+				align="center"
+				pack="center">
+				<textbox id="plainTextField" multiline="true"
+					onkeypress="if (event.keyCode == event.DOM_VK_ESCAPE) Presentation.hidePlainText();"
+					onclick="event.stopPropagation();"/>
+			</vbox>
+		</stack>
+	</vbox>
+	<hbox id="indicatorBar"
+		onclick="Presentation.onIndicatorBarClick(event);">
+		<stack flex="1">
+			<vbox>
+				<progressmeter id="remainingPageIndicator"
+					type="determined" value="0"
+					flex="1"/>
+				<progressmeter id="remainingTimeIndicator"
+					type="determined" value="0"
+					flex="1"
+					collapsed="true"/>
+			</vbox>
+			<hbox flex="1">
+				<label value="Next:"/>
+				<description id="nextPage" flex="1" crop="end"/>
+			</hbox>
+		</stack>
+	</hbox>
+</vbox>
+ 
+<vbox flex="1" id="edit"> 
+	<toolbox>
+		<toolbar>
+			<menubar flex="1">
+				<menu label="File">
+					<menupopup>
+						<menuitem label="Save"
+							key="key_save"
+							oncommand="Presentation.output()"/>
+						<menuitem label="Reload"
+							key="key_reload"
+							oncommand="Presentation.reload()"/>
+					</menupopup>
+				</menu>
+				<menu label="Insert">
+					<menupopup>
+						<menuitem label="New Page"
+							key="key_insert_newpage"
+							oncommand="Presentation.insert('page')"/>
+						<menuseparator/>
+						<menuitem label="Header"
+							oncommand="Presentation.insert('header')"/>
+						<menuitem label="Footer"
+							oncommand="Presentation.insert('footer')"/>
+						<menuseparator/>
+						<menuitem label="Link"
+							oncommand="Presentation.insert('link')"/>
+						<menuitem label="Emphasis"
+							oncommand="Presentation.insert('em')"/>
+						<menuitem label="Preformatted"
+							oncommand="Presentation.insert('pre')"/>
+						<menuitem label="Monta"
+							oncommand="Presentation.insert('monta')"/>
+						<menuitem label="Image"
+							oncommand="Presentation.insert('img')"/>
+					</menupopup>
+				</menu>
+			</menubar>
+			<toolbarseparator/>
+			<toolbarbutton label="View"
+				oncommand="Presentation.toggleEditMode();"/>
+			<toolbarbutton oncommand="Presentation.reload();" label="Reload"/>
+		</toolbar>
+	</toolbox>
+	<tabbox id="editTabBox" flex="1">
+		<tabs onselect="Presentation.toggleEditStyle(event);">
+			<tab label="Page Edit" id="editTab-pages"/>
+			<tab label="Source" id="editTab-source"/>
+		</tabs>
+		<tabpanels flex="1">
+			<scrollbox id="pageEditFields"
+				orient="vertical"
+				flex="1"/>
+			<textbox id="sourceEditField"
+				flex="1"
+				multiline="true"
+				oninput="Presentation.onEditSource()"/>
+		</tabpanels>
+	</tabbox>
+</vbox>
+ 
+</deck> 
+  
+<data style="visibility: collapse;"> 
+	<hbox id="pageEditBoxTemplate">
+		<textbox multiline="true"
+			class="page-edit-box-main"
+			flex="1"
+			oninput="Presentation.onEditPage(Number(this.parentNode.parentNode.id.match(/\d+/)))"/>
+		<vbox>
+			<toolbarbutton label="×"
+				oncommand="Presentation.removePage(Number(this.parentNode.parentNode.id.match(/\d+/)));"/>
+		</vbox>
+	</hbox>
+</data>
+ 
+<broadcasterset> 
+	<broadcaster id="canBack"/>
+	<broadcaster id="canForward"/>
+</broadcasterset>
+ 
+<commandset> 
+	<command id="cmd_forward"
+		oncommand="if (Presentation.isPresentationMode) Presentation.forward();"/>
+	<command id="cmd_forwardStep"
+		oncommand="if (Presentation.isPresentationMode) Presentation.forwardStep();"/>
+	<command id="cmd_back"
+		oncommand="if (Presentation.isPresentationMode) Presentation.back();"/>
+	<command id="cmd_home"
+		oncommand="if (Presentation.isPresentationMode) Presentation.home();"/>
+	<command id="cmd_end"
+		oncommand="if (Presentation.isPresentationMode) Presentation.end();"/>
+</commandset>
+ 
+<keyset> 
+	<key keycode="VK_ENTER"      command="cmd_forwardStep"/>
+	<key keycode="VK_RETURN"     command="cmd_forwardStep"/>
+	<key keycode="VK_PAGE_DOWN"  command="cmd_forwardStep"/>
+	<key keycode="VK_RIGHT"      command="cmd_forwardStep"/>
+	<key keycode="VK_DOWN"       command="cmd_forwardStep"/>
+	<!--key keycode="VK_BACK_SPACE" command="cmd_back"/-->
+	<key keycode="VK_PAGE_UP"    command="cmd_back"/>
+	<key keycode="VK_UP"         command="cmd_back"/>
+	<key keycode="VK_LEFT"       command="cmd_back"/>
+	<key keycode="VK_HOME"       command="cmd_home"/>
+	<key keycode="VK_END"        command="cmd_end"/>
+
+	<!--key id="key_insert_newpage"
+		key="n" modifiers="accel" oncommand="Presentation.insert('page');"/-->
+
+	<key id="key_save"
+		key="s" modifiers="accel" oncommand="Presentation.output();"/>
+	<key id="key_reload"
+		key="r" modifiers="accel" oncommand="Presentation.reload();"/>
+	<key id="key_reload"
+		key="p" modifiers="accel" oncommand="Presentation.print();"/>
+
+	<key id="key_toggleEditMode"
+		key="e" modifiers="accel" oncommand="Presentation.toggleEditMode();"/>
+	<key id="key_toggleEvaMode"
+		key="e" modifiers="accel,shift" oncommand="Presentation.toggleEvaMode();"/>
+
+	<key id="key_toggleNote"
+		key="n" modifiers="accel" oncommand="Presentation.toggleNote();"/>
+
+	<key id="key_plainText"
+		key="u" modifiers="accel" oncommand="Presentation.showPlainText();"/>
+	<key keycode="VK_ESCAPE"      oncommand="Presentation.hidePlainText();"/>
+</keyset>
+  
+<!-- Implementation --> 
+<script type="application/javascript; e4x=1"><![CDATA[
+	 
+const XULNS   = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul'; 
+const XHTMLNS = 'http://www.w3.org/1999/xhtml';
+ 
+var Presentation = { 
+	 
+	baseSize        : 9, 
+
+	phraseOpenParen  : '[',
+	phraseCloseParen : ']',
+	makePhraseRegExp : function(aPattern, aFlags)
+	{
+		return new RegExp(
+				aPattern.replace(/%o(pen)?/gi, '\\'+this.phraseOpenParen)
+					.replace(/%c(lose)?/gi, '\\'+this.phraseCloseParen),
+				aFlags
+			);
+	},
+
+	dragStartDelta : 8,
+
+	imageType : 'jpeg',
+
+	EDIT_BOX_ID_PREFIX : 'editPageBox-',
+ 
+	initialized : false, 
+
+	preventToShowHideToolbar : false,
+
+	loadingTimeout           : 10000,
+	showMontaKeywordDuration : 100,
+	autoCruiseInterval       : 2000,
+	timerUpdatingInterval    : 30000,
+
+	cachedContents : [],
+	sourceData     : [],
+	_alias         : {},
+
+	noteWindow : null,
+ 
+	init : function(option){ 
+		if (this.initialized) {
+			this.startPresentation();
+			return;
+		}
+		this.initialized = true;
+
+
+		this._offset  = 0;
+		this.canvas     = document.getElementById('canvas');
+		this.canvasMain = document.getElementById('canvasMain');
+		this.content    = document.getElementById('content');
+		this.header     = document.getElementById('header');
+		this.footer     = document.getElementById('footer');
+		this.logo       = document.getElementById('logo');
+		this.next       = document.getElementById('nextPage');
+
+		this.indicatorBar = document.getElementById('indicatorBar');
+		this.remainder    = document.getElementById('remainingPageIndicator');
+		this.timer        = document.getElementById('remainingTimeIndicator');
+
+		this.list     = document.getElementById('pages-list');
+		this.source   = document.getElementById('sourceEditField');
+		this.pages    = document.getElementById('pageEditFields');
+		this.deck     = document.getElementById('deck');
+		this.scroller = document.getElementById('scroller');
+		this.noteButtonBox = document.getElementById('noteButtonBox');
+		this.noteButton = document.getElementById('noteButton');
+
+		this.toolbar         = document.getElementById('canvasToolbar');
+		this.toolbarHeight   = this.toolbar.boxObject.height;
+		this.isToolbarHidden = true;
+		this.toolbar.setAttribute('style', 'margin-top:'+(0-this.toolbarHeight)+'px;margin-bottom:0px;');
+
+		window.addEventListener('resize', this, false);
+		window.addEventListener('contextmenu', this, false);
+		window.addEventListener('unload', this, false);
+
+		this.canvasMain.addEventListener('DOMMouseScroll', this, false);
+		this.indicatorBar.addEventListener('DOMMouseScroll', this, false);
+
+		if(option){
+			for(var i in option){this[i] = option[i]}
+		}
+
+		this.cachedContents = [];
+
+		if (this.readParameter()) {
+			this.startPresentation();
+		}
+
+		document.documentElement.focus();
+	},
+	get canvasWidth()
+	{
+		return window.innerWidth;
+	},
+	get canvasHeight()
+	{
+		return window.innerHeight - this.indicatorBar.boxObject.height;
+	},
+ 
+/* core */ 
+	
+	startPresentation : function(aStart) 
+	{
+		if (this.data.length)
+			document.title = this.data[0].title || this.data[0].header || this.data[0].text.join(' ');
+
+		var now = (new Date()).getTime();
+		if (aStart === void(0)) aStart = now;
+
+		if (this.ready || now - aStart >= this.loadingTimeout)
+			this.takahashi();
+		else
+			window.setTimeout(function(aSelf) {
+				aSelf.startPresentation(aStart);
+			}, 100, this);
+	},
+	get ready()
+	{
+		for (var i in this.images)
+		{
+			if (!this.images[i].loaded)
+				return false;
+		}
+		return true;
+	},
+ 
+/* rendering */ 
+	
+	takahashi : function() { 
+		this.isRendering = true;
+
+		if (!this.data[this.offset]) {
+			this.offset = this.data.length-1;
+		}
+		document.getElementById("current_page").value = this.offset+1;
+		document.getElementById("max_page").value     = this.data.length;
+
+		this.scroller.setAttribute('maxpos', this.data.length-1);
+		this.scroller.setAttribute('curpos', this.offset);
+
+		var broadcaster = document.getElementById('canBack');
+		if (!this.offset)
+			broadcaster.setAttribute('disabled', true);
+		else
+			broadcaster.removeAttribute('disabled');
+
+		var broadcaster = document.getElementById('canForward');
+		if (this.offset == this.data.length-1)
+			broadcaster.setAttribute('disabled', true);
+		else
+			broadcaster.removeAttribute('disabled');
+
+		this.canvas.setAttribute('rendering', true);
+
+
+		this.header.removeAttribute('style');
+		this.footer.removeAttribute('style');
+		this.content.removeAttribute('style');
+
+		this.clickableNodes = [];
+
+		if ('title' in this.data[this.offset])
+			document.title = this.data[this.offset].title;
+
+		this.header.setAttribute('style', 'font-size:10px;');
+		this.header.value = this.data[this.offset].header;
+		this.footer.setAttribute('style', 'font-size:10px;');
+		this.footer.value = this.data[this.offset].footer;
+
+		var page = this.content.getAttribute('page') || 0;
+		var currentContent = this.clearContent();
+		if (!(page in this.cachedContents)) {
+			this.cachedContents[page] = !this.content.hasChildNodes() ? null : {
+				fragment     : currentContent,
+				offsetWidth  : parseInt(this.content.getAttribute('offsetWidth')),
+				offsetHeight : parseInt(this.content.getAttribute('offsetHeight'))
+			};
+		}
+
+		if (this.data[this.offset].load) {
+			this.isRendering = false;
+			location.replace(location.href.split('?')[0] + '?'+this.data[this.offset].load);
+			return;
+		}
+
+		var content = (this.offset in this.cachedContents && this.cachedContents[this.offset]) ?
+							this.cachedContents[this.offset] :
+							this.createContent();
+
+		this.content.setAttribute('style', 'font-size:10px;');
+		this.content.setAttribute('page',         this.offset);
+		this.content.setAttribute('offsetWidth',  content.offsetWidth);
+		this.content.setAttribute('offsetHeight', content.offsetHeight);
+
+		this.content.appendChild(content.fragment);
+
+		this.clickableNodes.push(this.content);
+
+
+		this.fitHeaderFooterToCanvas();
+		this.fitMainContentToCanvas();
+
+
+		try {
+			let checkedItems = this.list.getElementsByAttribute('checked', 'true');
+			max = checkedItems.length;
+			for (i = max-1; i > -1 ; i--)
+				checkedItems[i].removeAttribute('checked');
+		}
+		catch(e) {
+		}
+
+		this.list.getElementsByAttribute('value', this.offset)[0].setAttribute('checked', true);
+
+		this.finishTakahashi();
+	},
+	finishTakahashi : function()
+	{
+		this.canvas.removeAttribute('rendering');
+		this.isRendering = false;
+
+		this.setHash('page', 'page'+(this.offset+1));
+
+		this.next.value = (this.offset <= this.data.length-2) ?
+				(
+					this.data[this.offset+1].plain.join('') ||
+					this.data[this.offset+1].text.join('')
+				).replace(/\s+/g, ' ') :
+				'(no page)' ;
+		this.remainder.setAttribute(
+			'value',
+			this.offset == 0 ?
+				0 :
+				parseInt(((this.offset)/(this.data.length-1))*100)
+		);
+
+		this.lastWidth = window.innerWidth;
+		this.lastHeight = window.innerHeight;
+
+		var event = document.createEvent('Events');
+		event.initEvent('PresentationRedraw', false, true);
+		this.canvas.dispatchEvent(event);
+
+		this.updateNote();
+	},
+	clearContent : function()
+	{
+		var range = document.createRange();
+		range.selectNodeContents(this.content);
+		var fragment = range.extractContents()
+		range.detach();
+		return fragment;
+	},
+	
+	createContent : function() 
+	{
+		var retVal = {
+				offsetWidth  : 0,
+				offsetHeight : 0
+			};
+		var text = this.data[this.offset].text;
+
+		var phraseTags = 'em|raw|encoded|aa|pre|style|note|#[^:{]*';
+
+		var lineRegExp = this.makePhraseRegExp('^([^%O]+)?(%O%O('+phraseTags+'):((.+?)(:(?:'+phraseTags+'))?%C%C)?|%O%O\#[^:]+:((.+?)%C%C)?|%O%Oima?ge? +src="([^"]+)"[^%C]*?%C%C|%O%O(([^\|]+)?\\||)([^%C]+?)%C%C|%O([^%C]+?)%C)(.+)?', 'i');
+
+		var imagesRegExp     = this.makePhraseRegExp('^([^%O]+)?%O%Oima?ge?\\s+src="([^"]+)"(\\s+(width|height)="([0-9]+%?)"(\\s+(width|height)="([0-9]+%?)")?)?\\s*[^%C]*%C%C', 'i');
+		var linksRegExp      = this.makePhraseRegExp('^([^%O]+)?%O%O(([^|]+)?\\||)([^%C]+)%C%C', '');
+		var montaRegExp      = this.makePhraseRegExp('^([^%O]+)?%O([^%C]+)%C', '');
+
+		var inlineRegExp     = this.makePhraseRegExp('^([^%O]+)?%O%O('+phraseTags+')(?:{([^}]*)})?:(.+?)(?::(?:'+phraseTags+'))?%C%C', 'i');
+		var blockStartRegExp = this.makePhraseRegExp('^([^%O]+)?%O%O('+phraseTags+')(?:{([^}]*)})?:(.*)', 'i');
+		var blockEndRegExp   = this.makePhraseRegExp('^(.*?)((?::(?:'+phraseTags+'))?%C%C)', 'i');
+
+		var labelId = 0;
+		var inBlock       = false,
+			blockClass    = '',
+			blockStyle    = '',
+			blockContents = [];
+
+		var inGrid       = false,
+			gridContents = null;
+
+		var fragment = document.createDocumentFragment();
+
+		var hidden = false;
+		for (var i = 0, max = text.length; i < max; i++)
+		{
+			let line = text[i] || ' ' ;
+			let images_width  = 0;
+			let images_height = 0;
+
+			if (line == '----') {
+				hidden = true;
+				continue;
+			}
+
+			let lineBox = document.createElement('hbox');
+			lineBox.style.MozBoxPack = this.data[this.offset].align;
+			if (hidden)
+				lineBox.setAttribute('hidden-line', true);
+
+			if (inBlock) {
+				let endMatchResult = line.match(blockEndRegExp);
+				if (endMatchResult) {
+					inBlock = false;
+					let blockContent = endMatchResult[1] || '';
+					let blockEndTag = endMatchResult[2] || '';
+
+					if (blockClass != 'note')
+						blockContents.push(blockContent);
+					line = line.substring((blockContent+blockEndTag).length);
+
+					switch (blockClass)
+					{
+						case 'raw':
+							insertXMLTo('<hbox class="raw" style="blockStyle" onclick="event.stopPropagation();" onkeypress="event.stopPropagation();">'+blockContents.join('\n')+'</hbox>', lineBox);
+							break;
+
+						case 'pre':
+						case 'aa':
+							lineBox.appendChild(document.createElement('description'));
+							lineBox.lastChild.setAttribute('class', blockClass+' block');
+							if (blockStyle)
+								lineBox.lastChild.setAttribute('style', blockStyle);
+
+							blockContents = blockContents.join('\n')
+												.replace(/^[\r\n]+/, '')
+												.replace(/[\r\n]+$/, '')
+												.replace(/&amp;/g, '&')
+												.replace(/&quot;/g, '"')
+												.replace(/&gt;/g, '>')
+												.replace(/&lt;/g, '<');
+							if (blockClass == 'pre')
+								blockContents = blockContents
+												.replace(/^[\r\n\s]+/, '')
+												.replace(/[\r\n\s]+$/, '');
+
+							lineBox.lastChild.appendChild(document.createTextNode(blockContents));
+							break;
+
+						case 'note':
+							break;
+
+						default:
+							lineBox.appendChild(document.createElement('vbox'));
+							lineBox.lastChild.setAttribute('class', blockClass+' block');
+							if (blockStyle)
+								lineBox.lastChild.setAttribute('style', blockStyle);
+							lineBox.lastChild.style.MozBoxAlign = this.data[this.offset].align;
+							blockContents = blockContents.join('\n')
+								.replace(/^[\r\n\s]+/, '')
+								.replace(/[\r\n\s]+$/, '')
+								.split('\n');
+							for (let j = 0, jmax = blockContents.length; j < jmax; j++)
+							{
+								lineBox.lastChild.appendChild(document.createElement('description'));
+								lineBox.lastChild.lastChild.setAttribute('value', blockContents[j]);
+							}
+							break;
+					}
+
+					blockClass    = '';
+					blockStyle    = '';
+					blockContents = [];
+				}
+				else {
+					blockContents.push(line);
+					continue;
+				}
+			}
+
+			// process table rows
+			if (line.indexOf('|') == 0) {
+				fragment.appendChild(lineBox);
+
+				if (fragment.childNodes.length == 1 ||
+					!fragment.childNodes[fragment.childNodes.length-2] ||
+					!fragment.childNodes[fragment.childNodes.length-2].lastChild ||
+					fragment.childNodes[fragment.childNodes.length-2].lastChild.localName != 'grid') {
+					fragment.lastChild.appendChild(document.createElement('grid'));
+					fragment.lastChild.lastChild.appendChild(document.createElement('columns'));
+					fragment.lastChild.lastChild.appendChild(document.createElement('rows'));
+				}
+				else {
+					fragment.removeChild(fragment.lastChild);
+				}
+				fragment.lastChild.lastChild.lastChild.appendChild(document.createElement('row'));
+				fragment.lastChild.lastChild.lastChild.lastChild.setAttribute('flex', 1);
+				if (hidden)
+					fragment.lastChild.lastChild.lastChild.lastChild.setAttribute('hidden-row', true);
+
+				line = line.split('|');
+				for (let j = 1, jmax = line.length; j < jmax; j++)
+				{
+					fragment.lastChild.lastChild.lastChild.lastChild.appendChild(document.createElement('vbox'));
+					fragment.lastChild.lastChild.lastChild.lastChild.lastChild.style.MozBoxAlign = this.data[this.offset].align;
+					if (line[j].charAt(0) == '~') {
+						fragment.lastChild.lastChild.lastChild.lastChild.lastChild.setAttribute('class', 'special');
+						line[j] = line[j].substring(1);
+					}
+					line[j] = line[j].split(/<br\s*\/>/g);
+					for (let k = 0, kmax = line[j].length; k < kmax; k++)
+					{
+						fragment.lastChild.lastChild.lastChild.lastChild.lastChild.appendChild(document.createElement('description'));
+						fragment.lastChild.lastChild.lastChild.lastChild.lastChild.lastChild.appendChild(document.createTextNode(line[j][k].replace(/^\s+|\s+$/g, '')));
+					}
+					if (fragment.lastChild.lastChild.firstChild.childNodes.length < j) {
+						fragment.lastChild.lastChild.firstChild.appendChild(document.createElement('column'));
+						fragment.lastChild.lastChild.firstChild.lastChild.setAttribute('flex', 1);
+					}
+				}
+				continue;
+			}
+
+			let lineMatchResult;
+			while (lineMatchResult = line.match(lineRegExp))
+			{
+				let preFirstInlineTag = lineMatchResult[1] || '';
+				let firstInlineTag = lineMatchResult[2] || '';
+
+				if (preFirstInlineTag) {
+					lineBox.appendChild(document.createElement('description'));
+					lineBox.lastChild.setAttribute('value', preFirstInlineTag);
+				}
+				let newLine = line.substring((preFirstInlineTag+firstInlineTag).length);
+
+				let inlineMatchResult;
+				let blockStartMatchResult;
+				if (inlineMatchResult = line.match(inlineRegExp)) {
+					let rawClassName = inlineMatchResult[2];
+					let className = rawClassName.toLowerCase();
+					let style     = inlineMatchResult[3];
+					let contents  = inlineMatchResult[4];
+					switch (className)
+					{
+						case 'raw':
+						case 'encoded':
+							insertXMLTo('<hbox class="raw" style="'+style+'" onclick="event.stopPropagation();" onkeypress="event.stopPropagation();">'+contents+'</hbox>', lineBox);
+							break;
+
+						default: // User-defined Styles
+							className = rawClassName.substring(1);
+						case 'pre':
+						case 'aa':
+						case 'em':
+							lineBox.appendChild(document.createElement('description'));
+							lineBox.lastChild.setAttribute('class', className);
+							if (style)
+								lineBox.lastChild.setAttribute('style', style);
+							lineBox.lastChild.setAttribute('value', contents);
+							break;
+
+						case 'note':
+							break;
+					}
+				}
+				else if (blockStartMatchResult = line.match(blockStartRegExp)) {
+					inBlock       = true;
+					blockClass    = blockStartMatchResult[2].toLowerCase();
+					if (blockClass.charAt(0) == '#') // User-defined Styles
+						blockClass = blockStartMatchResult[2].substring(1);
+					blockStyle    = blockStartMatchResult[3];
+					blockContents = [blockStartMatchResult[4]];
+					newLine       = '';
+				}
+
+				// Images
+				else if (imagesRegExp.test(line)) {
+					let image_src = RegExp.$2;
+					let image_width = -1;
+					let image_height = -1;
+					if (RegExp.$3) {
+						if (RegExp.$4.toLowerCase() == 'width')
+							image_width = RegExp.$5 || '0';
+						else
+							image_height = RegExp.$5 || '0';
+					}
+					if (RegExp.$6) {
+						if (RegExp.$7.toLowerCase() == 'width')
+							image_width = RegExp.$8 || '0';
+						else
+							image_height = RegExp.$8 || '0';
+					}
+					lineBox.appendChild(this.createImage(image_src, image_width, image_height));
+					image_width = parseInt(lineBox.lastChild.getAttribute('width'));
+					image_height = parseInt(lineBox.lastChild.getAttribute('height'));
+					images_width  += image_width;
+					images_height = Math.max(images_height, image_height);
+				}
+
+				// Links
+				else if (linksRegExp.test(line)) {
+					let uri = this.resolve(RegExp.$4);
+					lineBox.appendChild(document.createElement('description'));
+					lineBox.lastChild.setAttribute('value', RegExp.$3 || RegExp.$4);
+					lineBox.lastChild.setAttribute('href', uri);
+					lineBox.lastChild.setAttribute('tooltiptext', uri);
+					lineBox.lastChild.setAttribute('statustext', uri);
+					lineBox.lastChild.setAttribute('class', 'link-text');
+
+					this.clickableNodes.push(lineBox.lastChild);
+				}
+
+				// Monta
+				else if (montaRegExp.test(line)) {
+					lineBox.appendChild(document.createElement('stack'));
+
+					lineBox.lastChild.appendChild(document.createElement('description'));
+					lineBox.lastChild.lastChild.setAttribute('value', RegExp.$2);
+					lineBox.lastChild.lastChild.setAttribute('class', 'monta-text');
+
+					lineBox.lastChild.appendChild(document.createElement('spacer'));
+					lineBox.lastChild.lastChild.setAttribute('flex', 1);
+					lineBox.lastChild.lastChild.setAttribute('class', 'monta-label');
+
+					lineBox.lastChild.lastChild.setAttribute('label-id', 'label-' + (++labelId));
+
+					lineBox.lastChild.lastChild.setAttribute('monta-hidden', 'true');
+
+
+					this.clickableNodes.push(lineBox.lastChild.lastChild);
+				}
+
+				line = newLine;
+			}
+
+			if (line) {
+				lineBox.appendChild(document.createElement('description'));
+				lineBox.lastChild.setAttribute('value', line);
+			}
+
+			if (images_width && lineBox.childNodes.length > 1)
+				retVal.offsetWidth = Math.max(retVal.offsetWidth, images_width);
+			retVal.offsetHeight += images_height;
+
+			if (lineBox.hasChildNodes())
+				fragment.appendChild(lineBox);
+		}
+
+		retVal.fragment = fragment;
+		return retVal;
+	},
+	createImage : function(aURI, aWidth, aHeight)
+	{
+		aURI = this.resolve(aURI);
+
+		var image = document.createElement('image')
+		image.setAttribute('src', aURI);
+
+		var info = this.images[aURI];
+		var width = info.width;
+		var height = info.height;
+
+		if (aWidth != -1 && aWidth.indexOf('%') > 0) {
+			aWidth = this.canvasWidth * Number(aWidth.replace('%', '')) * 0.01;
+			aWidth = aWidth.toString();
+		}
+		if (aHeight != -1 && aHeight.indexOf('%') > 0) {
+			aHeight = this.canvasHeight * Number(aHeight.replace('%', '')) * 0.01;
+			aHeight = aHeight.toString();
+		}
+
+		if (aWidth != -1 && aHeight != -1) {
+			width = parseInt(aWidth);
+			height = parseInt(aHeight);
+		}
+		else if (aWidth != -1) {
+			width = parseInt(aWidth);
+			height = height / (info.width / width);
+		}
+		else if (aHeight != -1) {
+			height = parseInt(aHeight);
+			width = width / (info.height / height);
+		}
+
+		// fit to window
+		var maxW = this.canvasWidth;
+		var maxH = this.canvasHeight;
+		if (width > maxW) {
+			height = height / (width / maxW);
+			width = maxW;
+		}
+		if (height > maxH) {
+			width = width / (height / maxH);
+			height = maxH;
+		}
+
+		image.setAttribute('width', width);
+		image.setAttribute('height', height);
+		return image;
+	},
+  
+	fitToCanvas : function(aContent, aCanvas, aOffsetWidth, aOffsetHeight) 
+	{
+		aContent.removeAttribute('style');
+		aContent.setAttribute('style', 'font-size:10px;');
+
+		var grids      = aContent.getElementsByTagName('grid');
+		var gridsCount = grids.length;
+
+		if (!aContent.boxObject.width) return;
+
+		var canvas_w  = aCanvas.boxObject.width;
+		var canvas_h  = aCanvas.boxObject.height-aOffsetHeight;
+
+		var content_w = aContent.boxObject.width;
+		var new_fs = Math.round((canvas_w/content_w) * this.data[this.offset].size);
+		aContent.setAttribute('style', 'font-size:'+ new_fs + "px");
+
+		for (var i = 0; i < gridsCount; i++)
+		{
+			grids[i].firstChild.lastChild.removeAttribute('flex', 1);
+			grids[i].firstChild.lastChild.setAttribute('flex', 1);
+		}
+
+		if (aContent.boxObject.width < aOffsetWidth) {
+			content_w = aOffsetWidth;
+			new_fs = Math.round((canvas_w/content_w) * this.data[this.offset].size);
+			aContent.setAttribute('style', 'font-size:'+ new_fs + "px");
+
+			for (var i = 0; i < gridsCount; i++)
+			{
+				grids[i].firstChild.lastChild.removeAttribute('flex', 1);
+				grids[i].firstChild.lastChild.setAttribute('flex', 1);
+			}
+		}
+
+		var content_h = aContent.boxObject.height;
+		if(content_h >= canvas_h){
+			state='height';
+			content_h = aContent.boxObject.height;
+			new_fs = Math.round((canvas_h/content_h) * new_fs);
+			aContent.setAttribute('style', 'font-size:'+ new_fs + "px");
+
+			for (var i = 0; i < gridsCount; i++)
+			{
+				grids[i].firstChild.lastChild.removeAttribute('flex', 1);
+				grids[i].firstChild.lastChild.setAttribute('flex', 1);
+			}
+		}
+	},
+	
+	fitMainContentToCanvas : function() 
+	{
+		this.fitToCanvas(
+			this.content,
+			this.canvas,
+			parseInt(this.content.getAttribute('offsetWidth')),
+			parseInt(this.content.getAttribute('offsetHeight'))
+			+this.header.boxObject.height
+			+this.footer.boxObject.height
+		);
+	},
+ 
+	fitHeaderFooterToCanvas : function() 
+	{
+		this.fitToCanvas(this.header, this.header.parentNode, 0, 0);
+		this.fitToCanvas(this.footer, this.footer.parentNode, 0, 0);
+	},
+   
+	get offset(){ 
+		return this._offset;
+	},
+	set offset(aValue){
+		this._offset = parseInt(aValue || 0);
+		document.documentElement.setAttribute('lastoffset', this.offset);
+		return this.offset;
+	},
+  
+/* data I/O */ 
+	
+	setHash : function(aKey, aValue) 
+	{
+		aKey = String(aKey).toLowerCase();
+		var hashArray = String(location.hash).replace(/^#/, '').toLowerCase().split(',');
+
+		for (var i = hashArray.length-1; i > -1; i--)
+			if (!hashArray[i] || hashArray[i].indexOf(aKey) == 0)
+				hashArray.splice(i, 1);
+
+		if (aValue) hashArray.push(aValue);
+		hashArray.sort();
+
+		location.replace(location.href.replace(/#.*$/, '') + (hashArray.length ? '#' + hashArray.join(',') : '' ));
+	},
+ 
+	get data(){ 
+		var codes = document.getElementById('builtinCode');
+		if (!this._data) {
+			// mozilla splits very long text node into multiple text nodes whose length is less than 4096 bytes.
+			// so, we must concat all the text nodes.
+			this.source.value = "";
+			this.sourceData   = [];
+			for (var i = 0; i < codes.childNodes.length; i++) {
+				this.source.value += codes.childNodes[i].nodeValue;
+			}
+
+			this._initData(this.source.value);
+		}
+		if (codes)
+			codes.parentNode.removeChild(codes);
+
+		return this._data;
+	},
+	set data(aValue){
+		this._initData(aValue);
+		return this._data;
+	},
+	
+	_initData : function(aSources) 
+	{
+		var range = document.createRange();
+
+		range.selectNodeContents(this.list);
+		range.deleteContents();
+
+		var sources = this._splitDataToPages(aSources.replace(/(\r\n|[\r\n])/g, '\n'));
+		var source;
+		var data;
+
+		this._data = [];
+		this.sourceData = [];
+		this._alias = {};
+
+		var regexp = [
+				/^[\r\n\s]+|[\r\n\s]+$/g,
+				/(\r\n|[\r\n])/g
+			];
+
+		var commandLineRegExp = /^(TITLE|HEADER|FOOTER|CHAPTER|GLOBAL-ALIGN|ALIGN|GLOBAL-SIZE|SIZE|HIDDEN|GINORE|STYLE|CSS|DEFINE-ALIAS|ALIAS|LOAD|SET-TIMER|NOTE)::[ \t]*([^\n]*)[ \t]*\n?/im;
+
+		var title;
+		var header        = '';
+		var footer        = '';
+		var chapter       = '';
+		var lastChapter;
+		var alignGlobal   = 'center';
+		var align;
+		var size;
+		var sizeGlobal  = 9;
+
+		var imageMatchResults;
+		var imagesRegExp  = this.makePhraseRegExp('%O%Oima?ge?\\s+src="[^"]+"(\\s+(width|height)="[0-9]+"(\\s+(width|height)="[0-9]+")?)?\\s*[^%C]*%C%C', 'gi');
+		var imagesRegExp2 = this.makePhraseRegExp('%O%Oima?ge?\\s+src="([^"]+)"', 'i');
+		var image_src;
+
+		var plainTextRegExp = this.makePhraseRegExp('(?:%O%O\#(?:[^{:][^:]*|\{[^}]+\}):(.+)%C%C|%O%OEM:(.+)(?::EM)?%C%C|%O%OAA:(.+)(?::AA)?%C%C|%O%OPRE:(.+)(?::PRE)?%C%C|%O%ONOTE:(.+)(?::NOTE)?%C%C|%O%Oima?ge?\\s+src="[^"]*"[^%C]*%C%C|%O%O(?:[^\\|%C]+)(\\|[^%C]+)?%C%C|%O([^%O]+)%C)', 'gi');
+
+		var noteRegExp = this.makePhraseRegExp('%O%ONOTE:(.+)(?::NOTE)?%C%C', 'i');
+		var lastNote = '';
+
+		var dataObj;
+		var menuContents = document.createDocumentFragment();
+		var popup;
+
+		var dataPath;
+		var parts;
+		while (sources.length)
+		{
+			source = sources.shift();
+
+			image_src = null;
+			align     = null;
+			size     = null;
+			dataPath  = '';
+
+			source = source.replace(/^\s+|\s+$/g, '');
+
+			this.sourceData.push(source);
+
+			let hidden = false;
+			let pageNote = '';
+			let commandMatchResult;
+			while ((commandMatchResult = source.match(commandLineRegExp)) && !hidden) {
+				source = source.replace(commandLineRegExp, '');
+				let command = commandMatchResult[1].toLowerCase();
+				let value = commandMatchResult[2];
+				switch (command)
+				{
+					case 'load':
+						dataPath = value;
+						break;
+
+					case 'set-timer':
+						window.setTimeout(function(aSelf, aValue) {
+							if (aSelf.timerTimer)
+								return;
+							var timeMatchResult = aValue.match(/(\d+)(.*)/);
+							var time = timeMatchResult[1];
+							switch((timeMatchResult[2] || '').toLowerCase())
+							{
+								case 's':
+								case 'sec':
+								case 'sec.':
+								case 'second':
+								case 'seconds':
+									time = time / 60;
+									break;
+
+								case 'h':
+								case 'hour':
+								case 'hours':
+									time = time * 60;
+									break;
+
+								default:
+									break;
+							}
+							aSelf.setTimer(time);
+						}, 100, this, value);
+						break;
+
+					case 'style':
+					case 'css':
+						document.insertBefore(
+							document.createProcessingInstruction(
+								'xml-stylesheet',
+								'href="data:text/css,'+
+									escape(source)+
+									'" type="text/css"'
+							),
+							document.documentElement
+						);
+						hidden = true;
+						break;
+
+					case 'note':
+						pageNote = lastNote = source;
+						hidden = true;
+						break;
+
+					case 'hidden':
+					case 'ignore':
+						if (/^(true|yes|1)$/.test(value))
+							hidden = true;
+						break;
+
+					case 'title':
+						title = value || '' ;
+						break;
+
+					case 'header':
+						header = value || '' ;
+						break;
+
+					case 'footer':
+						footer = value || '' ;
+						break;
+
+					case 'chapter':
+						chapter = value || '' ;
+						break;
+
+					case 'global-align':
+					case 'align':
+						align = (value || '').toLowerCase();
+						if (align == 'left')
+							align = 'start';
+						else if (align == 'right')
+							align = 'end';
+
+						if (command == 'global-align') {
+							alignGlobal = align;
+							align = null;
+						}
+						break;
+
+					case 'global-size':
+					case 'size':
+						size = Math.max(0, Number(value || this.baseSize));
+						if (command == 'global-size') {
+							sizeGlobal = size;
+							size = null;
+						}
+						break;
+
+					case 'define-alias':
+					case 'alias':
+						let (aliasMatchResult = value.match(/([^=]+)=(.+)/)) {
+							this._alias[aliasMatchResult[1]] = aliasMatchResult[2];
+						}
+						break;
+				}
+			}
+			if (hidden)
+				continue;
+
+			imageMatchResults = source.match(imagesRegExp);
+			if (imageMatchResults) {
+				for (let j = imageMatchResults.length-1; j > -1; j--)
+					this.registerImage((imageMatchResults[j] || '').match(imagesRegExp2)[1]);
+			}
+
+			let noteMatchResults = source.replace(/\n/g, '<br/>').match(noteRegExp);
+			if (noteMatchResults) {
+				pageNote = lastNote = (noteMatchResults[1] || '').replace(/<br\/>/g, '\n');
+			}
+
+			source = source.replace(/^\s+|\s+$/g, '');
+
+			parts = this._splitPageToParts(source);
+			for (let i = 0; i < parts.length; i++)
+			{
+				source = parts.slice(0, i+1).join('');
+				if (i < parts.length-1)
+					source += '----\n'+parts.slice(i+1).join('');
+				data = {
+					load   : dataPath,
+					header : header,
+					footer : footer,
+					text   : source.split('\n'),
+					align  : align || alignGlobal,
+					size   : size || sizeGlobal,
+					note   : lastNote,
+					pageNote : pageNote
+				};
+				data.plain = parts.slice(0, i+1).join('')
+								.replace(plainTextRegExp, '$1$2$3$4$6$7')
+								.split('\n');
+				if (title !== void(0))
+					data.title = title;
+
+				data.chapter = chapter || title || '';
+				if (lastChapter === void(0) ||
+					lastChapter != data.chapter) {
+					lastChapter = data.chapter;
+
+					if (popup && popup.childNodes.length == 1) {
+						menuContents.removeChild(menuContents.lastChild);
+						menuContents.appendChild(popup.removeChild(popup.lastChild));
+					}
+
+					popup = document.createElement('menupopup');
+					menuContents.appendChild(document.createElement('menu'));
+					menuContents.lastChild.setAttribute('label', data.chapter);
+					menuContents.lastChild.appendChild(popup);
+				}
+
+				popup.appendChild(document.createElement('menuitem'));
+				popup.lastChild.setAttribute('type', 'radio');
+				popup.lastChild.setAttribute('radiogroup', 'pages');
+				popup.lastChild.setAttribute('label', (this._data.length+1)+': '+(
+					(data.plain.join('') || data.text.join(' ')).replace(/\s+/g, ' ')
+				));
+				popup.lastChild.setAttribute('value', this._data.length);
+
+				this._data.push(data);
+			}
+		}
+
+		if (menuContents.childNodes.length == 1) {
+			range.selectNodeContents(menuContents.firstChild.firstChild);
+			menuContents = range.extractContents();
+		}
+		this.list.appendChild(menuContents);
+
+		range.detach();
+
+
+		this.shownMontaLabels = [];
+	},
+	_splitDataToPages : function(aSources)
+	{
+		return aSources.split(/^----+$/m);
+	},
+	_splitPageToParts : function(aPageSource)
+	{
+		return aPageSource
+				.split(/^---$/m)
+				.map(function(aPart) {
+					return aPart.replace(/^\n/, '');
+				});
+	},
+	resolve : function(aURI)
+	{
+		if (aURI && aURI in this._alias)
+			aURI = this._alias[aURI];
+
+		if (aURI.indexOf('://') < 0 &&
+			aURI.indexOf('about:') < 0 &&
+			aURI.indexOf('data:') < 0)
+			aURI = this.dataFolder+aURI;
+
+		return aURI;
+	},
+  
+	get dataPath(){ 
+		if (!this._dataPath)
+			this.dataPath = String(location.href).replace(/#.+$/, '');
+		return this._dataPath;
+	},
+	set dataPath(aValue){
+		var oldDataPath = this._dataPath;
+		this._dataPath = aValue;
+		if (oldDataPath != aValue) {
+			this._dataFolder = this._dataPath.split('?')[0].replace(/[^\/]+$/, '');
+		}
+		return this._dataPath;
+	},
+ 
+	get dataFolder(){ 
+		if (!this._dataFolder)
+			this.dataPath = this.dataPath;
+		return this._dataFolder;
+	},
+	set dataFolder(aValue){
+		this._dataFolder = aValue;
+		return this._dataFolder;
+	},
+ 
+	loadData : function(aPath) 
+	{
+		this.dataPath = aPath;
+		var request = new XMLHttpRequest();
+		request.open('GET', aPath);
+		request.onload = function() {
+			Presentation.data = request.responseText;
+			Presentation.init();
+		};
+		request.send(null);
+	},
+ 
+	readParameter : function() { 
+		if (location.search || location.hash) {
+			var param = location.search.replace(/^\?/, '');
+
+			if (location.hash.match(/page([0-9]+)/i) ||
+				param.match(/page=([0-9]+)/i))
+				this.offset = parseInt(RegExp.$1)-1;
+
+			if (location.hash.match(/edit/i) ||
+				param.match(/edit=(1|true|yes)/i)) {
+				window.setTimeout('Presentation.toggleEditMode();', 0);
+			}
+
+			if (location.hash.match(/eva/i) ||
+				param.match(/eva=(1|true|yes)/i))
+				this.toggleEvaMode();
+
+			if (location.hash.match(/timer(\d+)\-(\d+)/i))
+				this.setTimer(RegExp.$1, RegExp.$2);
+
+			if (param.match(/(style|css)=([^&;]+)/i)) {
+				var style = unescape(RegExp.$2);
+				var pi = document.createProcessingInstruction('xml-stylesheet', 'href="'+style+'" type="text/css"');
+				document.insertBefore(pi, document.documentElement);
+			}
+
+			if (param.match(/data=([^&;]+)/i)) {
+				this.loadData(RegExp.$1);
+				return false;
+			}
+		}
+		return true;
+	},
+ 
+	registerImage : function(aURI) 
+	{
+		aURI = this.resolve(aURI);
+		if (aURI in this.images) return;
+
+		var info = {
+			width  : -1,
+			height : -1,
+			loaded : false
+		};
+		info.image = new Image();
+		info.image.src = aURI;
+		info.image.addEventListener('load', function() {
+			info.width = info.image.width;
+			info.height = info.image.height;
+			info.loaded = true;
+			info.image.removeEventListener('load', arguments.callee, false);
+		}, false);
+		this.images[aURI] = info;
+	},
+	images : {},
+  
+/* commands */ 
+	
+	reload : function() { 
+		var file = String(location.href).replace(/#.+$/, '');
+		if (this.dataPath != file) {
+			var path = this.dataPath;
+			var request = new XMLHttpRequest();
+			request.open('GET', path);
+			request.onload = function() {
+				Presentation.data = request.responseText;
+				Presentation.init();
+
+				path = null;
+				request = null;
+			};
+			request.send(null);
+		}
+		else
+			window.location.reload();
+	},
+ 
+	forward : function(){ 
+		if (!this.canForward) return;
+		this.offset++;
+		this.takahashi();
+	},
+	
+	forwardStep : function(){ 
+		if (!this.canForward) return;
+		var monta = document.getElementsByAttribute('monta-hidden', 'true');
+		if (monta && monta.length) {
+			this.showMontaKeyword(monta[0]);
+		}
+		else
+			this.forward();
+	},
+  
+	back : function(){ 
+		if (!this.canBack) return;
+		this.offset--;
+		if(this.offset < 0){this.offset = 0}
+		this.takahashi();
+	},
+ 
+	home : function(){ 
+		if (!this.canMove) return;
+		this.offset = 0;
+		this.takahashi();
+	},
+ 
+	end : function(){ 
+		if (!this.canMove) return;
+		this.offset = this.data.length-1;
+		this.takahashi();
+	},
+ 
+	showPage : function(aPageOffset){ 
+		if (!this.canMove) return;
+		this.offset = aPageOffset ? aPageOffset : 0 ;
+		this.takahashi();
+	},
+ 
+	toggleEditMode : function() 
+	{
+		if (this.deck.selectedIndex == 1) {
+			if (document.getElementById('editTabBox').selectedTab.id == 'editTab-pages') {
+				this.source.value = this.sourceData.join('\n----\n');
+			}
+			this.data = this.source.value;
+			this.cachedContents = [];
+			var range = document.createRange();
+			range.selectNodeContents(this.content);
+			range.deleteContents();
+			range.detach();
+			this.init();
+		}
+		else {
+			this.initEditPages();
+		}
+
+		this.deck.selectedIndex = this.deck.selectedIndex == 0 ? 1 : 0 ;
+		this.setHash('edit', this.deck.selectedIndex == 0 ? '' : 'edit' );
+	},
+ 
+	toggleEvaMode : function() 
+	{
+		var check = document.getElementById('toggleEva');
+		if (this.canvas.getAttribute('eva') == 'true') {
+			this.canvas.removeAttribute('eva');
+			this.logo.removeAttribute('eva');
+			check.checked = false;
+		}
+		else {
+			this.canvas.setAttribute('eva', true);
+			this.logo.setAttribute('eva',true);
+			check.checked = true;
+		}
+		this.setHash('eva', check.checked ? 'eva' : '' );
+	},
+ 
+	toggleNote : function()
+	{
+		if (this.noteWindow && !this.noteWindow.closed) {
+			this.noteWindow.close();
+			this.noteWindow = null;
+		}
+		else {
+			this.noteWindow = window.open('about:blank', 'takahashi_xul_note_window');
+			this.updateNote();
+		}
+	},
+	updateNote : function()
+	{
+		this.noteButtonBox.hidden = !this.data[this.offset].pageNote;
+
+		if (!this.noteWindow)
+			return;
+
+		if (this.noteWindow.closed) {
+			this.noteWindow = null;
+			return;
+		}
+		var w = this.noteWindow;
+		window.setTimeout(function(aNote) {
+			if (w.document.body.firstChild &&
+				w.document.body.firstChild.textContent == aNote)
+				return;
+
+			w.document.body.innerHTML = '<pre style="white-space:pre-wrap; font-size: large;"></pre>';
+			w.document.body.firstChild.textContent = aNote;
+		}, 100, this.data[this.offset].note);
+	},
+	showNoteText : function() 
+	{
+		if (this.noteTextShown) return;
+		this.noteTextShown = true;
+		this.noteTextBox.removeAttribute('hidden');
+		this.noteTextField.style.width = parseInt(this.canvasWidth * 0.8)+'px';
+		this.noteTextField.style.height = parseInt(this.canvasHeight * 0.8)+'px';
+		this.noteTextField.value = this.data[this.offset].pageNote;
+		this.noteTextField.focus();
+	},
+	hideNoteText : function() 
+	{
+		if (!this.noteTextShown) return;
+		this.noteTextShown = false;
+		this.noteTextBox.setAttribute('hidden', true);
+		this.noteTextField.value = '';
+	},
+	noteTextShown : false,
+	get noteTextBox()
+	{
+		return document.getElementById('noteTextBox');
+	},
+	get noteTextField()
+	{
+		return document.getElementById('noteTextField');
+	},
+  
+/* auto cruise */ 
+	
+	toggleAutoCruiseMode : function() 
+	{
+		var autoCruise = document.getElementById('autoButton');
+		if(!autoCruise.checked)
+			this.startAutoCruise();
+		else
+			autoCruise.checked = false;
+	},
+ 
+	startAutoCruise : function() 
+	{
+		var autoCruise = document.getElementById('autoButton');
+		autoCruise.checked = true;
+
+		if (this.autoCruiseTimer) {
+			window.clearTimeout(this.autoCruiseTimer);
+		}
+		this.autoCruiseTimer = window.setTimeout(this.autoCruise, this.autoCruiseInterval);
+	},
+ 
+	changeAutoCruiseInterval : function(aInterval) 
+	{
+		this.autoCruiseInterval = aInterval;
+		this.startAutoCruise();
+	},
+ 
+	autoCruise : function() 
+	{
+		var autoCruise = document.getElementById('autoButton');
+		if (!autoCruise.checked) return;
+
+		if (Presentation.offset == Presentation.data.length-1) {
+			if (Presentation.canMove)
+				Presentation.home();
+		}
+		else {
+			if (Presentation.canForward)
+				Presentation.forwardStep();
+		}
+		Presentation.autoCruiseTimer = window.setTimeout(arguments.callee, Presentation.autoCruiseInterval);
+	},
+	autoCruiseTimer : null,
+  
+/* timer */ 
+	
+	resetTimer : function() 
+	{
+		if (this.timerTimer) {
+			window.clearInterval(this.timerTimer);
+			this.timerTimer = null;
+		}
+		this.timer.setAttribute('value', 0);
+		this.timer.setAttribute('collapsed', true);
+		this.setHash('timer', '');
+	},
+ 
+	setTimer : function(aStart, aEnd) 
+	{
+		var now = (new Date()).getTime();
+		if (aStart !== void(0) && aEnd === void(0)) {
+			var rest = Math.abs(aStart);
+			this.timerStart = now;
+			this.timerEnd   = this.timerStart + (rest * 60000);
+		}
+		else if (aStart === void(0) && aEnd === void(0)) {
+			var rest = prompt('Remaining Time (minits)');
+			if (rest == '') {
+				this.resetTimer();
+				return;
+			}
+			else {
+				rest = Number(rest);
+				if (!rest || isNaN(rest)) return;
+			}
+
+			rest = Math.abs(rest);
+			this.timerStart = now;
+			this.timerEnd   = this.timerStart + (rest * 60000);
+		}
+		else {
+			aStart = Number(aStart);
+			aEnd   = Number(aEnd);
+			if (isNaN(aStart) || isNaN(aEnd)) return;
+
+			this.timerStart = Math.min(aStart, aEnd);
+			this.timerEnd   = Math.max(aStart, aEnd);
+
+			if (this.timerStart >= now || this.timerEnd <= now) return;
+		}
+
+		this.resetTimer();
+
+		this.timer.removeAttribute('collapsed');
+		this.setHash('timer', 'timer'+this.timerStart+'-'+this.timerEnd);
+
+		if (now != this.timerStart)
+			this.updateTimer(this);
+
+		this.timerTimer = window.setInterval(this.updateTimer, Math.min(this.timerUpdatingInterval, (this.timerEnd-this.timerStart)/(this.data.length*2)), this);
+	},
+	
+	timerStart : 0, 
+	timerEnd   : 0,
+	timerTimer : null,
+ 
+	updateTimer : function(aThis) 
+	{
+		var now = (new Date()).getTime();
+		if (now >= aThis.timerEnd) {
+			aThis.resetTimer();
+			aThis.timer.setAttribute('value', 100);
+			aThis.timer.removeAttribute('collapsed');
+			aThis.setHash('timer', '');
+		}
+		else {
+			var value = parseInt(((now - aThis.timerStart) / (aThis.timerEnd - aThis.timerStart)) * 100);
+			aThis.timer.setAttribute('value', value);
+		}
+	},
+  
+	updateTimerItem : function() 
+	{
+		var item = document.getElementById('timerItem');
+		if (this.timerTimer) {
+			item.setAttribute('label', item.getAttribute('label-active').replace(/%s/gi, Math.round((this.timerEnd - (new Date()).getTime()) / 60000)));
+		}
+		else {
+			item.setAttribute('label', item.getAttribute('label-normal'));
+		}
+	},
+  
+/* print */ 
+	
+	print : function() 
+	{
+		if (!this.canMove) {
+			alert('Please wait for a while, and retry later.');
+			return;
+		}
+
+		this.stopPrint();
+		if (this.printWindow) {
+			this.printWindow.close();
+			this.printWindow = null;
+		}
+
+		if (!this.isToolbarHidden)
+			this.showHideToolbar(true);
+
+		this.printWindow = window.open('output.htm', 'PresentationPrint', 'dependent=yes,hotkeys=yes,location=yes,menubar=yes,personalbar=yes,scrollbars=yes,status=yes,toolbar=yes');
+		if (!this.printWindow) return;
+
+		this.isPrinting = true;
+
+		if (!this.printCanvas)
+			this.printCanvas = document.createElementNS(XHTMLNS, 'canvas');
+
+		this.printWindow.document.write('<html><head><title>'+document.title+'</title></head><body></body></html>');
+		this.home();
+		this.printTimer = window.setInterval(this.printCallback, 0, this);
+	},
+	 
+	printCallback : function(aThis) 
+	{
+		if (
+			!aThis.canMove
+			)
+			return;
+
+		var monta = document.getElementsByAttribute('monta-hidden', 'true');
+		if (monta && monta.length) {
+			for (var i = monta.length-1; i > -1; i--)
+				aThis.showMontaKeyword(monta[i], true);
+		}
+
+		var doc  = aThis.printWindow.document;
+		var body = doc.getElementsByTagName('body')[0];
+		var img  = doc.createElement('img');
+
+		if ((aThis.offset+1) % 2 == 1) {
+			body.appendChild(doc.createElement('div'));
+//			body.lastChild.style.clear = 'both';
+		}
+		var box = doc.createElement('div');
+		box.appendChild(doc.createElement('div'));
+		box.lastChild.appendChild(document.createTextNode(aThis.offset+1));
+		body.lastChild.appendChild(box);
+
+		var w = window.innerWidth;
+		var h = window.innerHeight;
+		var canvasW = parseInt(w * aThis.printSize);
+		var canvasH = parseInt(h * aThis.printSize);
+
+		aThis.printCanvas.width  = canvasW;
+		aThis.printCanvas.height = canvasH;
+		aThis.printCanvas.style.border = 'black solid medium';
+
+		img.style.border = 'black solid medium';
+		img.style.width  = canvasW+'px';
+		img.style.height = canvasH+'px';
+
+		box.style.margin = '1em';
+		box.style.width  = parseInt(w * aThis.printSize)+'px';
+		box.style.cssFloat  = ((aThis.offset+1) % 2 == 1) ? 'left' : 'right' ;
+
+		try {
+			netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
+
+			var ctx = aThis.printCanvas.getContext('2d');
+			ctx.clearRect(0, 0, canvasW, canvasH);
+			ctx.save();
+			ctx.scale(aThis.printSize, aThis.printSize);
+			ctx.drawWindow(window, 0, 0, w, h, 'rgb(255,255,255)');
+			ctx.restore();
+			try {
+				if (aThis.imageType == 'jpeg')
+					img.src = aThis.printCanvas.toDataURL('image/jpeg', 'quality=50');
+				else
+					img.src = aThis.printCanvas.toDataURL('image/png', 'transparency=none');
+
+				box.appendChild(img);
+			}
+			catch(e) {
+				box.appendChild(aThis.printCanvas.cloneNode(true));
+				ctx = box.lastChild.getContext('2d');
+				ctx.clearRect(0, 0, canvasW, canvasH);
+				ctx.save();
+				ctx.scale(aThis.printSize, aThis.printSize);
+				ctx.drawWindow(window, 0, 0, w, h, 'rgb(255,255,255)');
+				ctx.restore();
+			}
+		}
+		catch(e) {
+			alert('Error: Failed to create a document for printing.\n\n------\n'+e);
+			aThis.stopPrint();
+			return;
+		}
+
+		if (aThis.offset == aThis.data.length-1) {
+			aThis.stopPrint();
+			aThis.printWindow.focus();
+		}
+		else {
+			aThis.forward();
+		}
+	},
+  
+	stopPrint : function() 
+	{
+		window.clearInterval(this.printTimer);
+		this.printTimer = null;
+		this.isPrinting = false;
+	},
+ 
+	printSize   : 0.4, 
+	printTimer  : null,
+	printWindow : null,
+	printCanvas : null,
+  
+/* view source */ 
+	
+	plainTextShown : false, 
+ 
+	get plainTextBox() 
+	{
+		return document.getElementById('plainTextBox');
+	},
+ 
+	get plainTextField() 
+	{
+		return document.getElementById('plainTextField');
+	},
+ 
+	showPlainText : function() 
+	{
+		if (this.plainTextShown) return;
+		this.plainTextShown = true;
+		this.plainTextBox.removeAttribute('hidden');
+		this.plainTextField.style.width = parseInt(this.canvasWidth * 0.8)+'px';
+		this.plainTextField.style.height = parseInt(this.canvasHeight * 0.8)+'px';
+		this.plainTextField.value = this.data[this.offset].text.join('\n').replace(/\u200b/g, '');
+		this.plainTextField.select();
+		this.plainTextField.focus();
+	},
+ 
+	hidePlainText : function() 
+	{
+		if (!this.plainTextShown) return;
+
+		var modified = false;
+		var value = this.plainTextField.value.split('\n');
+		if (this.data[this.offset].text.toSource() != value.toSource()) {
+			this.data[this.offset].text = value;
+			delete this.cachedContents[this.offset];
+			modified = true;
+		}
+
+		this.plainTextShown = false;
+		this.plainTextBox.setAttribute('hidden', true);
+		this.plainTextField.value = '';
+		this.plainTextField.blur();
+
+		if (modified)
+			this.takahashi();
+	},
+  
+/* state */ 
+	
+	get canMove() 
+	{
+		return (
+				this.isRendering ||
+				this.montaAnimating
+			) ? false : true ;
+	},
+ 
+	get canBack() 
+	{
+		return this.canMove;
+	},
+ 
+	get canForward() 
+	{
+		return this.canMove;
+	},
+ 
+	get isPresentationMode(){ 
+		return (this.deck.selectedIndex == 0);
+	},
+  
+/* event handling */ 
+	
+	handleEvent : function(aEvent) 
+	{
+		if (aEvent.type == 'unload') {
+			if (this.noteWindow && !this.noteWindow.closed)
+				this.noteWindow.close();
+			return;
+		}
+
+		if (this.isPrinting) return;
+
+		var node = aEvent.target;
+		var inRawContents = false;
+		do {
+			if (node.nodeType == Node.ELEMENT_NODE &&
+				/\braw\b/i.test(node.getAttribute('class'))) {
+				inRawContents = true;
+				break;
+			}
+
+			node = node.parentNode;
+			if (node == document) break;
+		}
+		while (node && node.parentNode)
+
+
+		switch (aEvent.type)
+		{
+			default:
+				break;
+
+			case 'resize':
+				if (this.onResizeTimer) {
+					window.clearTimeout(this.onResizeTimer);
+					this.onResizeTimer = null;
+				}
+				this.onResizeTimer = window.setTimeout(function(aSelf) {
+					aSelf.onResizeTimer = null;
+					if (
+						inRawContents ||
+						aSelf.lastWidth != window.innerWidth ||
+						aSelf.lastHeight != window.innerHeight
+						) {
+						aSelf.cachedContents = [];
+						aSelf.takahashi(); // redraw
+					}
+				}, 250, this);
+				break;
+
+			case 'contextmenu':
+				aEvent.stopPropagation();
+				aEvent.preventDefault();
+				break;
+
+
+			case 'mouseup':
+				if (inRawContents) return;
+				this.dragStartX = -1;
+				this.dragStartY = -1;
+				if (this.indicatorBar.dragging)
+					this.onIndicatorBarDragEnd(aEvent);
+				break;
+
+			case 'mousedown':
+				if (inRawContents) return;
+				if (this.dragStartX < 0) {
+					this.dragStartX = aEvent.clientX;
+					this.dragStartY = aEvent.clientY;
+				}
+				var box = this.indicatorBar.boxObject;
+				if (!(aEvent.screenX < box.screenX ||
+					aEvent.screenY < box.screenY ||
+					aEvent.screenX > box.screenX+box.width ||
+					aEvent.screenY > box.screenY+box.height))
+					this.onIndicatorBarDragStart();
+				break;
+
+			case 'mousemove':
+				if (inRawContents) return;
+				this.checkShowHideToolbar(aEvent);
+				if (this.indicatorBar.dragging) {
+					this.onIndicatorBarDragMove(aEvent);
+					return;
+				}
+				if (this.dragStartX > -1) {
+					if (Math.abs(this.dragStartX-aEvent.clientX) > Math.abs(this.dragStartDelta) ||
+						Math.abs(this.dragStartY-aEvent.clientY) > Math.abs(this.dragStartDelta)) {
+						var event = document.createEvent('Events');
+						event.initEvent('StartDragOnCanvas', false, true);
+						this.canvas.dispatchEvent(event);
+					}
+				}
+				break;
+
+			case 'DOMMouseScroll':
+				if (
+					(aEvent.detail > 0 && this.scrollCounter < 0) ||
+					(aEvent.detail < 0 && this.scrollCounter > 0)
+					)
+					this.scrollCounter = 0;
+
+				this.scrollCounter += aEvent.detail;
+				if (Math.abs(this.scrollCounter) >= this.scrollThreshold) {
+					if (aEvent.detail > 0)
+						Presentation.forwardStep();
+					else
+						Presentation.back();
+
+					this.scrollCounter = 0;
+				}
+				break;
+		}
+	},
+	 
+	dragStartX : -1, 
+	dragStartY : -1,
+	scrollCounter : 0,
+	scrollThreshold : 10,
+  
+	onKeyPress : function(aEvent) { 
+		if (this.isPrinting) return;
+
+		switch(aEvent.keyCode)
+		{
+			case aEvent.DOM_VK_BACK_SPACE:
+				if (this.isPresentationMode) {
+					aEvent.stopPropagation();
+					aEvent.preventDefault();
+					Presentation.back();
+				}
+				break;
+			default:
+				break;
+		}
+	},
+ 
+/* actions on presentation */ 
+	 
+	onPresentationClick : function(aEvent) 
+	{
+		if (this.isPrinting) {
+			if (confirm('Do you want printing operation to be stopped?')) {
+				this.stopPrint();
+			}
+			return;
+		}
+
+		if (!this.isToolbarHidden)
+			this.showHideToolbar();
+
+		switch(aEvent.button)
+		{
+			case 0:
+				switch (aEvent.target.getAttribute('class'))
+				{
+					case 'link-text':
+						var uri = aEvent.target.getAttribute('href');
+						if (uri) {
+							window.open(uri);
+							return;
+						}
+						break;
+
+					case 'monta-label':
+						if (aEvent.target.getAttribute('monta-hidden') == 'true') {
+							this.showMontaKeyword(aEvent.target);
+							aEvent.stopPropagation();
+							return;
+						}
+
+					default:
+						break;
+				}
+				this.forward();
+				document.documentElement.focus();
+				break;
+			case 2:
+				this.back();
+				document.documentElement.focus();
+				break;
+			default:
+				break;
+		}
+	},
+ 
+/* scrollbar */ 
+	
+	onScrollerDragStart : function(){ 
+		if (this.isPrinting) return;
+
+		this.scroller.dragging = true;
+	},
+ 
+	onScrollerDragMove : function(){ 
+		if (this.isPrinting) return;
+
+		if (this.scroller.dragging)
+			this.showPage(parseInt(this.scroller.getAttribute('curpos')));
+	},
+ 
+	onScrollerDragDrop : function(){ 
+		if (this.isPrinting) return;
+
+		this.onScrollerDragMove();
+		this.scroller.dragging = false;
+	},
+  
+/* indicator bar */ 
+	
+	onIndicatorBarClick : function(aEvent) 
+	{
+		if (this.isPrinting) return;
+
+		var bar = this.indicatorBar;
+		this.showPage(Math.round((aEvent.screenX - bar.boxObject.screenX) / bar.boxObject.width * this.data.length));
+	},
+ 
+	onIndicatorBarDragStart : function() 
+	{
+		if (this.isPrinting) return;
+
+		this.indicatorBar.dragging = true;
+	},
+ 
+	onIndicatorBarDragMove : function(aEvent) 
+	{
+		if (this.isPrinting) return;
+
+		var bar = this.indicatorBar;
+		this.showPage(Math.round((aEvent.screenX - bar.boxObject.screenX) / bar.boxObject.width * this.data.length));
+	},
+ 
+	onIndicatorBarDragEnd : function(aEvent) 
+	{
+		if (this.isPrinting) return;
+
+		this.onIndicatorBarDragMove(aEvent);
+		this.indicatorBar.dragging = false;
+	},
+  
+	showMontaKeyword : function(aNode, aWithoutAnimation) { 
+		if (aNode.getAttribute('monta-hidden') != 'true') return;
+
+		if (aWithoutAnimation) {
+			aNode.setAttribute('monta-hidden', 'false');
+			return;
+		}
+
+		aNode.setAttribute('monta-hidden', 'progress');
+
+		this.montaAnimating = true;
+
+		window.setTimeout(this.showMontaKeywordCallback, 0, {
+			position : -100,
+			node     : aNode,
+			interval : this.showMontaKeywordDuration/10
+		});
+	},
+	
+	showMontaKeywordCallback : function(aInfo) { 
+		if (aInfo.position >= aInfo.node.boxObject.width) {
+			aInfo.node.setAttribute('monta-hidden', 'false');
+			Presentation.montaAnimating = false;
+			return;
+		}
+
+		aInfo.position += (aInfo.node.boxObject.width/10);
+		aInfo.node.setAttribute('style', 'background-position: '+aInfo.position+'px 0 !important;');
+		window.setTimeout(arguments.callee, aInfo.interval, aInfo);
+	},
+	montaAnimating : false,
+    
+/* toolbar animation */ 
+	
+	onToolbarArea   : false, 
+	toolbarHeight   : 0,
+	toolbarDelay    : 300,
+	toolbarTimer    : null,
+	isToolbarHidden : false,
+ 
+	checkShowHideToolbar : function(aEvent) { 
+		if (!this.scroller || this.scroller.dragging || this.preventToShowHideToolbar) return;
+
+		this.onToolbarArea = aEvent.clientY < (this.toolbarHeight * 1.5);
+
+		if (this.isToolbarHidden == this.onToolbarArea) {
+			if (this.toolbarTimer) window.clearTimeout(this.toolbarTimer);
+			this.toolbarTimer = window.setTimeout('Presentation.checkShowHideToolbarCallback()', this.toolbarDelay);
+		}
+	},
+	
+	checkShowHideToolbarCallback : function() { 
+		if (this.isToolbarHidden == this.onToolbarArea)
+			this.showHideToolbar();
+	},
+  
+	showHideToolbar : function(aWithoutAnimation) 
+	{
+		if (this.isPrinting) return;
+
+		if (this.toolbarAnimationTimer) window.clearTimeout(this.toolbarAnimationTimer);
+
+		this.toolbarAnimationInfo = { count : 0 };
+		if (this.isToolbarHidden) {
+			this.toolbarAnimationInfo.start = 0;
+			this.toolbarAnimationInfo.end   = this.toolbarHeight;
+		}
+		else {
+			this.toolbarAnimationInfo.start = this.toolbarHeight;
+			this.toolbarAnimationInfo.end   = 0;
+		}
+		this.toolbarAnimationInfo.current = 0;
+
+		this.toolbar.setAttribute('style', 'margin-top:'+(0-(this.toolbarHeight-this.toolbarAnimationInfo.start))+'px; margin-bottom:'+(0-this.toolbarAnimationInfo.start)+'px;');
+
+		if (aWithoutAnimation) {
+			this.toolbarAnimationInfo.current = this.toolbarHeight;
+			Presentation.animateToolbar();
+		}
+		else {
+			this.toolbarAnimationTimer = window.setTimeout('Presentation.animateToolbar()', this.toolbarAnimationDelay/this.toolbarAnimationSteps);
+		}
+	},
+	
+	animateToolbar : function() 
+	{
+		this.toolbarAnimationInfo.current += parseInt(this.toolbarHeight/this.toolbarAnimationSteps);
+
+		var top, bottom;
+		if (this.toolbarAnimationInfo.start < this.toolbarAnimationInfo.end) {
+			top    = this.toolbarHeight-this.toolbarAnimationInfo.current;
+			bottom = this.toolbarAnimationInfo.current;
+		}
+		else {
+			top    = this.toolbarAnimationInfo.current;
+			bottom = this.toolbarHeight-this.toolbarAnimationInfo.current;
+		}
+
+		top    = Math.min(Math.max(top, 0), this.toolbarHeight);
+		bottom = Math.min(Math.max(bottom, 0), this.toolbarHeight);
+
+		this.toolbar.setAttribute('style', 'margin-top:'+(0-top)+'px; margin-bottom:'+(0-bottom)+'px');
+
+		if (this.toolbarAnimationInfo.count < this.toolbarAnimationSteps) {
+			this.toolbarAnimationInfo.count++;
+			this.toolbarAnimationTimer = window.setTimeout('Presentation.animateToolbar()', this.toolbarAnimationDelay/this.toolbarAnimationSteps);
+		}
+		else
+			this.isToolbarHidden = !this.isToolbarHidden;
+	},
+ 
+	toolbarAnimationDelay : 100, 
+	toolbarAnimationSteps : 5,
+	toolbarAnimationInfo  : null,
+	toolbarAnimationTimer : null,
+   
+/* edit mode */ 
+	 
+	initEditPages : function() 
+	{
+		var range = document.createRange();
+		range.selectNodeContents(this.pages);
+		range.deleteContents();
+		range.detach();
+
+		var editBox  = document.getElementById('pageEditBoxTemplate');
+		var contents = document.createDocumentFragment();
+		for (var i = 0, maxi = this.sourceData.length; i < maxi; i++)
+		{
+			var newBox = editBox.cloneNode(true);
+			newBox.firstChild.setAttribute('value', this.sourceData[i])
+			newBox.setAttribute('id', this.EDIT_BOX_ID_PREFIX+i);
+			contents.appendChild(newBox);
+		}
+
+		this.pages.appendChild(contents);
+	},
+ 
+	toggleEditStyle : function(aEvent) 
+	{
+		if (!this.source) return;
+		var tabbox = document.getElementById('editTabBox');
+		var tab = tabbox.selectedTab;
+		if (tab.id == 'editTab-pages') {
+			this.sourceData = this.source.value.split(/\n?----+\n?/);
+			this.initEditPages();
+		}
+		else {
+			this.source.value = this.sourceData.join('\n----\n');
+		}
+	},
+ 
+	insert : function(aType) { 
+		switch (aType)
+		{
+			case 'page':
+				this.insertTextFor('\n----\n', this.source, 6);
+				break;
+			case 'header':
+				this.insertTextFor('\nHEADER::\n', this.source, 9);
+				break;
+			case 'footer':
+				this.insertTextFor('\nFOOTER::\n', this.source, 9);
+				break;
+
+			case 'em':
+			case 'emphasis':
+				this.insertTextFor(this.phraseOpenParen+this.phraseOpenParen+'EM:'+this.phraseCloseParen+this.phraseCloseParen, this.source, 5);
+				break;
+			case 'pre':
+			case 'preformatted':
+				this.insertTextFor(this.phraseOpenParen+this.phraseOpenParen+'PRE:'+this.phraseCloseParen+this.phraseCloseParen, this.source, 6);
+				break;
+			case 'monta':
+				this.insertTextFor(this.phraseOpenParen+this.phraseCloseParen, this.source, 1);
+				break;
+			case 'link':
+				this.insertTextFor(this.phraseOpenParen+this.phraseOpenParen+'|http://'+this.phraseCloseParen+this.phraseCloseParen, this.source, 2);
+				break;
+			case 'img':
+			case 'image':
+				this.insertTextFor(this.phraseOpenParen+this.phraseOpenParen+'image src="" width="" height=""'+this.phraseCloseParen+this.phraseCloseParen, this.source, 13);
+				break;
+
+			default:
+				return;
+		}
+		this.onEditSource();
+	},
+	
+	insertTextFor : function(aString, aNode, aPosOffset) 
+	{
+		var pos = aNode.selectionStart;
+		var value = aNode.value;
+		aNode.value = [value.substring(0, pos), aString, value.substring(pos, value.length)].join('');
+		aNode.selectionEnd = aNode.selectionStart = pos + (aPosOffset || 0);
+	},
+  
+	removePage : function(aPage) 
+	{
+		if (aPage === void(0) || this.pages.childNodes.length == 1) return;
+
+		var target = document.getElementById(this.EDIT_BOX_ID_PREFIX+aPage);
+
+		var next = target;
+		while (next = next.nextSibling)
+		{
+			next.setAttribute('id', this.EDIT_BOX_ID_PREFIX + (Number(next.id.match(/\d+/)) - 1));
+		}
+		this.pages.removeChild(target);
+
+		this.sourceData.splice(aPage, 1);
+
+		var maxPage = this.pages.childNodes.length-1;
+		if (this.offset > maxPage) this.offset = maxPage;
+
+		this.onEditPage();
+	},
+ 
+	onEditSource : function() { 
+		if (this.isPrinting) return;
+	},
+
+ 
+	onEditPage : function(aPage) 
+	{
+		if (aPage !== void(0)) {
+			var target = document.getElementById(this.EDIT_BOX_ID_PREFIX+aPage);
+			if (target) {
+				target = getNodesByXPath('descendant::*[@class="page-edit-box-main"]', target).snapshotItem(0);
+				this.sourceData[aPage] = target.value;
+			}
+		}
+	},
+ 
+	output : function() 
+	{
+		location.href = 'data:application/octet-stream,'+encodeURIComponent(this.source.value);
+	}
+  
+}; 
+  	
+var StrokeService = { 
+	
+	className      : 'stroke-dot', 
+	dragStartDelta : 10,
+	lineColor      : 'red',
+	lineWidth      : 3,
+
+	initialized : false,
+
+
+	mode          : null,
+	canvas        : null,
+	canvasContext : null,
+	startX        : -1,
+	startY        : -1,
+ 
+	init : function(aCanvas) 
+	{
+		this.initialized = true;
+
+		this.canvas = aCanvas;
+		this.canvasElement = aCanvas;
+
+		var canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+		canvas.width = this.canvas.boxObject.width;
+		canvas.height = this.canvas.boxObject.height;
+		this.canvas.appendChild(canvas);
+		if (!('getContext' in canvas) || !canvas.getContext) {
+			this.canvas.removeChild(canvas);
+			this.mode = 'box';
+		}
+		else {
+			this.canvasElement = canvas;
+			this.canvasContext = canvas.getContext('2d');
+			this.mode          = 'canvas';
+		}
+
+		document.documentElement.addEventListener('PresentationRedraw', this, false);
+		window.addEventListener('resize', this, false);
+		this.canvasElement.addEventListener('mouseup',   this, false);
+		this.canvasElement.addEventListener('mousedown', this, false);
+		this.canvasElement.addEventListener('mousemove', this, false);
+
+		this.canvasElement.addEventListener('click', this, false);
+		this.canvasElement.addEventListener('dblclick', this, false);
+
+		this.clear();
+	},
+ 
+	destroy : function() 
+	{
+		document.documentElement.removeEventListener('PresentationRedraw', this, false);
+		window.removeEventListener('resize', this, false);
+		if (this.canvasElement) {
+			this.canvasElement.removeEventListener('mouseup', this, false);
+			this.canvasElement.removeEventListener('mousedown', this, false);
+			this.canvasElement.removeEventListener('mousemove', this, false);
+			this.canvasElement.removeEventListener('click', this, false);
+		}
+
+		this.cliclableNodesManager = null;
+		this.canvasElement = null;
+		this.canvas = null;
+
+		this.initialized = false;
+	},
+ 
+	handleEvent : function(aEvent) 
+	{
+		switch(aEvent.type)
+		{
+			default:
+				break;
+
+			case 'mouseup':
+				this.finish(aEvent);
+				this.startX = -1;
+				this.startY = -1;
+				window.setTimeout('StrokeService.preventToSendClickEvent = false', 10);
+				break;
+
+			case 'mousedown':
+				if (this.startX < 0) {
+					this.startX = aEvent.clientX;
+					this.startY = aEvent.clientY;
+				}
+				break;
+
+			case 'mousemove':
+				if (this.startX > -1 && !this.active) {
+					if (Math.abs(this.startX-aEvent.clientX) > Math.abs(this.dragStartDelta) ||
+						Math.abs(this.startY-aEvent.clientY) > Math.abs(this.dragStartDelta)) {
+						this.start(aEvent, this.startX, this.startY);
+						this.preventToSendClickEvent = true;
+					}
+				}
+				else
+					this.trace(aEvent);
+
+				break;
+
+			case 'PresentationRedraw':
+			case 'resize':
+				this.clear();
+				break;
+
+			case 'click':
+				if (this.preventToSendClickEvent) {
+					aEvent.stopPropagation();
+					aEvent.preventDefault();
+					this.preventToSendClickEvent = false;
+				}
+				else if (this.cliclableNodesManager && this.cliclableNodesManager.clickableNodes) {
+					var nodes = this.cliclableNodesManager.clickableNodes;
+					var max = nodes.length;
+					var x, y, width, height
+					for (var i = 0; i < max; i++)
+					{
+						if (nodes[i].boxObject) {
+							x      = nodes[i].boxObject.x;
+							y      = nodes[i].boxObject.y;
+							width  = nodes[i].boxObject.width;
+							height = nodes[i].boxObject.height;
+						}
+						else {
+							x      = nodes[i].offsetLeft;
+							y      = nodes[i].offsetTop;
+							width  = nodes[i].offsetWidth;
+							height = nodes[i].offsetHeight;
+						}
+						if (aEvent.clientX < x ||
+							aEvent.clientX > x+width ||
+							aEvent.clientY < y ||
+							aEvent.clientY > y+height)
+							continue;
+
+						var event = document.createEvent('MouseEvents');
+						event.initMouseEvent(
+							aEvent.type, aEvent.canBubble, aEvent.cancelable, aEvent.view,
+							aEvent.detail,
+							aEvent.screenX, aEvent.screenY, aEvent.clientX, aEvent.clientY,
+							aEvent.ctrlKey, aEvent.altKey, aEvent.shiftKey, aEvent.metaKey,
+							aEvent.button,
+							aEvent.relatedTarget
+						);
+						nodes[i].dispatchEvent(event);
+						break;
+					}
+				}
+				break;
+		}
+	},
+	preventToSendClickEvent : false,
+ 
+	start : function(aEvent, aX, aY) 
+	{
+		this.active = true;
+		this.trace(aEvent, aX, aY);
+	},
+ 
+	finish : function(aEvent) 
+	{
+		if (!this.active) return;
+		this.trace(aEvent);
+		this.finishStroke();
+	},
+ 
+	trace : function(aEvent, aX, aY) 
+	{
+		if (!this.active) return;
+		this.addPoint((aX === void(0) ? aEvent.clientX : aX ), (aY === void(0) ? aEvent.clientY : aY ));
+	},
+ 
+	finishStroke : function() 
+	{
+		this.active = false;
+		this.lastX = -1;
+		this.lastY = -1;
+	},
+ 
+	addPoint : function(aX, aY) 
+	{
+		if (this.lastX != -1)
+			this.drawLine(this.lastX, this.lastY, aX, aY);
+		else
+			this.drawDot(aX, aY);
+
+		this.lastX = aX;
+		this.lastY = aY;
+	},
+ 
+	clear : function() 
+	{
+		this.active = false;
+		this.lastX = -1;
+		this.lastY = -1;
+
+		if (this.mode == 'canvas') {
+			if (this.canvasElement.lastWindowWidth != window.innerWidth ||
+				this.canvasElement.lastWindowHeight != window.innerHeight) {
+				this.canvasElement.width  = this.canvasElement.parentNode.boxObject.width-2;
+				this.canvasElement.height = this.canvasElement.parentNode.boxObject.height-2;
+
+				this.canvasElement.lastWindowWidth  = window.innerWidth;
+				this.canvasElement.lastWindowHeight = window.innerHeight;
+			}
+			this.canvasContext.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+			this.canvasContext.strokeStyle = this.lineColor;
+			this.canvasContext.lineWidth   = this.lineWidth;
+		}
+		else {
+			var dotes = this.canvasElement.getElementsByAttribute('class', this.className);
+			if (!dotes.length) return;
+
+			var range = document.createRange();
+			range.selectNodeContents(this.canvasElement);
+			range.setStartBefore(dotes[0]);
+			range.setEndAfter(dotes[dotes.length-1]);
+			range.deleteContents();
+			range.detach();
+		}
+	},
+ 
+	drawDot : function(aX, aY, aParent) 
+	{
+		if (this.mode == 'canvas') {
+			this.canvasContext.strokeRect(aX, aY, 0, 0);
+			this.canvasContext.stroke();
+		}
+		else {
+			var dot = document.createElement('spacer');
+			dot.setAttribute('style', 'left:'+aX+'px; top:'+aY+'px');
+			dot.setAttribute('class', this.className);
+			(aParent || this.canvasElement).appendChild(dot);
+		}
+	},
+ 
+	drawLine : function(aX1, aY1, aX2, aY2) 
+	{
+		if (aX1 == aX2 && aY1 == aY2) return;
+
+
+		if (this.mode == 'canvas') {
+			this.canvasContext.beginPath();
+			this.canvasContext.moveTo(aX1, aY1);
+			this.canvasContext.lineTo(aX2, aY2);
+/*
+			this.canvasContext.bezierCurveTo(
+				parseInt(aX1+((aX2-this.lastX)*0.3)), parseInt(aY1+((aY2-this.lastY)*0.3)),
+				parseInt(aX1+((aX2-this.lastX)*0.6)), parseInt(aY1+((aY2-this.lastY)*0.6)),
+				aX2, aY2
+			);
+*/
+			this.canvasContext.closePath();
+			this.canvasContext.stroke();
+		}
+		else {
+			var x_move = aX2 - aX1;
+			var y_move = aY2 - aY1;
+			var x_diff = x_move < 0 ? 1 : -1;
+			var y_diff = y_move < 0 ? 1 : -1;
+
+			var fragment = document.createDocumentFragment();
+			if (Math.abs(x_move) >= Math.abs(y_move)) {
+				for (var i = x_move; i != 0; i += x_diff)
+					this.drawDot(aX2 - i, aY2 - Math.round(y_move * i / x_move), fragment);
+			}
+			else {
+				for (var i = y_move; i != 0; i += y_diff)
+					this.drawDot(aX2 - Math.round(x_move * i / y_move), aY2 - i, fragment);
+			}
+			this.canvasElement.appendChild(fragment);
+		}
+	}
+ 
+}; 
+  
+var StrokablePresentationService = { 
+	
+	id : 'stroke-canvas-box', 
+
+	strokeService         : null,
+	cliclableNodesManager : null,
+	canvasContainer       : null,
+	canvas                : null,
+
+	autoStart : false,
+ 
+	init : function(aPresentation, aStrokeService) 
+	{
+		this.cliclableNodesManager = aPresentation;
+		this.strokeService         = aStrokeService;
+		this.canvasContainer       = document.getElementById('canvas').firstChild;
+		this.check = document.getElementById('penButton');
+
+		document.documentElement.addEventListener('StartDragOnCanvas', this, false);
+		document.documentElement.addEventListener('PresentationRedraw', this, false);
+	},
+ 
+	toggle : function(aEnable) 
+	{
+		if (aEnable)
+			this.start();
+		else
+			this.end();
+	},
+ 
+	start : function() 
+	{
+		if (!this.strokeService || !this.canvasContainer) return;
+
+		this.strokeService.cliclableNodesManager = this.cliclableNodesManager;
+		var box = document.createElement('vbox');
+		box.setAttribute('flex', 1);
+		box.setAttribute('id', this.id);
+		box.style.width = this.canvasContainer.boxObject.width+'px';
+		box.style.height = this.canvasContainer.boxObject.height+'px';
+		this.canvas = this.canvasContainer.appendChild(box);
+		this.strokeService.init(this.canvas);
+
+		this.canvas.addEventListener('dblclick', this, false);
+	},
+ 
+	end : function() 
+	{
+		this.strokeService.destroy();
+		if (this.canvas) {
+			this.canvas.removeEventListener('dblclick', this, false);
+			this.canvasContainer.removeChild(this.canvas);
+			this.canvas = null;
+		}
+	},
+ 
+	handleEvent : function(aEvent) 
+	{
+		switch (aEvent.type)
+		{
+			default:
+				break;
+
+			case 'StartDragOnCanvas':
+				if (!this.check.checked) {
+					this.toggleCheck();
+					this.strokeService.startX = Presentation.dragStartX;
+					this.strokeService.startY = Presentation.dragStartY;
+
+					this.autoStart = true;
+				}
+				break;
+
+			case 'PresentationRedraw':
+				if (this.autoStart && this.check.checked) {
+					this.autoStart = false;
+					this.toggleCheck();
+				}
+				break;
+
+			case 'dblclick':
+				if (this.canvas)
+					this.end();
+				break;
+		}
+	},
+ 
+	toggleCheck : function() 
+	{
+		var enable = !this.check.checked;
+		this.toggle(enable);
+		this.check.checked = enable;
+
+		this.autoStart = false;
+	}
+ 
+}; 
+  
+function init() 
+{
+	window.removeEventListener('load', init, false);
+
+	Presentation.init();
+	StrokablePresentationService.init(Presentation, StrokeService);
+}
+window.addEventListener('load', init, false);
+ 
+function getNodesByXPath(aExpression, aContext, aLive) 
+{
+	var d = aContext.ownerDocument || aContext;
+	var type = aLive ? XPathResult.ORDERED_NODE_ITERATOR_TYPE : XPathResult.ORDERED_NODE_SNAPSHOT_TYPE ;
+	var nodes;
+	try {
+		nodes = d.evaluate(aExpression, aContext, null, type, null);
+	}
+	catch(e) {
+		nodes = document.evaluate(aExpression, aContext, null, type, null);
+	}
+	return nodes;
+}
+ 
+function insertXMLTo(aXML, aParent, aRefNode)
+{
+	var range = aParent.ownerDocument.createRange();
+	range.selectNodeContents(aParent);
+	if (aRefNode && aRefNode.parentNode == aParent) {
+		range.setStartBefore(aRefNode);
+		range.setEndBefore(aRefNode);
+	}
+	var fragment = range.createContextualFragment(aXML);
+	// clear white-space nodes from XUL tree
+	(function(aNode) {
+		Array.slice(aNode.childNodes).forEach(arguments.callee);
+		if (aNode.parentNode &&
+			aNode.parentNode.namespaceURI == XULNS &&
+			aNode.nodeType == Node.TEXT_NODE &&
+			aNode.nodeValue.replace(/^\s+|\s+$/g, '') == '')
+			aNode.parentNode.removeChild(aNode);
+	})(fragment);
+	range.insertNode(fragment);
+	range.detach();
+}
+ 
+]]></script> 
+  
+</page>

@@ -1,0 +1,5 @@
+This is a C++11 project. Supported toolchains are:
+* Visual Studio C++ 2010 or later
+* GNU Compiler Collection >= 4.6
+
+You need CMake to generate project/make files.
