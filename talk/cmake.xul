@@ -408,9 +408,15 @@ dh_make
 套件控制
 [[PRE:debian/control]]
 ----
+Build It
+[[PRE:git-buildpackage -k<keyid>]]
+----
 參考資料
 [[Ubuntu Wiki|http://wiki.ubuntu-tw.org/index.php?title=DebPackaging]] [(有點舊)]
 [[Debian New Maintainer Guide|http://www.debian.org/doc/manuals/maint-guide/index.zh-tw.html]]
+----
+謝謝!
+Thank You!
 ]]></html:textarea>
  
 <!-- Built-in Style --> 
