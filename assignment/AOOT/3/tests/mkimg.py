@@ -17,7 +17,7 @@ class ImageGenerator( QtCore.QObject, QtCore.QRunnable ):
 		image = QtGui.QImage( w, h, QtGui.QImage.Format_ARGB32_Premultiplied )
 		pixel = random.randint( 0, 2 ** 32 )
 		image.fill( pixel )
-		fileName = u'_{0}.{1}'.format( random.getrandbits( 64 ), random.choice( [ u'jpg', u'png' ] ) )
+		fileName = u'imgs/_{0}.{1}'.format( random.getrandbits( 64 ), random.choice( [ u'jpg', u'png' ] ) )
 		image.save( fileName )
 		self.finished.emit()
 
@@ -45,7 +45,7 @@ class Controller( QtCore.QObject ):
 
 app = QtCore.QCoreApplication( sys.argv )
 
-jobs = Controller( 1 )
+jobs = Controller( 100 )
 jobs.finished.connect( app.quit )
 jobs.start()
 
