@@ -13,7 +13,7 @@ include_directories(${BOOST_INCLUDE_DIRS} ${LIBTORRENT_RASTERBAR_INCLUDE_DIRS})
 
 add_definitions("-DBOOST_FILESYSTEM_VERSION=2")
 
-set(QBTD_SOURCES "src/main.cpp" "src/inspector.hpp" "src/inspector.cpp")
+set(QBTD_SOURCES "src/main.cpp" "src/inspector.hpp" "src/inspector.cpp" "src/torrentsession.hpp" "src/torrentsession_p.hpp" "src/torrentsession.cpp")
 
 qt4_wrap_cpp(QBTD_MOC_SOURCES "src/inspector.hpp")
 
