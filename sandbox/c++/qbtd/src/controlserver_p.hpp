@@ -2,6 +2,7 @@
 #define CONTROLSERVER_HPP_
 
 #include "controlserver.hpp"
+#include "controlsession.hpp"
 
 #include <QtNetwork/QLocalServer>
 
@@ -15,9 +16,11 @@ public:
 
 public slots:
 	void onNewConnection();
+	void onSessionDisconnected();
 
 public:
 	QLocalServer server;
+	std::vector< std::shared_ptr< ControlSession > > sessions;
 };
 
 #endif

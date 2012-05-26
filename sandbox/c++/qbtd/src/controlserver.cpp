@@ -12,15 +12,27 @@ void ControlServer::Private::destory( ControlServer * data ) {
 
 // TODO local socket, ipv4, ipv6 version
 ControlServer::Private::Private():
-server() {
+server(),
+sessions() {
 	this->connect( &this->server, SIGNAL( newConnection() ), SLOT( onNewConnection() ) );
 }
 
 void ControlServer::Private::onNewConnection() {
 	while( this->server.hasPendingConnections() ) {
 		QLocalSocket * socket = this->server.nextPendingConnection();
-		// TODO open a control session
+		std::shared_ptr< ControlSession > session( new ControlSession( socket ), []( ControlSession * data )->void {
+			QMetaObject::invokeMethod( data, "deleteLater" );
+		} );
+		this->sessions.push_back( session );
 	}
+}
+
+void ControlServer::Private::onSessionDisconnected() {
+	ControlSession * session = static_cast< ControlSession * >( this->sender() );
+	auto it = std::remove_if( this->sessions.begin(), this->sessions.end(), [session]( decltype( this->sessions[0] ) s )->bool {
+		return session == s.get();
+	} );
+	this->sessions.erase( it, this->sessions.end() );
 }
 
 void ControlServer::initialize() {
@@ -44,5 +56,10 @@ p_( new Private ) {
 }
 
 ControlServer::~ControlServer() {
+	// stop listen control session
 	this->p_->server.close();
+	// disconnect all session
+	for( auto it = this->p_->sessions.begin(); it != this->p_->sessions.end(); ++it ) {
+		( *it )->close();
+	}
 }
