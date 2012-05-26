@@ -21,6 +21,6 @@ endif()
 
 if(NOT LibtorrentRasterbar_FOUND)
 	if(LibtorrentRasterbar_FIND_REQUIRED)
-		message(FATAL_ERROR "Could NOT find FFmpeg")
+		message(FATAL_ERROR "Could NOT find libtorrent-rasterbar")
 	endif()
 endif()
