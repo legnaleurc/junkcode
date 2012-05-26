@@ -24,8 +24,8 @@ class MainWindow( QtGui.QMainWindow ):
 			self.ui.graphicsView.openDtv( fileName )
 		except dtv.FileCorruptedError:
 			QtGui.QMessageBox.critical( self, u'Invalid File', u'File corrupted.' )
-		except Exception:
-			QtGui.QMessageBox.critical( self, u'Unknown Error', u'Unknown error.' )
+		except Exception as e:
+			QtGui.QMessageBox.critical( self, u'Unknown Error', e.message )
 
 a = QtGui.QApplication( sys.argv )
 
