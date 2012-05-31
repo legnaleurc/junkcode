@@ -3,6 +3,10 @@
 
 import os, sys, random
 
+if sys.platform == 'win32':
+	import msvcrt
+	msvcrt.setmode( sys.stdout.fileno(), os.O_BINARY )
+
 files = []
 for dirPath, dirNames, fileNames in os.walk( u'imgs' ):
 	for fileName in fileNames:
