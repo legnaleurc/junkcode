@@ -81,13 +81,7 @@ def __jpgParser( filePath, offset, size ):
 		chunk = fin.read( 2 )
 		if len( chunk ) < 2:
 			break
-		if chunk != '\xFF\xC0':
-			# skip
-			chunk = fin.read( 2 )
-			length = struct.unpack( '>H', chunk )[0]
-			# length contains size field itself
-			fin.seek( length - 2, 1 )
-		else:
+		if chunk == '\xFF\xC0' or chunk == '\xFF\xC2':
 			# skip length byte and depth byte
 			fin.seek( 2 + 1, 1 )
 			chunk = fin.read( 2 )
@@ -95,6 +89,12 @@ def __jpgParser( filePath, offset, size ):
 			chunk = fin.read( 2 )
 			width = struct.unpack( '>H', chunk )[0]
 			return ( width, height )
+		else:
+			# skip
+			chunk = fin.read( 2 )
+			length = struct.unpack( '>H', chunk )[0]
+			# length contains size field itself
+			fin.seek( length - 2, 1 )
 	raise FileCorruptedError()
 
 def __gifParser( filePath, offset, size ):
