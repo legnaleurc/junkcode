@@ -13,6 +13,8 @@ def g( total, seed ):
 def h():
 	total = random.randint( 8, 16 )
 	seed = long( random.random() * 100 )
+	while seed == 0L:
+		seed = long( random.random() * 100 )
 	o = g( total, seed )
 	limit = total * seed
 	return limit, o
