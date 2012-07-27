@@ -7,6 +7,8 @@ def g( total, seed ):
 	o = []
 	for i in xrange( total ):
 		tmp = long( 0.5 + random.random() * 2.5 * seed );
+		while tmp == 0L:
+			tmp = long( 0.5 + random.random() * 2.5 * seed );
 		o.append( tmp )
 	return o
 
