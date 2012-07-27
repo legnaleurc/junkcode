@@ -21,8 +21,8 @@ def h():
 	limit = total * seed
 	return limit, o
 
-print 10
-for i in xrange( 10 ):
+print 160
+for i in xrange( 160 ):
 	limit, o = h()
 	print '{0} {1}'.format( limit, len( o ) )
 	print ' '.join( map( lambda x: str( x ), o ) )
