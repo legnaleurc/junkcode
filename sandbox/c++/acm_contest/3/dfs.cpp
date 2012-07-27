@@ -3,6 +3,7 @@
 #include <iterator>
 #include <map>
 #include <vector>
+#include <cassert>
 
 template< typename T >
 class Pack {
@@ -54,6 +55,7 @@ private:
 	std::vector< T > items_;
 };
 
+#ifndef NDEBUG
 template < typename T >
 std::ostream & operator <<( std::ostream & out, const Pack< T > & p ) {
 	out << "( " << p.getScore() << ", ";
@@ -69,6 +71,7 @@ std::ostream & operator <<( std::ostream & out, const Pack< T > & p ) {
 	out << " )";
 	return out;
 }
+#endif
 
 template< typename T >
 class DepthFirstSearch {
@@ -125,14 +128,21 @@ int main() {
 			std::cin >> tmp;
 			items.insert( std::make_pair( i, tmp ) );
 		}
+		std::vector< long > results;
 		while( !items.empty() ) {
 			Pack< int > p = DepthFirstSearch< int >( limit, items )();
-			std::cout << p << std::endl;
+			assert( !p.getItems().empty() || !"picked nothing" );
+			results.push_back( p.getScore() );
 			for_each( p.getItems().begin(), p.getItems().end(), [&items]( int i )->void {
 				auto it = items.find( i );
 				items.erase( it );
 			} );
 		}
+		std::cout << results[0];
+		for( std::size_t i = 1; i < results.size(); ++i ) {
+			std::cout << ' ' << results[i];
+		}
+		std::cout << std::endl;
 	}
 	return 0;
 }
