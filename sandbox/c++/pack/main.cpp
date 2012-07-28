@@ -1,82 +1,17 @@
+#include "pack.hpp"
+
 #include <iostream>
 #include <algorithm>
 #include <iterator>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <cassert>
 
-template< typename T >
-class Pack {
-public:
-	Pack(): score_( 0L ), items_() {
-	}
-
-	long getScore() const {
-		return this->score_;
-	}
-	const std::vector< T > & getItems() const {
-		return this->items_;
-	}
-
-	Pack add( const T & key, long value ) const {
-		Pack tmp( *this );
-		tmp.score_ += value;
-		tmp.items_.push_back( key );
-		return tmp;
-	}
-
-	bool operator <( const Pack & that ) const {
-		if( this->score_ < that.score_ ) {
-			return true;
-		}
-		return false;
-	}
-	bool operator ==( const Pack & that ) const {
-		if( this->score_ == that.score_ ) {
-			return true;
-		}
-		return false;
-	}
-	bool operator >( const Pack & that ) const {
-		return !( ( *this ) < that || ( *this ) == that );
-	}
-	bool operator <=( const Pack & that ) const {
-		return ( *this ) < that && ( *this ) == that;
-	}
-	bool operator >=( const Pack & that ) const {
-		return !( ( *this ) < that );
-	}
-	bool operator !=( const Pack & that ) const {
-		return !( ( *this ) == that );
-	}
-
-private:
-	long score_;
-	std::vector< T > items_;
-};
-
-#ifndef NDEBUG
-template < typename T >
-std::ostream & operator <<( std::ostream & out, const Pack< T > & p ) {
-	out << "( " << p.getScore() << ", ";
-	if( p.getItems().empty() ) {
-		out << "[]";
-	} else {
-		out << "[ " << p.getItems()[0];
-		for( std::size_t i = 1; i < p.getItems().size(); ++i ) {
-			out << ", " << p.getItems()[i];
-		}
-		out << " ]";
-	}
-	out << " )";
-	return out;
-}
-#endif
-
+namespace pack {
 template< typename T >
 class DepthFirstSearch {
 public:
-	DepthFirstSearch( long limit, const std::map< T, long > & items ):
+	DepthFirstSearch( long limit, const std::unordered_map< T, long > & items ):
 	keys_(),
 	values_(),
 	limit_( limit ) {
@@ -115,6 +50,8 @@ private:
 	long limit_;
 };
 
+}
+
 int main() {
 	int m;
 	std::cin >> m;
@@ -122,7 +59,7 @@ int main() {
 		int n;
 		long limit;
 		std::cin >> limit >> n;
-		std::map< int, long > items;
+		std::unordered_map< int, long > items;
 		for( int i = 0; i < n; ++i ) {
 			long tmp;
 			std::cin >> tmp;
@@ -130,7 +67,7 @@ int main() {
 		}
 		std::vector< long > results;
 		while( !items.empty() ) {
-			Pack< int > p = DepthFirstSearch< int >( limit, items )();
+			auto p = pack::DepthFirstSearch< int >( limit, items )();
 			assert( !p.getItems().empty() || !"picked nothing" );
 			results.push_back( p.getScore() );
 			for_each( p.getItems().begin(), p.getItems().end(), [&items]( int i )->void {
