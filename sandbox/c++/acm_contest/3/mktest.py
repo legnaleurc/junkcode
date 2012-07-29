@@ -13,7 +13,7 @@ def g( total, seed ):
 	return o
 
 def h():
-	total = random.randint( 8, 16 )
+	total = random.randint( 16, 22 )
 	seed = long( random.random() * 100 )
 	while seed == 0L:
 		seed = long( random.random() * 100 )
@@ -21,8 +21,8 @@ def h():
 	limit = total * seed
 	return limit, o
 
-print 160
-for i in xrange( 160 ):
+print 16
+for i in xrange( 16 ):
 	limit, o = h()
 	print '{0} {1}'.format( limit, len( o ) )
 	print ' '.join( map( lambda x: str( x ), o ) )
