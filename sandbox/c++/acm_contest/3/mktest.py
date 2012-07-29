@@ -13,7 +13,7 @@ def g( total, seed ):
 	return o
 
 def h():
-	total = random.randint( 16, 22 )
+	total = random.randint( 14, 18 )
 	seed = long( random.random() * 100 )
 	while seed == 0L:
 		seed = long( random.random() * 100 )
