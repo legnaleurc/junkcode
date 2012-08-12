@@ -2,7 +2,7 @@
 
 #include <boost/any.hpp>
 #include <boost/spirit/include/qi.hpp>
-#include <boost/fusion/include/std_pair.hpp> 
+#include <boost/fusion/include/std_pair.hpp>
 
 namespace {
 
@@ -126,7 +126,7 @@ std::map< std::string, Value > Value::toObject() const {
 	}
 	std::map< std::string, Value > tmp;
 	for( auto it = o.begin(); it != o.end(); ++it ) {
-		auto p = std::make_shared< Private >(); 
+		auto p = std::make_shared< Private >();
 		p->value = it->second;
 		tmp.insert( std::make_pair( it->first, Value( p ) ) );
 	}
