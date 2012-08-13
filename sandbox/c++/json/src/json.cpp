@@ -9,9 +9,9 @@ namespace {
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 
-struct nullptr_t_ : qi::symbols< char, void * > {
+struct nullptr_t_ : qi::symbols< char, boost::any > {
 	nullptr_t_() {
-		add( "null", nullptr );
+		add( "null", boost::any() );
 	}
 } nullptr_;
 
@@ -42,6 +42,11 @@ struct Grammar : qi::grammar< Iterator, boost::any(), ascii::space_type > {
 	qi::rule< Iterator, std::string(), ascii::space_type > string_rule;
 };
 
+const std::type_info & DoubleType = typeid( double );
+const std::type_info & StringType = typeid( std::string );
+const std::type_info & ObjectType = typeid( Object_ );
+const std::type_info & ArrayType = typeid( Array_ );
+
 }
 
 using json::Value;
@@ -68,39 +73,19 @@ Value::Value( std::shared_ptr< Private > p ): p_( p ) {
 }
 
 bool Value::isObject() const {
-	try {
-		boost::any_cast< Object_ >( this->p_->value );
-		return true;
-	} catch( boost::bad_any_cast & e ) {
-		return false;
-	}
+	return this->p_->value.type() == ObjectType;
 }
 
 bool Value::isArray() const {
-	try {
-		boost::any_cast< Array_ >( this->p_->value );
-		return true;
-	} catch( boost::bad_any_cast & e ) {
-		return false;
-	}
+	return this->p_->value.type() == ArrayType;
 }
 
 bool Value::isNull() const {
-	try {
-		boost::any_cast< void * >( this->p_->value );
-		return true;
-	} catch( boost::bad_any_cast & e ) {
-		return false;
-	}
+	return this->p_->value.empty();
 }
 
 bool Value::isString() const {
-	try {
-		boost::any_cast< std::string >( this->p_->value );
-		return true;
-	} catch( boost::bad_any_cast & e ) {
-		return false;
-	}
+	return this->p_->value.type() == StringType;
 }
 
 std::vector< Value > Value::toArray() const {
