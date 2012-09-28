@@ -1,0 +1,14 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+	<qresource>
+		<file>images/association.png</file>
+		<file>images/class.png</file>
+		<file>images/composition.png</file>
+		<file>images/generalisation.png</file>
+		<file>images/join.png</file>
+		<file>images/state-fork.png</file>
+		<file>images/text.png</file>
+		<file>images/usecase.png</file>
+		<file>images/pointer.png</file>
+	</qresource>
+</RCC>
