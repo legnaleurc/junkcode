@@ -14,6 +14,7 @@ public:
 	Private( UMLScene * );
 
 	QList< QGraphicsItem * > getSelectedRoots() const;
+	void setMode( UMLScene::Mode mode );
 
 	void onInsertPressed( QGraphicsSceneMouseEvent * );
 	void onLinkPressed( QGraphicsSceneMouseEvent * );

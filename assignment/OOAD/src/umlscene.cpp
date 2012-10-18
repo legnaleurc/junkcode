@@ -33,6 +33,8 @@ grouping( false ) {
 
 	this->releaseCommands.insert( std::make_pair( UMLScene::LinkItem, std::bind( &UMLScene::Private::onLinkReleased, this, std::placeholders::_1 ) ) );
 	this->releaseCommands.insert( std::make_pair( UMLScene::MoveItem, std::bind( &UMLScene::Private::onMoveReleased, this, std::placeholders::_1 ) ) );
+
+	this->setMode( UMLScene::MoveItem );
 }
 
 QList< QGraphicsItem * > UMLScene::Private::getSelectedRoots() const {
@@ -46,6 +48,17 @@ QList< QGraphicsItem * > UMLScene::Private::getSelectedRoots() const {
 		roots.insert( group ? group : item );
 	} );
 	return roots.toList();
+}
+
+void UMLScene::Private::setMode( Mode mode ) {
+	auto it = this->pressCommands.find( mode );
+	this->currentPressCommand = ( ( it != this->pressCommands.end() ) ? ( it->second ) : ( []( QGraphicsSceneMouseEvent * )->void {} ) );
+
+	it = this->moveCommands.find( mode );
+	this->currentMoveCommand = ( ( it != this->moveCommands.end() ) ? ( it->second ) : ( []( QGraphicsSceneMouseEvent * )->void {} ) );
+
+	it = this->releaseCommands.find( mode );
+	this->currentReleaseCommand = ( ( it != this->releaseCommands.end() ) ? ( it->second ) : ( []( QGraphicsSceneMouseEvent * )->void {} ) );
 }
 
 void UMLScene::Private::onInsertPressed( QGraphicsSceneMouseEvent * event ) {
@@ -201,14 +214,7 @@ void UMLScene::setItemType( int id ) {
 }
 
 void UMLScene::setMode( Mode mode ) {
-	std::map< UMLScene::Mode, UMLScene::Private::Command >::const_iterator it = this->p_->pressCommands.find( mode );
-	this->p_->currentPressCommand = ( ( it != this->p_->pressCommands.end() ) ? ( it->second ) : ( []( QGraphicsSceneMouseEvent * )->void {} ) );
-
-	it = this->p_->moveCommands.find( mode );
-	this->p_->currentMoveCommand = ( ( it != this->p_->moveCommands.end() ) ? ( it->second ) : ( []( QGraphicsSceneMouseEvent * )->void {} ) );
-
-	it = this->p_->releaseCommands.find( mode );
-	this->p_->currentReleaseCommand = ( ( it != this->p_->releaseCommands.end() ) ? ( it->second ) : ( []( QGraphicsSceneMouseEvent * )->void {} ) );
+	this->p_->setMode( mode );
 }
 
 void UMLScene::mousePressEvent( QGraphicsSceneMouseEvent * event ) {
