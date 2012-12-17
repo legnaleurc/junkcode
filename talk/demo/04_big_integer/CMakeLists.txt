@@ -6,7 +6,9 @@ find_package(Boost COMPONENTS unit_test_framework)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     find_package(Boost REQUIRED COMPONENTS regex)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -pedantic -Wextra -Wall -pipe")
+    list(APPEND CMAKE_CXX_FLAGS "-std=c++0x -pedantic -Wextra -Wall -pipe")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    list(APPEND CMAKE_CXX_FLAGS "-std=c++0x -stdlib=libc++ -pedantic -Wextra -Wall -pipe")
 endif()
 
 file(GLOB_RECURSE BI_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/*.cpp")

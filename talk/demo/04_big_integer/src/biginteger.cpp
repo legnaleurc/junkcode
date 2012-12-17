@@ -5,8 +5,9 @@
 #include <functional>
 #include <iomanip>
 #include <sstream>
+#include <cmath>
 
-#ifdef __GNUC__
+#if defined( __GNUC__ ) && !defined(__clang__)
 #	include <boost/regex.hpp>
 #else
 #	include <regex>
@@ -42,7 +43,7 @@ void BigInteger::Private::assign( long l ) {
 }
 
 void BigInteger::Private::assign( const std::string & s ) {
-#ifdef __GNUC__
+#if defined( __GNUC__ ) && !defined(__clang__)
 	using boost::regex;
 	using boost::smatch;
 	using boost::regex_match;
