@@ -1,9 +1,9 @@
 #ifndef BI_BIGINTEGER_P_HPP
 #define BI_BIGINTEGER_P_HPP
 
-#include "biginteger.hpp"
-
 #include <vector>
+
+#include "biginteger.hpp"
 
 namespace bi {
 

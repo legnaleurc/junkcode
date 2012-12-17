@@ -1,11 +1,11 @@
-#include "biginteger_p.hpp"
-#include "valueerror.hpp"
-
 #include <climits>
+#include <cmath>
 #include <functional>
 #include <iomanip>
 #include <sstream>
-#include <cmath>
+
+#include "biginteger_p.hpp"
+#include "valueerror.hpp"
 
 #if defined( __GNUC__ ) && !defined(__clang__)
 #	include <boost/regex.hpp>
