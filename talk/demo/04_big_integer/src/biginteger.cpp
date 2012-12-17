@@ -108,7 +108,7 @@ BigInteger::BigInteger( const std::string & s ): p_( new Private( s ) ) {
 BigInteger::BigInteger( const BigInteger & that ): p_( new Private( *that.p_ ) ) {
 }
 
-BigInteger::BigInteger( BigInteger && that ): p_( std::move( that.p_ ) ) {
+BigInteger::BigInteger( BigInteger && that ): p_( move( that.p_ ) ) {
 }
 
 BigInteger::~BigInteger() {
@@ -235,7 +235,7 @@ namespace bi {
 		for( advance( it, 1 ); it != this->p_->v.rend(); ++it ) {
 			sout << std::setfill( '0' ) << std::setw( 3 ) << *it;
 		}
-		return sout.str();
+		return move( sout.str() );
 	}
 
 }
