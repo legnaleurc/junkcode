@@ -49,9 +49,11 @@ private:
 	friend BigInteger operator -( BigInteger && a );
 	friend bool operator <( const BigInteger & a, const BigInteger & b );
 	friend bool operator ==( const BigInteger & a, const BigInteger & b );
+	friend BigInteger operator *( const BigInteger & a, const BigInteger & b );
 	friend std::istream & operator >>( std::istream & in, BigInteger & self );
 	friend std::ostream & operator <<( std::ostream & out, const BigInteger & self );
 	class Private;
+	explicit BigInteger( std::unique_ptr< Private > && p );
 	std::unique_ptr< Private > p_;
 };
 

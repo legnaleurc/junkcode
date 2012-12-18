@@ -147,6 +147,20 @@ BOOST_AUTO_TEST_CASE( subtract_assignment ) {
 	BOOST_CHECK_EQUAL( a, -1234 );
 }
 
+BOOST_AUTO_TEST_CASE( multiply ) {
+	using bi::BigInteger;
+	BigInteger a = 1234, b = -5678;
+	a = a * b;
+	BOOST_CHECK_EQUAL( a, -7006652 );
+}
+
+BOOST_AUTO_TEST_CASE( multiply_assignment ) {
+	using bi::BigInteger;
+	BigInteger a = 1234, b = 5678;
+	a *= b;
+	BOOST_CHECK_EQUAL( a, 7006652 );
+}
+
 BOOST_AUTO_TEST_CASE( convert_to_int ) {
 	using bi::BigInteger;
 	BigInteger a = 1234;

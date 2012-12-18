@@ -27,6 +27,9 @@ BigInteger::Private::Private( const std::string & s ): v(), minus( false ) {
 	this->assign( s );
 }
 
+BigInteger::Private::Private( bool minus, const std::vector< int > & v ): v( v ), minus( minus ) {
+}
+
 void BigInteger::Private::assign( long l ) {
 	if( l == 0L ) {
 		this->v.push_back( 0 );
@@ -111,6 +114,9 @@ BigInteger::BigInteger( const BigInteger & that ): p_( new Private( *that.p_ ) )
 BigInteger::BigInteger( BigInteger && that ): p_( move( that.p_ ) ) {
 }
 
+BigInteger::BigInteger( std::unique_ptr< Private > && p ): p_( move( p ) ) {
+}
+
 BigInteger::~BigInteger() {
 }
 
@@ -184,6 +190,10 @@ BigInteger & BigInteger::operator -=( const BigInteger & that ) {
 
 	this->p_->normalize();
 	return *this;
+}
+
+BigInteger & BigInteger::operator *=( const BigInteger & that ) {
+	return *this = std::move( *this * that );
 }
 
 void BigInteger::swap( BigInteger & that ) {
@@ -309,6 +319,30 @@ BigInteger bi::operator +( const BigInteger & a, const BigInteger & b ) {
 
 BigInteger bi::operator -( const BigInteger & a, const BigInteger & b ) {
 	return std::move( BigInteger( a ) -= b );
+}
+
+BigInteger bi::operator *( const BigInteger & a, const BigInteger & b ) {
+	std::vector< int > result( a.p_->v.size() + b.p_->v.size(), 0 );
+
+	std::size_t base = 0U;
+	for( auto ait = begin( a.p_->v ); ait != end( a.p_->v ); ++ait ) {
+		int carry = 0;
+		std::size_t offset = 0U;
+		for( auto bit = begin( b.p_->v ); bit != end( b.p_->v ); ++bit ) {
+			result[base + offset] += *ait * *bit + carry;
+			carry = result[base + offset] / 1000;
+			result[base + offset] %= 1000;
+
+			++offset;
+		}
+		result[base + offset] += carry;
+		++base;
+	}
+
+	std::unique_ptr< BigInteger::Private > p( new BigInteger::Private( a.p_->minus != b.p_->minus, result ) );
+	p->normalize();
+
+	return std::move( BigInteger( move( p ) ) );
 }
 
 BigInteger & bi::operator ++( BigInteger & a ) {

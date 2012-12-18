@@ -12,6 +12,7 @@ public:
 	Private();
 	explicit Private( long );
 	explicit Private( const std::string & );
+	Private( bool minus, const std::vector< int > & v );
 
 	void assign( long );
 	void assign( const std::string & );
