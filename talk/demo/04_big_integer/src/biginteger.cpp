@@ -194,49 +194,49 @@ void BigInteger::swap( BigInteger & that ) {
 
 namespace bi {
 
-	template<>
-	int BigInteger::to< int >() const {
-		if( *this > INT_MAX ) {
-			throw ValueError( "overflow INT_MAX" );
-		}
-		if( *this < INT_MIN ) {
-			throw ValueError( "underflow INT_MIN" );
-		}
-		int tmp = 0;
-		for( std::size_t i = 0; i < this->p_->v.size(); ++i ) {
-			tmp += this->p_->v[i] * static_cast< int >( std::pow( 1000, static_cast< double >( i ) ) );
-		}
-		return tmp;
+template<>
+int BigInteger::to< int >() const {
+	if( *this > INT_MAX ) {
+		throw ValueError( "overflow INT_MAX" );
 	}
+	if( *this < INT_MIN ) {
+		throw ValueError( "underflow INT_MIN" );
+	}
+	int tmp = 0;
+	for( std::size_t i = 0; i < this->p_->v.size(); ++i ) {
+		tmp += this->p_->v[i] * static_cast< int >( std::pow( 1000, static_cast< double >( i ) ) );
+	}
+	return tmp;
+}
 
-	template<>
-	long BigInteger::to< long >() const {
-		if( *this > LONG_MAX ) {
-			throw ValueError( "overflow LONG_MAX" );
-		}
-		if( *this < LONG_MIN ) {
-			throw ValueError( "underflow LONG_MIN" );
-		}
-		long tmp = 0;
-		for( std::size_t i = 0; i < this->p_->v.size(); ++i ) {
-			tmp += this->p_->v[i] * static_cast< long >( std::pow( 1000, static_cast< double >( i ) ) );
-		}
-		return tmp;
+template<>
+long BigInteger::to< long >() const {
+	if( *this > LONG_MAX ) {
+		throw ValueError( "overflow LONG_MAX" );
 	}
+	if( *this < LONG_MIN ) {
+		throw ValueError( "underflow LONG_MIN" );
+	}
+	long tmp = 0;
+	for( std::size_t i = 0; i < this->p_->v.size(); ++i ) {
+		tmp += this->p_->v[i] * static_cast< long >( std::pow( 1000, static_cast< double >( i ) ) );
+	}
+	return tmp;
+}
 
-	template<>
-	std::string BigInteger::to< std::string >() const {
-		std::ostringstream sout;
-		if( this->p_->minus ) {
-			sout << '-';
-		}
-		auto it = this->p_->v.rbegin();
-		sout << *it;
-		for( advance( it, 1 ); it != this->p_->v.rend(); ++it ) {
-			sout << std::setfill( '0' ) << std::setw( 3 ) << *it;
-		}
-		return move( sout.str() );
+template<>
+std::string BigInteger::to< std::string >() const {
+	std::ostringstream sout;
+	if( this->p_->minus ) {
+		sout << '-';
 	}
+	auto it = this->p_->v.rbegin();
+	sout << *it;
+	for( advance( it, 1 ); it != this->p_->v.rend(); ++it ) {
+		sout << std::setfill( '0' ) << std::setw( 3 ) << *it;
+	}
+	return move( sout.str() );
+}
 
 }
 
@@ -341,8 +341,8 @@ void bi::swap( BigInteger & a, BigInteger & b ) {
 }
 
 namespace std {
-	template<>
-	void swap( bi::BigInteger & a, bi::BigInteger & b ) {
-		a.swap( b );
-	}
+template<>
+void swap( bi::BigInteger & a, bi::BigInteger & b ) {
+	a.swap( b );
+}
 }

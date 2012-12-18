@@ -5,12 +5,12 @@
 
 namespace bi {
 
-	class ValueError::Private {
-	public:
-		Private( const std::string & );
+class ValueError::Private {
+public:
+	Private( const std::string & );
 
-		std::string msg;
-	};
+	std::string msg;
+};
 
 }
 

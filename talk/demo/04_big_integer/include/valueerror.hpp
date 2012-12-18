@@ -7,17 +7,17 @@
 
 namespace bi {
 
-	class ValueError : public std::exception {
-	public:
-		ValueError( const std::string & msg );
-		virtual ~ValueError() throw();
+class ValueError : public std::exception {
+public:
+	ValueError( const std::string & msg );
+	virtual ~ValueError() throw();
 
-		virtual const char * what() const throw();
+	virtual const char * what() const throw();
 
-	private:
-		class Private;
-		std::shared_ptr< Private > p_;
-	};
+private:
+	class Private;
+	std::shared_ptr< Private > p_;
+};
 
 }
 
