@@ -37,6 +37,7 @@ public:
 	BigInteger & operator -=( const BigInteger & that );
 	BigInteger & operator *=( const BigInteger & that );
 	BigInteger & operator /=( const BigInteger & that );
+	BigInteger & operator %=( const BigInteger & that );
 
 	Division divide( const BigInteger & that ) const;
 
@@ -73,6 +74,8 @@ BigInteger operator +( const BigInteger & a, const BigInteger & b );
 BigInteger operator -( const BigInteger & a, const BigInteger & b );
 BigInteger operator *( const BigInteger & a, const BigInteger & b );
 BigInteger operator /( const BigInteger & a, const BigInteger & b );
+BigInteger operator %( const BigInteger & a, const BigInteger & b );
+
 BigInteger & operator ++( BigInteger & a );
 BigInteger operator ++( BigInteger & a, int );
 BigInteger & operator --( BigInteger & a );
