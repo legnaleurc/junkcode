@@ -392,6 +392,13 @@ BigInteger bi::operator --( BigInteger & a, int ) {
 	return b;
 }
 
+std::istream & bi::operator >>( std::istream & in, BigInteger & self ) {
+	std::string s;
+	in >> s;
+	self = s;
+	return in;
+}
+
 std::ostream & bi::operator <<( std::ostream & out, const BigInteger & self ) {
 	if( self.p_->minus ) {
 		out << '-';
