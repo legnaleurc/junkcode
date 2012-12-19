@@ -263,14 +263,7 @@ long BigInteger::to< long >() const {
 template<>
 std::string BigInteger::to< std::string >() const {
 	std::ostringstream sout;
-	if( this->p_->minus ) {
-		sout << '-';
-	}
-	auto it = this->p_->v.rbegin();
-	sout << *it;
-	for( advance( it, 1 ); it != this->p_->v.rend(); ++it ) {
-		sout << std::setfill( '0' ) << std::setw( 3 ) << *it;
-	}
+	sout << *this;
 	return move( sout.str() );
 }
 
@@ -400,7 +393,14 @@ BigInteger bi::operator --( BigInteger & a, int ) {
 }
 
 std::ostream & bi::operator <<( std::ostream & out, const BigInteger & self ) {
-	out << self.to< std::string >();
+	if( self.p_->minus ) {
+		out << '-';
+	}
+	auto it = self.p_->v.rbegin();
+	out << *it;
+	for( advance( it, 1 ); it != self.p_->v.rend(); ++it ) {
+		out << std::setfill( '0' ) << std::setw( 3 ) << *it;
+	}
 	return out;
 }
 
