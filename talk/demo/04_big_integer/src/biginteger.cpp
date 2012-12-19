@@ -15,6 +15,20 @@
 
 using bi::BigInteger;
 
+BigInteger::Division::Private::Private( const BigInteger & q, const BigInteger & r ): q( q ), r( r ) {
+}
+
+BigInteger::Division::Division( const BigInteger & q, const BigInteger & r ): p_( new Private( q, r ) ) {
+}
+
+const BigInteger & BigInteger::Division::getQuotient() const {
+	return this->p_->q;
+}
+
+const BigInteger & BigInteger::Division::getRemainder() const {
+	return this->p_->r;
+}
+
 BigInteger::Private::Private(): v(), minus( false ) {
 	this->v.push_back( 0 );
 }
@@ -196,6 +210,18 @@ BigInteger & BigInteger::operator *=( const BigInteger & that ) {
 	return *this = std::move( *this * that );
 }
 
+BigInteger & BigInteger::operator /=( const BigInteger & that ) {
+	return *this = std::move( *this / that );
+}
+
+BigInteger & BigInteger::operator %=( const BigInteger & that ) {
+	return *this = std::move( *this % that );
+}
+
+BigInteger::Division BigInteger::divide( const BigInteger & that ) const {
+	return BigInteger::Division( that, that );
+}
+
 void BigInteger::swap( BigInteger & that ) {
 	if( this != &that ) {
 		this->p_.swap( that.p_ );
@@ -343,6 +369,14 @@ BigInteger bi::operator *( const BigInteger & a, const BigInteger & b ) {
 	p->normalize();
 
 	return std::move( BigInteger( move( p ) ) );
+}
+
+BigInteger bi::operator /( const BigInteger & a, const BigInteger & b ) {
+	return a.divide( b ).getQuotient();
+}
+
+BigInteger bi::operator %( const BigInteger & a, const BigInteger & b ) {
+	return a.divide( b ).getRemainder();
 }
 
 BigInteger & bi::operator ++( BigInteger & a ) {

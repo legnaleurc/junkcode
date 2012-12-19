@@ -22,6 +22,14 @@ public:
 	bool minus;
 };
 
+class BigInteger::Division::Private {
+public:
+	Private( const BigInteger & q, const BigInteger & r );
+
+	BigInteger q;
+	BigInteger r;
+};
+
 }
 
 #endif
