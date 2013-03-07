@@ -38,16 +38,32 @@ get_mirror() {
     local ubuntu='http://jp.archive.ubuntu.com/ubuntu/'
 
     case "$1" in
+        # always invariant
         stable|testing|unstable|sid)
             echo "$debian"
             ;;
+        # current stable
         squeeze)
             echo "$debian"
             ;;
+        # current testing
         wheezy)
             echo "$debian"
             ;;
-        hardy|lucid|natty|oneiric|precise)
+        # ex-ex-LTS
+        hardy)
+            echo "$ubuntu"
+            ;;
+        # ex-LTS
+        lucid)
+            echo "$ubuntu"
+            ;;
+        # LTS
+        precise)
+            echo "$ubuntu"
+            ;;
+        # others
+        oneiric|quantal)
             echo "$ubuntu"
             ;;
         *)
