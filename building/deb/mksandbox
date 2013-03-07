@@ -63,7 +63,7 @@ get_mirror() {
             echo "$ubuntu"
             ;;
         # others
-        oneiric|quantal)
+        oneiric|quantal|raring)
             echo "$ubuntu"
             ;;
         *)
@@ -78,7 +78,7 @@ usage() {
 usage: $(basename $0) <options...> <sandbox_name>
     options:
         -a, --arch: i386 or amd64
-        -b, --branch: distro branch
+        -s, --suite: distro suite
     sandbox_name: the sandbox name
 EOF
 }
@@ -96,7 +96,7 @@ if [ ! -d "${SB_ROOT}" ] ; then
     mkdir "${SB_ROOT}"
 fi
 
-tmp=$(getopt -o a:b: -l arch:,branch:,dpkg -n $(basename $0) -- "$@")
+tmp=$(getopt -o a:s: -l arch:,suite:,dpkg -n "$(basename $0)" -- "$@")
 if [ $? -ne 0 ] ; then
     exit 1
 fi
@@ -108,8 +108,8 @@ while true ; do
             arch="$2"
             shift 2
             ;;
-        -b|--branch)
-            branch="$2"
+        -s|--suite)
+            suite="$2"
             shift 2
             ;;
         --dpkg)
@@ -126,13 +126,13 @@ while true ; do
     esac
 done
 
-if [ $# -ne 1 ] || [ -z "${arch}" ] || [ -z "${branch}" ] ; then
+if [ $# -ne 1 ] || [ -z "${arch}" ] || [ -z "${suite}" ] ; then
     usage
     exit 1
 fi
-mirror="$(get_mirror "${branch}")"
+mirror="$(get_mirror "${suite}")"
 if [ $? -ne 0 ] ; then
-    echo "unknown branch: ${branch}"
+    echo "unknown distro suite: ${suite}"
     exit 1
 fi
 
@@ -148,8 +148,8 @@ mkdir "${path}"
 state_file="${path}/state"
 path="${path}/environment"
 
-fakeroot -s "${state_file}" fakechroot debootstrap --variant=fakechroot --arch="${arch}" "${branch}" "${path}" "${mirror}"
+fakeroot -s "${state_file}" fakechroot debootstrap --variant=fakechroot --arch="${arch}" "${suite}" "${path}" "${mirror}"
 
-if [ -n ${dpkg} ] ; do
+if [ -n "${dpkg}" ] ; do
     dpkg_tweak "${path}" 'Wei Cheng Pan' 'legnaleurc@gmail.com'
 done
