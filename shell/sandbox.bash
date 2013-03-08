@@ -61,7 +61,12 @@ __sandbox_verify_environment__() {
 
 sandbox() {
     __sandbox_sandbox_usage__() {
-        echo "usage: $0 <sandbox_name>"
+        cat <<EOF
+usage: sandbox <sandbox_name> [<command> <args>...]
+    sandbox_name: the sandbox name
+    command: the command to execute, if omitted, \$SHELL -i will used
+    args: arguments of given command
+EOF
     }
 
     local name="$1"
@@ -75,14 +80,15 @@ sandbox() {
     local state_file="${path}/state"
     local env_path="${path}/environment"
 
-    HOME="/root" TERM="${TERM}" fakeroot -i "${state_file}" -s "${state_file}" fakechroot chroot "${env_path}" "${SHELL}"
+    shift
+    HOME="/root" TERM="${TERM}" fakeroot -i "${state_file}" -s "${state_file}" fakechroot chroot "${env_path}" $@
 
     return 0
 }
 
 rmsandbox() {
     __sandbox_rmsandbox_usage__() {
-        echo "usage: $0 <sandbox_name>"
+        echo "usage: rmsandbox <sandbox_name>"
     }
 
     local name="$1"
@@ -103,7 +109,7 @@ lssandbox() {
     __sandbox_verify_home__ || return 1
 
     __sandbox_rmsandbox_usage__() {
-        echo "usage: $0 <sandbox_name>"
+        echo "usage: lssandbox <sandbox_name>"
     }
 
     pushd "${SANDBOX_HOME}" >/dev/null
