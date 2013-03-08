@@ -68,7 +68,7 @@ get_mirror() {
             ;;
         *)
             echo ""
-            exit 1
+            return 1
             ;;
     esac
 }
