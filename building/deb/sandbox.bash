@@ -27,7 +27,7 @@ __sandbox_show_environments__() {
     pushd "${SANDBOX_HOME}" >/dev/null
     for tmp in * ; do
         echo "${tmp}"
-    done 2>/dev/null | sort
+    done 2>/dev/null | grep -v '^\*$' | sort
     popd >/dev/null
 
     return 0
@@ -98,7 +98,7 @@ lssandbox() {
     pushd "${SANDBOX_HOME}" >/dev/null
     for tmp in * ; do
         echo "${tmp}"
-    done 2>/dev/null | sort
+    done 2>/dev/null | grep -v '^\*$' | sort
     popd >/dev/null
 
     return 0
