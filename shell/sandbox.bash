@@ -1,5 +1,16 @@
-# vim: ts=4 sts=4 sw=4 et
-# kate: space-indent on; indent-width 4; mixedindent off; replace-tabs on;
+# This script helps you to create debootstrap environments with fakeroot and
+# fakechroot.
+#
+# how to install:
+# 1. add `source /path/to/sandbox.bash' in your .bashrc
+# or
+# 2. cp /path/to/sandbox.bash /etc/bash_completion.d
+#
+# functions:
+# mksandbox
+# sandbox
+# rmsandbox
+# lssandbox
 
 __sandbox_derive_home__() {
     local sb_home="${SANDBOX_HOME}"
@@ -293,3 +304,6 @@ EOF
 }
 
 __sandbox_initialize__
+
+# vim: ts=4 sts=4 sw=4 et
+# kate: space-indent on; indent-width 4; mixedindent off; replace-tabs on;
