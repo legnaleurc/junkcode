@@ -212,10 +212,11 @@ mksandbox() {
 
     __sandbox_mksandbox_usage__() {
         cat <<EOF
-usage: $(basename $0) <options...> <sandbox_name>
+usage: $(basename $0) <options...> [<optional options...>] <sandbox_name>
     options:
         -a, --arch: i386 or amd64
         -s, --suite: distro suite
+    optional options:
         --dpkg: add debuild settings
         --tmp: share /tmp from host
     sandbox_name: the sandbox name
