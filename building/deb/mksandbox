@@ -150,6 +150,6 @@ path="${path}/environment"
 
 fakeroot -s "${state_file}" fakechroot debootstrap --variant=fakechroot --arch="${arch}" "${suite}" "${path}" "${mirror}"
 
-if [ -n "${dpkg}" ] ; do
+if [ -n "${dpkg}" ] ; then
     dpkg_tweak "${path}" 'Wei Cheng Pan' 'legnaleurc@gmail.com'
-done
+fi
