@@ -134,38 +134,11 @@ __sandbox_setup_completion__() {
 
 __sandbox_initialize__() {
     export SANDBOX_HOME="$(__sandbox_derive_home__)"
+    export SANDBOX_SOURCE="$(readlink -m "${BASH_SOURCE[0]}")"
 
     __sandbox_verify_home__ || return 1
 
     __sandbox_setup_completion__
-
-    return 0
-}
-
-__sandbox_dpkg_tweak__() {
-    local path="$1"
-    local full_name="$2"
-    local email="$3"
-
-    # add deb information
-    cat >> "${path}/root/.bashrc" <<EOF
-
-alias dquilt="quilt --quiltrc=\${HOME}/.quiltrc-dpkg"
-export DEBFULLNAME="${full_name}"
-export DEBEMAIL="${email}"
-EOF
-    cat >> "${path}/root/.quiltrc-dpkg" <<EOF
-d=. ; while [ ! -d \$d/debian -a \`readlink -e \$d\` != / ]; do d=\$d/..; done
-if [ -d \$d/debian ] && [ -z \$QUILT_PATCHES ]; then
-    # if in Debian packaging tree with unset \$QUILT_PATCHES
-    QUILT_PATCHES="debian/patches"
-    QUILT_PATCH_OPTS="--reject-format=unified"
-    QUILT_DIFF_ARGS="-p ab --no-timestamps --no-index --color=auto"
-    QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
-    QUILT_COLORS="diff_hdr=1;32:diff_add=1;34:diff_rem=1;31:diff_hunk=1;33:diff_ctx=35:diff_cctx=33"
-    if ! [ -d \$d/debian/patches ]; then mkdir \$d/debian/patches; fi
-fi
-EOF
 
     return 0
 }
@@ -218,19 +191,18 @@ mksandbox() {
 
     __sandbox_mksandbox_usage__() {
         cat <<EOF
-usage: $(basename $0) <options...> [<optional options...>] <sandbox_name>
+usage: mksandbox <options...> [<optional options...>] <sandbox_name>
     options:
         -a, --arch: i386 or amd64
         -s, --suite: distro suite
     optional options:
-        --dpkg: add debuild settings
         --tmp: share /tmp from host
     sandbox_name: the sandbox name
 EOF
         return 0
     }
 
-    local tmp=$(getopt -o a:s: -l arch:,suite:,tmp,dpkg -n "$0" -- "$@")
+    local tmp=$(getopt -o a:s: -l arch:,suite:,tmp -n "$0" -- "$@")
     if [ $? -ne 0 ] ; then
         __sandbox_mksandbox_usage__
         return 1
@@ -253,10 +225,6 @@ EOF
                 ;;
             --tmp)
                 shared_tmp='shared_tmp'
-                shift
-                ;;
-            --dpkg)
-                dpkg='dpkg'
                 shift
                 ;;
             --)
@@ -301,10 +269,6 @@ EOF
         rmdir 'tmp'
         ln -s '/tmp'
         popd > /dev/null
-    fi
-    if [ -n "${dpkg}" ] ; then
-        # TODO dont hard code
-        __sandbox_dpkg_tweak__ "${path}" 'Wei Cheng Pan' 'legnaleurc@gmail.com'
     fi
 
     return 0
