@@ -45,5 +45,14 @@ Function.prototype.extend = (function () {
     };
 }());
 
+Function.prototype.currying = function () {
+    'use strict';
+    var fn = this, args = Array.prototype.slice.call(arguments);
+    return function () {
+        return fn.apply(this, args.concat(Array.prototype.slice.call(arguments)));
+    };
+};
+
 // ex: ts=4 sts=4 sw=4 et
+// kate: space-indent on; indent-width 4; mixedindent off; replace-tabs on;
 // sublime: tab_size 4; translate_tabs_to_spaces true; detect_indentation false; use_tab_stops true;
