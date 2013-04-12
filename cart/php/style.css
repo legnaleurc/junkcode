@@ -1,0 +1,47 @@
+body {
+	background-color: black;
+	color: white;
+}
+
+table {
+	border-width: 1px;
+	border-spacing: 2px;
+	border-style: outset;
+	border-color: gray;
+	border-collapse: separate;
+}
+
+td, th {
+	border-width: 1px;
+	border-style: inset;
+	border-color: gray;
+}
+
+#stderr {
+	color: red;
+}
+
+#page-body {
+	width: 800px;
+	margin: 60px auto 120px auto;
+}
+
+#page-head {
+	top: 0;
+	position: fixed;
+	z-index: 1;
+	width: 100%;
+	margin: auto;
+	text-align: center;
+	background-color: black;
+}
+
+#page-foot {
+	bottom: 0;
+	position: fixed;
+	z-index: 1;
+	width: 100%;
+	margin: auto;
+	background-color: black;
+	text-align: center;
+}
