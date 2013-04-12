@@ -1,8 +1,10 @@
 (function (exports) {
     'use strict';
 
+    var slice = Array.prototype.slice;
+
     function extend(object) {
-        Array.prototype.slice.call(arguments, 1).forEach(function (source) {
+        slice.call(arguments, 1).forEach(function (source) {
             var prop;
             if (!source) {
                 return;
@@ -45,9 +47,9 @@
     };
 
     exports.currying = function () {
-        var fn = this, args = Array.prototype.slice.call(arguments);
+        var fn = this, args = slice.call(arguments);
         return function () {
-            return fn.apply(this, args.concat(Array.prototype.slice.call(arguments)));
+            return fn.apply(this, args.concat(slice.call(arguments)));
         };
     };
 }((typeof exports === 'undefined') ? (this.evil = {}) : exports));
