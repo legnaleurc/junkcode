@@ -1,16 +1,15 @@
-Function.extend = (function () {
+Function.prototype.extend = (function () {
     'use strict';
 
-    var $F = Function, global = $F('return this;')();
-
-    function $extend(object) {
+    function extend(object) {
         Array.prototype.slice.call(arguments, 1).forEach(function (source) {
             var prop;
-            if (source) {
-                for (prop in source) {
-                    if (source.hasOwnProperty(prop)) {
-                        object[prop] = source[prop];
-                    }
+            if (!source) {
+                return;
+            }
+            for (prop in source) {
+                if (source.hasOwnProperty(prop)) {
+                    object[prop] = source[prop];
                 }
             }
         });
@@ -28,7 +27,7 @@ Function.extend = (function () {
             };
         }
 
-        $extend(child, parent, staticProps);
+        extend(child, parent, staticProps);
 
         Surrogate = function () {
             this.constructor = child;
@@ -37,7 +36,7 @@ Function.extend = (function () {
         child.prototype = new Surrogate();
 
         if (protoProps) {
-            $extend(child.prototype, protoProps);
+            extend(child.prototype, protoProps);
         }
 
         child.super = parent.prototype;
