@@ -1,7 +1,17 @@
-(function (exports) {
+(function (exports, global) {
     'use strict';
 
-    var slice = Array.prototype.slice;
+    var evil = global.evil, slice = Array.prototype.slice;
+
+    if (exports === undefined) {
+        exports = global.evil = {};
+        exports.noConflict = function () {
+            if (global.evil === exports) {
+                global.evil = evil;
+            }
+            return exports;
+        };
+    }
 
     function extend(object) {
         slice.call(arguments, 1).forEach(function (source) {
@@ -52,7 +62,7 @@
             return fn.apply(this, args.concat(slice.call(arguments)));
         };
     };
-}((typeof exports === 'undefined') ? (this.evil = {}) : exports));
+}(((typeof exports === 'undefined') ? undefined : exports), this));
 
 // ex: ts=4 sts=4 sw=4 et
 // kate: space-indent on; indent-width 4; mixedindent off; replace-tabs on;
