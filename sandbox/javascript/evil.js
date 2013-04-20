@@ -56,7 +56,7 @@
         return child;
     };
 
-    exports.currying = function () {
+    exports.partial = function () {
         var fn = this, args = slice.call(arguments);
         return function () {
             return fn.apply(this, args.concat(slice.call(arguments)));
