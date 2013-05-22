@@ -61,6 +61,13 @@ toolGroup( new QButtonGroup( this ) ) {
 	this->toolGroup->addButton( tool, 256 + 1 );
 	this->ui.toolBar->addWidget( tool );
 
+	tool = new QToolButton( parent );
+	tool->setCheckable( true );
+	tool->setText( QObject::tr( "Free Line" ) );
+	tool->setToolTip( QObject::tr( "Free Line" ) );
+	this->toolGroup->addButton( tool, 4096 );
+	this->ui.toolBar->addWidget( tool );
+
 	qApp->connect( this->ui.actionAbout_Qt, SIGNAL( triggered() ), SLOT( aboutQt() ) );
 	this->connect( this->toolGroup, SIGNAL( buttonClicked( int ) ), SLOT( onToolGroupClicked( int ) ) );
 	this->connect( this->ui.action_Change_Object_Name, SIGNAL( triggered() ), SLOT( onChangeNameClicked() ) );
@@ -72,7 +79,10 @@ toolGroup( new QButtonGroup( this ) ) {
 }
 
 void MainWindow::Private::onToolGroupClicked( int id ) {
-	if( id & 256 ) {
+	if( id & 4096 ) {
+		this->scene->setMode( UMLScene::DrawItem );
+		this->scene->setItemType( id ^ 4096 );
+	} else if( id & 256 ) {
 		// is item type
 		this->scene->setMode( UMLScene::InsertItem );
 		this->scene->setItemType( id ^ 256 );

@@ -1,11 +1,11 @@
 #ifndef UMLSCENEPRIVATE_HPP
 #define UMLSCENEPRIVATE_HPP
 
+#include <functional>
+
 #include "umlscene.hpp"
 #include "abstractumlitem.hpp"
 #include "port.hpp"
-
-#include <functional>
 
 class UMLScene::Private {
 public:
@@ -23,6 +23,9 @@ public:
 	void onMovePressed( QGraphicsSceneMouseEvent * );
 	void onMoveMoved( QGraphicsSceneMouseEvent * );
 	void onMoveReleased( QGraphicsSceneMouseEvent * );
+	void onDrawPressed( QGraphicsSceneMouseEvent * );
+	void onDrawMoved( QGraphicsSceneMouseEvent * );
+	void onDrawReleased( QGraphicsSceneMouseEvent * );
 
 	UMLScene * host;
 	std::map< UMLScene::Mode, Command > pressCommands;
@@ -35,7 +38,7 @@ public:
 	QGraphicsLineItem * guideLine;
 	Port * beginPort;
 	AbstractUMLItem * beginItem;
-	QPointF beginAttachPoint;
+	QGraphicsPathItem * guidePath;
 	QGraphicsRectItem * guideRect;
 	QPointF beginDragPoint;
 	bool grouping;

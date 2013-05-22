@@ -9,6 +9,8 @@
 
 #include <algorithm>
 
+#include <QtCore/QtDebug>
+
 UMLScene::Private::Private( UMLScene * host ):
 host( host ),
 pressCommands(),
@@ -18,21 +20,24 @@ currentPressCommand(),
 currentMoveCommand(),
 currentReleaseCommand(),
 itemType( -1 ),
-guideLine( NULL ),
-beginItem( NULL ),
-beginAttachPoint(),
-guideRect( NULL ),
+guideLine( nullptr ),
+beginItem( nullptr ),
+guidePath( nullptr ),
+guideRect( nullptr ),
 beginDragPoint(),
 grouping( false ) {
 	this->pressCommands.insert( std::make_pair( UMLScene::InsertItem, std::bind( &UMLScene::Private::onInsertPressed, this, std::placeholders::_1 ) ) );
 	this->pressCommands.insert( std::make_pair( UMLScene::LinkItem, std::bind( &UMLScene::Private::onLinkPressed, this, std::placeholders::_1 ) ) );
 	this->pressCommands.insert( std::make_pair( UMLScene::MoveItem, std::bind( &UMLScene::Private::onMovePressed, this, std::placeholders::_1 ) ) );
+	this->pressCommands.insert( std::make_pair( UMLScene::DrawItem, std::bind( &UMLScene::Private::onDrawPressed, this, std::placeholders::_1 ) ) );
 
 	this->moveCommands.insert( std::make_pair( UMLScene::LinkItem, std::bind( &UMLScene::Private::onLinkMoved, this, std::placeholders::_1 ) ) );
 	this->moveCommands.insert( std::make_pair( UMLScene::MoveItem, std::bind( &UMLScene::Private::onMoveMoved, this, std::placeholders::_1 ) ) );
+	this->moveCommands.insert( std::make_pair( UMLScene::DrawItem, std::bind( &UMLScene::Private::onDrawMoved, this, std::placeholders::_1 ) ) );
 
 	this->releaseCommands.insert( std::make_pair( UMLScene::LinkItem, std::bind( &UMLScene::Private::onLinkReleased, this, std::placeholders::_1 ) ) );
 	this->releaseCommands.insert( std::make_pair( UMLScene::MoveItem, std::bind( &UMLScene::Private::onMoveReleased, this, std::placeholders::_1 ) ) );
+	this->releaseCommands.insert( std::make_pair( UMLScene::DrawItem, std::bind( &UMLScene::Private::onDrawReleased, this, std::placeholders::_1 ) ) );
 
 	this->setMode( UMLScene::MoveItem );
 }
@@ -156,6 +161,29 @@ void UMLScene::Private::onMoveReleased( QGraphicsSceneMouseEvent * event ) {
 	} else {
 		this->host->QGraphicsScene::mouseReleaseEvent( event );
 	}
+}
+
+void UMLScene::Private::onDrawPressed( QGraphicsSceneMouseEvent * event ) {
+	this->guidePath = new QGraphicsPathItem;
+	QPen pen = this->guidePath->pen();
+	pen.setColor( QColor( "red" ) );
+	pen.setStyle( Qt::DotLine );
+	this->guidePath->setPen( pen );
+	this->host->addItem( this->guidePath );
+	this->guidePath->setPos( event->scenePos() );
+}
+
+void UMLScene::Private::onDrawMoved( QGraphicsSceneMouseEvent * event ) {
+	auto path = this->guidePath->path();
+	path.lineTo( this->guidePath->mapFromScene( event->scenePos() ) );
+	this->guidePath->setPath( path );
+}
+
+void UMLScene::Private::onDrawReleased( QGraphicsSceneMouseEvent * ) {
+	auto pen = this->guidePath->pen();
+	pen.setStyle( Qt::SolidLine );
+	this->guidePath->setPen( pen );
+	this->guidePath = nullptr;
 }
 
 UMLScene::UMLScene( QObject * parent ):

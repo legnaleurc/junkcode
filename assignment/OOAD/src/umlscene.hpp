@@ -15,6 +15,7 @@ public:
 		InsertItem,
 		LinkItem,
 		MoveItem,
+		DrawItem,
 		Unknown
 	};
 
