@@ -9,8 +9,6 @@
 
 #include <algorithm>
 
-#include <QtCore/QtDebug>
-
 UMLScene::Private::Private( UMLScene * host ):
 host( host ),
 pressCommands(),

@@ -18,8 +18,10 @@ public slots:
 	void onChangeNameClicked();
 	void onGroupClicked();
 	void onUngroupClicked();
+	void onExportClicked();
 
 public:
+	MainWindow * owner;
 	Ui::MainWindow ui;
 	UMLScene * scene;
 	QButtonGroup * toolGroup;

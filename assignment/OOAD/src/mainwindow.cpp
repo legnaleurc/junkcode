@@ -2,9 +2,11 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QToolButton>
+#include <QtGui/QFileDialog>
 
 MainWindow::Private::Private( MainWindow * parent ):
 QObject( parent ),
+owner( parent ),
 ui(),
 scene( new UMLScene( parent ) ),
 toolGroup( new QButtonGroup( this ) ) {
@@ -73,6 +75,7 @@ toolGroup( new QButtonGroup( this ) ) {
 	this->connect( this->ui.action_Change_Object_Name, SIGNAL( triggered() ), SLOT( onChangeNameClicked() ) );
 	this->connect( this->ui.action_Group, SIGNAL( triggered() ), SLOT( onGroupClicked() ) );
 	this->connect( this->ui.actionU_ngroup, SIGNAL( triggered() ), SLOT( onUngroupClicked() ) );
+	this->connect( this->ui.action_Export, SIGNAL( triggered() ), SLOT( onExportClicked() ) );
 
 	this->scene->setSceneRect( 0, 0, 5000, 5000 );
 	this->ui.graphicsView->setScene( this->scene );
@@ -104,6 +107,19 @@ void MainWindow::Private::onGroupClicked() {
 
 void MainWindow::Private::onUngroupClicked() {
 	this->scene->ungroupSelectedItems();
+}
+
+void MainWindow::Private::onExportClicked() {
+	QString fileName = QFileDialog::getSaveFileName( this->owner, QObject::tr( "Save as picture" ), "", QObject::tr( "PNG files (*.png)" ) );
+	if( fileName.isEmpty() ) {
+		return;
+	}
+	QImage image( this->scene->sceneRect().size().toSize(), QImage::Format_ARGB32 );
+	image.fill( Qt::transparent );
+	QPainter painter( &image );
+	painter.setRenderHint( QPainter::Antialiasing, true );
+	this->scene->render( &painter );
+	image.save( fileName );
 }
 
 MainWindow::MainWindow():
