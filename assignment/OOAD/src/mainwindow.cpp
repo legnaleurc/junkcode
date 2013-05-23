@@ -67,6 +67,7 @@ toolGroup( new QButtonGroup( this ) ) {
 	tool->setCheckable( true );
 	tool->setText( QObject::tr( "Free Line" ) );
 	tool->setToolTip( QObject::tr( "Free Line" ) );
+	tool->setIcon( QIcon( ":/images/exception.png" ) );
 	this->toolGroup->addButton( tool, 4096 );
 	this->ui.toolBar->addWidget( tool );
 
