@@ -1,4 +1,3 @@
-
 // ==UserScript==
 // @name           Google Direct Link
 // @namespace      http://userscripts.org/users/legnaleurc
@@ -18,6 +17,7 @@
     var ua = navigator.userAgent,
         wK = ua.toLowerCase().indexOf('webkit') > -1,
         S = location.protocol === 'https:',
+        D = document.querySelector('#irc_mimg'),
         config = loadConfig();
 
     function loadConfig() {
@@ -55,6 +55,12 @@
         });
     }
 
+    function hasAllClass(a) {
+        return Array.prototype.slice.call(arguments, 1).every(function (b) {
+            return a.classList.contains(b);
+        });
+    }
+
     if (Object.defineProperty) {
         Object.defineProperty(window, 'rwt', {
             value: function () {},
@@ -78,8 +84,39 @@
         });
     }
 
+    if (D) {
+        D.addEventListener('click', blocker, true);
+    }
+
+    var observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            if (mutation.type !== 'childList') {
+                return;
+            }
+            Array.prototype.forEach.call(mutation.addedNodes, function (n) {
+                if (n.nodeType !== Node.ELEMENT_NODE) {
+                    return;
+                }
+                var t = n.querySelector('.irc_but_r.irc_but_tb');
+                if (!t) {
+                    return;
+                }
+                t.removeEventListener('click', blocker, true);
+                t.addEventListener('click', blocker, true);
+            });
+        });
+    });
+    observer.observe(document, {
+        childList: true,
+        subtree: true
+    });
+
+    function blocker(e) {
+        e.stopPropagation();
+    }
+
     function proxy(e) {
-        if (e && e.localName == 'a' && (hasClass(e, 'l', 'rg_l', 'rg_ilmn') || e.id == 'rg_hl' || hasClass(e.parentNode, 'vshid', 'gl', 'r'))) {
+        if (e && e.localName == 'a' && (hasClass(e, 'l', 'rg_l', 'rg_ilmn', 'irc_but') || e.id == 'rg_hl' || e.id == 'irc_mil' || hasClass(e.parentNode, 'vshid', 'gl', 'r'))) {
             var m = /(&url=([^&]+)|imgurl=([^&]+))(&w=\d+&h=\d+)?&ei/g.exec(decodeURIComponent(e.href));
             if (e.onmousedown) e.removeAttribute('onmousedown');
             if (m) e.href = m[2] || m[3];
