@@ -29,7 +29,7 @@
     }
 
     exports.extend = function (protoProps, staticProps) {
-        var parent = this, child, Surrogate;
+        var parent = this, child;
 
         if (protoProps && protoProps.hasOwnProperty('constructor')) {
             child = protoProps.constructor;
@@ -41,11 +41,8 @@
 
         extend(child, parent, staticProps);
 
-        Surrogate = function () {
-            this.constructor = child;
-        };
-        Surrogate.prototype = parent.prototype;
-        child.prototype = new Surrogate();
+        child.prototype = Object.create(parent.prototype);
+        child.prototype.constructor = child;
 
         if (protoProps) {
             extend(child.prototype, protoProps);
