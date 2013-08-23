@@ -9,7 +9,7 @@ $(TARGET): sfx $(HOOK)
 	chmod a+x $@
 
 sfx: sfx.cpp
-	$(CXX) -Os -o $@ $<
+	$(CXX) -std=c++11 -Os -o $@ $<
 	strip $@
 
 .PHONY:
