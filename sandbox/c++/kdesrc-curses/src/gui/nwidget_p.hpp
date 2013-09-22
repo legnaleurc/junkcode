@@ -5,21 +5,22 @@
 #include "core/npoint.hpp"
 #include "core/nsize.hpp"
 
+#include <vector>
+
 #include <ncurses.h>
 
-#include <vector>
 
 class NWidget::Private {
 public:
-	Private( NWidget * parent );
-	~Private();
+	Private (NWidget * parent);
+	~Private ();
 
-	std::vector< NWidget * > children;
-	boost::signal< void ( int ) > keyPressed;
+	std::vector<NWidget *> children;
+	boost::signals2::signal<void (int)> keyPressed;
 	NWidget * parent;
 	NPoint pos;
 	NSize size;
-	std::shared_ptr< WINDOW > window;
+	std::shared_ptr<WINDOW> window;
 };
 
 #endif

@@ -5,28 +5,29 @@
 #include "core/nsize.hpp"
 #include "gui/nwidget.hpp"
 
+#include <vector>
+
 #include <ncurses.h>
 
-#include <vector>
 
 class NApplication::Private {
 public:
-	static std::shared_ptr< NApplication > self;
-	static void destroy( NApplication * );
-	static void onWindowChanged( int sig );
+	static std::shared_ptr<NApplication> self;
+	static void destroy (NApplication *);
+	static void onWindowChanged (int sig);
 
-	Private();
-	~Private();
+	Private ();
+	~Private ();
 
-	void addWidget( NWidget * widget );
-	void removeWidget( NWidget * widget );
-	void resize( int rows, int cols );
+	void addWidget (NWidget * widget);
+	void removeWidget (NWidget * widget);
+	void resize (int rows, int cols);
 
 	NWidget * focusWidget;
-	std::shared_ptr< WINDOW > screen;
+	std::shared_ptr<WINDOW> screen;
 	NSize size;
 	NWidget * topLevelWidget;
-	std::vector< NWidget * > widgets;
+	std::vector<NWidget *> widgets;
 };
 
 #endif
