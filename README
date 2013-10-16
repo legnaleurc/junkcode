@@ -9,5 +9,3 @@ shell:
 		轉換文字編碼工具
 launcher:
 	針對PortableApps.com的檔案啟動器
-qdict:
-	簡單的字典程式
