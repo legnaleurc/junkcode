@@ -94,9 +94,9 @@ NApplication::~NApplication () {
 
 int NApplication::exec () {
     for (;;) {
-        std::for_each(std::begin(this->p_->widgets), std::end(this->p_->widgets), [](NWidget * w)->void {
+        for (auto w : this->p_->widgets) {
             w->update();
-        });
+        }
         // TODO dispatch events to focusing widget
         int c = getch();
         switch (c) {

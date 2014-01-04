@@ -10,6 +10,9 @@ class NApplication;
 class NPoint;
 class NSize;
 
+template <typename Slot>
+using Signal = boost::signals2::signal<Slot>;
+
 class NWidget {
 public:
     explicit NWidget (NWidget * parent = 0);
@@ -21,7 +24,7 @@ public:
     void resize (int rows, int cols);
     void update ();
 
-    boost::signals2::signal<void (int)> & keyPressed ();
+    Signal<void (int)> & keyPressed ();
 
 protected:
     virtual void inputEvent (int keyCode);
