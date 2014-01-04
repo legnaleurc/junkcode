@@ -5,9 +5,9 @@
 
 class NBoxLayout::Private {
 public:
-	Private( NWidget * parent );
+    Private( NWidget * parent );
 
-	NWidget * parentWidget;
+    NWidget * parentWidget;
 };
 
 #endif

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(KDEsrcCurses)
 
 find_package(Curses REQUIRED)
-find_package(Boost REQUIRED COMPONENTS signals)
+find_package(Boost REQUIRED)
 
 file(GLOB_RECURSE KDEsrcCurses_PUBLIC_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "include/*.hpp")
 file(GLOB_RECURSE KDEsrcCurses_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/*.hpp")

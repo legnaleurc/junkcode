@@ -5,10 +5,10 @@
 
 class NSize::Private {
 public:
-	Private( int rows, int cols );
+    Private( int rows, int cols );
 
-	int cols;
-	int rows;
+    int cols;
+    int rows;
 };
 
 #endif

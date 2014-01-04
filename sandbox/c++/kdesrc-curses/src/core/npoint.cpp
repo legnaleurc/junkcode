@@ -18,26 +18,26 @@ p_( new Private( that.x(), that.y() ) ) {
 }
 
 NPoint & NPoint::operator =( const NPoint & that ) {
-	if( &that == this ) {
-		return *this;
-	}
-	this->p_->x = that.x();
-	this->p_->y = that.y();
-	return *this;
+    if( &that == this ) {
+        return *this;
+    }
+    this->p_->x = that.x();
+    this->p_->y = that.y();
+    return *this;
 }
 
 int & NPoint::x() {
-	return this->p_->x;
+    return this->p_->x;
 }
 
 int NPoint::x() const {
-	return this->p_->x;
+    return this->p_->x;
 }
 
 int & NPoint::y() {
-	return this->p_->y;
+    return this->p_->y;
 }
 
 int NPoint::y() const {
-	return this->p_->y;
+    return this->p_->y;
 }

@@ -12,15 +12,15 @@
 
 class NWidget::Private {
 public:
-	Private (NWidget * parent);
-	~Private ();
+    Private (NWidget * parent);
+    ~Private ();
 
-	std::vector<NWidget *> children;
-	boost::signals2::signal<void (int)> keyPressed;
-	NWidget * parent;
-	NPoint pos;
-	NSize size;
-	std::shared_ptr<WINDOW> window;
+    std::vector<NWidget *> children;
+    boost::signals2::signal<void (int)> keyPressed;
+    NWidget * parent;
+    NPoint pos;
+    NSize size;
+    std::shared_ptr<WINDOW> window;
 };
 
 #endif

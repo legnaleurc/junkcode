@@ -5,10 +5,10 @@
 
 class NPoint::Private {
 public:
-	Private( int x, int y );
+    Private( int x, int y );
 
-	int x;
-	int y;
+    int x;
+    int y;
 };
 
 #endif

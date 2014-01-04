@@ -7,15 +7,15 @@ class NWidget;
 
 class NBoxLayout {
 public:
-	explicit NBoxLayout( NWidget * parent = nullptr );
-	virtual ~NBoxLayout();
+    explicit NBoxLayout( NWidget * parent = nullptr );
+    virtual ~NBoxLayout();
 
-	void addLayout( NBoxLayout * layout );
-	void addWidget( NWidget * widget );
+    void addLayout( NBoxLayout * layout );
+    void addWidget( NWidget * widget );
 
 private:
-	class Private;
-	std::shared_ptr< Private > p_;
+    class Private;
+    std::shared_ptr< Private > p_;
 };
 
 #endif
