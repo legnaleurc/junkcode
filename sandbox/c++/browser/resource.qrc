@@ -1,0 +1,54 @@
+<RCC>
+    <qresource prefix="/">
+        <file>login.js</file>
+        <file>outer.js</file>
+        <file>inner.js</file>
+    </qresource>
+    <qresource prefix="/ui">
+        <file>browser_alert_button_cancel.png</file>
+        <file>browser_alert.png</file>
+        <file>dock_button_empty_slot.png</file>
+        <file>dock_menu_label.png</file>
+        <file>dock_screen_confirm_repair_yes.png</file>
+        <file>dock_submenu_start_repair.png</file>
+        <file>dock_table_header.png</file>
+        <file>dock_table_label_repairing.png</file>
+        <file>dock_table_label_traveling.png</file>
+        <file>flash_alert_button_yes.png</file>
+        <file>flash_alert.png</file>
+        <file>go_menu_button_long_trip.png</file>
+        <file>long_trip_menu_button_confirm.png</file>
+        <file>long_trip_menu_button_ok.png</file>
+        <file>long_trip_menu_mission_2.png</file>
+        <file>long_trip_menu_mission_3.png</file>
+        <file>long_trip_menu_mission_5.png</file>
+        <file>long_trip_menu_mission_6.png</file>
+        <file>long_trip_menu_mission_9.png</file>
+        <file>long_trip_menu_mission_11.png</file>
+        <file>long_trip_menu_mission_17.png</file>
+        <file>long_trip_menu_mission_20.png</file>
+        <file>long_trip_menu_mission_21.png</file>
+        <file>long_trip_menu_mission_22.png</file>
+        <file>long_trip_menu_mission_37.png</file>
+        <file>long_trip_menu_mission_38.png</file>
+        <file>long_trip_menu_stage_2.png</file>
+        <file>long_trip_menu_stage_3.png</file>
+        <file>long_trip_screen_button_next.png</file>
+        <file>select_menu_button_reload.png</file>
+        <file>select_menu_forth_team.png</file>
+        <file>select_menu_label.png</file>
+        <file>select_menu_second_team.png</file>
+        <file>select_menu_third_team.png</file>
+        <file>submenu_button_back.png</file>
+        <file>system_button_start.png</file>
+        <file>system_screen_error.png</file>
+        <file>main_menu_button_go.png</file>
+        <file>main_menu_button_reload.png</file>
+        <file>main_menu_button_repair.png</file>
+        <file>main_menu_label_long_trip_done.png</file>
+        <file>long_trip_menu_stage_5.png</file>
+        <file>long_trip_screen_failed.png</file>
+        <file>long_trip_screen_great_succeed.png</file>
+        <file>long_trip_screen_succeed.png</file>
+    </qresource>
+</RCC>
