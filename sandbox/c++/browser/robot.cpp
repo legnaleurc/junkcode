@@ -1,5 +1,7 @@
 #include "robot.h"
+#ifdef Q_OS_MAC
 #include "macrobot.h"
+#endif
 
 #include <QtTest/QTest>
 
@@ -114,7 +116,7 @@ QSharedPointer<Robot> Robot::create() {
 #ifdef Q_OS_MAC
 	return QSharedPointer<Robot>(new MacRobot);
 #else
-	return new Robot;
+    return QSharedPointer<Robot>(new Robot);
 #endif
 }
 

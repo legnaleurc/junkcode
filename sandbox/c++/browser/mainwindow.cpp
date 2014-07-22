@@ -30,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
+    this->connect(this->ui->action_Start, SIGNAL(triggered()), SLOT(_onActionStart()));
+    this->connect(this->ui->actionStop, SIGNAL(triggered()), SLOT(_onActionStop()));
+
 	auto settings = this->ui->webView->settings();
 	settings->setAttribute(QWebSettings::PluginsEnabled, true);
 	settings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
@@ -84,4 +87,12 @@ void MainWindow::_onMainFrameObjectCleared() {
 		qDebug() << "cleared" << result;
 		return;
 	}
+}
+
+void MainWindow::_onActionStart() {
+    this->_ctrl->start();
+}
+
+void MainWindow::_onActionStop() {
+    this->_ctrl->stop();
 }

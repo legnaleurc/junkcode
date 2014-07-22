@@ -23,6 +23,8 @@ public:
 
 private slots:
 	void _onMainFrameObjectCleared();
+    void _onActionStart();
+    void _onActionStop();
 
 private:
 	Ui::MainWindow *ui;

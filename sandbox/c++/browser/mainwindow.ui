@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>824</width>
-    <height>560</height>
+    <height>569</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="WebPage" name="webView">
+     <widget class="WebPage" name="webView" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -35,7 +35,7 @@
         <height>480</height>
        </size>
       </property>
-      <property name="url">
+      <property name="url" stdset="0">
        <url>
         <string>about:blank</string>
        </url>
@@ -50,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>824</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Action">
@@ -58,6 +58,7 @@
      <string>&amp;Action</string>
     </property>
     <addaction name="action_Start"/>
+    <addaction name="actionStop"/>
    </widget>
    <addaction name="menu_Action"/>
   </widget>
@@ -76,6 +77,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="text">
+    <string>Stop</string>
    </property>
   </action>
  </widget>

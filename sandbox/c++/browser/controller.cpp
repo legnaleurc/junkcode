@@ -2,7 +2,6 @@
 
 #include <QtCore/QJsonObject>
 #include <QtGui/QPixmap>
-#include <QtCore/QThreadPool>
 
 Controller::Controller(QObject *parent) :
 	QObject(parent),
@@ -30,7 +29,14 @@ void Controller::setMouseArea(QWidget *ma) {
 }
 
 void Controller::start() {
-	QThreadPool::globalInstance()->start(this->_eventQueue);
+    this->_eventQueue->waitForStarted();
+    qDebug() << "started";
+    this->_eventQueue->startMission(0, 0);
+}
+
+void Controller::stop() {
+    this->_eventQueue->waitForStopped();
+    qDebug() << "stopped";
 }
 
 void Controller::_onRequestFinished(const QString &path, const QJsonDocument &json) {
@@ -79,5 +85,5 @@ void Controller::_api_port_port(const QJsonDocument & json) {
 	this->_db.createNDock(api_ndock);
 
 //	emit this->api_port_port();
-	this->start();
+//	this->start();
 }

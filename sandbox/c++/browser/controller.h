@@ -18,6 +18,7 @@ public:
 	void setMouseArea(QWidget * ma);
 
 	void start();
+    void stop();
 
 signals:
 	void api_port_port();

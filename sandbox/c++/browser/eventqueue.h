@@ -12,12 +12,17 @@ class EventQueue : public QObject, public QRunnable
 public:
 	explicit EventQueue(QObject *parent = 0);
 
-	void setMouseArea(QWidget * view);
+    virtual void run();
 
-	virtual void run();
+    void setMouseArea(QWidget * view);
+
+    void waitForStarted();
+    void waitForStopped();
 
 signals:
 	void stop();
+    void started();
+    void stopped();
 
 public slots:
 	void startMission(int api_deck_id, int api_mission_id);

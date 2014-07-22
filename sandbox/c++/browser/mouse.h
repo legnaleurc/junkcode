@@ -13,7 +13,7 @@ public:
 	Mouse(QWidget * view);
 
 	QPoint wait(const QPixmap & target) const;
-	void click(const QPixmap & target) const;
+    Q_INVOKABLE void click(const QPixmap & target) const;
 
 private:
 	QWidget * _ma;
