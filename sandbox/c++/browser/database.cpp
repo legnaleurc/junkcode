@@ -9,8 +9,8 @@
 Database::Database():
 	_db(QSqlDatabase::addDatabase("QSQLITE"))
 {
-	this->_db.setDatabaseName(":memory:");
-//	this->_db.setDatabaseName("/tmp/b.sqlite");
+//	this->_db.setDatabaseName(":memory:");
+	this->_db.setDatabaseName("/tmp/a.sqlite");
 	bool ok = this->_db.open();
 	qDebug() << "db open" << ok;
 
@@ -61,16 +61,43 @@ void Database::createShip(const QJsonValue &data) {
 }
 
 void Database::createDeck(const QJsonValue &data) {
-	auto ships = data.toArray();
-	for (auto ship_ : ships) {
-		auto ship = ship_.toObject();
+	auto decks = data.toArray();
+	for (auto deck_ : decks) {
+		auto deck = deck_.toObject();
 		QVariantMap args;
-		args.insert("api_id", ship.value("api_id").toInt());
-		args.insert("api_name", ship.value("api_name").toString());
-		args.insert("mission_status", ship.value("mission_status").toInt());
-		args.insert("mission_id", ship.value("mission_id").toInt());
-		args.insert("mission_time", ship.value("mission_time").toInt());
+
+		// identity
+		auto deck_id = deck.value("api_id").toInt();
+		args.insert("api_id", deck_id);
+		args.insert("api_name", deck.value("api_name").toString());
+
+		// mission information
+		auto api_mission = deck.value("api_mission").toArray();
+		args.insert("mission_status", api_mission.at(0).toInt());
+		args.insert("mission_id", api_mission.at(1).toInt());
+		args.insert("mission_time", api_mission.at(2).toInt());
 		this->_insertInto("deck", args);
+
+		// update ship's deck
+		auto api_ship = deck.value("api_ship").toArray();
+		for (auto ship : api_ship) {
+			auto ship_id = ship.toInt();
+			if (ship_id == 0) {
+				continue;
+			}
+			QString statement = "UPDATE ship SET deck_id = :deck_id WHERE api_id = :ship_id;";
+			QSqlQuery query(this->_db);
+			bool ok = query.prepare(statement);
+			if (!ok) {
+				qDebug() << "db update" << query.lastError().text();
+			}
+			query.bindValue(":deck_id", deck_id);
+			query.bindValue(":ship_id", ship_id);
+			ok = query.exec();
+			if (!ok) {
+				qDebug() << "db update" << query.lastError().text();
+			}
+		}
 	}
 }
 
@@ -114,6 +141,24 @@ void Database::_initShipType() {
 				  "api_bull_max INTEGER);");
 	bool ok = query.exec();
 	qDebug() << "db create table" << ok;
+}
+
+bool Database::needCharge(int api_deck_id) const {
+	QString statement = "SELECT ship.api_id "
+			"FROM ship "
+			"JOIN ship_type ON ship.api_ship_id = ship_type.api_id "
+			"WHERE (ship.deck_id = :deck_id AND (ship.api_fuel < ship_type.api_fuel_max OR ship.api_bull < ship_type.api_bull_max));";
+	QSqlQuery query(this->_db);
+	bool ok = query.prepare(statement);
+	if (!ok) {
+		qDebug() << "db query" << query.lastError().text();
+	}
+	query.bindValue(":deck_id", api_deck_id);
+	ok = query.exec();
+	if (!ok) {
+		qDebug() << "db query" << query.lastError().text();
+	}
+	return query.size() > 0;
 }
 
 void Database::_initDeck() {

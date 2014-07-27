@@ -9,7 +9,7 @@ public:
 	MacRobot();
 
 protected:
-	virtual void doClick(QWidget *widget, const QPoint &pos, int msDelay) const;
+	virtual void doClick(const QPoint &pos, int msDelay) const;
 };
 
 #endif // MACROBOT_H

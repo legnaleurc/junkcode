@@ -15,6 +15,8 @@ public:
 	void createDeck(const QJsonValue & data);
 	void createNDock(const QJsonValue & data);
 
+	bool needCharge(int api_deck_id) const;
+
 private:
 	void _init();
 	void _initShipType();

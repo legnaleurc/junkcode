@@ -1,8 +1,8 @@
 (function () {
 	'use strict';
 
-    var USERNAME = '';
-    var PASSWORD = '';
+	var USERNAME = '';
+	var PASSWORD = '';
 
 	document.addEventListener('DOMContentLoaded', function () {
 		var s = $('script:not([src]):contains("https://www.dmm.com/my/-/login/ajax-get-token/")').text();

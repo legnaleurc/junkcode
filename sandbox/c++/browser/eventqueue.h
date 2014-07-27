@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QtCore/QRunnable>
 
-#include "mouse.h"
+#include "task.h"
 
 class EventQueue : public QObject, public QRunnable
 {
@@ -20,16 +20,16 @@ public:
     void waitForStopped();
 
 signals:
-	void stop();
-    void started();
-    void stopped();
+	void _stop();
+	void _started();
+	void _stopped();
 
 public slots:
 	void startMission(int api_deck_id, int api_mission_id);
 
 private:
 	QWidget * _view;
-	Mouse * _mouse;
+	Task * _bgTask;
 };
 
 #endif // EVENTQUEUE_H

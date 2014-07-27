@@ -1,5 +1,7 @@
 #include "mouse.h"
 
+#include <cassert>
+
 #include <QtCore/QEventLoop>
 #include <QtCore/QTimer>
 #include <QtCore/QThread>
@@ -7,9 +9,8 @@
 #include <QtCore/QtDebug>
 
 Mouse::Mouse(QWidget *view):
-	QObject(),
 	_ma(view),
-	_robot(Robot::create()),
+	_robot(Robot::create(view)),
 	_interval(500)
 {
 }
@@ -25,9 +26,8 @@ QPoint Mouse::wait(const QPixmap &target) const {
 	return center;
 }
 
-void Mouse::click(const QPixmap &target) const {
+void Mouse::click(const QPoint &target) const {
     assert(qApp->thread() == QThread::currentThread() || !"must run on the main thread");
 
-    auto center = this->wait(target);
-    this->_robot->click(this->_ma, center);
+	this->_robot->click(this->_ma, target);
 }

@@ -25,7 +25,7 @@ SOURCES += main.cpp\
     database.cpp \
     controller.cpp \
     eventqueue.cpp \
-    mouse.cpp
+    task.cpp
 
 HEADERS  += mainwindow.h \
     networkaccessmanagerproxy.h \
@@ -34,7 +34,7 @@ HEADERS  += mainwindow.h \
     database.h \
     controller.h \
     eventqueue.h \
-    mouse.h
+    task.h
 
 FORMS    += mainwindow.ui
 

@@ -1,19 +1,17 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
-#include <QtCore/QObject>
 #include <QtCore/QPoint>
 
 #include "robot.h"
 
-class Mouse: public QObject
+class Mouse
 {
-	Q_OBJECT
 public:
 	Mouse(QWidget * view);
 
 	QPoint wait(const QPixmap & target) const;
-    Q_INVOKABLE void click(const QPixmap & target) const;
+	void click(const QPoint & target) const;
 
 private:
 	QWidget * _ma;

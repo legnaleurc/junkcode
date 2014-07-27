@@ -4,6 +4,8 @@
 #endif
 
 #include <QtTest/QTest>
+#include <QtCore/QThread>
+#include <QtWidgets/QApplication>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -112,23 +114,30 @@ inline QPixmap cvMatToQPixmap( const cv::Mat &inMat )
    return QPixmap::fromImage( cvMatToQImage( inMat ) );
 }
 
-QSharedPointer<Robot> Robot::create() {
+Robot * Robot::create(QWidget * widget) {
 #ifdef Q_OS_MAC
-	return QSharedPointer<Robot>(new MacRobot);
+	auto robot = new MacRobot;
 #else
-    return QSharedPointer<Robot>(new Robot);
+	auto robot = new Robot;
 #endif
+	robot->_widget = widget;
+	return robot;
 }
 
-Robot::Robot()
+Robot::Robot(): QObject(),
+	_widget(nullptr)
 {
 }
 
 Robot::~Robot() {
 }
 
-QPoint Robot::find(QWidget *widget, const QPixmap &target) const {
-	auto screen = widget->grab();
+QWidget * Robot::getWidget() const {
+	return this->_widget;
+}
+
+QPoint Robot::find(const QPixmap &target) const {
+	auto screen = this->getWidget()->grab();
 	auto s = QPixmapToCvMat(screen, false);
 	auto t = QPixmapToCvMat(target, false);
 	cv::Mat r;
@@ -164,15 +173,17 @@ QPoint Robot::find(QWidget *widget, const QPixmap &target) const {
 	return center;
 }
 
-void Robot::click(QWidget *widget, const QPixmap &target, int msDelay) const {
-	auto center = this->find(widget, target);
-	this->click(widget, center, msDelay);
+void Robot::click(const QPixmap &target, int msDelay) const {
+	auto center = this->find(target);
+	this->click(center, msDelay);
 }
 
-void Robot::click(QWidget *widget, const QPoint &pos, int msDelay) const {
-	this->doClick(widget, pos, msDelay);
+void Robot::click(const QPoint &pos, int msDelay) const {
+	assert(qApp->thread() == QThread::currentThread() || !"must run on the main thread");
+	this->doClick(pos, msDelay);
+	emit this->clickFinished();
 }
 
-void Robot::doClick(QWidget *widget, const QPoint &pos, int msDelay) const {
-	QTest::mouseClick(widget, Qt::LeftButton, Qt::NoModifier, pos, msDelay);
+void Robot::doClick(const QPoint &pos, int msDelay) const {
+	QTest::mouseClick(this->getWidget(), Qt::LeftButton, Qt::NoModifier, pos, msDelay);
 }

@@ -11,8 +11,8 @@ MacRobot::MacRobot()
 {
 }
 
-void MacRobot::doClick(QWidget *widget, const QPoint &pos, int msDelay) const {
-	auto global = widget->mapToGlobal(pos);
+void MacRobot::doClick(const QPoint &pos, int msDelay) const {
+	auto global = this->getWidget()->mapToGlobal(pos);
 	qDebug() << global;
 
 	CGEventRef down = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CGPointMake(global.x(), global.y()), kCGMouseButtonLeft);

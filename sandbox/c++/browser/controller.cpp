@@ -83,7 +83,4 @@ void Controller::_api_port_port(const QJsonDocument & json) {
 	this->_db.createShip(api_ship);
 	this->_db.createDeck(api_deck_port);
 	this->_db.createNDock(api_ndock);
-
-//	emit this->api_port_port();
-//	this->start();
 }
