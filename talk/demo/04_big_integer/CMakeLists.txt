@@ -5,7 +5,7 @@ project(BigInteger)
 find_package(Boost COMPONENTS unit_test_framework)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    find_package(Boost REQUIRED COMPONENTS regex)
+    find_package(Boost REQUIRED COMPONENTS regex unit_test_framework)
     list(APPEND CMAKE_CXX_FLAGS "-std=c++0x -pedantic -Wextra -Wall -pipe")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     list(APPEND CMAKE_CXX_FLAGS "-std=c++0x -stdlib=libc++ -pedantic -Wextra -Wall -pipe")
