@@ -2,10 +2,14 @@
 #define CONTROLLER_H
 
 #include <QObject>
+#include <QtNetwork/QTcpServer>
+
+#include <queue>
 
 #include "networkaccessmanagerproxy.h"
 #include "database.h"
-#include "eventqueue.h"
+#include "task.h"
+#include "robot.h"
 
 class Controller : public QObject
 {
@@ -20,22 +24,47 @@ public:
 	void start();
     void stop();
 
+    void startMission(int api_deck_id, int api_mission_id);
+
 signals:
 	void api_port_port();
+    void responsed(const QString & response);
 
 private slots:
-	void _onRequestFinished(const QString & path, const QJsonDocument & json);
+    void _onRequestFinished(const QString & path, const QJsonDocument & json);
+    void _onNewConnection();
+    void _onHttpClientReadyRead();
+    void _onHttpClientDisconnected();
 
 private:
 	typedef std::function<void (const QJsonDocument &)> ApiCallback;
 
+    void _gadgets_make_request(const QJsonDocument & json);
 	void _api_start2(const QJsonDocument & json);
+    void _api_get_member_basic(const QJsonDocument & json);
 	void _api_port_port(const QJsonDocument & json);
+    void _api_req_mission_start(const QJsonDocument & json);
+    void _charge(const Task::Yield & yield, int api_deck_id);
+    void _startMission(const Task::Yield & yield, int api_deck_id, int api_mission_id);
+
+    QPoint _wait(const Task::Yield & yield, const QPixmap & target);
+    QPoint _wait(const Task::Yield & yield, const QString & target);
+    void _click(const Task::Yield & yield, const QString &target);
+    void _click(const Task::Yield & yield, int x, int y);
+    void _click(const Task::Yield & yield, const QPoint & target);
+    void _moveBy(const Task::Yield & yield, int x, int y);
+    QPoint _find(const QString & target);
+
+    void _handleHttpRequest(QIODevice * io);
 
 	Database _db;
-	NetworkAccessManagerProxy * _namp;
-	EventQueue * _eventQueue;
+    NetworkAccessManagerProxy * _namp;
 	std::map<QString, ApiCallback> _cb;
+    std::shared_ptr<Robot> _robot;
+    std::queue<Task *> _eventQueue;
+    QTcpServer * _httpServer;
+    QVariantMap _api_data;
+    QVariantMap _api_port;
 };
 
 #endif // CONTROLLER_H

@@ -11,6 +11,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 const auto MATCH_METHOD = CV_TM_CCOEFF_NORMED;
+//const auto MATCH_METHOD = CV_TM_CCORR_NORMED;
 
 // If inImage exists for the lifetime of the resulting cv::Mat, pass false to inCloneImageData to share inImage's
 // data with the cv::Mat directly
@@ -114,17 +115,17 @@ inline QPixmap cvMatToQPixmap( const cv::Mat &inMat )
    return QPixmap::fromImage( cvMatToQImage( inMat ) );
 }
 
-Robot * Robot::create(QWidget * widget) {
+std::shared_ptr<Robot> Robot::create(QWidget * widget) {
 #ifdef Q_OS_MAC
-	auto robot = new MacRobot;
+    auto robot = std::shared_ptr<Robot>(new MacRobot);
 #else
-	auto robot = new Robot;
+    auto robot = std::shared_ptr<Robot>(new Robot);
 #endif
 	robot->_widget = widget;
 	return robot;
 }
 
-Robot::Robot(): QObject(),
+Robot::Robot():
 	_widget(nullptr)
 {
 }
@@ -180,8 +181,15 @@ void Robot::click(const QPixmap &target, int msDelay) const {
 
 void Robot::click(const QPoint &pos, int msDelay) const {
 	assert(qApp->thread() == QThread::currentThread() || !"must run on the main thread");
-	this->doClick(pos, msDelay);
-	emit this->clickFinished();
+    this->doClick(pos, msDelay);
+}
+
+void Robot::moveBy(int x, int y) const {
+    auto global = QCursor::pos();
+    auto local = this->getWidget()->mapFromGlobal(global);
+    local.rx() += x;
+    local.ry() += y;
+    QTest::mouseMove(this->getWidget(), local);
 }
 
 void Robot::doClick(const QPoint &pos, int msDelay) const {

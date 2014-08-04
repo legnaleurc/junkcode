@@ -42,18 +42,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	auto nam = new NetworkAccessManagerProxy(nullptr);
 	auto cache = new QNetworkDiskCache;
 	cache->setCacheDirectory("/tmp/browser");
+    cache->setMaximumCacheSize(1024 * 1024 * 1024);
 	nam->setCache(cache);
 	this->_ctrl->setNetworkAccessManager(nam);
 	this->_ctrl->setMouseArea(this->ui->webView);
 	this->ui->webView->page()->setNetworkAccessManager(nam);
 
-	auto mainFrame = this->ui->webView->page()->mainFrame();
-	this->connect(mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SLOT(_onMainFrameObjectCleared()));
+    auto mainFrame = this->ui->webView->page()->mainFrame();
+    this->connect(mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SLOT(_onMainFrameObjectCleared()));
 
-//	auto inspector = new QWebInspector(this);
-//	inspector->setWindowFlags(Qt::Window);
-//	inspector->setPage(this->ui->webView->page());
-//	inspector->show();
+//    auto inspector = new QWebInspector(this);
+//    inspector->setWindowFlags(Qt::Window);
+//    inspector->setPage(this->ui->webView->page());
+//    inspector->show();
 
 	this->ui->webView->load(QUrl("http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/"));
 }

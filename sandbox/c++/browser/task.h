@@ -1,30 +1,28 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <QObject>
+#include <QtCore/QObject>
+#include <QtCore/QVariant>
 
-#include "robot.h"
-
-class Task : public QObject
-{
-	Q_OBJECT
+class Task : public QObject {
+    Q_OBJECT
 public:
-	explicit Task(QObject *parent = 0);
+    typedef std::function<void (QVariant)> Yield;
+    typedef std::function<void (const Yield &)> Callback;
 
-	void setMouseArea(QWidget * view);
+    explicit Task(Callback task, QObject *parent = 0);
 
-	QPoint wait(const QPixmap & target) const;
-	Q_INVOKABLE void click(const QPixmap & target) const;
+    void start();
 
 signals:
+    void finished();
 
 public slots:
+    void notify(const QString & response);
 
 private:
-	void _waitForClicked(const QPoint & target) const;
-
-	Robot * _robot;
-	int _interval;
+    class Private;
+    Private * d;
 };
 
 #endif // TASK_H

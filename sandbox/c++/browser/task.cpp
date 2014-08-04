@@ -1,40 +1,59 @@
 #include "task.h"
+#include "task_p.h"
+
+#include <cassert>
 
 #include <QtCore/QTimer>
-#include <QtCore/QEventLoop>
-#include <QtWidgets/QApplication>
 
-Task::Task(QObject *parent) :
-	QObject(parent),
-	_robot(nullptr),
-	_interval(500)
+Task::Task(Callback task, QObject *parent) :
+    QObject(parent),
+    d(new Private(task, this))
+{
+    this->connect(this->d, SIGNAL(finished()), SIGNAL(finished()));
+}
+
+void Task::start() {
+    this->d->fork = Private::Coroutine::pull_type([&](Private::Coroutine::push_type & yield)->void {
+        this->d->task([&](QVariant condition)->void {
+            yield(condition);
+        });
+    });
+    this->d->chain();
+}
+
+void Task::notify(const QString &response) {
+    if (this->d->response != response) {
+        return;
+    }
+    // consume this condition
+    this->d->response.clear();
+    this->d->onTimeout();
+}
+
+Task::Private::Private(Callback task, QObject *parent) :
+    QObject(parent),
+    task(task),
+    fork(),
+    response()
 {
 }
 
-void Task::setMouseArea(QWidget *view) {
-	this->_robot = Robot::create(view);
-	this->_robot->moveToThread(qApp->thread());
+void Task::Private::chain() {
+    if (!this->fork) {
+        emit this->finished();
+        return;
+    }
+    auto condition = this->fork.get();
+    if (condition.type() == QVariant::Int) {
+        int interval = condition.toInt();
+        QTimer::singleShot(interval, this, SLOT(onTimeout()));
+    } else if (condition.type() == QVariant::String) {
+        this->response = condition.toString();
+    }
 }
 
-QPoint Task::wait(const QPixmap &target) const {
-	auto center = this->_robot->find(target);
-	while (center.isNull()) {
-		QEventLoop wait;
-		QTimer::singleShot(this->_interval, &wait, SLOT(quit()));
-		wait.exec();
-		center = this->_robot->find(target);
-	}
-	return center;
-}
-
-void Task::click(const QPixmap &target) const {
-	auto center = this->wait(target);
-	this->_waitForClicked(center);
-}
-
-void Task::_waitForClicked(const QPoint &target) const {
-	QMetaObject::invokeMethod(this->_robot, "click", Q_ARG(QPoint, target));
-	QEventLoop wait;
-	wait.connect(this->_robot, SIGNAL(clickFinished()), SLOT(quit()));
-	wait.exec();
+void Task::Private::onTimeout() {
+    assert(this->fork || !"coroutine error");
+    this->fork();
+    this->chain();
 }

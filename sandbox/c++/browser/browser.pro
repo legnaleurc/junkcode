@@ -24,7 +24,6 @@ SOURCES += main.cpp\
     robot.cpp \
     database.cpp \
     controller.cpp \
-    eventqueue.cpp \
     task.cpp
 
 HEADERS  += mainwindow.h \
@@ -33,8 +32,8 @@ HEADERS  += mainwindow.h \
     robot.h \
     database.h \
     controller.h \
-    eventqueue.h \
-    task.h
+    task.h \
+    task_p.h
 
 FORMS    += mainwindow.ui
 
@@ -46,8 +45,10 @@ RESOURCES += \
 
 macx {
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
-    QMAKE_CXXFLAGS += -stdlib=libc++ -F ApplicationServices
-    QMAKE_LFLAGS += -lc++
+    QMAKE_CXXFLAGS += -stdlib=libc++
+
+    INCLUDEPATH += /usr/local/Cellar/boost/1.55.0_2/include
+    LIBS += -lc++ -framework ApplicationServices -L/usr/local/lib -lboost_coroutine-mt -lboost_system-mt
 
     SOURCES += macrobot.cpp
     HEADERS += macrobot.h

@@ -9,8 +9,8 @@
 Database::Database():
 	_db(QSqlDatabase::addDatabase("QSQLITE"))
 {
-//	this->_db.setDatabaseName(":memory:");
-	this->_db.setDatabaseName("/tmp/a.sqlite");
+    this->_db.setDatabaseName(":memory:");
+//    this->_db.setDatabaseName("/tmp/a.sqlite");
 	bool ok = this->_db.open();
 	qDebug() << "db open" << ok;
 
@@ -75,7 +75,7 @@ void Database::createDeck(const QJsonValue &data) {
 		auto api_mission = deck.value("api_mission").toArray();
 		args.insert("mission_status", api_mission.at(0).toInt());
 		args.insert("mission_id", api_mission.at(1).toInt());
-		args.insert("mission_time", api_mission.at(2).toInt());
+        args.insert("mission_time", api_mission.at(2).toString().toInt());
 		this->_insertInto("deck", args);
 
 		// update ship's deck
@@ -143,6 +143,42 @@ void Database::_initShipType() {
 	qDebug() << "db create table" << ok;
 }
 
+void Database::clearCache() {
+    QString statement = "DELETE FROM ndock;";
+    QSqlQuery query(this->_db);
+    bool ok = query.prepare(statement);
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+    }
+    ok = query.exec();
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+    }
+    query.finish();
+
+    statement = "DELETE FROM deck;";
+    ok = query.prepare(statement);
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+    }
+    ok = query.exec();
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+    }
+    query.finish();
+
+    statement = "DELETE FROM ship;";
+    ok = query.prepare(statement);
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+    }
+    ok = query.exec();
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+    }
+    query.finish();
+}
+
 bool Database::needCharge(int api_deck_id) const {
 	QString statement = "SELECT ship.api_id "
 			"FROM ship "
@@ -157,8 +193,30 @@ bool Database::needCharge(int api_deck_id) const {
 	ok = query.exec();
 	if (!ok) {
 		qDebug() << "db query" << query.lastError().text();
-	}
-	return query.size() > 0;
+    }
+    ok = query.next();
+    qDebug() << "need charge" << ok << api_deck_id;
+    return ok;
+}
+
+void Database::updateMission(int api_deck_id, int api_mission_id, int api_complatetime) {
+    // UPDATE ship SET deck_id = :deck_id WHERE api_id = :ship_id;
+    QString statement = "UPDATE deck SET "
+            "mission_id = :api_mission_id, "
+            "mission_time = :api_complatetime "
+            "WHERE api_id = :api_deck_id;";
+    QSqlQuery query(this->_db);
+    bool ok = query.prepare(statement);
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+    }
+    query.bindValue(":api_deck_id", api_deck_id);
+    query.bindValue(":api_mission_id", api_mission_id);
+    query.bindValue(":api_complatetime", api_complatetime);
+    ok = query.exec();
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+    }
 }
 
 void Database::_initDeck() {

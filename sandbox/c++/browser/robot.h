@@ -5,28 +5,25 @@
 
 #include <QtWidgets/QWidget>
 
-class Robot: public QObject
+class Robot
 {
-	Q_OBJECT
 public:
-	static Robot * create(QWidget * widget);
+    static std::shared_ptr<Robot> create(QWidget * widget);
 
 	virtual ~Robot();
 
 	QPoint find(const QPixmap & target) const;
 
-	Q_INVOKABLE void click(const QPoint & pos, int msDelay = 0) const;
-	Q_INVOKABLE void click(const QPixmap & target, int msDelay = 0) const;
+    void click(const QPoint & pos, int msDelay = 0) const;
+    void click(const QPixmap & target, int msDelay = 0) const;
+    void moveBy(int x, int y) const;
 
 protected:
 	Robot();
 
 	QWidget * getWidget() const;
 
-	virtual void doClick(const QPoint & pos, int msDelay) const;
-
-signals:
-	void clickFinished() const;
+    virtual void doClick(const QPoint & pos, int msDelay) const;
 
 private:
 	QWidget * _widget;
