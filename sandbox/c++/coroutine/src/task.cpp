@@ -25,6 +25,10 @@ fork() {
 }
 
 void Task::Private::chain () {
+    if (!this->fork) {
+        emit this->finished();
+	return;
+    }
     int interval = this->fork.get();
     QTimer::singleShot(interval, this, SLOT(onTimeout()));
 }
@@ -32,9 +36,5 @@ void Task::Private::chain () {
 void Task::Private::onTimeout () {
     assert(this->fork || !"invalid coroutine");
     this->fork();
-    if (this->fork) {
-        this->chain();
-    } else {
-        emit this->finished();
-    }
+    this->chain();
 }
