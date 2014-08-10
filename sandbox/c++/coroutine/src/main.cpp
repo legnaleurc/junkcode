@@ -15,7 +15,7 @@ bool find () {
 }
 
 void click () {
-    qDebug() << "click";
+    qDebug() << SIGNAL(finished());
 }
 
 int main (int argc, char *argv[]) {

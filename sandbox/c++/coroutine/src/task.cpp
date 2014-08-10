@@ -13,7 +13,8 @@ d(new Private(task, this)) {
 void Task::start () {
     this->d->fork = Private::Coroutine::pull_type([&](Private::Coroutine::push_type & yield)->void {
         this->d->task([&](int interval)->void {
-            yield(interval);
+            QTimer::singleShot(interval, this->d, SLOT(onTimeout()));
+            yield();
         });
     });
     this->d->chain();
@@ -27,10 +28,7 @@ fork() {
 void Task::Private::chain () {
     if (!this->fork) {
         emit this->finished();
-	return;
     }
-    int interval = this->fork.get();
-    QTimer::singleShot(interval, this, SLOT(onTimeout()));
 }
 
 void Task::Private::onTimeout () {

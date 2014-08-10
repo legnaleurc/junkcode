@@ -9,7 +9,7 @@
 class Task::Private: public QObject {
     Q_OBJECT
 public:
-    typedef boost::coroutines::coroutine<int> Coroutine;
+    typedef boost::coroutines::coroutine<void> Coroutine;
 
     Private (Task::Callback task, QObject * parent);
 
