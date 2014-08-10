@@ -281,16 +281,26 @@ void Controller::_handleHttpRequest(QIODevice *io) {
             response = QJsonDocument::fromVariant(this->_api_data).toJson();
         } else if (resource.path() == "/api_port") {
             this->_click(yield, "main_menu_button_go");
-            this->_click(yield, "submenu_button_back");
-            this->_moveBy(yield, 0, -100);
+            auto target = this->_wait(yield, "submenu_button_back");
+            while (!target.isNull()) {
+                this->_click(yield, target);
+                this->_moveBy(yield, 0, -100);
+                yield(1000);
+                target = this->_find("submenu_button_back");
+            }
             this->_wait(yield, "main_menu_button_go");
             yield(1000);
-            QPoint target = this->_find("main_menu_label_long_trip_done");
+            target = this->_find("main_menu_label_long_trip_done");
             while (!target.isNull()) {
                 this->_click(yield, target.x(), target.y());
                 target = this->_wait(yield, "long_trip_screen_button_next");
                 this->_click(yield, target);
-                this->_click(yield, target);
+                target = this->_find("long_trip_screen_button_next");
+                while (!target.isNull()) {
+                    this->_click(yield, target);
+                    yield(1000);
+                    target = this->_find("long_trip_screen_button_next");
+                }
                 this->_wait(yield, "main_menu_button_go");
                 yield(1000);
                 target = this->_find("main_menu_label_long_trip_done");
