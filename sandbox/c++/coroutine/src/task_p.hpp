@@ -13,17 +13,33 @@ public:
 
     Private (Task::Callback task, QObject * parent);
 
-    void chain ();
+    void tail ();
 
 signals:
     void finished ();
 
 public slots:
-    void onTimeout ();
+    void postAction ();
 
 public:
     Task::Callback task;
     Coroutine::pull_type fork;
+};
+
+class Task::YieldPrivate {
+public:
+    typedef Task::Private::Coroutine Coroutine;
+
+    YieldPrivate (Task & task, Coroutine::push_type & yield);
+
+    Task & task;
+    Coroutine::push_type & yield;
+};
+
+class SignalIsolator : public QObject {
+    Q_OBJECT
+signals:
+    void proxy();
 };
 
 #endif // TASK_P_H
