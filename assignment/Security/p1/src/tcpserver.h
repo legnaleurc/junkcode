@@ -4,14 +4,12 @@
 #include "config.h"
 #include "tcpsocket.h"
 
-typedef struct {
-	void * priv;
-} TCPServer;
+typedef struct TCPServer TCPServer;
 
-DLL_SYMBOL TCPServer * TCPServer_new( void );
-DLL_SYMBOL void TCPServer_delete( TCPServer * * server );
-DLL_SYMBOL int TCPServer_listen( TCPServer * server, const char * hostName, unsigned short port );
-DLL_SYMBOL void TCPServer_close( TCPServer * server );
-DLL_SYMBOL TCPSocket * TCPServer_accept( TCPServer * server );
+DLL_SYMBOL TCPServer * TCPServer_new (void);
+DLL_SYMBOL void TCPServer_delete (TCPServer * self);
+DLL_SYMBOL int TCPServer_listen (TCPServer * self, const char * hostName, unsigned short port);
+DLL_SYMBOL void TCPServer_close (TCPServer * self);
+DLL_SYMBOL TCPSocket * TCPServer_accept (TCPServer * self);
 
 #endif

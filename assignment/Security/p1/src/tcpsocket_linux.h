@@ -3,6 +3,6 @@
 
 #include "tcpsocket.h"
 
-void TCPSocket_setSocket_( TCPSocket * socket_, int cfd );
+void TCPSocket_setSocket_ (TCPSocket * self, int cfd);
 
 #endif
