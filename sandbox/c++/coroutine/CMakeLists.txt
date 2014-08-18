@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
+
+set(CMAKE_MACOSX_RPATH ON)
 
 find_package(Qt5Core REQUIRED)
 set(CMAKE_AUTOMOC ON)
@@ -13,6 +15,7 @@ add_library(qtcoroutine SHARED ${SOURCES})
 qt5_use_modules(qtcoroutine Core)
 target_link_libraries(qtcoroutine ${Boost_LIBRARIES})
 
-add_executable(example "examples/main.cpp")
-qt5_use_modules(example Core)
+find_package(Qt5Network REQUIRED)
+add_executable(example "examples/main.cpp" "examples/httpserver.hpp" "examples/httpserver.cpp")
+qt5_use_modules(example Core Network)
 target_link_libraries(example qtcoroutine)
