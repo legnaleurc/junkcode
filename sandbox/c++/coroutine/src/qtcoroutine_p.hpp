@@ -1,17 +1,17 @@
 #ifndef TASK_P_H
 #define TASK_P_H
 
-#include "task.hpp"
+#include "qtcoroutine.hpp"
 
 #include <boost/coroutine/stack_allocator.hpp>
 #include <boost/coroutine/coroutine.hpp>
 
-class Task::Private: public QObject {
+class QtCoroutine::Private: public QObject {
     Q_OBJECT
 public:
     typedef boost::coroutines::coroutine<void> Coroutine;
 
-    Private (Task::Callback task, QObject * parent);
+    Private (QtCoroutine::Callback task, QObject * parent);
 
     void tail ();
 
@@ -22,17 +22,17 @@ public slots:
     void postAction ();
 
 public:
-    Task::Callback task;
+    QtCoroutine::Callback task;
     Coroutine::pull_type fork;
 };
 
-class Task::YieldPrivate {
+class QtCoroutine::YieldPrivate {
 public:
-    typedef Task::Private::Coroutine Coroutine;
+    typedef QtCoroutine::Private::Coroutine Coroutine;
 
-    YieldPrivate (Task & task, Coroutine::push_type & yield);
+    YieldPrivate (QtCoroutine & task, Coroutine::push_type & yield);
 
-    Task & task;
+    QtCoroutine & task;
     Coroutine::push_type & yield;
 };
 

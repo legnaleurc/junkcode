@@ -1,7 +1,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtDebug>
 
-#include "task.hpp"
+#include "qtcoroutine.hpp"
 
 bool find () {
     static int i = 0;
@@ -21,7 +21,7 @@ void click () {
 int main (int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
 
-    Task * b = new Task([](const Task::Yield & yield)->void {
+    QtCoroutine * b = new QtCoroutine([](const QtCoroutine::Yield & yield)->void {
         bool ok = find();
         while (!ok) {
             // yield for 1000 ms

@@ -6,17 +6,15 @@
 #include <functional>
 #include <memory>
 
-class Task: public QObject {
+class QtCoroutine: public QObject {
     Q_OBJECT
 public:
     class Yield;
     typedef std::function<void (const Yield &)> Callback;
 
-    explicit Task (Callback task, QObject *parent = 0);
+    explicit QtCoroutine (Callback task, QObject *parent = 0);
 
     void start ();
-
-    bool isFinished () const;
 
 signals:
     void finished ();
@@ -28,15 +26,15 @@ private:
     Private * d;
 };
 
-class Task::Yield {
+class QtCoroutine::Yield {
 public:
     void operator () (int interval) const;
     void operator () (QObject * object, const char * signal_) const;
 
 private:
-    friend class Task;
-    Yield (std::shared_ptr<Task::YieldPrivate> d);
-    std::shared_ptr<Task::YieldPrivate> d;
+    friend class QtCoroutine;
+    Yield (std::shared_ptr<QtCoroutine::YieldPrivate> d);
+    std::shared_ptr<QtCoroutine::YieldPrivate> d;
 };
 
 #endif // TASK_H
