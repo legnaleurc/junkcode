@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
         qDebug() << "wait for http server open ...";
         yield(1000);
 
-	qDebug() << "make request";
+        qDebug() << "make request";
         QNetworkAccessManager nasm;
         QNetworkRequest r(QUrl("http://localhost:1080/"));
         auto reply = nasm.get(r);

@@ -1,5 +1,5 @@
-#ifndef TASK_P_H
-#define TASK_P_H
+#ifndef QTCOROUTINE_HPP_
+#define QTCOROUTINE_HPP_
 
 #include "qtcoroutine.hpp"
 
@@ -42,4 +42,4 @@ signals:
     void proxy();
 };
 
-#endif // TASK_P_H
+#endif

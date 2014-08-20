@@ -12,7 +12,7 @@
 
 namespace {
 
-void handleRequest (QTextStream & sio, const QByteArray & data) {
+void sendResponse (QTextStream & sio, const QByteArray & data) {
     auto line = sio.readLine();
     auto parts = line.split(" ");
     auto method = parts[0];
@@ -29,6 +29,38 @@ void handleRequest (QTextStream & sio, const QByteArray & data) {
     sio << "Content-Length: " << data.size() << "\r\n";
     sio << "\r\n";
     sio << data;
+}
+
+QByteArray get (const QtCoroutine::Yield & yield, const QString & surl) {
+    QNetworkAccessManager nasm;
+    QUrl url(surl);
+    QNetworkRequest request(url);
+
+    auto reply = nasm.get(request);
+    // NOTE yield to main event loop until request finished
+    yield(reply, SIGNAL(finished()));
+
+    // follow 301/302 redirection
+    auto a = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    while (a.isValid()) {
+        QUrl target = a.toUrl();
+        qDebug() << "redirect to" << target;
+        if (target.isRelative()) {
+            target = url.resolved(target);
+        }
+        request.setUrl(target);
+
+        reply->deleteLater();
+        reply = nasm.get(request);
+        // NOTE yield to main event loop until request finished
+        yield(reply, SIGNAL(finished()));
+
+        a = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    }
+
+    auto data = reply->readAll();
+    reply->deleteLater();
+    return data;
 }
 
 }
@@ -56,27 +88,12 @@ void HttpServer::_onClientReadyRead() {
     auto socket = qobject_cast<QTcpSocket *>(this->sender());
 
     QtCoroutine * task = new QtCoroutine([=](const QtCoroutine::Yield & yield)->void {
-        QNetworkAccessManager nasm;
-        QUrl a("https://www.google.com/");
-        QNetworkRequest b(a);
-        auto reply = nasm.get(b);
-        yield(reply, SIGNAL(finished()));
-        auto c = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
-        while (c.isValid()) {
-            QUrl d = c.toUrl();
-            if (d.isRelative()) {
-                d = a.resolved(d);
-            }
-            b.setUrl(d);
-            reply = nasm.get(b);
-            yield(reply, SIGNAL(finished()));
-            c = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
-        }
-        auto d = reply->readAll();
+        // NOTE you can pass `yield` to any function
+        auto data = get(yield, "https://www.google.com/");
 
         QTextStream sio(socket);
         sio.setCodec(QTextCodec::codecForName("UTF-8"));
-        handleRequest(sio, d);
+        sendResponse(sio, data);
         socket->close();
     });
     task->connect(task, SIGNAL(finished()), SLOT(deleteLater()));

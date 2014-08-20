@@ -1,5 +1,5 @@
-#ifndef TASK_H
-#define TASK_H
+#ifndef QTCOROUTINE_HPP
+#define QTCOROUTINE_HPP
 
 #include <QtCore/QObject>
 
@@ -37,4 +37,4 @@ private:
     std::shared_ptr<QtCoroutine::YieldPrivate> d;
 };
 
-#endif // TASK_H
+#endif
