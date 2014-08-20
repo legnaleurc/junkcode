@@ -22,6 +22,9 @@ QtCoroutine::Yield::Yield (std::shared_ptr<QtCoroutine::YieldPrivate> d):
 d(d) {
 }
 
+QtCoroutine::Yield::~Yield () {
+}
+
 void QtCoroutine::Yield::operator () (int interval) const {
     QTimer::singleShot(interval, this->d->task.d, SLOT(postAction()));
     this->d->yield();

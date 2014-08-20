@@ -33,7 +33,14 @@ public:
 
 private:
     friend class QtCoroutine;
+
     Yield (std::shared_ptr<QtCoroutine::YieldPrivate> d);
+    Yield (const Yield &);
+    Yield & operator = (const Yield &);
+    Yield (Yield &&);
+    Yield & operator = (Yield &&);
+    ~Yield();
+
     std::shared_ptr<QtCoroutine::YieldPrivate> d;
 };
 
