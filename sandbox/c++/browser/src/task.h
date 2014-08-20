@@ -1,6 +1,8 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <functional>
+
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 
