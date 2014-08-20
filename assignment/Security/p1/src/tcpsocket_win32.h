@@ -5,6 +5,6 @@
 
 #include "tcpsocket.h"
 
-void TCPSocket_setSocket_( TCPSocket * socket_, SOCKET clientSocket );
+void TCPSocket_setSocket_ (TCPSocket * self, SOCKET clientSocket);
 
 #endif
