@@ -6,7 +6,13 @@
 #include <functional>
 #include <memory>
 
-class QtCoroutine: public QObject {
+#ifdef QTCOROUTINE_LIBRARY
+#define QTCOROUTINE_DLL Q_DECL_EXPORT
+#else
+#define QTCOROUTINE_DLL Q_DECL_IMPORT
+#endif
+
+class QTCOROUTINE_DLL QtCoroutine : public QObject {
     Q_OBJECT
 public:
     class Yield;
@@ -26,7 +32,7 @@ private:
     Private * d;
 };
 
-class QtCoroutine::Yield {
+class QTCOROUTINE_DLL QtCoroutine::Yield {
 public:
     void operator () (int interval) const;
     void operator () (QObject * object, const char * signal_) const;
