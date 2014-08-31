@@ -42,8 +42,8 @@ void Controller::setMouseArea(QWidget *ma) {
 }
 
 void Controller::start() {
-//    this->startMission(2, 2);
-    this->_httpServer->listen(QHostAddress::LocalHost, 1080);
+    this->startMission(3, 2);
+//    this->_httpServer->listen(QHostAddress::LocalHost, 1080);
 }
 
 void Controller::stop() {
@@ -52,7 +52,7 @@ void Controller::stop() {
 
 void Controller::startMission(int api_deck_id, int api_mission_id) {
     auto task = new Task([&](const Task::Yield & yield)->void {
-        this->_charge(yield, api_deck_id);
+//        this->_charge(yield, api_deck_id);
         this->_startMission(yield, api_deck_id, api_mission_id);
     }, this);
     task->connect(task, SIGNAL(finished()), SLOT(deleteLater()));
@@ -208,12 +208,12 @@ QPoint Controller::_wait(const Task::Yield &yield, const QPixmap &target) {
 }
 
 QPoint Controller::_wait(const Task::Yield &yield, const QString &target) {
-    QPixmap p(QString(":/ui/%1.png").arg(target));
+    QPixmap p(QString(":/ui/res/%1.png").arg(target));
     return this->_wait(yield, p);
 }
 
 void Controller::_click(const Task::Yield &yield, const QString &target) {
-    QPixmap p(QString(":/ui/%1.png").arg(target));
+    QPixmap p(QString(":/ui/res/%1.png").arg(target));
     if (p.isNull()) {
         qDebug() << "ui" << target << "not found";
         return;
@@ -238,7 +238,7 @@ void Controller::_moveBy(const Task::Yield &yield, int x, int y) {
 }
 
 QPoint Controller::_find(const QString &target) {
-    QPixmap p(QString(":/ui/%1.png").arg(target));
+    QPixmap p(QString(":/ui/res/%1.png").arg(target));
     return this->_robot->find(p);
 }
 

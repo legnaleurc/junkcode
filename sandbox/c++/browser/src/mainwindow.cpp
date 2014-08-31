@@ -69,21 +69,21 @@ void MainWindow::_onMainFrameObjectCleared() {
 	auto url = mainFrame->url();
 
 	if (url.toString() == "https://www.dmm.com/my/-/login/=/path=Sg9VTQFXDFcXFl5bWlcKGExKUVdUXgFNEU0KSVMVR28MBQ0BUwJZBwxK/") {
-		auto script = fromResource("/login.js");
+		auto script = fromResource("/res/login.js");
 		auto result = mainFrame->evaluateJavaScript(script);
 		qDebug() << "cleared" << result;
 		return;
 	}
 
 	if (url.toString() == "http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/") {
-		auto script = fromResource("/outer.js");
+		auto script = fromResource("/res/outer.js");
 		auto result = mainFrame->evaluateJavaScript(script);
 		qDebug() << "cleared" << result;
 		return;
 	}
 
 	if (url.host() == "osapi.dmm.com") {
-		auto script = fromResource("/inner.js");
+		auto script = fromResource("/res/inner.js");
 		auto result = mainFrame->evaluateJavaScript(script);
 		qDebug() << "cleared" << result;
 		return;

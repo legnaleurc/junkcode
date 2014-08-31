@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="WebPage" name="webView" native="true">
+     <widget class="QWebView" name="webView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -35,7 +35,7 @@
         <height>480</height>
        </size>
       </property>
-      <property name="url" stdset="0">
+      <property name="url">
        <url>
         <string>about:blank</string>
        </url>
@@ -50,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>824</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Action">
@@ -91,11 +91,6 @@
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKitWidgets/QWebView</header>
-  </customwidget>
-  <customwidget>
-   <class>WebPage</class>
-   <extends>QWebView</extends>
-   <header>webpage.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
