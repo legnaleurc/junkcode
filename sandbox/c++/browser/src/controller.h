@@ -13,21 +13,21 @@
 
 class Controller : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	explicit Controller(QObject *parent = 0);
-	virtual ~Controller();
+    explicit Controller(QObject *parent = 0);
+    virtual ~Controller();
 
-	void setNetworkAccessManager(NetworkAccessManagerProxy * namp);
-	void setMouseArea(QWidget * ma);
+    void setNetworkAccessManager(NetworkAccessManagerProxy * namp);
+    void setMouseArea(QWidget * ma);
 
-	void start();
+    void start();
     void stop();
 
     void startMission(int api_deck_id, int api_mission_id);
 
 signals:
-	void api_port_port();
+    void api_port_port();
     void responsed(const QString & response);
 
 private slots:
@@ -37,12 +37,12 @@ private slots:
     void _onHttpClientDisconnected();
 
 private:
-	typedef std::function<void (const QJsonDocument &)> ApiCallback;
+    typedef std::function<void (const QJsonDocument &)> ApiCallback;
 
     void _gadgets_make_request(const QJsonDocument & json);
-	void _api_start2(const QJsonDocument & json);
+    void _api_start2(const QJsonDocument & json);
     void _api_get_member_basic(const QJsonDocument & json);
-	void _api_port_port(const QJsonDocument & json);
+    void _api_port_port(const QJsonDocument & json);
     void _api_req_mission_start(const QJsonDocument & json);
     void _charge(const Task::Yield & yield, int api_deck_id);
     void _startMission(const Task::Yield & yield, int api_deck_id, int api_mission_id);
@@ -57,9 +57,9 @@ private:
 
     void _handleHttpRequest(QIODevice * io);
 
-	Database _db;
+    Database _db;
     NetworkAccessManagerProxy * _namp;
-	std::map<QString, ApiCallback> _cb;
+    std::map<QString, ApiCallback> _cb;
     std::shared_ptr<Robot> _robot;
     std::queue<Task *> _eventQueue;
     QTcpServer * _httpServer;

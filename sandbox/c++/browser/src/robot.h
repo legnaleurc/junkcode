@@ -10,23 +10,23 @@ class Robot
 public:
     static std::shared_ptr<Robot> create(QWidget * widget);
 
-	virtual ~Robot();
+    virtual ~Robot();
 
-	QPoint find(const QPixmap & target) const;
+    QPoint find(const QPixmap & target) const;
 
     void click(const QPoint & pos, int msDelay = 0) const;
     void click(const QPixmap & target, int msDelay = 0) const;
     void moveBy(int x, int y) const;
 
 protected:
-	Robot();
+    Robot();
 
-	QWidget * getWidget() const;
+    QWidget * getWidget() const;
 
     virtual void doClick(const QPoint & pos, int msDelay) const;
 
 private:
-	QWidget * _widget;
+    QWidget * _widget;
 };
 
 #endif // ROBOT_H

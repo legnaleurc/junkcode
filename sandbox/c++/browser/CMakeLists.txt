@@ -29,6 +29,9 @@ set(CMAKE_AUTORCC ON)
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(EXTRA_CXX_FLAGS "-DBOOST_ALL_NO_LIB")
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -std=c++11")
+endif()
 
 add_executable(browser WIN32 ${SOURCES} ${HEADERS} resource.qrc)
 qt5_use_modules(browser Core Gui WebKit Network Sql Widgets WebKitWidgets Test)

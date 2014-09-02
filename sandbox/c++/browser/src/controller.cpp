@@ -10,8 +10,8 @@
 #include <QtCore/QUrlQuery>
 
 Controller::Controller(QObject *parent) :
-	QObject(parent),
-	_db(),
+    QObject(parent),
+    _db(),
     _namp(nullptr),
     _cb(),
     _robot(),
@@ -21,9 +21,9 @@ Controller::Controller(QObject *parent) :
     _api_port()
 {
     this->_cb.insert(std::make_pair(QString("/gadgets/makeRequest"), std::bind(&Controller::_gadgets_make_request, this, std::placeholders::_1)));
-	this->_cb.insert(std::make_pair(QString("/kcsapi/api_start2"), std::bind(&Controller::_api_start2, this, std::placeholders::_1)));
+    this->_cb.insert(std::make_pair(QString("/kcsapi/api_start2"), std::bind(&Controller::_api_start2, this, std::placeholders::_1)));
     this->_cb.insert(std::make_pair(QString("/kcsapi/api_get_member/basic"), std::bind(&Controller::_api_get_member_basic, this, std::placeholders::_1)));
-	this->_cb.insert(std::make_pair(QString("/kcsapi/api_port/port"), std::bind(&Controller::_api_port_port, this, std::placeholders::_1)));
+    this->_cb.insert(std::make_pair(QString("/kcsapi/api_port/port"), std::bind(&Controller::_api_port_port, this, std::placeholders::_1)));
 //    this->_cb.insert(std::make_pair(QString("/kcsapi/api_req_mission/start"), std::bind(&Controller::_api_req_mission_start, this, std::placeholders::_1)));
 
     this->connect(this->_httpServer, SIGNAL(newConnection()), SLOT(_onNewConnection()));
@@ -33,8 +33,8 @@ Controller::~Controller() {
 }
 
 void Controller::setNetworkAccessManager(NetworkAccessManagerProxy *namp) {
-	this->_namp = namp;
-	this->connect(namp, SIGNAL(requestFinished(QString,QJsonDocument)), SLOT(_onRequestFinished(QString,QJsonDocument)));
+    this->_namp = namp;
+    this->connect(namp, SIGNAL(requestFinished(QString,QJsonDocument)), SLOT(_onRequestFinished(QString,QJsonDocument)));
 }
 
 void Controller::setMouseArea(QWidget *ma) {
@@ -61,8 +61,8 @@ void Controller::startMission(int api_deck_id, int api_mission_id) {
 }
 
 void Controller::_onRequestFinished(const QString &path, const QJsonDocument &json) {
-	auto it = this->_cb.find(path);
-	if (it == this->_cb.end()) {
+    auto it = this->_cb.find(path);
+    if (it == this->_cb.end()) {
         qDebug() << "no cb" << path;
     } else {
         it->second(json);
@@ -87,15 +87,15 @@ void Controller::_gadgets_make_request(const QJsonDocument & json) {
 
 void Controller::_api_start2(const QJsonDocument & json) {
     if (!json.isObject()) {
-		return;
-	}
-	auto root = json.object();
-	auto api_result = root.value("api_result").toInt();
-	if (api_result != 1) {
-		auto api_result_msg = root.value("api_result_msg").toString();
-		qDebug() << api_result << api_result_msg;
-		return;
-	}
+        return;
+    }
+    auto root = json.object();
+    auto api_result = root.value("api_result").toInt();
+    if (api_result != 1) {
+        auto api_result_msg = root.value("api_result_msg").toString();
+        qDebug() << api_result << api_result_msg;
+        return;
+    }
     auto api_data = root.value("api_data").toObject();
 //	this->_db.createShipType(api_data.value("api_mst_ship"));
     this->_api_data.insert("api_start", api_data.toVariantMap());

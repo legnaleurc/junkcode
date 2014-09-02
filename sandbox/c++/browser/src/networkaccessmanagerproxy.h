@@ -11,24 +11,24 @@
 
 class NetworkAccessManagerProxy : public QNetworkAccessManager
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	explicit NetworkAccessManagerProxy(QObject *parent = 0);
-	virtual ~NetworkAccessManagerProxy();
+    explicit NetworkAccessManagerProxy(QObject *parent = 0);
+    virtual ~NetworkAccessManagerProxy();
 
 protected:
-	virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest& request, QIODevice *outgoingData);
+    virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest& request, QIODevice *outgoingData);
 
 signals:
-	void requestFinished(const QString & path, const QJsonDocument & json);
+    void requestFinished(const QString & path, const QJsonDocument & json);
 
 private slots:
-	void _onReadyRead();
-	void _onReplyFinished(QNetworkReply * reply);
+    void _onReadyRead();
+    void _onReplyFinished(QNetworkReply * reply);
 
 private:
-	void _debug();
-	std::map<QString, QSharedPointer<QByteArray>> _data;
+    void _debug();
+    std::map<QString, QSharedPointer<QByteArray>> _data;
 };
 
 #endif // NETWORKACCESSMANAGERPROXY_H
