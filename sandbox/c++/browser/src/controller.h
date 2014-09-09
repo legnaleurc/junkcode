@@ -8,7 +8,7 @@
 
 #include "networkaccessmanagerproxy.h"
 #include "database.h"
-#include "task.h"
+#include "qtcoroutine.hpp"
 #include "robot.h"
 
 class Controller : public QObject
@@ -44,15 +44,15 @@ private:
     void _api_get_member_basic(const QJsonDocument & json);
     void _api_port_port(const QJsonDocument & json);
     void _api_req_mission_start(const QJsonDocument & json);
-    void _charge(const Task::Yield & yield, int api_deck_id);
-    void _startMission(const Task::Yield & yield, int api_deck_id, int api_mission_id);
+    void _charge(const QtCoroutine::Yield & yield, int api_deck_id);
+    void _startMission(const QtCoroutine::Yield & yield, int api_deck_id, int api_mission_id);
 
-    QPoint _wait(const Task::Yield & yield, const QPixmap & target);
-    QPoint _wait(const Task::Yield & yield, const QString & target);
-    void _click(const Task::Yield & yield, const QString &target);
-    void _click(const Task::Yield & yield, int x, int y);
-    void _click(const Task::Yield & yield, const QPoint & target);
-    void _moveBy(const Task::Yield & yield, int x, int y);
+    QPoint _wait(const QtCoroutine::Yield & yield, const QPixmap & target);
+    QPoint _wait(const QtCoroutine::Yield & yield, const QString & target);
+    void _click(const QtCoroutine::Yield & yield, const QString &target);
+    void _click(const QtCoroutine::Yield & yield, int x, int y);
+    void _click(const QtCoroutine::Yield & yield, const QPoint & target);
+    void _moveBy(const QtCoroutine::Yield & yield, int x, int y);
     QPoint _find(const QString & target);
 
     void _handleHttpRequest(QIODevice * io);
@@ -61,7 +61,7 @@ private:
     NetworkAccessManagerProxy * _namp;
     std::map<QString, ApiCallback> _cb;
     std::shared_ptr<Robot> _robot;
-    std::queue<Task *> _eventQueue;
+    std::queue<QtCoroutine *> _eventQueue;
     QTcpServer * _httpServer;
     QVariantMap _api_data;
     QVariantMap _api_port;

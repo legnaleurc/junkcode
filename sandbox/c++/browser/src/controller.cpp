@@ -51,7 +51,7 @@ void Controller::stop() {
 }
 
 void Controller::startMission(int api_deck_id, int api_mission_id) {
-    auto task = new Task([&](const Task::Yield & yield)->void {
+    auto task = new QtCoroutine([&](const QtCoroutine::Yield & yield)->void {
 //        this->_charge(yield, api_deck_id);
         this->_startMission(yield, api_deck_id, api_mission_id);
     }, this);
@@ -159,7 +159,7 @@ void Controller::_api_req_mission_start(const QJsonDocument &json) {
 //    this->_db.updateMission(api_deck_id, api_mission_id, api_complatetime);
 }
 
-void Controller::_charge(const Task::Yield &yield, int api_deck_id) {
+void Controller::_charge(const QtCoroutine::Yield &yield, int api_deck_id) {
     assert((api_deck_id > 0 && api_deck_id <= 4) || !"invalid deck");
 
     if (!this->_db.needCharge(api_deck_id)) {
@@ -180,7 +180,7 @@ void Controller::_charge(const Task::Yield &yield, int api_deck_id) {
     this->_click(yield, "submenu_button_back");
 }
 
-void Controller::_startMission(const Task::Yield &yield, int api_deck_id, int api_mission_id) {
+void Controller::_startMission(const QtCoroutine::Yield &yield, int api_deck_id, int api_mission_id) {
     this->_click(yield, "main_menu_button_go");
     this->_click(yield, "go_menu_button_long_trip");
     this->_click(yield, QString("long_trip_menu_mission_%1").arg(api_mission_id));
@@ -198,7 +198,7 @@ void Controller::_startMission(const Task::Yield &yield, int api_deck_id, int ap
     this->_click(yield, "submenu_button_back");
 }
 
-QPoint Controller::_wait(const Task::Yield &yield, const QPixmap &target) {
+QPoint Controller::_wait(const QtCoroutine::Yield &yield, const QPixmap &target) {
     auto center = this->_robot->find(target);
     while (center.isNull()) {
         yield(500);
@@ -207,12 +207,12 @@ QPoint Controller::_wait(const Task::Yield &yield, const QPixmap &target) {
     return center;
 }
 
-QPoint Controller::_wait(const Task::Yield &yield, const QString &target) {
+QPoint Controller::_wait(const QtCoroutine::Yield &yield, const QString &target) {
     QPixmap p(QString(":/ui/res/%1.png").arg(target));
     return this->_wait(yield, p);
 }
 
-void Controller::_click(const Task::Yield &yield, const QString &target) {
+void Controller::_click(const QtCoroutine::Yield &yield, const QString &target) {
     QPixmap p(QString(":/ui/res/%1.png").arg(target));
     if (p.isNull()) {
         qDebug() << "ui" << target << "not found";
@@ -223,16 +223,16 @@ void Controller::_click(const Task::Yield &yield, const QString &target) {
     this->_robot->click(center);
 }
 
-void Controller::_click(const Task::Yield &yield, int x, int y) {
+void Controller::_click(const QtCoroutine::Yield &yield, int x, int y) {
     this->_click(yield, QPoint(x, y));
 }
 
-void Controller::_click(const Task::Yield &yield, const QPoint & target) {
+void Controller::_click(const QtCoroutine::Yield &yield, const QPoint & target) {
     yield(500); // prevent UI crash
     this->_robot->click(target);
 }
 
-void Controller::_moveBy(const Task::Yield &yield, int x, int y) {
+void Controller::_moveBy(const QtCoroutine::Yield &yield, int x, int y) {
     yield(500);
     this->_robot->moveBy(x, y);
 }
@@ -261,7 +261,7 @@ void Controller::_onHttpClientDisconnected() {
 }
 
 void Controller::_handleHttpRequest(QIODevice *io) {
-    auto task = new Task([=](const Task::Yield & yield)->void {
+    auto task = new QtCoroutine([=](const QtCoroutine::Yield & yield)->void {
         QTextStream sio(io);
         sio.setCodec(QTextCodec::codecForName("UTF-8"));
         auto line = sio.readLine();
