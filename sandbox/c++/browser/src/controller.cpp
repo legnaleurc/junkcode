@@ -201,7 +201,7 @@ void Controller::_startMission(const QtCoroutine::Yield &yield, int api_deck_id,
 QPoint Controller::_wait(const QtCoroutine::Yield &yield, const QPixmap &target) {
     auto center = this->_robot->find(target);
     while (center.isNull()) {
-        yield(500);
+        yield(1000);
         center = this->_robot->find(target);
     }
     return center;
@@ -219,7 +219,7 @@ void Controller::_click(const QtCoroutine::Yield &yield, const QString &target) 
         return;
     }
     auto center = this->_wait(yield, p);
-    yield(500); // prevent UI crash
+    yield(1000); // prevent UI crash
     this->_robot->click(center);
 }
 
@@ -228,12 +228,12 @@ void Controller::_click(const QtCoroutine::Yield &yield, int x, int y) {
 }
 
 void Controller::_click(const QtCoroutine::Yield &yield, const QPoint & target) {
-    yield(500); // prevent UI crash
+    yield(1000); // prevent UI crash
     this->_robot->click(target);
 }
 
 void Controller::_moveBy(const QtCoroutine::Yield &yield, int x, int y) {
-    yield(500);
+    yield(1000);
     this->_robot->moveBy(x, y);
 }
 
