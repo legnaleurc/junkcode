@@ -5,8 +5,13 @@ project(Browser)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 file(GLOB_RECURSE HEADERS "src/*.h")
 file(GLOB_RECURSE FORMS "src/*.ui")
+if(WIN32)
+    list(APPEND SOURCES "win/winrobot.cpp")
+    list(APPEND SOURCES "win/winrobot.h")
+    include_directories("win")
+endif()
 
-include_directories("${CMAKE_BINARY_DIR}")
+include_directories("${CMAKE_BINARY_DIR}" "src")
 
 
 find_package(Qt5Core REQUIRED)
@@ -16,7 +21,7 @@ find_package(Qt5Network REQUIRED)
 find_package(Qt5Sql REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5WebKitWidgets REQUIRED)
-#find_package(Qt5Test REQUIRED)
+find_package(Qt5Test REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS coroutine context system)
 

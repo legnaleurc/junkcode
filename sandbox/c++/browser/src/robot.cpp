@@ -1,11 +1,12 @@
 #include "robot.h"
 #ifdef Q_OS_MAC
 #include "macrobot.h"
+#elif defined(Q_OS_WIN)
+#include "winrobot.h"
 #endif
 
 #include <QtTest/QTest>
 #include <QtCore/QThread>
-#include <QtWidgets/QApplication>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -118,6 +119,8 @@ inline QPixmap cvMatToQPixmap( const cv::Mat &inMat )
 std::shared_ptr<Robot> Robot::create(QWidget * widget) {
 #ifdef Q_OS_MAC
     auto robot = std::shared_ptr<Robot>(new MacRobot);
+#elif defined(Q_OS_WIN)
+    auto robot = std::shared_ptr<Robot>(new WinRobot);
 #else
     auto robot = std::shared_ptr<Robot>(new Robot);
 #endif
@@ -138,7 +141,8 @@ QWidget * Robot::getWidget() const {
 }
 
 QPoint Robot::find(const QPixmap &target) const {
-    auto screen = this->getWidget()->grab();
+    auto screen = QPixmap::grabWindow(this->getWidget()->winId());
+    //auto screen = this->getWidget()->grab();
     auto s = QPixmapToCvMat(screen, false);
     auto t = QPixmapToCvMat(target, false);
     cv::Mat r;

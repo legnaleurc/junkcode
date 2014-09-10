@@ -42,8 +42,7 @@ void Controller::setMouseArea(QWidget *ma) {
 }
 
 void Controller::start() {
-    this->startMission(3, 2);
-//    this->_httpServer->listen(QHostAddress::LocalHost, 1080);
+    this->_httpServer->listen(QHostAddress::LocalHost, 1080);
 }
 
 void Controller::stop() {
@@ -52,7 +51,7 @@ void Controller::stop() {
 
 void Controller::startMission(int api_deck_id, int api_mission_id) {
     auto task = new QtCoroutine([&](const QtCoroutine::Yield & yield)->void {
-//        this->_charge(yield, api_deck_id);
+        this->_charge(yield, api_deck_id);
         this->_startMission(yield, api_deck_id, api_mission_id);
     }, this);
     task->connect(task, SIGNAL(finished()), SLOT(deleteLater()));
