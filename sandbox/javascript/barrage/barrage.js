@@ -64,11 +64,13 @@
         var $ctx = this.$ctx;
         $ctx.append($comment);
 
+        var width = $comment.parent().width();
+        // var width = window.screen.availWidth;
         $comment.css({
-            left: window.screen.availWidth,
+            left: width,
         });
         this.adjustOverlap($comment);
-        var tmp = $comment.outerWidth(true) + window.screen.availWidth;
+        var tmp = $comment.outerWidth(true) + width;
         $comment.css({
             transition: 'transform 4s linear',
             transform: 'translateX(-' + tmp + 'px)',
