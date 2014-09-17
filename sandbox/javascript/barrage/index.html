@@ -1,8 +1,9 @@
 <!DOCTYPE public>
 <html>
 <head>
+    <link rel="stylesheet/less" type="text/css" href="./video-js.less" />
+    <link rel="stylesheet/less" type="text/css" href="./barrage.less" />
     <link rel="stylesheet/less" type="text/css" href="./style.less" />
-    <link href="video-js.less" rel="stylesheet/less" type="text/css" />
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
@@ -12,25 +13,11 @@
 </head>
 <body>
     <div id="screen">
-        <video id="video" class="video-js vjs-default-skin" controls preload="none" width="1024" height="768" poster="http://video-js.zencoder.com/oceans-clip.png" data-setup="{}">
-            <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4' />
-            <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm' />
-            <source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg' />
-            <track kind="captions" src="demo.captions.vtt" srclang="en" label="English"></track><!-- Tracks need an ending tag thanks to IE9 -->
-            <track kind="subtitles" src="demo.captions.vtt" srclang="en" label="English"></track><!-- Tracks need an ending tag thanks to IE9 -->
-            <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+        <video id="video" class="video-js vjs-default-skin" controls preload="none" width="1024" height="768" data-setup="{}">
         </video>
         <div id="barrage">
         </div>
     </div>
-    <script>
-        videojs.options.flash.swf = "video-js.swf";
-
-        videojs('#video');
-
-        var a = setInterval(function () {
-            $('#barrage').barrage('add', 'hello');
-        }, 1000);
-    </script>
+    <script src="./script.js"></script>
 </body>
 </html>
