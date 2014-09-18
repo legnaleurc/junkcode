@@ -1,23 +1,49 @@
 <!DOCTYPE public>
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet/less" type="text/css" href="./video-js.less" />
     <link rel="stylesheet/less" type="text/css" href="./barrage.less" />
     <link rel="stylesheet/less" type="text/css" href="./style.less" />
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
-    <script src="video.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.1.0.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="./video.js"></script>
 
     <script src="./barrage.js"></script>
 </head>
 <body>
-    <div id="screen">
-        <video id="video" class="video-js vjs-default-skin" controls preload="none" width="1024" height="768" data-setup="{}">
-        </video>
-        <div id="barrage">
+    <div class="container">
+
+        <div id="window">
+
+            <div id="left-view">
+
+                <!-- video part -->
+                <div id="screen">
+                    <video id="video" class="video-js vjs-default-skin" controls preload="none" width="640" height="400" data-setup="{}">
+                    </video>
+                    <div id="barrage">
+                    </div>
+                </div>
+
+                <!-- comment input part -->
+                <div id="bottom-view">
+                    <input id="input" type="text" placeholder="enter comment" />
+                </div>
+
+            </div>
+
+            <!-- history part -->
+            <div id="history">
+            </div>
+
         </div>
+
     </div>
+
     <script src="./script.js"></script>
 </body>
 </html>
