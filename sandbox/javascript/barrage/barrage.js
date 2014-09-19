@@ -26,29 +26,29 @@
 
     Barrage.prototype.adjustOverlap = function ($comment) {
         var $ctx = this.$ctx;
-        var space = window.screen.availWidth / 2;
+        var space = $comment.parent().innerWidth() / 2;
         var bound = {
-            top: $comment.offset().top,
-            bottom: $comment.offset().top + $comment.outerHeight(true),
-            left: $comment.offset().left - space,    // leave space to avoid overlap by speed
-            right: $comment.offset().left + $comment.outerWidth(true),
+            top: $comment.position().top,
+            bottom: $comment.position().top + $comment.outerHeight(true),
+            left: $comment.position().left - space,    // leave space to avoid overlap by speed
+            right: $comment.position().left + $comment.outerWidth(true),
         };
         $('div.comment', $ctx).each(function (i, v) {
             var b = $(v);
             b = {
-                top: b.offset().top,
-                bottom: b.offset().top + b.outerHeight(true),
-                left: b.offset().left,
-                right: b.offset().left + b.outerWidth(true),
+                top: b.position().top,
+                bottom: b.position().top + b.outerHeight(true),
+                left: b.position().left,
+                right: b.position().left + b.outerWidth(true),
             };
             if (b.left < bound.right && b.right > bound.left && b.top < bound.bottom && b.bottom > bound.top) {
                 var offset = $comment.outerHeight(true);
                 $comment.css({
-                    top: $comment.offset().top + offset,
+                    top: $comment.position().top + offset,
                 });
                 bound.top += offset;
                 bound.bottom += offset;
-                if (bound.bottom > window.screen.availHeight) {
+                if (bound.bottom > $comment.parent().innerHeight()) {
                     console.log('comment overflow: ' + $comment.text());
                 }
             }
@@ -65,7 +65,6 @@
         $ctx.append($comment);
 
         var width = $comment.parent().width();
-        // var width = window.screen.availWidth;
         $comment.css({
             left: width,
         });
