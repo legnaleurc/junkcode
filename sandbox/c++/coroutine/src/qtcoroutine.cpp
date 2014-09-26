@@ -12,25 +12,25 @@ d(new Private(task, this)) {
 
 void QtCoroutine::start () {
     this->d->fork = Private::Coroutine::pull_type([&](Private::Coroutine::push_type & yield)->void {
-        Yield yield_(std::make_shared<YieldPrivate>(*this, yield));
+        QtYield yield_(std::make_shared<QtYield::Private>(*this, yield));
         this->d->task(yield_);
     });
     this->d->tail();
 }
 
-QtCoroutine::Yield::Yield (std::shared_ptr<QtCoroutine::YieldPrivate> d):
+QtYield::QtYield (std::shared_ptr<Private> d):
 d(d) {
 }
 
-QtCoroutine::Yield::~Yield () {
+QtYield::~QtYield () {
 }
 
-void QtCoroutine::Yield::operator () (int interval) const {
+void QtYield::operator () (int interval) const {
     QTimer::singleShot(interval, this->d->task.d, SLOT(postAction()));
     this->d->yield();
 }
 
-void QtCoroutine::Yield::operator () (QObject * object, const char * signal_) const {
+void QtYield::operator () (QObject * object, const char * signal_) const {
     SignalIsolator si;
     si.connect(object, signal_, SIGNAL(proxy()));
     this->d->task.d->connect(&si, SIGNAL(proxy()), SLOT(postAction()));
@@ -54,7 +54,7 @@ void QtCoroutine::Private::postAction () {
     this->tail();
 }
 
-QtCoroutine::YieldPrivate::YieldPrivate (QtCoroutine & task, Coroutine::push_type & yield):
+QtYield::Private::Private (QtCoroutine & task, Coroutine::push_type & yield):
 task(task),
 yield(yield) {
 }

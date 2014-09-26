@@ -26,11 +26,11 @@ public:
     Coroutine::pull_type fork;
 };
 
-class QtCoroutine::YieldPrivate {
+class QtYield::Private {
 public:
     typedef QtCoroutine::Private::Coroutine Coroutine;
 
-    YieldPrivate (QtCoroutine & task, Coroutine::push_type & yield);
+    Private (QtCoroutine & task, Coroutine::push_type & yield);
 
     QtCoroutine & task;
     Coroutine::push_type & yield;

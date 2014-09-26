@@ -31,7 +31,7 @@ void sendResponse (QTextStream & sio, const QByteArray & data) {
     sio << data;
 }
 
-QByteArray get (const QtCoroutine::Yield & yield, const QString & surl) {
+QByteArray get (const QtYield & yield, const QString & surl) {
     QNetworkAccessManager nasm;
     QUrl url(surl);
     QNetworkRequest request(url);
@@ -87,7 +87,7 @@ void HttpServer::_onNewConnection() {
 void HttpServer::_onClientReadyRead() {
     auto socket = qobject_cast<QTcpSocket *>(this->sender());
 
-    QtCoroutine * task = new QtCoroutine([=](const QtCoroutine::Yield & yield)->void {
+    QtCoroutine * task = new QtCoroutine([=](const QtYield & yield)->void {
         // NOTE you can pass `yield` to any function
         auto data = get(yield, "https://www.google.com/");
 

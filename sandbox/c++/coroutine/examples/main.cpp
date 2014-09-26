@@ -12,7 +12,7 @@
 int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
 
-    auto b = new QtCoroutine([](const QtCoroutine::Yield & yield)->void {
+    auto b = new QtCoroutine([](const QtYield & yield)->void {
         qDebug() << "wait for http server open ...";
         // NOTE yield to main event loop until 1000ms passed
         yield(1000);

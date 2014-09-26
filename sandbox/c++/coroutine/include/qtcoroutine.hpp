@@ -12,13 +12,14 @@
 #define QTCOROUTINE_DLL Q_DECL_IMPORT
 #endif
 
+class QtYield;
+
 class QTCOROUTINE_DLL QtCoroutine : public QObject {
     Q_OBJECT
 public:
-    class Yield;
-    typedef std::function<void (const Yield &)> Callback;
+    typedef std::function<void (const QtYield &)> Callback;
 
-    explicit QtCoroutine (Callback task, QObject *parent = 0);
+    explicit QtCoroutine (Callback task, QObject * parent = 0);
 
     void start ();
 
@@ -26,28 +27,28 @@ signals:
     void finished ();
 
 private:
-    friend class Yield;
+    friend class QtYield;
     class Private;
-    class YieldPrivate;
     Private * d;
 };
 
-class QTCOROUTINE_DLL QtCoroutine::Yield {
+class QTCOROUTINE_DLL QtYield {
 public:
     void operator () (int interval) const;
     void operator () (QObject * object, const char * signal_) const;
 
 private:
     friend class QtCoroutine;
+    class Private;
 
-    Yield (std::shared_ptr<QtCoroutine::YieldPrivate> d);
-    Yield (const Yield &);
-    Yield & operator = (const Yield &);
-    Yield (Yield &&);
-    Yield & operator = (Yield &&);
-    ~Yield();
+    QtYield (std::shared_ptr<Private> d);
+    QtYield (const QtYield &);
+    QtYield & operator = (const QtYield &);
+    QtYield (QtYield &&);
+    QtYield & operator = (QtYield &&);
+    ~QtYield();
 
-    std::shared_ptr<QtCoroutine::YieldPrivate> d;
+    std::shared_ptr<Private> d;
 };
 
 #endif
