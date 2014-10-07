@@ -4,9 +4,9 @@ if(APPLE)
     set(CMAKE_MACOSX_RPATH ON)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(CMAKE_CXX_COMPILER_ID MATCHES "^Clang|GNU$")
     set(EXTRA_CXX_FLAGS "-std=c++11")
-elseif(MSVC)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(EXTRA_CXX_FLAGS "-DBOOST_ALL_NO_LIB")
 endif()
 
