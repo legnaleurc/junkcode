@@ -55,7 +55,6 @@ void Controller::startMission(int api_deck_id, int api_mission_id) {
         this->_startMission(yield, api_deck_id, api_mission_id);
     }, this);
     task->connect(task, SIGNAL(finished()), SLOT(deleteLater()));
-    task->connect(this, SIGNAL(responsed(QString)), SLOT(notify(QString)));
     task->start();
 }
 
@@ -315,6 +314,5 @@ void Controller::_handleHttpRequest(QIODevice *io) {
         io->close();
     }, this);
     task->connect(task, SIGNAL(finished()), SLOT(deleteLater()));
-    task->connect(this, SIGNAL(responsed(QString)), SLOT(notify(QString)));
     task->start();
 }
