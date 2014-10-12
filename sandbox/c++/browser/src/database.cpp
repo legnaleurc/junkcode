@@ -271,17 +271,40 @@ void Database::_insertInto(const QString &table, const QVariantMap &args) {
         return ":" + column;
     });
     auto values = columns.join(", ");
-    auto statement = QString("INSERT INTO %1 (%2) VALUES (%3);").arg(table).arg(names).arg(values);
+
+    // insert or ignore
+    auto statement = QString("INSERT OR IGNORE INTO %1 (%2) VALUES (%3);").arg(table).arg(names).arg(values);
     QSqlQuery query(this->_db);
     bool ok = query.prepare(statement);
     if (!ok) {
-        qDebug() << "db insert into" << query.lastError().text();
+        qDebug() << "db insert or ignore into" << query.lastError().text();
     }
     for (auto it = args.begin(); it != args.end(); ++it) {
         query.bindValue(":" + it.key(), it.value());
     }
     ok = query.exec();
     if (!ok) {
-        qDebug() << "db insert into" << query.lastError().text();
+        qDebug() << "db insert or ignore into" << query.lastError().text();
+    }
+
+    // update
+    // FIXME hidden rule: always has `api_id` as PK
+    columns = args.keys();
+    columns.removeAll("api_id");
+    std::transform(columns.begin(), columns.end(), columns.begin(), [](const QString & column)->QString {
+        return QString("%1=:%1").arg(column);
+    });
+    values = columns.join(", ");
+    statement = QString("UPDATE %1 SET %2 WHERE api_id=:api_id;").arg(table).arg(values);
+    ok = query.prepare(statement);
+    if (!ok) {
+        qDebug() << "db update" << query.lastError().text();
+    }
+    for (auto it = args.begin(); it != args.end(); ++it) {
+        query.bindValue(":" + it.key(), it.value());
+    }
+    ok = query.exec();
+    if (!ok) {
+        qDebug() << "db update" << query.lastError().text();
     }
 }
