@@ -15,6 +15,7 @@
 						document.body.appendChild(node);
 						var html = document.documentElement;
 						html.style.overflow = 'hidden';
+						html.style.webkitUserSelect = 'none';
 						html.style.width = '800px';
 						html.style.height = '480px';
 						body.style.width = '800px';
