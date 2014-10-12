@@ -95,7 +95,7 @@ void Controller::_api_start2(const QJsonDocument & json) {
         return;
     }
     auto api_data = root.value("api_data").toObject();
-//	this->_db.createShipType(api_data.value("api_mst_ship"));
+    this->_db.createShipType(api_data.value("api_mst_ship"));
     this->_api_data.insert("api_start", api_data.toVariantMap());
 }
 
@@ -111,7 +111,7 @@ void Controller::_api_get_member_basic(const QJsonDocument & json) {
         return;
     }
     auto api_data = root.value("api_data").toObject();
-//	this->_db.createShipType(api_data.value("api_mst_ship"));
+    this->_db.createShipType(api_data.value("api_mst_ship"));
     this->_api_data.insert("api_basic", api_data.toVariantMap());
 }
 
@@ -127,15 +127,15 @@ void Controller::_api_port_port(const QJsonDocument & json) {
         return;
     }
     auto api_data = root.value("api_data").toObject();
-//    auto api_deck_port = api_data.value("api_deck_port");
-//    auto api_ndock = api_data.value("api_ndock");
-//    auto api_ship = api_data.value("api_ship");
+    auto api_deck_port = api_data.value("api_deck_port");
+    auto api_ndock = api_data.value("api_ndock");
+    auto api_ship = api_data.value("api_ship");
 
 //    this->_db.clearCache();
 
-//    this->_db.createShip(api_ship);
-//    this->_db.createDeck(api_deck_port);
-//    this->_db.createNDock(api_ndock);
+    this->_db.createShip(api_ship);
+    this->_db.createDeck(api_deck_port);
+    this->_db.createNDock(api_ndock);
     this->_api_port = api_data.toVariantMap();
 }
 
