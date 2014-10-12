@@ -22,6 +22,14 @@ inline cv::Mat QImageToCvMat( const QImage &inImage, bool inCloneImageData = tru
     switch ( inImage.format() )
     {
         // 8-bit, 4 channel
+    case QImage::Format_ARGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+    {
+        auto image = inImage.convertToFormat(QImage::Format_RGB32);
+        cv::Mat  mat( image.height(), image.width(), CV_8UC4, const_cast<uchar*>(image.bits()), image.bytesPerLine() );
+
+        return (inCloneImageData ? mat.clone() : mat);
+    }
     case QImage::Format_RGB32:
     {
         cv::Mat  mat( inImage.height(), inImage.width(), CV_8UC4, const_cast<uchar*>(inImage.bits()), inImage.bytesPerLine() );
@@ -141,8 +149,7 @@ QWidget * Robot::getWidget() const {
 }
 
 QPoint Robot::find(const QPixmap &target) const {
-    auto screen = QPixmap::grabWindow(this->getWidget()->winId());
-    //auto screen = this->getWidget()->grab();
+    auto screen = this->getWidget()->grab();
     auto s = QPixmapToCvMat(screen, false);
     auto t = QPixmapToCvMat(target, false);
     cv::Mat r;
