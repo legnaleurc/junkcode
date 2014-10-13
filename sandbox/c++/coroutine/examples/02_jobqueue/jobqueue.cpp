@@ -6,7 +6,7 @@ JobQueue::JobQueue ():
 _currentCallback(nullptr) {
 }
 
-QtCoroutine * JobQueue::setTimeout (int msIntevel, QtCoroutine * callback) {
+QtCoroutine * JobQueue::setTimeout (int msIntevel, QtCoroutine::Callback callback) {
     auto job = new QtCoroutine([=](const QtYield & yield)->void {
         yield(msIntevel);
 
@@ -17,7 +17,7 @@ QtCoroutine * JobQueue::setTimeout (int msIntevel, QtCoroutine * callback) {
     return job;
 }
 
-void JobQueue::_enqueue (QtCoroutine * callback) {
+void JobQueue::_enqueue (QtCoroutine::Callback callback) {
     this->_queue.push(callback);
 }
 
@@ -33,7 +33,7 @@ void JobQueue::_dequeue () {
 
     this->_currentCallback = this->_queue.front();
     this->_queue.pop();
-    auto callback = this->_currentCallback;
+    auto callback = new QtCoroutine(this->_currentCallback);
     callback->connect(callback, SIGNAL(finished()), SLOT(deleteLater()));
     this->connect(callback, SIGNAL(finished()), SLOT(_reset()));
     this->connect(callback, SIGNAL(finished()), SLOT(_dequeue()));

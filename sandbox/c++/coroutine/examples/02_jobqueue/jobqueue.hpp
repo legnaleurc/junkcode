@@ -12,17 +12,17 @@ class JobQueue: public QObject {
 public:
     JobQueue ();
 
-    QtCoroutine * setTimeout (int msIntevel, QtCoroutine * callback);
+    QtCoroutine * setTimeout (int msIntevel, QtCoroutine::Callback callback);
 
 private slots:
     void _dequeue ();
     void _reset ();
 
 private:
-    void _enqueue (QtCoroutine * callback);
+    void _enqueue (QtCoroutine::Callback callback);
 
-    std::queue<QtCoroutine *> _queue;
-    QtCoroutine * _currentCallback;
+    std::queue<QtCoroutine::Callback> _queue;
+    QtCoroutine::Callback _currentCallback;
 };
 
 #endif

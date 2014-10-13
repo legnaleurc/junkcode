@@ -8,7 +8,7 @@ int main (int argc, char * argv[]) {
 
     JobQueue jq;
 
-    jq.setTimeout(1000, new QtCoroutine([&](const QtYield & yield)->void {
+    jq.setTimeout(1000, [&](const QtYield & yield)->void {
         qDebug() << "A: run callback";
         yield(1000);
         qDebug() << "A: first";
@@ -16,9 +16,9 @@ int main (int argc, char * argv[]) {
         qDebug() << "A: second";
         yield(1000);
         qDebug() << "A: third";
-    }));
+    });
 
-    jq.setTimeout(1500, new QtCoroutine([&](const QtYield & yield)->void {
+    jq.setTimeout(1500, [&](const QtYield & yield)->void {
         qDebug() << "B: run callback";
         yield(1000);
         qDebug() << "B: first";
@@ -26,12 +26,12 @@ int main (int argc, char * argv[]) {
         qDebug() << "B: second";
         yield(1000);
         qDebug() << "B: third";
-    }));
+    });
 
-    jq.setTimeout(2000, new QtCoroutine([&](const QtYield & yield)->void {
+    jq.setTimeout(2000, [&](const QtYield & yield)->void {
         qDebug() << "C: run callback";
         app.quit();
-    }));
+    });
 
     return app.exec();
 }
