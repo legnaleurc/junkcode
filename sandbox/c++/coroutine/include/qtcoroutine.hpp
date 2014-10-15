@@ -22,6 +22,7 @@ public:
     explicit QtCoroutine (Callback task, QObject * parent = 0);
 
     void start ();
+    void stop ();
 
 signals:
     void finished ();

@@ -18,6 +18,10 @@ void QtCoroutine::start () {
     this->d->tail();
 }
 
+void QtCoroutine::stop () {
+    // remove signal isolator
+}
+
 QtYield::QtYield (std::shared_ptr<Private> d):
 d(d) {
 }
