@@ -24,6 +24,12 @@ qt5_use_modules(qtcoroutine Core)
 set_target_properties(qtcoroutine PROPERTIES COMPILE_FLAGS ${EXTRA_CXX_FLAGS})
 target_link_libraries(qtcoroutine ${Boost_LIBRARIES})
 
+install(TARGETS qtcoroutine
+        RUNTIME DESTINATION "bin"
+        LIBRARY DESTINATION "lib"
+        ARCHIVE DESTINATION "lib")
+install(FILES "include/qtcoroutine.hpp" DESTINATION "include")
+
 find_package(Qt5Network REQUIRED)
 add_executable(example_01 WIN32 "examples/01_httpclient/main.cpp")
 qt5_use_modules(example_01 Core Network)
