@@ -31,9 +31,6 @@ void Database::createShipType(const QJsonValue &data) {
         args.insert("api_name", ship.value("api_name").toString());
         args.insert("api_yomi", ship.value("api_yomi").toString());
         args.insert("api_stype", ship.value("api_stype").toInt());
-        args.insert("api_ctype", ship.value("api_ctype").toInt());
-        args.insert("api_cnum", ship.value("api_cnum").toInt());
-        args.insert("api_enqflg", ship.value("api_enqflg").toString());
         args.insert("api_afterlv", ship.value("api_afterlv").toInt());
         args.insert("api_aftershipid", ship.value("api_aftershipid").toString());
         args.insert("api_fuel_max", ship.value("api_fuel_max").toInt());
@@ -132,9 +129,6 @@ void Database::_initShipType() {
                   "api_name TEXT, "
                   "api_yomi TEXT, "
                   "api_stype INTEGER, "
-                  "api_ctype INTEGER, "
-                  "api_cnum INTEGER, "
-                  "api_enqflg TEXT, "
                   "api_afterlv INTEGER, "
                   "api_aftershipid TEXT, "
                   "api_fuel_max INTEGER, "
@@ -197,6 +191,31 @@ bool Database::needCharge(int api_deck_id) const {
     ok = query.next();
     qDebug() << "need charge" << ok << api_deck_id;
     return ok;
+}
+
+QVariantMap Database::getDeck(int api_deck_id) const {
+    QString statement = "SELECT `mission_status`,`mission_time` FROM `deck` WHERE `api_id`=:api_deck_id;";
+    QSqlQuery query(this->_db);
+    bool ok = query.prepare(statement);
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+        return QVariantMap();
+    }
+    query.bindValue(":api_deck_id", api_deck_id);
+    ok = query.exec();
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+        return QVariantMap();
+    }
+    ok = query.next();
+    if (!ok) {
+        qDebug() << "db query" << query.lastError().text();
+        return QVariantMap();
+    }
+    QVariantMap result;
+    result.insert("mission_status", query.value(0));
+    result.insert("mission_time", query.value(1));
+    return result;
 }
 
 void Database::updateMission(int api_deck_id, int api_mission_id, int api_complatetime) {

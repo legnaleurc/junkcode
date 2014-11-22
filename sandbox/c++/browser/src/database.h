@@ -19,6 +19,7 @@ public:
 
     bool needCharge(int api_deck_id) const;
 
+    QVariantMap getDeck(int api_deck_id) const;
     void updateMission(int api_deck_id, int api_mission_id, int api_complatetime);
 
 private:
