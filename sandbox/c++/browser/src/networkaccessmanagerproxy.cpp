@@ -27,14 +27,14 @@ QNetworkReply* NetworkAccessManagerProxy::createRequest(Operation op, const QNet
         return reply;
     }
     auto data = QSharedPointer<QByteArray>(new QByteArray);
-    this->_data.insert(std::make_pair(request.url().toString(), data));
+    this->_data.insert(std::make_pair(r.attribute(QNetworkRequest::User).toULongLong(), data));
     this->connect(reply, SIGNAL(readyRead()), SLOT(_onReadyRead()));
     return reply;
 }
 
 void NetworkAccessManagerProxy::_onReadyRead() {
     auto reply = qobject_cast<QNetworkReply *>(this->sender());
-    auto it = this->_data.find(reply->request().url().toString());
+    auto it = this->_data.find(reply->request().attribute(QNetworkRequest::User).toULongLong());
     if (it == this->_data.end()) {
         return;
     }
@@ -44,10 +44,8 @@ void NetworkAccessManagerProxy::_onReadyRead() {
 }
 
 void NetworkAccessManagerProxy::_onReplyFinished(QNetworkReply *reply) {
-    qDebug() << "!" << reply->request().attribute(QNetworkRequest::User);
-//	qDebug() << reply->request().url();
-//	this->_debug();
-    auto it = this->_data.find(reply->request().url().toString());
+    auto handle = reply->request().attribute(QNetworkRequest::User).toULongLong();
+    auto it = this->_data.find(handle);
     if (it == this->_data.end()) {
         return;
     }

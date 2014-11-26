@@ -28,7 +28,7 @@ private slots:
 
 private:
     void _debug();
-    std::map<QString, QSharedPointer<QByteArray>> _data;
+    std::map<quint64, QSharedPointer<QByteArray>> _data;
     quint64 _nextHandle;
 };
 
