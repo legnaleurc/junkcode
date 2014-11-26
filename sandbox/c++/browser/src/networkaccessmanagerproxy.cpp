@@ -7,7 +7,8 @@ static const QByteArray BA;
 
 NetworkAccessManagerProxy::NetworkAccessManagerProxy(QObject *parent) :
     QNetworkAccessManager(parent),
-    _data()
+    _data(),
+    _nextHandle(0LLU)
 {
     this->connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(_onReplyFinished(QNetworkReply*)));
 }
@@ -17,6 +18,7 @@ NetworkAccessManagerProxy::~NetworkAccessManagerProxy() {}
 QNetworkReply* NetworkAccessManagerProxy::createRequest(Operation op, const QNetworkRequest& request, QIODevice *outgoingData) {
     auto r = request;
     r.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
+    r.setAttribute(QNetworkRequest::User, this->_nextHandle++);
     QNetworkReply* reply = QNetworkAccessManager::createRequest(op, r, outgoingData);
     if (request.url().host() != "125.6.189.135" && request.url().host() != "osapi.dmm.com") {
         return reply;
@@ -42,6 +44,7 @@ void NetworkAccessManagerProxy::_onReadyRead() {
 }
 
 void NetworkAccessManagerProxy::_onReplyFinished(QNetworkReply *reply) {
+    qDebug() << "!" << reply->request().attribute(QNetworkRequest::User);
 //	qDebug() << reply->request().url();
 //	this->_debug();
     auto it = this->_data.find(reply->request().url().toString());

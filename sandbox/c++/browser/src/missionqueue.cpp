@@ -2,10 +2,11 @@
 
 #include <functional>
 
-MissionQueue::MissionQueue(Database & db, JobQueue * jq):
+MissionQueue::MissionQueue(Database & db, JobQueue * jq, ApiClient & api):
 _decks(),
 _db(db),
-_jq(jq) {
+_jq(jq),
+_api(api) {
 }
 
 void MissionQueue::start(int api_deck_id, int api_mission_id) {
@@ -30,6 +31,23 @@ void MissionQueue::start(int api_deck_id, int api_mission_id) {
 }
 
 qint64 MissionQueue::_doStart(int api_deck_id, int api_mission_id) {
+    // TODO update all?
+
+    // get charge list
+    auto ships = this->_db.getChargeList(api_deck_id);
+    if (!ships.empty()) {
+        auto data = this->_api.charge(ships);
+        int result = data["api_result"].toInt();
+        if (result != 1) {
+            return 0LL;
+        }
+    }
+
+    auto data = this->_api.mission(api_deck_id, api_mission_id);
+    if (data["api_result"].toInt() != 1) {
+        return 0LL;
+    }
+
     // TODO api class
     bool ok = false;
     if (!ok) {

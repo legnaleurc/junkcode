@@ -283,7 +283,7 @@ void Controller::_handleHttpRequest(QIODevice *io) {
             while (!target.isNull()) {
                 this->_click(yield, target);
                 this->_moveBy(yield, 0, -100);
-                yield(1000);
+                yield(5000);
                 target = this->_find("submenu_button_back");
             }
             this->_wait(yield, "main_menu_button_go");

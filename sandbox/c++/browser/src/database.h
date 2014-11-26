@@ -17,6 +17,7 @@ public:
 
     void clearCache();
 
+    std::vector<int> getChargeList(int api_deck_id) const;
     bool needCharge(int api_deck_id) const;
 
     QVariantMap getDeck(int api_deck_id) const;

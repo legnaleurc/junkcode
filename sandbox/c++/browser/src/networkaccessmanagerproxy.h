@@ -29,6 +29,7 @@ private slots:
 private:
     void _debug();
     std::map<QString, QSharedPointer<QByteArray>> _data;
+    quint64 _nextHandle;
 };
 
 #endif // NETWORKACCESSMANAGERPROXY_H

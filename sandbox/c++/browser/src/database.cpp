@@ -173,7 +173,8 @@ void Database::clearCache() {
     query.finish();
 }
 
-bool Database::needCharge(int api_deck_id) const {
+std::vector<int> Database::getChargeList(int api_deck_id) const {
+    std::vector<int> result;
     QString statement = "SELECT ship.api_id "
                         "FROM ship "
                         "JOIN ship_type ON ship.api_ship_id = ship_type.api_id "
@@ -182,15 +183,23 @@ bool Database::needCharge(int api_deck_id) const {
     bool ok = query.prepare(statement);
     if (!ok) {
         qDebug() << "db query" << query.lastError().text();
+        return result;
     }
     query.bindValue(":deck_id", api_deck_id);
     ok = query.exec();
     if (!ok) {
         qDebug() << "db query" << query.lastError().text();
+        return result;
     }
-    ok = query.next();
-    qDebug() << "need charge" << ok << api_deck_id;
-    return ok;
+    while (query.next()) {
+        result.push_back(query.value(0).toInt());
+    }
+    return result;
+}
+
+bool Database::needCharge(int api_deck_id) const {
+    auto result = this->getChargeList(api_deck_id);
+    return !result.empty();
 }
 
 QVariantMap Database::getDeck(int api_deck_id) const {

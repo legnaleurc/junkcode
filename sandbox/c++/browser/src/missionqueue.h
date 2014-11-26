@@ -5,10 +5,11 @@
 
 #include "database.h"
 #include "jobqueue.h"
+#include "apiclient.h"
 
 class MissionQueue {
 public:
-    MissionQueue(Database & db, JobQueue * jq);
+    MissionQueue(Database & db, JobQueue * jq, ApiClient & api);
 
     void start(int api_deck_id, int api_mission_id);
 
@@ -20,6 +21,7 @@ private:
     std::unordered_map<int, qint64> _decks;
     Database & _db;
     JobQueue * _jq;
+    ApiClient & _api;
 };
 
 #endif
