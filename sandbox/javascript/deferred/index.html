@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.css" />
+    </head>
+    <body>
+        <div id="mocha">
+        </div>
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/chai/1.10.0/chai.min.js"></script>
+
+        <script src="./deferred.js"></script>
+
+        <script>
+            mocha.setup('bdd');
+        </script>
+
+        <script src="./test.deferred.js"></script>
+
+        <script>
+            mocha.run();
+        </script>
+    </body>
+</html>
