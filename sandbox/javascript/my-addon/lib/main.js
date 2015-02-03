@@ -1,17 +1,27 @@
-var buttons = require('sdk/ui/button/action');
-var tabs = require("sdk/tabs");
+const {Cc, Ci} = require('chrome');
+var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
 
-var button = buttons.ActionButton({
-  id: "mozilla-link",
-  label: "Visit Mozilla",
-  icon: {
-    "16": "./icon-16.png",
-    "32": "./icon-32.png",
-    "64": "./icon-64.png"
+ww.registerNotification({
+  observe: function (aSubject, aTopic, aData) {
+    if (aTopic === 'domwindowopened') {
+      aSubject.addEventListener("load", function (event) {
+        var w = event.currentTarget;
+        if (w.location.toString() !== 'chrome://greasemonkey/content/install.xul') {
+          return;
+        }
+        var xul = w.document.documentElement;
+        var install = xul.getButton('accept');
+        if (!install) {
+          return;
+        }
+        var i = w.setInterval(function () {
+          if (install.disabled) {
+            return;
+          }
+          w.clearInterval(i);
+          install.click();
+        }, 500);
+      });
+    }
   },
-  onClick: handleClick
 });
-
-function handleClick(state) {
-  tabs.open("https://www.mozilla.org/");
-}
