@@ -34,3 +34,19 @@ void MacRobot::doClick(const QPoint &pos, int msDelay) const {
 	CFRelease(down);
 	CFRelease(up);
 }
+
+void MacRobot::doMoveBy(const QPoint &pos, int msDelay) const {
+    auto global = this->getWidget()->mapToGlobal(pos);
+    qDebug() << global;
+
+    CGEventRef move = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CGPointMake(global.x(), global.y()), kCGMouseButtonLeft);
+
+    if (msDelay > 0) {
+        QEventLoop wait;
+        QTimer::singleShot(msDelay, &wait, SLOT(quit()));
+        wait.exec();
+    }
+    CGEventPost(kCGHIDEventTap, move);
+
+    CFRelease(move);
+}

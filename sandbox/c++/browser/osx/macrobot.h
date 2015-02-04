@@ -10,6 +10,7 @@ public:
 
 protected:
 	virtual void doClick(const QPoint &pos, int msDelay) const;
+    virtual void doMoveBy(const QPoint &pos, int msDelay) const;
 };
 
 #endif // MACROBOT_H

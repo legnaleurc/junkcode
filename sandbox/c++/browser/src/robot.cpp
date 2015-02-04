@@ -199,13 +199,18 @@ void Robot::click(const QPoint &pos, int msDelay) const {
 }
 
 void Robot::moveBy(int x, int y) const {
+    assert(qApp->thread() == QThread::currentThread() || !"must run on the main thread");
     auto global = QCursor::pos();
     auto local = this->getWidget()->mapFromGlobal(global);
     local.rx() += x;
     local.ry() += y;
-    QTest::mouseMove(this->getWidget(), local);
+    this->doMoveBy(local, 0);
 }
 
 void Robot::doClick(const QPoint &pos, int msDelay) const {
     QTest::mouseClick(this->getWidget(), Qt::LeftButton, Qt::NoModifier, pos, msDelay);
+}
+
+void Robot::doMoveBy(const QPoint &pos, int msDelay) const {
+    QTest::mouseMove(this->getWidget(), pos, msDelay);
 }

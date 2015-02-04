@@ -24,6 +24,7 @@ protected:
     QWidget * getWidget() const;
 
     virtual void doClick(const QPoint & pos, int msDelay) const;
+    virtual void doMoveBy(const QPoint & pos, int msDelay) const;
 
 private:
     QWidget * _widget;
