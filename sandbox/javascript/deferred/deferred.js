@@ -18,8 +18,6 @@
     };
 
     function Deferred () {
-        this._resolve = null;
-        this._reject = null;
         var self = this;
         this._promise = new Promise(function (resolve, reject) {
             self._resolve = resolve;
@@ -28,12 +26,26 @@
     }
 
     Deferred.prototype.done = function (onFulfilled) {
-        this._promise.then(onFulfilled);
+        this._promise.then(function (args) {
+            var nexus = onFulfilled.apply(undefined, args);
+            if (nexus instanceof Deferred || nexus instanceof Promise_) {
+                return nexus._promise;
+            } else {
+                return nexus;
+            }
+        }, undefined);
         return this;
     };
 
     Deferred.prototype.fail = function (onRejected) {
-        this._promise.then(undefined, onRejected);
+        this._promise.then(undefined, function (args) {
+            var nexus = onRejected.apply(undefined, args);
+            if (nexus instanceof Deferred || nexus instanceof Promise_) {
+                return nexus._promise;
+            } else {
+                return nexus;
+            }
+        });
         return this;
     };
 
@@ -42,12 +54,14 @@
     };
 
     Deferred.prototype.resolve = function () {
-        this._resolve();
+        var args = Array.prototype.slice.call(arguments);
+        this._resolve(args);
         return this;
     };
 
     Deferred.prototype.reject = function () {
-        this._reject();
+        var args = Array.prototype.slice.call(arguments);
+        this._reject(args);
         return this;
     };
 
