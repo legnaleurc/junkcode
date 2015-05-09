@@ -16,8 +16,6 @@ public:
     Command & operator [] (const std::initializer_list<std::string> & args);
     std::string operator ()() const;
     Command & operator | (const Command & command);
-    // Command operator | (const char * cmd) const;
-    // Command operator | (const std::string & cmd) const;
 
 private:
     Command (const Command &);
