@@ -10,6 +10,9 @@ from tornado import ioloop, process, web, log, options, util, gen
 import transmissionrpc
 
 
+OPTS = None
+
+
 class RootHandler(web.RequestHandler):
 
     def get(self):
@@ -26,8 +29,6 @@ def main(args=None):
     setup_logger()
 
     options.define('config', default=None, type=str, help='config file path', metavar='tmacd.yaml', callback=parse_config)
-    options.define('port')
-    options.define('transmission')
     remains = options.parse_command_line(args)
 
     main_loop = ioloop.IOLoop.instance()
@@ -35,7 +36,7 @@ def main(args=None):
     application = web.Application([
         (r'^/$', RootHandler),
     ])
-    application.listen(options.options.port)
+    application.listen(OPTS.port)
 
     main_loop.start()
     main_loop.close()
@@ -72,8 +73,8 @@ def setup_logger():
 def parse_config(path):
     with open(path, 'r') as fin:
         data = yaml.safe_load(fin)
-    options.options.port = data['port']
-    options.options.transmission = util.ObjectDict(data['transmission'])
+    global OPTS
+    OPTS = util.ObjectDict(data)
 
 
 @gen.coroutine
@@ -95,7 +96,7 @@ def remove_torrent(torrent_id):
     Returns root items.
     '''
     logger = logging.getLogger('tmacd')
-    opt = options.options.transmission
+    opt = OPTS.transmission
     client = transmissionrpc.Client(opt.host, port=opt.port, user=opt.username, password=opt.password)
     torrent = client.get_torrent(torrent_id)
     files = torrent.files()
