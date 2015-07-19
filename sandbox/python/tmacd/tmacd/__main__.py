@@ -94,6 +94,7 @@ def process_torrent(torrent_root, torrent_id):
     logger.info('remove items')
     for item in root_items:
         root = os.path.join(torrent_root, item)
+        logger.debug(root)
         if os.path.isdir(root):
             shutil.rmtree(root)
         else:
@@ -177,7 +178,7 @@ def upload(torrent_root, root_items):
     while True:
         try:
             chunk = yield p.stderr.read_bytes(65536, partial=True)
-            logger.info(chunk.decode('utf-8'))
+            logger.info(chunk.decode('utf-8').strip())
         except iostream.StreamClosedError as e:
             break
     exit_code = yield p.wait_for_exit()
