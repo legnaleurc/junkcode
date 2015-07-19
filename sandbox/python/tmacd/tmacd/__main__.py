@@ -169,7 +169,7 @@ def strip_files(torrent_root, root_items):
         root = os.path.join(torrent_root, root_item)
         if os.path.isdir(root):
             for path, dirs, files in os.walk(root):
-                match_files(to_be_deleted, files)
+                match_files(to_be_deleted, map(lambda f: os.path.join(path, f), files))
         else:
             match_files(to_be_deleted, [root])
 
