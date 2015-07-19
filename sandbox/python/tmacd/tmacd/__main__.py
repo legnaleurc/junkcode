@@ -92,6 +92,7 @@ def remove_torrent(torrent_id):
     '''
     Returns root items.
     '''
+    logger = logging.getLogger('tmacd')
     opt = options.options.transmission
     client = transmissionrpc.Client(opt.host, port=opt.port, user=opt.username, password=opt.password)
     torrent = client.get_torrent(torrent_id)
@@ -102,6 +103,7 @@ def remove_torrent(torrent_id):
         common.add(parts[0])
     common = list(common)
     client.remove_torrent(torrent_id)
+    logger.info('root items: {0}'.format(common))
     return common
 
 
@@ -122,6 +124,8 @@ def split_all(path):
 
 
 def strip_files(torrent_root, root_items):
+    logger = logging.getLogger('tmacd')
+
     to_be_deleted = []
     for root_item in root_items:
         root = os.path.join(torrent_root, root_item)
@@ -130,6 +134,8 @@ def strip_files(torrent_root, root_items):
                 match_files(to_be_deleted, files)
         else:
             match_files(to_be_deleted, [root])
+
+    logger.info('to be deleted: {0}'.format(to_be_deleted))
 
     for f in to_be_deleted:
         os.remove(f)
@@ -152,6 +158,7 @@ def upload(torrent_root, root_items):
     cmd = ['acdcli', '-v', 'upload', '-d']
     cmd.extend(map(lambda __: os.path.join(torrent_root, __), root_items))
     cmd.append('/tmp')
+    logging.getLogger('tmacd').info('acdcli command: {0}'.format(cmd))
     p = process.Subprocess(cmd, stdout=subprocess.DEVNULL, stderr=process.Subprocess.STREAM)
     while True:
         chunk = yield p.stderr.read_bytes(65536, partial=True)
