@@ -36,7 +36,7 @@ def main(args=None):
     application = web.Application([
         (r'^/$', RootHandler),
     ])
-    application.listen(OPTS.port)
+    application.listen(OPTS['port'])
 
     main_loop.start()
     main_loop.close()
@@ -74,7 +74,7 @@ def parse_config(path):
     with open(path, 'r') as fin:
         data = yaml.safe_load(fin)
     global OPTS
-    OPTS = util.ObjectDict(data)
+    OPTS = data
 
 
 @gen.coroutine
@@ -96,8 +96,8 @@ def remove_torrent(torrent_id):
     Returns root items.
     '''
     logger = logging.getLogger('tmacd')
-    opt = OPTS.transmission
-    client = transmissionrpc.Client(opt.host, port=opt.port, user=opt.username, password=opt.password)
+    opt = OPTS['transmission']
+    client = transmissionrpc.Client(opt['host'], port=opt['port'], user=opt['username'], password=opt['password'])
     torrent = client.get_torrent(torrent_id)
     files = torrent.files()
     common = set()
