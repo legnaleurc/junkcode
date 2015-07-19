@@ -189,7 +189,7 @@ def match_files(matched_list, files):
     Collect matched files to matched_list.
     '''
     # filter pathes that match any of those patterns
-    matched = filter(lambda f: any(map(lambda p: re.match(p, f) is not None, OPTS['exclude_patterns'])), files)
+    matched = filter(lambda f: any(map(lambda p: re.search(p, f) is not None, OPTS['exclude_patterns'])), files)
     matched_list.extend(matched)
 
 
