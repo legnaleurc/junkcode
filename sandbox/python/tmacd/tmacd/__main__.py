@@ -26,6 +26,8 @@ def main(args=None):
     setup_logger()
 
     options.define('config', default=None, type=str, help='config file path', metavar='tmacd.yaml', callback=parse_config)
+    options.define('port')
+    options.define('transmission')
     remains = options.parse_command_line(args)
 
     main_loop = ioloop.IOLoop.instance()
