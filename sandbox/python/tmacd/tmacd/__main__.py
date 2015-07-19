@@ -6,7 +6,7 @@ import subprocess
 import sys
 import yaml
 
-from tornado import ioloop, process, web, log, options, util
+from tornado import ioloop, process, web, log, options, util, gen
 import transmissionrpc
 
 
