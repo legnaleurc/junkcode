@@ -11,12 +11,14 @@ from tornado import ioloop, process, web, log, options, util, gen, iostream
 import transmissionrpc
 
 
+# user-defined settings in the YAML
 OPTS = None
 
 
 class RootHandler(web.RequestHandler):
 
     def get(self):
+        # the directory that contains downloaded files
         torrent_root = self.get_argument('torrent_root')
         torrent_id = self.get_argument('torrent_id')
         loop = ioloop.IOLoop.current()
@@ -49,16 +51,19 @@ def setup_logger():
     # tornado
     log.enable_pretty_logging()
 
+    # the logger used in this daemon
     logger = logging.getLogger('tmacd')
     logger.propagate = False
     logger.setLevel(logging.DEBUG)
     # rotate on Sunday
     handler = logging.handlers.TimedRotatingFileHandler('/tmp/tmacd.log', when='w6', atTime=datetime.time())
     handler.setLevel(logging.DEBUG)
+    # align columns for my eyes
     formatter = logging.Formatter('{asctime}|{levelname:_<8}|{message}', style='{')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
+    # the logger used for acd_cli
     logger = logging.getLogger('acd')
     logger.propagate = False
     logger.setLevel(logging.DEBUG)
@@ -83,15 +88,19 @@ def process_torrent(torrent_root, torrent_id):
     logger = logging.getLogger('tmacd')
 
     logger.info('remove torrent')
+    # remove the task from Transmission first
     root_items = remove_torrent(torrent_id)
 
     logger.info('preprocess')
+    # remove unwantted files, e.g. uploader banner, BitComet padding shit ... etc.
     root_items = strip_files(torrent_root, root_items)
 
     logger.info('upload')
+    # upload files to Amazon Cloud Drive
     yield upload(torrent_root, root_items)
 
     logger.info('remove items: {0}'.format(root_items))
+    # remove local files
     for item in root_items:
         root = os.path.join(torrent_root, item)
         logger.debug(root)
@@ -103,13 +112,17 @@ def process_torrent(torrent_root, torrent_id):
 
 def remove_torrent(torrent_id):
     '''
-    Returns root items.
+    Returns top-level files/directories.
     '''
     logger = logging.getLogger('tmacd')
+
+    # get files in this torrent
     opt = OPTS['transmission']
     client = transmissionrpc.Client(opt['host'], port=opt['port'], user=opt['username'], password=opt['password'])
     torrent = client.get_torrent(torrent_id)
     files = torrent.files()
+
+    # find top-level files/directories, that's all we care
     common = set()
     for fid, item in files.items():
         if not item['selected']:
@@ -117,12 +130,18 @@ def remove_torrent(torrent_id):
         parts = split_all(item['name'])
         common.add(parts[0])
     common = list(common)
-    client.remove_torrent(torrent_id)
     logger.info('root items: {0}'.format(common))
+
+    # now we can remove the task
+    client.remove_torrent(torrent_id)
+
     return common
 
 
 def split_all(path):
+    '''
+    Returns path parts by directories.
+    '''
     allparts = []
     while True:
         parts = os.path.split(path)
@@ -139,8 +158,12 @@ def split_all(path):
 
 
 def strip_files(torrent_root, root_items):
+    '''
+    Remove files you don't need.
+    '''
     logger = logging.getLogger('tmacd')
 
+    # find files to be deleted
     to_be_deleted = []
     for root_item in root_items:
         root = os.path.join(torrent_root, root_item)
@@ -152,18 +175,21 @@ def strip_files(torrent_root, root_items):
 
     logger.info('to be deleted: {0}'.format(to_be_deleted))
 
+    # actually remove them
     for f in to_be_deleted:
         os.remove(f)
 
+    # find existing files again because the top-level files may be removed
+    # I know this is stupid but I'm lazy to rewrite this
     return list(filter(lambda __: os.path.exists(os.path.join(torrent_root, __)), root_items))
 
 
 def match_files(matched_list, files):
-    patterns = (
-        r'(girlcelly|NemuAndHaruka).*(txt|png)$',
-        r'padding_file.*BitComet',
-    )
-    matched = filter(lambda f: any(map(lambda p: re.match(p, f) is not None, patterns)), files)
+    '''
+    Collect matched files to matched_list.
+    '''
+    # filter pathes that match any of those patterns
+    matched = filter(lambda f: any(map(lambda p: re.match(p, f) is not None, OPTS['exclude_patterns'])), files)
     matched_list.extend(matched)
 
 
@@ -172,9 +198,12 @@ def upload(torrent_root, root_items):
     logger = logging.getLogger('acd')
     cmd = ['acdcli', '-v', 'upload', '-d']
     cmd.extend(map(lambda __: os.path.join(torrent_root, __), root_items))
-    cmd.append('/tmp')
+    cmd.append(OPTS['upload_directory'])
     logging.getLogger('tmacd').info('acdcli command: {0}'.format(cmd))
+
+    # call the external process
     p = process.Subprocess(cmd, stdout=subprocess.DEVNULL, stderr=process.Subprocess.STREAM)
+    # tee log
     while True:
         try:
             chunk = yield p.stderr.read_bytes(65536, partial=True)
