@@ -91,7 +91,7 @@ def process_torrent(torrent_root, torrent_id):
     logger.info('upload')
     yield upload(torrent_root, root_items)
 
-    logger.info('remove items', root_items)
+    logger.info('remove items: {0}'.format(root_items))
     for item in root_items:
         root = os.path.join(torrent_root, item)
         logger.debug(root)
