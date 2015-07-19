@@ -1,0 +1,6 @@
+port: 1234
+transmission:
+    host: localhost
+    port: 9091
+    username:
+    password:

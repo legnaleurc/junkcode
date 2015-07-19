@@ -1,0 +1,4 @@
+acdcli >= 0.3.0a2
+PyYAML
+tornado >= 4
+transmissionrpc
