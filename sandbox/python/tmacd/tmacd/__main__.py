@@ -52,7 +52,7 @@ def setup_logger():
     handler = logging.handlers.TimedRotatingFileHandler('/tmp/tmacd.log', when='w6', atTime=datetime.time())
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('{asctime}|{levelname:_<8}|{message}', style='{')
-    handler.setFormat(formatter)
+    handler.setFormatter(formatter)
     logger.addHandler(handler)
 
     logger = logging.getLogger('acd')
@@ -63,7 +63,7 @@ def setup_logger():
     handler.setLevel(logging.DEBUG)
     # the message already has timestamp
     formatter = logging.Formatter('%(message)s')
-    handler.setFormat(formatter)
+    handler.setFormatter(formatter)
     logger.addHandler(handler)
 
 
