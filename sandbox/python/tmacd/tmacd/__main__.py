@@ -2,11 +2,12 @@ import datetime
 import logging
 import os
 import re
+import shutil
 import subprocess
 import sys
 import yaml
 
-from tornado import ioloop, process, web, log, options, util, gen
+from tornado import ioloop, process, web, log, options, util, gen, iostream
 import transmissionrpc
 
 
@@ -90,6 +91,14 @@ def process_torrent(torrent_root, torrent_id):
     logger.info('upload')
     yield upload(torrent_root, root_items)
 
+    logger.info('remove items')
+    for item in root_items:
+        root = os.path.join(torrent_root, item)
+        if os.path.isdir(root):
+            shutil.rmtree(root)
+        else:
+            os.remove(root)
+
 
 def remove_torrent(torrent_id):
     '''
@@ -166,10 +175,11 @@ def upload(torrent_root, root_items):
     logging.getLogger('tmacd').info('acdcli command: {0}'.format(cmd))
     p = process.Subprocess(cmd, stdout=subprocess.DEVNULL, stderr=process.Subprocess.STREAM)
     while True:
-        chunk = yield p.stderr.read_bytes(65536, partial=True)
-        if not chunk:
+        try:
+            chunk = yield p.stderr.read_bytes(65536, partial=True)
+            logger.info(chunk.decode('utf-8'))
+        except iostream.StreamClosedError as e:
             break
-        logger.info(chunk.decode('utf-8'))
     exit_code = yield p.wait_for_exit()
     return exit_code
 
