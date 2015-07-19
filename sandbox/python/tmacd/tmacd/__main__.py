@@ -155,7 +155,7 @@ def strip_files(torrent_root, root_items):
     for f in to_be_deleted:
         os.remove(f)
 
-    return filter(lambda __: os.path.exists(os.path.join(torrent_root, __)), root_items)
+    return list(filter(lambda __: os.path.exists(os.path.join(torrent_root, __)), root_items))
 
 
 def match_files(matched_list, files):
