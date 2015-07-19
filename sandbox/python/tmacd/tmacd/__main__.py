@@ -101,8 +101,10 @@ def remove_torrent(torrent_id):
     torrent = client.get_torrent(torrent_id)
     files = torrent.files()
     common = set()
-    for fid, path in files.items():
-        parts = split_all(path)
+    for fid, item in files.items():
+        if not item['selected']:
+            continue
+        parts = split_all(item['name'])
         common.add(parts[0])
     common = list(common)
     client.remove_torrent(torrent_id)
