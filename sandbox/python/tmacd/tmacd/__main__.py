@@ -1,14 +1,12 @@
 import datetime
 import logging
 import os
-import re
-import shutil
 import subprocess
 import sys
-import yaml
 
 from tornado import ioloop, process, web, log, options, util, gen, iostream
 import transmissionrpc
+import yaml
 
 
 # user-defined settings in the YAML
@@ -31,7 +29,8 @@ def main(args=None):
 
     setup_logger()
 
-    options.define('config', default=None, type=str, help='config file path', metavar='tmacd.yaml', callback=parse_config)
+    options.define('config', default=None, type=str, help='config file path',
+                   metavar='tmacd.yaml', callback=parse_config)
     remains = options.parse_command_line(args)
 
     main_loop = ioloop.IOLoop.instance()
@@ -56,10 +55,13 @@ def setup_logger():
     logger.propagate = False
     logger.setLevel(logging.DEBUG)
     # rotate on Sunday
-    handler = logging.handlers.TimedRotatingFileHandler('/tmp/tmacd.log', when='w6', atTime=datetime.time())
+    handler = logging.handlers.TimedRotatingFileHandler('/tmp/tmacd.log',
+                                                        when='w6',
+                                                        atTime=datetime.time())
     handler.setLevel(logging.DEBUG)
     # align columns for my eyes
-    formatter = logging.Formatter('{asctime}|{levelname:_<8}|{message}', style='{')
+    formatter = logging.Formatter('{asctime}|{levelname:_<8}|{message}',
+                                  style='{')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
@@ -68,7 +70,9 @@ def setup_logger():
     logger.propagate = False
     logger.setLevel(logging.DEBUG)
     # rotate on Sunday
-    handler = logging.handlers.TimedRotatingFileHandler('/tmp/acd.log', when='w6', atTime=datetime.time())
+    handler = logging.handlers.TimedRotatingFileHandler('/tmp/acd.log',
+                                                        when='w6',
+                                                        atTime=datetime.time())
     handler.setLevel(logging.DEBUG)
     # the message already has timestamp
     formatter = logging.Formatter('%(message)s')
@@ -87,42 +91,23 @@ def parse_config(path):
 def process_torrent(torrent_root, torrent_id):
     logger = logging.getLogger('tmacd')
 
-    logger.info('remove torrent')
-    # remove the task from Transmission first
-    root_items = remove_torrent(torrent_id)
-
-    logger.info('preprocess')
-    # remove unwantted files, e.g. uploader banner, BitComet padding shit ... etc.
-    root_items = strip_files(torrent_root, root_items)
+    root_items = get_root_items(torrent_id)
+    logger.info('root times: {0}'.format(root_items))
 
     logger.info('upload')
     # upload files to Amazon Cloud Drive
     yield upload(torrent_root, root_items)
 
-    logger.info('remove items: {0}'.format(root_items))
-    # remove local files
-    for item in root_items:
-        root = os.path.join(torrent_root, item)
-        logger.debug(root)
-        if os.path.isdir(root):
-            shutil.rmtree(root)
-        else:
-            os.remove(root)
+    logger.info('remove torrent')
+    # remove the task from Transmission first
+    remove_torrent(torrent_id)
 
 
-def remove_torrent(torrent_id):
-    '''
-    Returns top-level files/directories.
-    '''
-    logger = logging.getLogger('tmacd')
-
-    # get files in this torrent
-    opt = OPTS['transmission']
-    client = transmissionrpc.Client(opt['host'], port=opt['port'], user=opt['username'], password=opt['password'])
+def get_root_items(torrent_id):
+    client = connect_transmission()
     torrent = client.get_torrent(torrent_id)
     files = torrent.files()
 
-    # find top-level files/directories, that's all we care
     common = set()
     for fid, item in files.items():
         if not item['selected']:
@@ -130,12 +115,13 @@ def remove_torrent(torrent_id):
         parts = split_all(item['name'])
         common.add(parts[0])
     common = list(common)
-    logger.info('root items: {0}'.format(common))
-
-    # now we can remove the task
-    client.remove_torrent(torrent_id)
 
     return common
+
+
+def remove_torrent(torrent_id):
+    client = connect_transmission()
+    client.remove_torrent(torrent_id, delete_data=True)
 
 
 def split_all(path):
@@ -157,52 +143,25 @@ def split_all(path):
     return allparts
 
 
-def strip_files(torrent_root, root_items):
-    '''
-    Remove files you don't need.
-    '''
-    logger = logging.getLogger('tmacd')
-
-    # find files to be deleted
-    to_be_deleted = []
-    for root_item in root_items:
-        root = os.path.join(torrent_root, root_item)
-        if os.path.isdir(root):
-            for path, dirs, files in os.walk(root):
-                match_files(to_be_deleted, map(lambda f: os.path.join(path, f), files))
-        else:
-            match_files(to_be_deleted, [root])
-
-    logger.info('to be deleted: {0}'.format(to_be_deleted))
-
-    # actually remove them
-    for f in to_be_deleted:
-        os.remove(f)
-
-    # find existing files again because the top-level files may be removed
-    # I know this is stupid but I'm lazy to rewrite this
-    return list(filter(lambda __: os.path.exists(os.path.join(torrent_root, __)), root_items))
-
-
-def match_files(matched_list, files):
-    '''
-    Collect matched files to matched_list.
-    '''
-    # filter pathes that match any of those patterns
-    matched = filter(lambda f: any(map(lambda p: re.search(p, f) is not None, OPTS['exclude_patterns'])), files)
-    matched_list.extend(matched)
-
-
 @gen.coroutine
 def upload(torrent_root, root_items):
     logger = logging.getLogger('acd')
-    cmd = ['acdcli', '-v', 'upload', '-d']
+
+    cmd = ['acdcli', '--verbose', 'upload', '--deduplicate']
+    # exclude pattern
+    exclude = OPTS['exclude']
+    for p in exclude:
+        cmd.extend(('--exclude-regex', p))
+    # files/directories to be upload
     cmd.extend(map(lambda __: os.path.join(torrent_root, __), root_items))
-    cmd.append(OPTS['upload_directory'])
+    # upload destination
+    cmd.append(OPTS['upload_to'])
+
     logging.getLogger('tmacd').info('acdcli command: {0}'.format(cmd))
 
     # call the external process
-    p = process.Subprocess(cmd, stdout=subprocess.DEVNULL, stderr=process.Subprocess.STREAM)
+    p = process.Subprocess(cmd, stdout=subprocess.DEVNULL,
+                           stderr=process.Subprocess.STREAM)
     # tee log
     while True:
         try:
@@ -212,6 +171,14 @@ def upload(torrent_root, root_items):
             break
     exit_code = yield p.wait_for_exit()
     return exit_code
+
+
+def connect_transmission():
+    opt = OPTS['transmission']
+    client = transmissionrpc.Client(opt['host'], port=opt['port'],
+                                    user=opt['username'],
+                                    password=opt['password'])
+    return client
 
 
 if __name__ == '__main__':

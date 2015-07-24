@@ -1,8 +1,8 @@
 port: 1234
-exclude_patterns:
-    - (girlcelly|NemuAndHaruka).*(txt|png)$
-    - padding_file.*BitComet
-upload_directory: /tmp
+exclude:
+    - ^.*(girlcelly|NemuAndHaruka).*(txt|png)$
+    - .*padding_file.*BitComet.*
+upload_to: /tmp
 transmission:
     host: localhost
     port: 9091
