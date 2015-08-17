@@ -6,6 +6,9 @@ import re
 import subprocess
 import json
 import multiprocessing as mp
+import os.path as op
+import contextlib
+import sqlite3
 
 
 class FileError(Exception):
@@ -49,27 +52,6 @@ def walk_nodes(file_path):
             yield (path, local_hash)
 
 
-def get_node_id(node_path):
-    cmd = ['acdcli', 'resolve', '--', path]
-    try:
-        result = subprocess.check_output(cmd)
-    except subprocess.CalledProcessError as e:
-        raise MissingError(path)
-    node_id = result.decode('utf-8').strip()
-    return node_id
-
-
-def get_node_hash(node_id):
-    cmd = ['acdcli', 'metadata', '--', node_id]
-    try:
-        result = subprocess.check_output(cmd)
-    except subprocess.CalledProcessError as e:
-        raise MetadataError(path)
-    metadata = json.loads(result.decode('utf-8'))
-    remote_hash = metadata['contentProperties']['md5']
-    return remote_hash
-
-
 def speed(args):
     path, local_hash = args[0], args[1]
 
@@ -79,7 +61,7 @@ def speed(args):
         return str(e)
 
     try:
-        remote_hash = get_node_hash(node_id)
+        remote_hash = get_node_hash(path, node_id)
     except MetadataError as e:
         return str(e)
 
@@ -87,6 +69,35 @@ def speed(args):
         return 'error[mismatch]:\n  path: {0}\n  expected: {1}\n  found: {2}'.format(path, local_hash, remove_hash)
 
     return 'ok: {0}'.format(path)
+
+
+def get_node_id(node_path):
+    cmd = ['acdcli', 'resolve', '--', node_path]
+    try:
+        result = subprocess.check_output(cmd)
+    except subprocess.CalledProcessError as e:
+        raise MissingError(node_path)
+    node_id = result.decode('utf-8').strip()
+    return node_id
+
+
+def get_node_hash(node_path, node_id):
+    with open_cache() as cursor:
+        cursor.execute('SELECT `md5` FROM `files` WHERE `id`=?;', (node_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise MetadataError(node_path)
+        remote_hash = row['md5']
+    return remote_hash
+
+
+@contextlib.contextmanager
+def open_cache():
+    db_path = op.expanduser('~/.cache/acd_cli/nodes.db')
+    with sqlite3.connect(db_path) as db:
+        db.row_factory = sqlite3.Row
+        with contextlib.closing(db.cursor()) as cursor:
+            yield cursor
 
 
 if __name__ == '__main__':
