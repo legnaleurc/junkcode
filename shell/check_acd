@@ -1,0 +1,59 @@
+#! /usr/bin/env python3
+# ex: et sw=4 ts=4 sts=4
+
+import sys
+import re
+import subprocess
+import json
+import multiprocessing as mp
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    file_path = args[1]
+
+    pool = mp.Pool()
+    for r in pool.imap_unordered(speed, get_node_id(file_path)):
+        print(r)
+        sys.stdout.flush()
+
+    return 0
+
+
+def get_node_id(file_path):
+    with open(file_path, 'r') as fin:
+        for line in fin:
+            m = re.match(r'^([\d\w]+)  (.*)$', line)
+            local_hash = m.group(1)
+            path = '/' + m.group(2)
+            yield (path, local_hash)
+
+
+def speed(args):
+    path, local_hash = args[0], args[1]
+    cmd = ['acdcli', 'resolve', '--', path]
+    try:
+        result = subprocess.check_output(cmd)
+    except subprocess.CalledProcessError as e:
+        return 'error[missing]: {0}'.format(path)
+
+    node_id = result.decode('utf-8').strip()
+    cmd = ['acdcli', 'metadata', '--', node_id]
+    try:
+        result = subprocess.check_output(cmd)
+    except subprocess.CalledProcessError as e:
+        return 'error[metadata]: {0}'.format(path)
+
+    metadata = json.loads(result.decode('utf-8'))
+    remote_hash = metadata['contentProperties']['md5']
+    if local_hash != remote_hash:
+        return 'error[mismatch]:\n  path: {0}\n  expected: {1}\n  found: {2}'.format(path, local_hash, remove_hash)
+
+    return 'ok: {0}'.format(path)
+
+
+if __name__ == '__main__':
+    exit_code = main()
+    sys.exit(exit_code)
