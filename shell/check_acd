@@ -8,6 +8,24 @@ import json
 import multiprocessing as mp
 
 
+class FileError(Exception):
+
+    def __init__(self, node_path):
+        self.node_path = node_path
+
+
+class MissingError(FileError):
+
+    def __str__(self):
+        return 'error[missing]: {0}'.format(self.node_path)
+
+
+class MetadataError(FileError):
+
+    def __str__(self):
+        return 'error[metadata]: {0}'.format(self.node_path)
+
+
 def main(args=None):
     if args is None:
         args = sys.argv
@@ -15,14 +33,14 @@ def main(args=None):
     file_path = args[1]
 
     pool = mp.Pool()
-    for r in pool.imap_unordered(speed, get_node_id(file_path)):
+    for r in pool.imap_unordered(speed, walk_nodes(file_path)):
         print(r)
         sys.stdout.flush()
 
     return 0
 
 
-def get_node_id(file_path):
+def walk_nodes(file_path):
     with open(file_path, 'r') as fin:
         for line in fin:
             m = re.match(r'^([\d\w]+)  (.*)$', line)
@@ -31,23 +49,40 @@ def get_node_id(file_path):
             yield (path, local_hash)
 
 
-def speed(args):
-    path, local_hash = args[0], args[1]
+def get_node_id(node_path):
     cmd = ['acdcli', 'resolve', '--', path]
     try:
         result = subprocess.check_output(cmd)
     except subprocess.CalledProcessError as e:
-        return 'error[missing]: {0}'.format(path)
-
+        raise MissingError(path)
     node_id = result.decode('utf-8').strip()
+    return node_id
+
+
+def get_node_hash(node_id):
     cmd = ['acdcli', 'metadata', '--', node_id]
     try:
         result = subprocess.check_output(cmd)
     except subprocess.CalledProcessError as e:
-        return 'error[metadata]: {0}'.format(path)
-
+        raise MetadataError(path)
     metadata = json.loads(result.decode('utf-8'))
     remote_hash = metadata['contentProperties']['md5']
+    return remote_hash
+
+
+def speed(args):
+    path, local_hash = args[0], args[1]
+
+    try:
+        node_id = get_node_id(path)
+    except MissingError as e:
+        return str(e)
+
+    try:
+        remote_hash = get_node_hash(node_id)
+    except MetadataError as e:
+        return str(e)
+
     if local_hash != remote_hash:
         return 'error[mismatch]:\n  path: {0}\n  expected: {1}\n  found: {2}'.format(path, local_hash, remove_hash)
 
