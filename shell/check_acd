@@ -66,7 +66,12 @@ def speed(args):
         return str(e)
 
     if local_hash != remote_hash:
-        return 'error[mismatch]:\n  path: {0}\n  expected: {1}\n  found: {2}'.format(path, local_hash, remove_hash)
+        return (
+            'error[mismatch]:\n'
+            '  path: {0}\n'
+            '  expected: {1}\n'
+            '  found: {2}'
+        ).format(path, local_hash, remove_hash)
 
     return 'ok: {0}'.format(path)
 
