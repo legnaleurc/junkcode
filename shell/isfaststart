@@ -1,0 +1,57 @@
+#! /usr/bin/env python3
+
+import struct
+import os
+import sys
+
+
+def read_header(fin):
+    size = fin.read(4)
+    if not size or len(size) < 4:
+        return 0, size
+    size = struct.unpack('>I', size)
+    size = size[0]
+    if size == 0:
+        return 0, size
+    type_ = fin.read(4)
+    if size == 1:
+        size = fin.read(8)
+        size = struct.unpack('>Q', size)
+        size = size[0]
+    return size, type_
+
+
+def next_header(fin):
+    offset = fin.tell()
+    size, type_ = read_header(fin)
+    fin.seek(offset + size)
+    return type_, size
+
+
+def walk_header(path):
+    with open(path, 'rb') as fin:
+        while True:
+            type_, size = next_header(fin)
+            if size <= 0:
+                break
+            yield type_
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    for type_ in walk_header(args[1]):
+        if type_ == b'moov':
+            print('true')
+            break
+        elif type_ == b'mdat':
+            print('false')
+            break
+
+    return 0
+
+
+if __name__ == '__main__':
+    exit_code = main()
+    sys.exit(exit_code)
