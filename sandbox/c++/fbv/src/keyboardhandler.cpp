@@ -1,6 +1,7 @@
 #include "keyboardhandler.hpp"
 
 #include <unistd.h>
+#include <fcntl.h>
 
 
 using fbv::KeyboardHandler;
