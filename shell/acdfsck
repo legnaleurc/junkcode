@@ -48,7 +48,7 @@ def walk_nodes(file_path):
         for line in fin:
             m = re.match(r'^([\d\w]+)  (.*)$', line)
             local_hash = m.group(1)
-            path = '/' + m.group(2)
+            path = m.group(2)
             yield (path, local_hash)
 
 
@@ -71,7 +71,7 @@ def speed(args):
             '  path: {0}\n'
             '  expected: {1}\n'
             '  found: {2}'
-        ).format(path, local_hash, remove_hash)
+        ).format(path, local_hash, remote_hash)
 
     return 'ok: {0}'.format(path)
 
