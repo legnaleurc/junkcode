@@ -7,11 +7,13 @@
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QLabel>
 #include <QtGui/QMovie>
+#include <QtCore/QtDebug>
 
 
 int main (int argc, char * argv[]) {
     QApplication application(argc, argv);
     auto rect = application.desktop()->availableGeometry();
+    qDebug() << application.arguments();
 
     fbv::KeyboardHandler kh;
 
