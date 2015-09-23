@@ -5,7 +5,8 @@
 #include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QDesktopWidget>
 #include <QtWidgets/QStackedWidget>
-#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QLabel>
+#include <QtGui/QMovie>
 
 
 int main (int argc, char * argv[]) {
@@ -18,10 +19,15 @@ int main (int argc, char * argv[]) {
     QStackedWidget container;
     QGraphicsScene * scene = new QGraphicsScene(&kh);
     QGraphicsView * view = new QGraphicsView(scene, &container);
-//    QFileDialog * fileDialog = new QFileDialog(&container, Qt::Widget);
+
+    QLabel * label = new QLabel;
+    QMovie * movie = new QMovie("/tmp/example.gif");
+    label->setMovie(movie);
+    movie->start();
+
+    auto wpItem = scene->addWidget(label);
 
     container.addWidget(view);
-//    container.addWidget(fileDialog);
     container.setCurrentIndex(0);
 
     container.setGeometry(rect);
