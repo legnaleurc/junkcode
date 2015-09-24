@@ -18,10 +18,19 @@
 namespace fbv {
 
 class Conductor: public QObject {
+    Q_OBJECT
+
 public:
     Conductor(QObject * parent = 0);
 
     void prepare();
+
+private slots:
+    void _onUp();
+    void _onDown();
+    void _onLeft();
+    void _onRight();
+    void _onQ();
 
 private:
     fbv::KeyboardHandler * _kh;

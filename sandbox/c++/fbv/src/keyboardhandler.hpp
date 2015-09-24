@@ -8,6 +8,7 @@
 #include <termios.h>
 
 #include <map>
+#include <functional>
 
 
 namespace fbv {
@@ -32,12 +33,15 @@ private slots:
     void _onActivated(int skt);
 
 private:
+    typedef void (KeyboardHandler::*KHMFvv)();
+    typedef std::function<void ()> CB;
+
     void _dispatch(const QByteArray & keys);
-    void _addMapping(const QByteArray & keys, const QByteArray & signal);
+    void _addMapping(const QByteArray & keys, KHMFvv mf);
     void _setupMapping();
 
     QSocketNotifier * _notifier;
-    std::map<QByteArray, QByteArray> _mapper;
+    std::map<QByteArray, CB> _mapper;
     struct termios _orig;
 };
 

@@ -43,17 +43,17 @@ void KeyboardHandler::_dispatch(const QByteArray & keys) {
         return;
     }
     auto signal = it->second;
-    QMetaObject::invokeMethod(this, signal);
+    emit signal();
 }
 
-void KeyboardHandler::_addMapping(const QByteArray & keys, const QByteArray & signal) {
-    this->_mapper.insert(std::make_pair(keys, signal));
+void KeyboardHandler::_addMapping(const QByteArray & keys, KHMFvv mf) {
+    this->_mapper.insert(std::make_pair(keys, std::bind(mf, this)));
 }
 
 void KeyboardHandler::_setupMapping() {
-    this->_addMapping("\x1b[A", SIGNAL(up()));
-    this->_addMapping("\x1b[B", SIGNAL(down()));
-    this->_addMapping("\x1b[D", SIGNAL(left()));
-    this->_addMapping("\x1b[C", SIGNAL(right()));
-    this->_addMapping("q", SIGNAL(q()));
+    this->_addMapping("\x1b[A", &KeyboardHandler::up);
+    this->_addMapping("\x1b[B", &KeyboardHandler::down);
+    this->_addMapping("\x1b[D", &KeyboardHandler::left);
+    this->_addMapping("\x1b[C", &KeyboardHandler::right);
+    this->_addMapping("q", &KeyboardHandler::q);
 }
