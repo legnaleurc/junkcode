@@ -2,14 +2,9 @@
 #define FBV_CONDUCTOR_HPP
 
 #include "keyboardhandler.hpp"
+#include "filecontroller.hpp"
 
-#include <QtWidgets/QGraphicsScene>
-#include <QtWidgets/QGraphicsView>
-#include <QtWidgets/QDesktopWidget>
 #include <QtWidgets/QStackedWidget>
-#include <QtWidgets/QLabel>
-#include <QtGui/QMovie>
-#include <QtCore/QtDebug>
 #include <QtCore/QObject>
 
 #include <memory>
@@ -21,9 +16,12 @@ class Conductor: public QObject {
     Q_OBJECT
 
 public:
+    static const QStringList & SupportedFormats();
+    static const QStringList & SupportedFormatsFilter();
+
     Conductor(QObject * parent = 0);
 
-    void prepare();
+    void prepare(const QString & path);
 
 private slots:
     void _onUp();
@@ -33,7 +31,11 @@ private slots:
     void _onQ();
 
 private:
+    void _openDirectory(const QString & path);
+    void _openFile(const QString & path);
+
     fbv::KeyboardHandler * _kh;
+    fbv::FileController * _fc;
     QStackedWidget * _container;
 };
 
