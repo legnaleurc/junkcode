@@ -1,0 +1,19 @@
+#! /bin/sh
+
+case "$1" in
+    log)
+        shift 1
+        hg log "$@"
+    ;;
+    fetch)
+        shift 1
+        hg pull "$@"
+    ;;
+    fetch)
+        shift 1
+        hg pull "$@"
+    ;;
+    *)
+        echo 'fuck' >&2
+    ;;
+esac
