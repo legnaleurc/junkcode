@@ -55,5 +55,7 @@ void KeyboardHandler::_setupMapping() {
     this->_addMapping("\x1b[B", &KeyboardHandler::down);
     this->_addMapping("\x1b[D", &KeyboardHandler::left);
     this->_addMapping("\x1b[C", &KeyboardHandler::right);
+    this->_addMapping("\x1b[5~", &KeyboardHandler::pageUp);
+    this->_addMapping("\x1b[6~", &KeyboardHandler::pageDown);
     this->_addMapping("q", &KeyboardHandler::q);
 }

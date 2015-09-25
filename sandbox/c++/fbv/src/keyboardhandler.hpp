@@ -13,7 +13,6 @@
 
 namespace fbv {
 
-
 class KeyboardHandler: public QObject {
     Q_OBJECT
 
@@ -26,8 +25,10 @@ signals:
     void down();
     void left();
     void right();
+    void pageUp();
+    void pageDown();
     void q();
-    void ctrl_c();
+    void ctrlC();
 
 private slots:
     void _onActivated(int skt);

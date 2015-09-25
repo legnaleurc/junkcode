@@ -38,6 +38,8 @@ private slots:
     void _onDown();
     void _onLeft();
     void _onRight();
+    void _onPageUp();
+    void _onPageDown();
     void _onQ();
 
 private:

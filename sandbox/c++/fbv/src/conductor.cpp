@@ -3,13 +3,9 @@
 #include "keyboardhandler.hpp"
 #include "filecontroller.hpp"
 
-
 #include <QtWidgets/QApplication>
-#include <QtCore/QFileInfo>
-#include <QtWidgets/QLabel>
-#include <QtGui/QMovie>
 #include <QtWidgets/QDesktopWidget>
-#include <QtCore/QMimeDatabase>
+#include <QtGui/QImageReader>
 #include <QtCore/QtDebug>
 
 
@@ -74,38 +70,25 @@ void Conductor::prepare(const QString & path) {
     this->_scene = new QGraphicsScene(this);
     this->_view = new QGraphicsView(this->_scene, this->_container);
 
-    auto url = QUrl::fromLocalFile(path);
-    this->_fc->open(url);
-//    QFileInfo fi(path);
-//    if (fi.isDir()) {
-//        // open dir model
-//    } else {
-//        QMimeDatabase db;
-//        auto mime = db.mimeTypeForFile(fi);
-//    }
-
     this->connect(this->_fc, SIGNAL(imageLoaded(QIODevice*)), SLOT(_onImageLoaded(QIODevice*)));
 
     this->connect(this->_kh, SIGNAL(up()), SLOT(_onUp()));
     this->connect(this->_kh, SIGNAL(down()), SLOT(_onDown()));
     this->connect(this->_kh, SIGNAL(left()), SLOT(_onLeft()));
     this->connect(this->_kh, SIGNAL(right()), SLOT(_onRight()));
+    this->connect(this->_kh, SIGNAL(pageUp()), SLOT(_onPageUp()));
+    this->connect(this->_kh, SIGNAL(pageDown()), SLOT(_onPageDown()));
     this->connect(this->_kh, SIGNAL(q()), SLOT(_onQ()));
-
-    auto rect = qApp->desktop()->availableGeometry();
-
-//    QLabel * label = new QLabel;
-//    QMovie * movie = new QMovie("/tmp/1.gif");
-//    label->setMovie(movie);
-//    movie->start();
-
-//    auto wpItem = scene->addWidget(label);
 
     this->_container->addWidget(this->_view);
     this->_container->setCurrentIndex(0);
 
+    auto rect = qApp->desktop()->availableGeometry();
     this->_container->setGeometry(rect);
     this->_container->show();
+
+    auto url = QUrl::fromLocalFile(path);
+    this->_fc->open(url);
 }
 
 void Conductor::_onImageLoaded(QIODevice * image) {
@@ -137,6 +120,14 @@ void Conductor::_onLeft() {
 
 void Conductor::_onRight() {
     qDebug() << "right";
+}
+
+void Conductor::_onPageUp() {
+    this->_fc->prev();
+}
+
+void Conductor::_onPageDown() {
+    this->_fc->next();
 }
 
 void Conductor::_onQ() {
