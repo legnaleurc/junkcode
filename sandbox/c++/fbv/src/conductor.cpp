@@ -108,18 +108,22 @@ void Conductor::_onImageChanged() {
 
 void Conductor::_onUp() {
     qDebug() << "up";
+    qDebug() << QApplication::focusWidget();
 }
 
 void Conductor::_onDown() {
     qDebug() << "down";
+    qDebug() << QApplication::focusWidget();
 }
 
 void Conductor::_onLeft() {
     qDebug() << "left";
+    qDebug() << QApplication::focusWidget();
 }
 
 void Conductor::_onRight() {
     qDebug() << "right";
+    qDebug() << QApplication::focusWidget();
 }
 
 void Conductor::_onPageUp() {
