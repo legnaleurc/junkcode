@@ -75,6 +75,6 @@ signals:
 }
 } // end namespace
 
-Q_DECLARE_METATYPE(QIODevice *)
+//Q_DECLARE_METATYPE(QIODevice *)
 
 #endif

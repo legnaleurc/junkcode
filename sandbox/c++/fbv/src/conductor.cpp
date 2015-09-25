@@ -1,4 +1,8 @@
 #include "conductor.hpp"
+#include "widget/imageitem.hpp"
+#include "keyboardhandler.hpp"
+#include "filecontroller.hpp"
+
 
 #include <QtWidgets/QApplication>
 #include <QtCore/QFileInfo>
@@ -41,6 +45,7 @@ QStringList uniqueList() {
 using fbv::Conductor;
 using fbv::KeyboardHandler;
 using fbv::FileController;
+using fbv::widget::ImageItem;
 
 
 const QStringList & Conductor::SupportedFormats() {
@@ -105,6 +110,17 @@ void Conductor::prepare(const QString & path) {
 
 void Conductor::_onImageLoaded(QIODevice * image) {
     this->_scene->clear();
+
+    QList<QIODevice *> images({image});
+    auto images_ = new ImageItem(images);
+    this->connect(images_, SIGNAL(changed()), SLOT(_onImageChanged()));
+    this->_scene->addItem(images_);
+
+    this->_onImageChanged();
+}
+
+void Conductor::_onImageChanged() {
+    ;
 }
 
 void Conductor::_onUp() {

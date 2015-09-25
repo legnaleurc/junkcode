@@ -1,9 +1,6 @@
 #ifndef FBV_CONDUCTOR_HPP
 #define FBV_CONDUCTOR_HPP
 
-#include "keyboardhandler.hpp"
-#include "filecontroller.hpp"
-
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsView>
@@ -13,6 +10,15 @@
 
 
 namespace fbv {
+
+class KeyboardHandler;
+class FileController;
+
+namespace widget {
+
+class ImageItem;
+
+}
 
 class Conductor: public QObject {
     Q_OBJECT
@@ -27,6 +33,7 @@ public:
 
 private slots:
     void _onImageLoaded(QIODevice *);
+    void _onImageChanged();
     void _onUp();
     void _onDown();
     void _onLeft();
@@ -34,14 +41,12 @@ private slots:
     void _onQ();
 
 private:
-    void _openDirectory(const QString & path);
-    void _openFile(const QString & path);
-
     fbv::KeyboardHandler * _kh;
     fbv::FileController * _fc;
     QStackedWidget * _container;
     QGraphicsScene * _scene;
     QGraphicsView * _view;
+    fbv::widget::ImageItem * _currentImage;
 };
 
 }
