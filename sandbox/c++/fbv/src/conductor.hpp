@@ -43,12 +43,24 @@ private slots:
     void _onQ();
 
 private:
+    QRectF _getCurrentImageRect() const;
+    QRectF _getViewportRect() const;
+    void _updateScaling();
+    void _fitWindow();
+    void _fitWidth();
+    void _fitHeight();
+    void _scale(double ratio);
+    void _fromViewportMoveBy();
+    QLineF _normalizeMotionVector(const QPointF & delta);
+    void _moveBy(const QPointF & delta);
+
     fbv::KeyboardHandler * _kh;
     fbv::FileController * _fc;
     QStackedWidget * _container;
     QGraphicsScene * _scene;
     QGraphicsView * _view;
     fbv::widget::ImageItem * _currentImage;
+    double _currentRatio;
 };
 
 }

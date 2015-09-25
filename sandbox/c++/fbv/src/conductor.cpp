@@ -60,7 +60,9 @@ _kh(),
 _fc(),
 _container(),
 _scene(),
-_view() {
+_view(),
+_currentImage(),
+_currentRatio(1.0) {
 }
 
 void Conductor::prepare(const QString & path) {
@@ -103,7 +105,110 @@ void Conductor::_onImageLoaded(QIODevice * image) {
 }
 
 void Conductor::_onImageChanged() {
-    ;
+    if (!this->_currentImage || this->_currentImage->boundingRect().isNull()) {
+        return;
+    }
+
+    this->_scene->setSceneRect(this->_currentImage->boundingRect());
+    this->_currentImage->setPos(0, 0);
+
+    this->_updateScaling();
+}
+
+QRectF Conductor::_getCurrentImageRect() const {
+    if (!this->_currentImage) {
+        return QRectF();
+    }
+    return this->_currentImage->sceneBoundingRect();
+}
+
+QRectF Conductor::_getViewportRect() const {
+    auto vpr = this->_view->viewport()->rect();
+    return this->_view->mapToScene(vpr).boundingRect();
+}
+
+void Conductor::_updateScaling() {
+    // TODO add scale mode
+    this->_fitWindow();
+}
+
+void Conductor::_fitWindow() {
+    auto cir = this->_getCurrentImageRect();
+    auto vpr = this->_getViewportRect();
+    double dW = cir.width() - vpr.width();
+    double dH = cir.height() - vpr.height();
+
+    if (dW <= 0.0 && dH <= 0.0) {
+        return;
+    }
+
+    if(dW > dH) {
+        this->_fitWidth();
+    } else {
+        this->_fitHeight();
+    }
+}
+
+void Conductor::_fitWidth() {
+    auto cir = this->_getCurrentImageRect();
+    auto vpr = this->_getViewportRect();
+    this->_scale(vpr.width() / cir.width());
+}
+
+void Conductor::_fitHeight() {
+    auto cir = this->_getCurrentImageRect();
+    auto vpr = this->_getViewportRect();
+    this->_scale(vpr.height() / cir.height());
+}
+
+void Conductor::_scale(double ratio) {
+    this->_view->scale(ratio, ratio);
+    this->_fromViewportMoveBy();
+    this->_currentRatio *= ratio;
+}
+
+void Conductor::_fromViewportMoveBy() {
+    QPointF delta;
+    delta /= this->_currentRatio;
+    QLineF v = this->_normalizeMotionVector(delta);
+    this->_moveBy(v.p2());
+}
+
+QLineF Conductor::_normalizeMotionVector(const QPointF & delta) {
+    double dx = delta.x();
+    double dy = delta.y();
+    auto cir = this->_getCurrentImageRect();
+    auto vpr = this->_getViewportRect();
+    QRectF req = cir.translated( dx, dy );
+    // horizontal
+    if (cir.width() < vpr.width()) {
+        dx += vpr.center().x() - req.center().x();
+    } else if (req.left() > vpr.left()) {
+        dx += vpr.left() - req.left();
+    } else if (req.right() < vpr.right()) {
+        dx += vpr.right() - req.right();
+    }
+    // vertical
+    if (cir.height() < vpr.height()) {
+        dy += vpr.center().y() - req.center().y();
+    } else if (req.top() > vpr.top()) {
+        dy += vpr.top() - req.top();
+    } else if (req.bottom() < vpr.bottom()) {
+        dy += vpr.bottom() - req.bottom();
+    }
+    return QLineF(0, 0, dx, dy);
+}
+
+void Conductor::_moveBy(const QPointF & delta) {
+    if (!this->_currentImage) {
+        return;
+    }
+    this->_currentImage->moveBy(delta.x(), delta.y());
+
+    auto cir = this->_getCurrentImageRect();
+    auto vpr = this->_getViewportRect();
+    auto img = cir.center();
+    auto vp = vpr.center();
 }
 
 void Conductor::_onUp() {
