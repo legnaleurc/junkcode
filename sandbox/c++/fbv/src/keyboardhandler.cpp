@@ -4,6 +4,7 @@
 #include <QtCore/QtDebug>
 
 #include <unistd.h>
+#include <fcntl.h>
 
 
 using fbv::KeyboardHandler;
@@ -13,19 +14,35 @@ KeyboardHandler::KeyboardHandler(QObject * parent):
 QObject(parent),
 _notifier(new QSocketNotifier(STDIN_FILENO, QSocketNotifier::Read, this)),
 _mapper(),
-_orig() {
+_orig_term(),
+_orig_stdin() {
     this->_setupMapping();
 
     this->connect(this->_notifier, SIGNAL(activated(int)), SLOT(_onActivated(int)));
 
-    tcgetattr(STDIN_FILENO, &this->_orig);
-    struct termios now = this->_orig;
-    cfmakeraw(&now);
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &now);
+    if (isatty(STDIN_FILENO)) {
+        struct termios new_term;
+
+        tcgetattr(STDIN_FILENO, &this->_orig_term);
+
+        new_term = this->_orig_term;
+        new_term.c_lflag &= ~(ICANON | ECHO | ECHOCTL | ECHONL);
+        new_term.c_cflag |= HUPCL;
+        new_term.c_cc[VMIN] = 0;
+
+        tcsetattr(STDIN_FILENO, TCSANOW, &new_term);
+    } else {
+        this->_orig_stdin = fcntl(STDIN_FILENO, F_GETFL);
+        fcntl(STDIN_FILENO, F_SETFL, this->_orig_stdin | O_NONBLOCK);
+    }
 }
 
 KeyboardHandler::~KeyboardHandler() {
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &this->_orig);
+    if (isatty(STDIN_FILENO)) {
+        tcsetattr(STDIN_FILENO, TCSANOW, &this->_orig_term);
+    } else {
+        fcntl(STDIN_FILENO, F_SETFL, this->_orig_stdin);
+    }
 }
 
 void KeyboardHandler::_onActivated(int) {

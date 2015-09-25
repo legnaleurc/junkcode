@@ -43,7 +43,8 @@ private:
 
     QSocketNotifier * _notifier;
     std::map<QByteArray, CB> _mapper;
-    struct termios _orig;
+    struct termios _orig_term;
+    int _orig_stdin;
 };
 
 }
