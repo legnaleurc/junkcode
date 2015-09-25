@@ -1,5 +1,5 @@
 /**
- * @file directorymodel.cpp
+ * @file blockdeviceloader.hpp
  * @author Wei-Cheng Pan
  *
  * KomiX, a comics viewer.
@@ -18,27 +18,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "directorymodel.hpp"
+#ifndef KOMIX_WIDGET_STATICITEM_HPP
+#define KOMIX_WIDGET_STATICITEM_HPP
 
-namespace {
+#include "asynchronousloader.hpp"
 
-bool check( const QUrl & url ) {
-    if( url.scheme() == "file" ) {
-        QFileInfo fi( url.toLocalFile() );
-        return fi.isDir();
-    }
-    return false;
+namespace fbv {
+namespace loader {
+
+class BlockDeviceLoader: public AsynchronousLoader {
+public:
+    BlockDeviceLoader( QIODevice * device );
+
+    virtual void run();
+};
+
+}
 }
 
-std::shared_ptr< fbv::model::FileModel > create( const QUrl & url ) {
-    return std::shared_ptr<  fbv::model::FileModel >( new fbv::model::directory::DirectoryModel( QFileInfo( url.toLocalFile() ) ) );
-}
-
-static const bool registered = fbv::model::FileModel::registerModel( check, create );
-
-} // end of namespace
-
-using namespace fbv::model::directory;
-
-DirectoryModel::DirectoryModel( const QFileInfo & root ): LocalFileModel( root.absoluteFilePath() ) {
-}
+#endif

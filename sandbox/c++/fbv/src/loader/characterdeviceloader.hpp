@@ -1,5 +1,5 @@
 /**
- * @file archivemodel.hpp
+ * @file characterdeviceloader.hpp
  * @author Wei-Cheng Pan
  *
  * KomiX, a comics viewer.
@@ -18,38 +18,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KOMIX_MODEL_ARCHIVE_ARCHIVEMODEL_HPP_
-#define KOMIX_MODEL_ARCHIVE_ARCHIVEMODEL_HPP_
+#ifndef KOMIX_WIDGET_CHARACTERDEVICELOADER_HPP
+#define KOMIX_WIDGET_CHARACTERDEVICELOADER_HPP
 
-#include "archivemodel.hpp"
+#include "asynchronousloader.hpp"
 
-namespace KomiX {
-namespace model {
-namespace archive {
+#include <memory>
 
-class ArchiveModel::Private: public QObject {
-    Q_OBJECT
+namespace fbv {
+namespace loader {
+
+class CharacterDeviceLoader: public AsynchronousLoader {
 public:
-    explicit Private( ArchiveModel * owner, const QFileInfo & root );
+    CharacterDeviceLoader( QIODevice * device );
 
-    void extract( const QString &, const char * );
+    virtual void run();
 
-public slots:
-    void cleanup( int );
-    void checkTwo( int );
-    void allDone( int );
-
-signals:
-    void ready();
-    void error( const QString & );
-
-public:
-    ArchiveModel * owner;
-    QFileInfo root;
-    QString hash;
+private:
+    class Private;
+    friend class Private;
+    std::shared_ptr< Private > p_;
 };
 
-}
 }
 }
 

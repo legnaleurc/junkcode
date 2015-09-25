@@ -28,7 +28,7 @@ KeyboardHandler::~KeyboardHandler() {
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &this->_orig);
 }
 
-void KeyboardHandler::_onActivated(int skt) {
+void KeyboardHandler::_onActivated(int) {
     this->_notifier->setEnabled(false);
     char buffer[8];
     auto size = read(STDIN_FILENO, buffer, sizeof(buffer));

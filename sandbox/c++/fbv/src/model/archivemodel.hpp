@@ -23,9 +23,8 @@
 
 #include "localfilemodel.hpp"
 
-namespace KomiX {
+namespace fbv {
 namespace model {
-namespace archive {
 
 /**
  * @brief The model using 7-Zip to open compressed file
@@ -65,7 +64,6 @@ const QStringList & ArchiveFormatsFilter();
  */
 bool isArchiveSupported( const QString & path );
 
-}
 }
 } // end of namespace
 

@@ -1,5 +1,5 @@
 /**
- * @file singlemodel.hpp
+ * @file asynchronousloader.cpp
  * @author Wei-Cheng Pan
  *
  * KomiX, a comics viewer.
@@ -18,26 +18,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KOMIX_MODEL_SINGLE_SINGLEMODEL_HPP
-#define KOMIX_MODEL_SINGLE_SINGLEMODEL_HPP
-
-#include "model/localfilemodel.hpp"
+#include "asynchronousloader.hpp"
 
 namespace fbv {
-namespace model {
-namespace single {
+namespace loader {
 
-/**
- * @brief The model to open single file
- */
-class SingleModel : public LocalFileModel {
+class AsynchronousLoader::Private {
 public:
-    /// Constructor open @p root as image
-    SingleModel( const QFileInfo & root );
+    Private( QIODevice * device );
+
+    QIODevice * device;
 };
 
 }
 }
-} //end of namespace
 
-#endif
+using fbv::loader::AsynchronousLoader;
+
+AsynchronousLoader::Private::Private( QIODevice * device ):
+device( device ) {
+}
+
+AsynchronousLoader::AsynchronousLoader( QIODevice * device ):
+QObject(),
+QRunnable(),
+p_( new Private( device ) ) {
+}
+
+QIODevice * AsynchronousLoader::getDevice() const {
+    return this->p_->device;
+}

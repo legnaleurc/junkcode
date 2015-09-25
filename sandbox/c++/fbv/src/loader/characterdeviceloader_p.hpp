@@ -1,5 +1,5 @@
 /**
- * @file directorymodel.hpp
+ * @file characterdeviceloader_p.hpp
  * @author Wei-Cheng Pan
  *
  * KomiX, a comics viewer.
@@ -18,26 +18,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KOMIX_MODEL_DIRECTORY_DIRECTORYMODEL_HPP
-#define KOMIX_MODEL_DIRECTORY_DIRECTORYMODEL_HPP
+#ifndef KOMIX_WIDGET_CHARACTERDEVICELOADER_HPP_
+#define KOMIX_WIDGET_CHARACTERDEVICELOADER_HPP_
 
-#include "model/localfilemodel.hpp"
+#include "characterdeviceloader.hpp"
+
+#include <QtCore/QBuffer>
+
+#include <memory>
 
 namespace fbv {
-namespace model {
-namespace directory {
+namespace loader {
 
-/**
- * @brief The model to open directory
- */
-class DirectoryModel : public LocalFileModel {
+class CharacterDeviceLoader::Private: public QObject {
+    Q_OBJECT
 public:
-    /// Constructor open @p root as top-level directory
-    DirectoryModel( const QFileInfo & root );
+    explicit Private( CharacterDeviceLoader * owner );
+
+public slots:
+    void onReadyRead();
+    void onReadFinished();
+
+signals:
+    void finished();
+
+public:
+    CharacterDeviceLoader * owner;
+    QBuffer buffer;
 };
 
 }
 }
-} // end of namespace
 
 #endif

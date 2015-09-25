@@ -4,8 +4,6 @@
 #include <QtCore/QFileInfo>
 #include <QtWidgets/QLabel>
 #include <QtGui/QMovie>
-#include <QtWidgets/QGraphicsScene>
-#include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QDesktopWidget>
 #include <QtCore/QMimeDatabase>
 #include <QtCore/QtDebug>
@@ -57,19 +55,31 @@ const QStringList & Conductor::SupportedFormatsFilter() {
 
 Conductor::Conductor(QObject * parent):
 QObject(parent),
-_kh(new KeyboardHandler(this)),
-_fc(new FileController(this)),
-_container(new QStackedWidget) {
+_kh(),
+_fc(),
+_container(),
+_scene(),
+_view() {
 }
 
 void Conductor::prepare(const QString & path) {
-    QFileInfo fi(path);
-    if (fi.isDir()) {
-        // open dir model
-    } else {
-        QMimeDatabase db;
-        auto mime = db.mimeTypeForFile(fi);
-    }
+    this->_kh = new KeyboardHandler(this);
+    this->_fc = new FileController(this);
+    this->_container = new QStackedWidget;
+    this->_scene = new QGraphicsScene(this);
+    this->_view = new QGraphicsView(this->_scene, this->_container);
+
+    auto url = QUrl::fromLocalFile(path);
+    this->_fc->open(url);
+//    QFileInfo fi(path);
+//    if (fi.isDir()) {
+//        // open dir model
+//    } else {
+//        QMimeDatabase db;
+//        auto mime = db.mimeTypeForFile(fi);
+//    }
+
+    this->connect(this->_fc, SIGNAL(imageLoaded(QIODevice*)), SLOT(_onImageLoaded(QIODevice*)));
 
     this->connect(this->_kh, SIGNAL(up()), SLOT(_onUp()));
     this->connect(this->_kh, SIGNAL(down()), SLOT(_onDown()));
@@ -79,29 +89,22 @@ void Conductor::prepare(const QString & path) {
 
     auto rect = qApp->desktop()->availableGeometry();
 
-    QGraphicsScene * scene = new QGraphicsScene(this->_kh);
-    QGraphicsView * view = new QGraphicsView(scene, this->_container);
+//    QLabel * label = new QLabel;
+//    QMovie * movie = new QMovie("/tmp/1.gif");
+//    label->setMovie(movie);
+//    movie->start();
 
-    QLabel * label = new QLabel;
-    QMovie * movie = new QMovie("/tmp/1.gif");
-    label->setMovie(movie);
-    movie->start();
+//    auto wpItem = scene->addWidget(label);
 
-    auto wpItem = scene->addWidget(label);
-
-    this->_container->addWidget(view);
+    this->_container->addWidget(this->_view);
     this->_container->setCurrentIndex(0);
 
     this->_container->setGeometry(rect);
     this->_container->show();
 }
 
-void Conductor::_openDirectory(const QString & path) {
-    ;
-}
-
-void Conductor::_openFile(const QString & path) {
-    ;
+void Conductor::_onImageLoaded(QIODevice * image) {
+    this->_scene->clear();
 }
 
 void Conductor::_onUp() {

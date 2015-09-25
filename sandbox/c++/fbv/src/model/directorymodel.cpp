@@ -1,5 +1,5 @@
 /**
- * @file singlemodel.cpp
+ * @file directorymodel.cpp
  * @author Wei-Cheng Pan
  *
  * KomiX, a comics viewer.
@@ -18,35 +18,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "conductor.hpp"
-#include "singlemodel.hpp"
+#include "directorymodel.hpp"
 
 namespace {
 
 bool check( const QUrl & url ) {
     if( url.scheme() == "file" ) {
         QFileInfo fi( url.toLocalFile() );
-        if( !fi.isDir() ) {
-            QString suffix = fi.suffix().toLower();
-            foreach( QString ext, fbv::Conductor::SupportedFormats() ) {
-                if( suffix == ext ) {
-                    return true;
-                }
-            }
-        }
+        return fi.isDir();
     }
     return false;
 }
 
 std::shared_ptr< fbv::model::FileModel > create( const QUrl & url ) {
-    return std::shared_ptr< fbv::model::FileModel >( new fbv::model::single::SingleModel( QFileInfo( url.toLocalFile() ) ) );
+    return std::shared_ptr<  fbv::model::FileModel >( new fbv::model::DirectoryModel( QFileInfo( url.toLocalFile() ) ) );
 }
 
 static const bool registered = fbv::model::FileModel::registerModel( check, create );
 
 } // end of namespace
 
-using namespace fbv::model::single;
+using namespace fbv::model;
 
-SingleModel::SingleModel( const QFileInfo & root ) : LocalFileModel( root.dir() ) {
+DirectoryModel::DirectoryModel( const QFileInfo & root ): LocalFileModel( root.absoluteFilePath() ) {
 }
