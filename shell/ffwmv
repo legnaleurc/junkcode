@@ -1,25 +1,75 @@
 #! /bin/sh
+# ex: et sw=4 sts=4 ts=4
 
-set -e
-set -x
 
-while read path ; do
-    rp="$(realpath -m /"$path")"
-    rn="$(dirname "$rp")"
-    fn="$(basename "$path")"
-    tfn="$(echo "$fn" | sed -e 's/wmv$/mp4/')"
-    tp="/tmp/$fn"
-    tpp="/tmp/$tfn"
+main () {
+    set -x
+    set -e
 
-    echo "processing ... $rp"
+    while read _path ; do
+        local remote_abs_file="$(realpath -m /"$_path")"
+        process "$remote_abs_file"
+    done
+}
 
+
+process () {
+    local remote_abs_file="$1"
+    local remote_abs_directory="$(dirname "$remote_abs_file")"
+    local src_file="$(basename "$remote_abs_file")"
+    local dist_file="$(echo "$src_file" | sed -e 's/wmv$/mp4/')"
+    local src_abs_file="/tmp/$src_file"
+    local dist_abs_file="/tmp/$dist_file"
+
+    echo "processing ... $remote_abs_file"
+    download "$remote_abs_file"
+    transcode "$src_abs_file" "$dist_abs_file"
+    upload "$dist_abs_file" "$remote_abs_directory"
+    trash "$remote_abs_file"
+    echo 'processed'
+}
+
+
+download () {
+    local remote_abs_file="$1"
+
+    echo 'downloading ...'
     acdcli -v s
-    acdcli -v dl -r 128 "$rp" '/tmp'
-    ffmpeg -nostdin -i "$tp" -c:v libx264 -crf 18 -preset veryslow -movflags faststart -y "$tpp"
-    rm "$tp"
+    acdcli -v dl -r 128 "$remote_abs_file" '/tmp'
+    echo 'downloaded'
+}
+
+
+transcode () {
+    local src_abs_file="$1"
+
+    echo 'transcoding ...'
+    ffmpeg -nostdin -i "$src_abs_file" -c:v libx264 -crf 18 -preset veryslow -movflags faststart -y "$dist_abs_file"
+    rm "$src_abs_file"
+    echo 'transcoded'
+}
+
+
+upload () {
+    local dist_abs_file="$1"
+    local remote_abs_directory="$2"
+
+    echo 'uploading ...'
     acdcli -v s
-    acdcli -v ul -r 128 -o "$tpp" "$rd"
-    rm "$tpp"
+    acdcli -v ul -r 128 -o "$dist_abs_file" "$remote_abs_directory"
+    rm "$dist_abs_file"
+    echo 'uploaded'
+}
+
+
+trash () {
+    local remote_abs_file="$1"
+
+    echo 'trashing ...'
     acdcli -v s
-    acdcli -v rm "$rp"
-done
+    acdcli -v rm "$remote_abs_file"
+    echo 'trashed'
+}
+
+
+main "$@"
