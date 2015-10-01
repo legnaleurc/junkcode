@@ -1,0 +1,27 @@
+#! /bin/sh
+
+set -e
+set -x
+
+while read path ; do
+    rp="$(realpath -m /"$path")"
+
+    echo "processing ... $rp"
+
+    dn="$(dirname "$path")"
+    rd="$(realpath -m /"$dn")"
+    fn="$(basename "$path")"
+    tfn="$(echo "$fn" | sed -e 's/wmv$/mp4/')"
+    tp="/tmp/$fn"
+    tpp="/tmp/$tfn"
+
+    acdcli -v s
+    acdcli -v dl -r 128 "$rp" '/tmp'
+    ffmpeg -nostdin -i "$tp" -c:v libx264 -crf 18 -preset veryslow -movflags faststart -y "$tpp"
+    rm "$tp"
+    acdcli -v s
+    acdcli -v ul -r 128 -o "$tpp" "$rd"
+    rm "$tpp"
+    acdcli -v s
+    acdcli -v rm "$rp"
+done
