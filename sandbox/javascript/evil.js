@@ -71,6 +71,12 @@
         return asyncForEach(seq, 0, fn);
     };
 
+    exports.wait = function (msDelay) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, msDelay);
+        });
+    };
+
 }(((typeof exports === 'undefined') ? undefined : exports), this));
 
 // ex: ts=4 sts=4 sw=4 et
