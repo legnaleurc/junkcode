@@ -13,7 +13,7 @@
         };
     }
 
-    function extend(object) {
+    function extend (object) {
         slice.call(arguments, 1).forEach(function (source) {
             var prop;
             if (!source) {
@@ -26,6 +26,13 @@
             }
         });
         return object;
+    }
+
+    function asyncForEach (seq, index, fn) {
+        if (index >= seq.length) {
+            return Promise.resolve();
+        }
+        return fn(seq[index], index, seq).then(asyncForEach.bind(this, seq, index + 1, fn));
     }
 
     exports.extend = function (protoProps, staticProps) {
@@ -59,6 +66,11 @@
             return fn.apply(this, args.concat(slice.call(arguments)));
         };
     };
+
+    exports.asyncForEach = function (seq, fn) {
+        return asyncForEach(seq, 0, fn);
+    };
+
 }(((typeof exports === 'undefined') ? undefined : exports), this));
 
 // ex: ts=4 sts=4 sw=4 et
