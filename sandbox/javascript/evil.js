@@ -77,6 +77,13 @@
         });
     };
 
+    exports.asyncWhile = function asyncWhile (condition, fn) {
+        if (!condition()) {
+            return Promise.resolve();
+        }
+        return fn().then(asyncWhile.bind(this, condition, fn));
+    };
+
 }(((typeof exports === 'undefined') ? undefined : exports), this));
 
 // ex: ts=4 sts=4 sw=4 et
