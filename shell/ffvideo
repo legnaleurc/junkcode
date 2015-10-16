@@ -14,46 +14,6 @@ import json
 # local: temporary path
 
 
-'''
-mp4:
-if faststart and h264:
-    return
-cmd = [defaults, mp4, faststart]
-if not h264:
-    cmd += libx264
-else:
-    cmd += copy
-
-download
-transcode
-delete_remote
-upload
-delete_local
-'''
-'''
-wmv|rmvb|rm:
-cmd = [defaults, mp4, faststart, libx264]
-
-download
-transcode
-delete_remote
-upload
-delete_local
-'''
-'''
-mkv:
-if h264:
-    return
-cmd = [defaults, mkv, libx264]
-
-download
-transcode
-delete_remote
-upload
-delete_local
-'''
-
-
 class VideoProcessor(object):
 
     def __init__(self, fuse_path):
