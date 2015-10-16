@@ -28,13 +28,6 @@
         return object;
     }
 
-    function asyncForEach (seq, index, fn) {
-        if (index >= seq.length) {
-            return Promise.resolve();
-        }
-        return fn(seq[index], index, seq).then(asyncForEach.bind(this, seq, index + 1, fn));
-    }
-
     exports.extend = function (protoProps, staticProps) {
         var parent = this, child;
 
@@ -68,7 +61,9 @@
     };
 
     exports.asyncForEach = function (seq, fn) {
-        return asyncForEach(seq, 0, fn);
+        return seq.reduce(function (previous, current, index, array) {
+            return previous.then(fn.bind(this, current, index, array));
+        }, Promise.resolve());
     };
 
     exports.wait = function (msDelay) {
