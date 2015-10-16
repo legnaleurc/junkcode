@@ -94,7 +94,7 @@ class VideoProcessor(object):
             self.fuse_path,
         ])
         data = json.loads(data.decode('utf-8'))
-        self._is_h264 = data['codec_name'] == 'h264'
+        self._is_h264 = data['streams'][0]['codec_name'] == 'h264'
         return self._is_h264
 
     @property
