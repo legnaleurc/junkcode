@@ -264,6 +264,15 @@ def create_processor(fuse_path):
     return table[ext](fuse_path)
 
 
+def shell_call(cmd_list):
+    sp.run(cmd_list, check=True)
+
+
+def shell_output(cmd_list):
+    cp = sp.run(cmd_list, stdout=sp.PIPE, check=True)
+    return cp.stdout
+
+
 def main(args=None):
     if args is None:
         args = sys.argv
