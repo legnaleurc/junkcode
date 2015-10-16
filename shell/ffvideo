@@ -15,6 +15,10 @@ import subprocess as sp
 # local: temporary path
 
 
+H264_PRESET = 'slow'
+H264_CRF = '18'
+
+
 class VideoProcessor(object):
 
     def __init__(self, fuse_path):
@@ -138,8 +142,8 @@ class MP4Processer(VideoProcessor):
         if self.is_h264:
             vc = ['-c:v', 'copy']
         else:
-            vc = ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryslow']
-        return ['-c:a', 'copy'] + vc + ['-movflags', 'faststart']
+            vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
+        return ['-c:a', 'copy'] + vc + ['-movflags', '+faststart']
 
     @property
     def transcoded_file_name(self):
@@ -199,8 +203,8 @@ class AVIProcesser(VideoProcessor):
         if self.is_h264:
             vc = ['-c:v', 'copy']
         else:
-            vc = ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryslow']
-        return vc + ['-movflags', 'faststart']
+            vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
+        return vc + ['-movflags', '+faststart']
 
     @property
     def transcoded_file_name(self):
@@ -222,7 +226,7 @@ class MKVProcesser(VideoProcessor):
         if self.is_h264:
             vc = ['-c:v', 'copy']
         else:
-            vc = ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryslow']
+            vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
         return ['-c:a', 'copy', '-c:s', 'copy'] + vc
 
     @property
@@ -241,7 +245,7 @@ class FailSafeProcesser(VideoProcessor):
 
     @property
     def codec_command(self):
-        return ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryslow', '-movflags', 'faststart']
+        return ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET, '-movflags', '+faststart']
 
     @property
     def transcoded_file_name(self):
