@@ -1,0 +1,326 @@
+#! /usr/bin/env python3
+
+import sys
+import os.path as op
+import os
+import struct
+import json
+
+
+# path: absolute path
+# name: single entity name
+# remote: path on ACD
+# fuse: mounted space
+# local: temporary path
+
+
+'''
+mp4:
+if faststart and h264:
+    return
+cmd = [defaults, mp4, faststart]
+if not h264:
+    cmd += libx264
+else:
+    cmd += copy
+
+download
+transcode
+delete_remote
+upload
+delete_local
+'''
+'''
+wmv|rmvb|rm:
+cmd = [defaults, mp4, faststart, libx264]
+
+download
+transcode
+delete_remote
+upload
+delete_local
+'''
+'''
+mkv:
+if h264:
+    return
+cmd = [defaults, mkv, libx264]
+
+download
+transcode
+delete_remote
+upload
+delete_local
+'''
+
+
+class VideoProcessor(object):
+
+    def __init__(self, fuse_path):
+        self._fuse_path = fuse_path
+        self._remote_path = op.normpath(op.join('/', fuse_path))
+        self._remote_directory = op.dirname(self._remote_path)
+        self._file_name = op.basename(fuse_path)
+        self._local_path = op.join('/tmp', self._file_name)
+        self._is_h264 = None
+
+    def _download(self):
+        shell_call([
+            'acdcli', '-v', 's',
+        ])
+        shell_call([
+            'acdcli', '-v',
+            'dl', '-r', '128', self._remote_path, '/tmp',
+        ])
+
+    def _upload(self, new_local_file):
+        shell_call([
+            'acdcli', '-v', 's',
+        ])
+        shell_call([
+            'acdcli', '-v',
+            'ul', '-r', '128', new_local_file, self._remote_directory,
+        ])
+
+    def _delete_local(self, new_local_file):
+        os.remove(new_local_file)
+        os.remove(self._local_path)
+
+    def _delete_remote(self):
+        shell_call([
+            'acdcli', '-v', 's',
+        ])
+        shell_call([
+            'acdcli', '-v',
+            'rm', self._remote_path,
+        ])
+
+    def _transcode(self):
+        file_name = self._mangle_transcoded_file_name()
+        main_cmd = ['ffmpeg', '-nostdin', '-y']
+        input_cmd = ['-i', self._local_path]
+        codec_cmd = self.codec_command
+        output_file_path = [op.join('/tmp', file_name)]
+        cmd = main_cmd + input_cmd + codec_cmd + output_file_path
+        shell_call(cmd)
+        return output_file_path
+
+    def _mangle_transcoded_file_name(self):
+        file_name = self.transcoded_file_name
+        if file_name != self._file_name:
+            return file_name
+
+        new_file_name = '_' + file_name
+        new_local_path = op.join('/tmp', new_file_name)
+        os.rename(self._local_path, new_local_path)
+        self._local_path = new_local_path
+        self._file_name = new_file_name
+        return file_name
+
+    @property
+    def fuse_path(self):
+        return self._fuse_path
+
+    @property
+    def is_h264(self):
+        if self._is_h264 is not None:
+            return self._is_h264
+        data = shell_output([
+            'ffprobe',
+            '-show_streams',
+            '-select_streams', 'v',
+            '-print_format', 'json',
+            self.fuse_path,
+        ])
+        data = json.loads(data.decode('utf-8'))
+        self._is_h264 = data['codec_name'] == 'h264'
+        return self._is_h264
+
+    @property
+    def skippable(self):
+        return True
+
+    @property
+    def codec_command(self):
+        raise NotImplementedError()
+
+    @property
+    def transcoded_file_name(self):
+        raise NotImplementedError()
+
+    def __call__(self):
+        if self.skippable:
+            return
+
+        self._download()
+        new_file_path = self._transcode()
+        self._delete_remote()
+        self._upload(new_file_path)
+        self._delete_local(new_file_path)
+
+
+class MP4Processer(VideoProcessor):
+
+    def __init__(self, fuse_path):
+        super(MP4Processer, self).__init__(fuse_path)
+
+    @property
+    def skippable(self):
+        if not self.is_h264:
+            return False
+        if not self._is_faststart():
+            return False
+        return True
+
+    @property
+    def codec_command(self):
+        if self.is_h264:
+            vc = ['-c:v', 'copy']
+        else:
+            vc = ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryslow']
+        return ['-c:a', 'copy'] + vc + ['-movflags', 'faststart']
+
+    @property
+    def transcoded_file_name(self):
+        return self._file_name
+
+    def _is_faststart(self):
+        for type_ in self._walk_header():
+            if type_ == b'moov':
+                return True
+                break
+            elif type_ == b'mdat':
+                return False
+                break
+        return False
+
+    def _walk_header(self):
+        with open(self.fuse_path, 'rb') as fin:
+            while True:
+                type_, size = self._next_header(fin)
+                if size <= 0:
+                    break
+                yield type_
+
+    def _next_header(self, fin):
+        offset = fin.tell()
+        size, type_ = self._read_header(fin)
+        fin.seek(offset + size)
+        return type_, size
+
+    def _read_header(self, fin):
+        size = fin.read(4)
+        if not size or len(size) < 4:
+            return 0, size
+        size = struct.unpack('>I', size)
+        size = size[0]
+        if size == 0:
+            return 0, size
+        type_ = fin.read(4)
+        if size == 1:
+            size = fin.read(8)
+            size = struct.unpack('>Q', size)
+            size = size[0]
+        return size, type_
+
+
+class AVIProcesser(VideoProcessor):
+
+    def __init__(self, fuse_path):
+        super(AVIProcesser, self).__init__(fuse_path)
+
+    @property
+    def skippable(self):
+        return False
+
+    @property
+    def codec_command(self):
+        if self.is_h264:
+            vc = ['-c:v', 'copy']
+        else:
+            vc = ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryslow']
+        return vc + ['-movflags', 'faststart']
+
+    @property
+    def transcoded_file_name(self):
+        name, ext = op.splitext(self._file_name)
+        return name + '.mp4'
+
+
+class MKVProcesser(VideoProcessor):
+
+    def __init__(self, fuse_path):
+        super(MKVProcesser, self).__init__(fuse_path)
+
+    @property
+    def skippable(self):
+        return self.is_h264
+
+    @property
+    def codec_command(self):
+        if self.is_h264:
+            vc = ['-c:v', 'copy']
+        else:
+            vc = ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryslow']
+        return ['-c:a', 'copy', '-c:s', 'copy'] + vc
+
+    @property
+    def transcoded_file_name(self):
+        return self._file_name
+
+
+class FailSafeProcesser(VideoProcessor):
+
+    def __init__(self, fuse_path):
+        super(FailSafeProcesser, self).__init__(fuse_path)
+
+    @property
+    def skippable(self):
+        return False
+
+    @property
+    def codec_command(self):
+        return ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryslow', '-movflags', 'faststart']
+
+    @property
+    def transcoded_file_name(self):
+        name, ext = op.splitext(self._file_name)
+        return name + '.mp4'
+
+
+def create_processor(fuse_path):
+    table = {
+        '.mp4': MP4Processer,
+        '.flv': AVIProcesser,
+        '.avi': AVIProcesser,
+        '.mkv': MKVProcesser,
+        '.wmv': FailSafeProcesser,
+        '.rm': FailSafeProcesser,
+        '.rmvb': FailSafeProcesser,
+    }
+    _, ext = op.splitext(fuse_path)
+    if ext not in table:
+        return None
+    return table[ext](fuse_path)
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    if len(args) != 2:
+        return 1
+
+    for root, dirs, files in os.walk(args[1]):
+        for file_name in files:
+            file_path = op.join(root, file_name)
+            p = create_processor(file_path)
+            if p:
+                p()
+
+    return 0
+
+
+if __name__ == '__main__':
+    exit_code = main()
+    sys.exit(exit_code)
