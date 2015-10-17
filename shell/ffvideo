@@ -195,10 +195,10 @@ class MP4Processer(VideoProcessor):
         return size, type_
 
 
-class AVIProcesser(VideoProcessor):
+class MaybeH264Processer(VideoProcessor):
 
     def __init__(self, fuse_path):
-        super(AVIProcesser, self).__init__(fuse_path)
+        super(MaybeH264Processer, self).__init__(fuse_path)
 
     @property
     def skippable(self):
@@ -240,10 +240,10 @@ class MKVProcesser(VideoProcessor):
         return self._file_name
 
 
-class FailSafeProcesser(VideoProcessor):
+class NeverH264Processer(VideoProcessor):
 
     def __init__(self, fuse_path):
-        super(FailSafeProcesser, self).__init__(fuse_path)
+        super(NeverH264Processer, self).__init__(fuse_path)
 
     @property
     def skippable(self):
@@ -262,13 +262,13 @@ class FailSafeProcesser(VideoProcessor):
 def create_processor(fuse_path):
     table = {
         '.mp4': MP4Processer,
-        '.flv': AVIProcesser,
-        '.avi': AVIProcesser,
-        '.asf': AVIProcesser,
         '.mkv': MKVProcesser,
-        '.wmv': FailSafeProcesser,
-        '.rm': FailSafeProcesser,
-        '.rmvb': FailSafeProcesser,
+        '.flv': MaybeH264Processer,
+        '.avi': MaybeH264Processer,
+        '.asf': MaybeH264Processer,
+        '.wmv': NeverH264Processer,
+        '.rm': NeverH264Processer,
+        '.rmvb': NeverH264Processer,
     }
     _, ext = op.splitext(fuse_path)
     if ext not in table:
