@@ -15,7 +15,7 @@ import subprocess as sp
 # local: temporary path
 
 
-H264_PRESET = 'slow'
+H264_PRESET = 'veryfast'
 H264_CRF = '18'
 
 
@@ -65,8 +65,8 @@ class VideoProcessor(object):
         main_cmd = ['ffmpeg', '-nostdin', '-y']
         input_cmd = ['-i', self._local_path]
         codec_cmd = self.codec_command
-        output_file_path = [op.join('/tmp', file_name)]
-        cmd = main_cmd + input_cmd + codec_cmd + output_file_path
+        output_file_path = op.join('/tmp', file_name)
+        cmd = main_cmd + input_cmd + codec_cmd + [output_file_path]
         shell_call(cmd)
         return output_file_path
 
