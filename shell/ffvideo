@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# ex: et sw=4 ts=4 sts=4
 
 import sys
 import os.path as op
@@ -33,10 +34,15 @@ class VideoProcessor(object):
         shell_call([
             'acdcli', '-v', 's',
         ])
-        shell_call([
-            'acdcli', '-v',
-            'dl', '-r', '128', self._remote_path, '/tmp',
-        ])
+        for _ in range(5):
+            try:
+                shell_call([
+                    'acdcli', '-v',
+                    'dl', '-r', '4', self._remote_path, '/tmp',
+                ])
+            except sp.CalledProcessError as e:
+                if _ == 4 or e.returncode not in (32,):
+                    raise
 
     def _upload(self, new_local_file):
         shell_call([
@@ -44,7 +50,7 @@ class VideoProcessor(object):
         ])
         shell_call([
             'acdcli', '-v',
-            'ul', '-r', '128', new_local_file, self._remote_directory,
+            'ul', '-r', '4', new_local_file, self._remote_directory,
         ])
 
     def _delete_local(self, new_local_file):
@@ -258,6 +264,7 @@ def create_processor(fuse_path):
         '.mp4': MP4Processer,
         '.flv': AVIProcesser,
         '.avi': AVIProcesser,
+        '.asf': AVIProcesser,
         '.mkv': MKVProcesser,
         '.wmv': FailSafeProcesser,
         '.rm': FailSafeProcesser,
