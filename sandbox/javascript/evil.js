@@ -53,7 +53,7 @@
         return child;
     };
 
-    exports.partial = function () {
+    exports.partial = function partial () {
         var fn = this, args = slice.call(arguments);
         return function () {
             return fn.apply(this, args.concat(slice.call(arguments)));
@@ -62,7 +62,7 @@
 
     exports.asyncForEach = function (seq, fn) {
         return seq.reduce(function (previous, current, index, array) {
-            return previous.then(fn.bind(this, current, index, array));
+            return previous.then(partial(fn, current, index, array));
         }, Promise.resolve());
     };
 
@@ -76,7 +76,7 @@
         if (!condition()) {
             return Promise.resolve();
         }
-        return fn().then(asyncWhile.bind(this, condition, fn));
+        return fn().then(partial(asyncWhile, condition, fn));
     };
 
 }(((typeof exports === 'undefined') ? undefined : exports), this));
