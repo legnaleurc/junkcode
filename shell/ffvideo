@@ -292,6 +292,10 @@ def main(args=None):
     if len(args) != 2:
         return 1
 
+    shell_call([
+        'acdcli', '-v', 's',
+    ])
+
     for root, dirs, files in os.walk(args[1]):
         for file_name in files:
             file_path = op.join(root, file_name)
