@@ -95,11 +95,11 @@ class VideoProcessor(object):
 
     async def internet_shell(self, cmd, output=False):
         async with self._INTERNET_LOCK:
-            await self._shell_call(cmd, output)
+            return await self._shell_call(cmd, output)
 
     async def cpu_shell(self, cmd, output=False):
         async with self._CPU_LOCK:
-            await self._shell_call(cmd, output)
+            return await self._shell_call(cmd, output)
 
     async def _shell_call(self, cmd, output):
         o = sp.PIPE if output else None
