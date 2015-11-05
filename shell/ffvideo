@@ -102,7 +102,7 @@ class VideoProcessor(object):
             await self._shell_call(cmd, output)
 
     async def _shell_call(self, cmd, output):
-        o = asyncio.PIPE if output else None
+        o = sp.PIPE if output else None
         p = await asyncio.create_subprocess_exec(cmd, check=True, stdout=o)
         out, err = await p.communicate()
         return out
