@@ -139,7 +139,7 @@ class VideoProcessor(object):
         raise NotImplementedError()
 
     async def __call__(self):
-        if self.skippable:
+        if await self.skippable:
             return
 
         await self._download()
