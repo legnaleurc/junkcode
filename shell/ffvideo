@@ -8,6 +8,7 @@ import struct
 import json
 import subprocess as sp
 import asyncio
+import contextlib
 
 
 # path: absolute path
@@ -323,7 +324,7 @@ def main(args=None):
         'acdcli', '-v', 's',
     ])
 
-    with asyncio.get_event_loop() as loop:
+    with contextlib.closing(asyncio.get_event_loop()) as loop:
         loop.run_until_complete(walk_tree(args[1]))
 
     return 0
