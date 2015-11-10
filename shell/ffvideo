@@ -269,6 +269,7 @@ def create_processor(fuse_path):
         '.wmv': NeverH264Processer,
         '.rm': NeverH264Processer,
         '.rmvb': NeverH264Processer,
+        '.ogm': NeverH264Processer,
     }
     _, ext = op.splitext(fuse_path)
     if ext not in table:
