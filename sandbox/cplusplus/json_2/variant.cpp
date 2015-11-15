@@ -90,6 +90,8 @@ public:
         this->pushState(PF(parseNull));
         break;
       case L',':
+      case L']':
+      case L'}':
         std::clog << "value end" << std::endl;
         this->sin.putback(c);
         this->popState();
