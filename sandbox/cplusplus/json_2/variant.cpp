@@ -89,6 +89,11 @@ public:
         this->sin.putback(c);
         this->pushState(PF(parseNull));
         break;
+      case L',':
+        std::clog << "value end" << std::endl;
+        this->sin.putback(c);
+        this->popState();
+        break;
       default:
         assert(!__PRETTY_FUNCTION__);
         break;
@@ -155,46 +160,6 @@ public:
     }
   }
 
-#if 0
-  void parseObjectValue (wchar_t c) {
-    switch (c) {
-      case L' ':
-      case L'\t':
-      case L'\r':
-      case L'\n':
-        break;
-      case L'0':
-      case L'1':
-      case L'2':
-      case L'3':
-      case L'4':
-      case L'5':
-      case L'6':
-      case L'7':
-      case L'8':
-      case L'9':
-        std::clog << "start number" << std::endl;
-        this->parse = std::bind(&Parser::parseNumber, this, std::placeholders::_1);
-        break;
-      case L't':
-        std::clog << "start true" << std::endl;
-        this->parse = std::bind(&Parser::parseTrue, this, std::placeholders::_1);
-        break;
-      case L'f':
-        std::clog << "start false" << std::endl;
-        this->parse = std::bind(&Parser::parseFalse, this, std::placeholders::_1);
-        break;
-      case L'"':
-        std::clog << "start string" << std::endl;
-        this->parse = std::bind(&Parser::parseString, this, std::placeholders::_1);
-        break;
-      default:
-        assert(!__PRETTY_FUNCTION__);
-        break;
-    }
-  }
-#endif
-
   void parseNumber (wchar_t c) {
     switch (c) {
       case L'0':
@@ -228,6 +193,9 @@ public:
   }
 
   void parseTrue (wchar_t c) {
+    if (c != L't') {
+      assert(!"parseTrue");
+    }
     this->sin >> c;
     if (c != L'r') {
       assert(!"parseTrue");
@@ -241,30 +209,45 @@ public:
       assert(!"parseTrue");
     }
     this->sin >> c;
-    if (c != L'r') {
-      assert(!"parseTrue");
-    }
     switch (c) {
-      case L'r':
-      case L'u':
-      case L'e':
-        std::clog << "end object key escape" << std::endl;
-        this->parse = std::bind(&Parser::parseString, this, std::placeholders::_1);
+      case L',':
+        std::clog << "end true" << std::endl;
+        this->sin.putback(c);
+        this->popState();
         break;
       default:
-        assert(!"");
+        assert(!"parseTrue");
         break;
     }
   }
 
   void parseFalse (wchar_t c) {
+    if (c != L'f') {
+      assert(!"parseFalse");
+    }
+    this->sin >> c;
+    if (c != L'a') {
+      assert(!"parseFalse");
+    }
+    this->sin >> c;
+    if (c != L'l') {
+      assert(!"parseFalse");
+    }
+    this->sin >> c;
+    if (c != L's') {
+      assert(!"parseFalse");
+    }
+    this->sin >> c;
+    if (c != L'e') {
+      assert(!"parseFalse");
+    }
     switch (c) {
-      case L'"':
-        std::clog << "end object key escape" << std::endl;
-        this->parse = std::bind(&Parser::parseString, this, std::placeholders::_1);
+      case L',':
+        std::clog << "end false" << std::endl;
+        this->popState();
         break;
       default:
-        assert(!"");
+        assert(!"parseFalse");
         break;
     }
   }
