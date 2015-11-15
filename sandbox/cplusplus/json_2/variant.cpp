@@ -267,6 +267,7 @@ public:
       case L']':
       case L'}':
         std::clog << "end false" << std::endl;
+        this->sin.putback(c);
         this->popState();
         break;
       default:
@@ -297,6 +298,7 @@ public:
       case L']':
       case L'}':
         std::clog << "end null" << std::endl;
+        this->sin.putback(c);
         this->popState();
         break;
       default:
