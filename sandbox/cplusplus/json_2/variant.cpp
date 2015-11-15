@@ -129,7 +129,25 @@ public:
   }
 
   void parseArray (wchar_t c) {
-    assert(!__PRETTY_FUNCTION__);
+    switch (c) {
+      case L' ':
+      case L'\t':
+      case L'\r':
+      case L'\n':
+        break;
+      case L']':
+        std::clog << "end array" << std::endl;
+        this->popState();
+        break;
+      case L',':
+        std::clog << "next entry" << std::endl;
+        break;
+      default:
+        std::clog << "start entry" << std::endl;
+        this->sin.putback(c);
+        this->pushState(PF(parseValue));
+        break;
+    }
   }
 
   void parseString (wchar_t c) {
@@ -211,6 +229,8 @@ public:
     this->sin >> c;
     switch (c) {
       case L',':
+      case L']':
+      case L'}':
         std::clog << "end true" << std::endl;
         this->sin.putback(c);
         this->popState();
@@ -241,8 +261,11 @@ public:
     if (c != L'e') {
       assert(!"parseFalse");
     }
+    this->sin >> c;
     switch (c) {
       case L',':
+      case L']':
+      case L'}':
         std::clog << "end false" << std::endl;
         this->popState();
         break;
@@ -253,7 +276,33 @@ public:
   }
 
   void parseNull (wchar_t c) {
-    assert(!__PRETTY_FUNCTION__);
+    if (c != L'n') {
+      assert(!"parseNull");
+    }
+    this->sin >> c;
+    if (c != L'u') {
+      assert(!"parseNull");
+    }
+    this->sin >> c;
+    if (c != L'l') {
+      assert(!"parseNull");
+    }
+    this->sin >> c;
+    if (c != L'l') {
+      assert(!"parseNull");
+    }
+    this->sin >> c;
+    switch (c) {
+      case L',':
+      case L']':
+      case L'}':
+        std::clog << "end null" << std::endl;
+        this->popState();
+        break;
+      default:
+        assert(!"parseNull");
+        break;
+    }
   }
 
 };
