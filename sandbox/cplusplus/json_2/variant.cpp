@@ -7,8 +7,68 @@
 #include <cassert>
 
 
-Variant::operator VariantMap () const {
-  return VariantMap();
+class Parser;
+
+
+class Variant::Private {
+public:
+  friend class Parser;
+
+  enum Type {
+    NULL_,
+    BOOLEAN,
+    INTEGER,
+    STRING,
+    ARRAY,
+    OBJECT,
+  };
+
+  Type type;
+  std::shared_ptr<void> value;
+};
+
+Variant::Variant(): _(std::make_shared<Private>()) {
+  this->_->type = Private::NULL_;
+  this->_->value.reset();
+}
+
+Variant::Variant(bool b): _(std::make_shared<Private>()) {
+  this->_->type = Private::BOOLEAN;
+  this->_->value.reset(new bool(b), [](void * pb)->void {
+    delete static_cast<bool*>(pb);
+  });
+}
+
+Variant::Variant(int i): _(std::make_shared<Private>()) {
+  this->_->type = Private::INTEGER;
+  this->_->value.reset(new int(i), [](void * pi)->void {
+    delete static_cast<int*>(pi);
+  });
+}
+
+Variant::Variant(const String & s): _(std::make_shared<Private>()) {
+  this->_->type = Private::STRING;
+  this->_->value.reset(new String(s), [](void * ps)->void {
+    delete static_cast<String*>(ps);
+  });
+}
+
+Variant::Variant(const VariantArray & a): _(std::make_shared<Private>()) {
+  this->_->type = Private::ARRAY;
+  this->_->value.reset(new VariantArray(a), [](void * pa)->void {
+    delete static_cast<VariantArray*>(pa);
+  });
+}
+
+Variant::Variant(const VariantObject & o): _(std::make_shared<Private>()) {
+  this->_->type = Private::OBJECT;
+  this->_->value.reset(new VariantObject(o), [](void * po)->void {
+    delete static_cast<VariantObject*>(po);
+  });
+}
+
+VariantObject Variant::asObject () const {
+  return VariantObject();
 }
 
 
@@ -309,10 +369,14 @@ public:
     }
   }
 
+  Variant resolve () {
+    return Variant();
+  }
+
 };
 
 
 Variant parse_json (const String & json) {
   Parser p(json);
-  return Variant();
+  return p.resolve();
 }
