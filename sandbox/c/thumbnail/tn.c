@@ -16,15 +16,18 @@ int main (int argc, char ** argv) {
     }
 
     // initialize
-    av_register_all();
     const char * const INPUT_FILENAME = argv[1];
     const char * const OUTPUT_FILENAME = argv[2];
+    av_register_all();
     int ok = 0;
 
     // open file
     AVFormatContext * pfc = NULL;
     ok = avformat_open_input(&pfc, INPUT_FILENAME, NULL, NULL);
-    assert(ok == 0 || !"file");
+    if (ok != 0) {
+        ok = 1;
+        goto failed;
+    }
 
     // find stream
     int stnb = av_find_best_stream(pfc, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
@@ -35,50 +38,58 @@ int main (int argc, char ** argv) {
     // find codec
     AVCodecContext * pcc = pst->codec;
     AVCodec * pc = avcodec_find_decoder(pcc->codec_id);
-    assert(pc || !"codec");
+    if (!pc) {
+        ok = 1;
+        goto close_demuxer;
+    }
     ok = avcodec_open2(pcc, pc, NULL);
-    assert(ok == 0 || !"codec");
+    if (ok != 0) {
+        ok = 1;
+        goto close_demuxer;
+    }
 
     int64_t sts = 300;
     int counter = 0;
     while (sts < duration) {
-        printf("%s %d\n", INPUT_FILENAME, counter);
-
         // seek keyframe
         int64_t ffts = av_rescale(sts, ptb->den, ptb->num);
         ok = av_seek_frame(pfc, stnb, ffts, AVSEEK_FLAG_BACKWARD);
         if (ok != 0) {
             printf("seek failed\n");
-            sts += 600;
-            counter += 1;
-            continue;
+            goto next_time;
         }
 
         AVFrame * pf = av_frame_alloc();
         ok = seek_snapshot(sts, pfc, pcc, pf);
-        assert(ok == 0 || !"seek");
+        if (ok != 0) {
+            goto close_frame;
+        }
 
         char filename[4096] = "";
         snprintf(filename, sizeof(filename), OUTPUT_FILENAME, counter);
-        save_snapshot(filename, pcc, pf);
+        ok = save_snapshot(filename, pcc, pf);
+        if (ok != 0) {
+            goto close_frame;
+        }
 
+close_frame:
         av_frame_free(&pf);
-
+next_time:
         // add 10 minute
         sts += 600;
         counter += 1;
     }
 
-    if (pcc) {
+    ok = 0;
+    if (pc) {
         avcodec_close(pcc);
     }
+close_demuxer:
     if (pfc) {
         avformat_close_input(&pfc);
     }
-
-    printf("%s ok\n", INPUT_FILENAME);
-
-    return 0;
+failed:
+    return ok;
 }
 
 
@@ -92,43 +103,55 @@ int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, A
         pkt.data = NULL;
         pkt.size = 0;
         ok = av_read_frame(pifc, &pkt);
-        assert(ok == 0 || !"frame");
+        if (ok != 0) {
+            goto skip_frame;
+        }
         if (pifc->streams[pkt.stream_index]->codec != picc) {
-          // skip other streams
-          continue;
+            // skip other streams
+            goto skip_frame;
         }
 
         do {
             ok = avcodec_decode_video2(picc, pf, &got_frame, &pkt);
             if (ok < 0) {
-                break;
+                goto skip_frame:
             }
             pkt.data += ok;
             pkt.size -= ok;
         } while (ok > 0 && pkt.size > 0 && !got_frame);
 
+skip_frame:
         av_free_packet(&pkt);
     }
 
-    return 0;
+    ok = 0;
+    return ok;
 }
 
 
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif) {
-    AVFormatContext * pfc = NULL;
-    avformat_alloc_output_context2(&pfc, NULL, NULL, filename);
-    assert(pfc || !"output");
-
-    AVCodec * pc = avcodec_find_encoder(AV_CODEC_ID_PNG);
-    assert(pc || !"codec");
-
-    AVStream * pst = avformat_new_stream(pfc, pc);
-    assert(pst || !"stream");
-
-    AVCodecContext * pcc = pst->codec;
-
     int ok = 0;
 
+    AVFormatContext * pfc = NULL;
+    avformat_alloc_output_context2(&pfc, NULL, NULL, filename);
+    if (!pfc) {
+        ok = 1;
+        goto save_output_failed;
+    }
+
+    AVCodec * pc = avcodec_find_encoder(AV_CODEC_ID_PNG);
+    if (!pc) {
+        ok = 1;
+        goto close_muxer;
+    }
+
+    AVStream * pst = avformat_new_stream(pfc, pc);
+    if (!pst) {
+        ok = 1;
+        goto close_muxer:
+    }
+
+    AVCodecContext * pcc = pst->codec;
     pcc->width = picc->width;
     pcc->height = picc->height;
     pcc->pix_fmt = pc->pix_fmts[0];
@@ -136,13 +159,23 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     pcc->codec_id = pc->id;
     pcc->codec_type = pc->type;
     ok = avcodec_open2(pcc, pc, NULL);
-    assert(ok == 0 || !"codec");
+    if (ok != 0) {
+        ok = 1;
+        goto close_muxer;
+    }
 
     ok = avformat_write_header(pfc, NULL);
-    assert(ok == 0 || !"codec");
+    if (ok != 0) {
+        ok = 1;
+        goto close_encoder;
+    }
 
     struct SwsContext * psc = sws_getCachedContext(NULL, picc->width, picc->height, picc->pix_fmt, pcc->width, pcc->height, pcc->pix_fmt, SWS_BILINEAR, NULL, NULL, NULL);
-    assert(psc || !"sws");
+    if (!psc) {
+        ok = 1;
+        goto close_encoder;
+    }
+
     AVFrame * pf = av_frame_alloc();
     pf->width = pcc->width;
     pf->height = pcc->height;
@@ -156,7 +189,9 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     pkt.size = 0;
     int got_frame = 0;
     ok = avcodec_encode_video2(pcc, &pkt, pf, &got_frame);
-    assert(got_frame || !"encode");
+    if (!got_frame) {
+        goto close_scale;
+    }
 
     avpicture_free((AVPicture *)pf);
     av_frame_free(&pf);
@@ -165,15 +200,19 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     av_free_packet(&pkt);
     av_write_trailer(pfc);
 
+    ok = 0;
+close_scale:
     if (psc) {
         sws_freeContext(psc);
     }
+close_encoder:
     if (pcc) {
         avcodec_close(pcc);
     }
+close_muxer:
     if (pfc) {
         avformat_free_context(pfc);
     }
-
-    return 0;
+save_output_failed:
+    return ok;
 }
