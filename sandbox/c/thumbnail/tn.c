@@ -3,8 +3,6 @@
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
-#include <assert.h>
-
 
 static const int START_SECOND = 300;
 static const int INTERVAL_SECOND = 600;
@@ -195,6 +193,9 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     if (!got_frame) {
         goto close_scale;
     }
+    // NOTE does not matter in image
+    pkt.pts = 0;
+    pkt.dts = 0;
 
     avpicture_free((AVPicture *)pf);
     av_frame_free(&pf);
