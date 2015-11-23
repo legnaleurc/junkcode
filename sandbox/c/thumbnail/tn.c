@@ -23,6 +23,8 @@ int main (int argc, char ** argv) {
     av_register_all();
     int ok = 0;
 
+    printf("%s\n", INPUT_FILENAME);
+
     // open file
     AVFormatContext * pfc = NULL;
     ok = avformat_open_input(&pfc, INPUT_FILENAME, NULL, NULL);
@@ -64,6 +66,7 @@ int main (int argc, char ** argv) {
         AVFrame * pf = av_frame_alloc();
         ok = seek_snapshot(sts, pfc, pcc, pf);
         if (ok != 0) {
+            ok = 1;
             goto close_frame;
         }
 
@@ -71,8 +74,11 @@ int main (int argc, char ** argv) {
         snprintf(filename, sizeof(filename), OUTPUT_FILENAME, counter);
         ok = save_snapshot(filename, pcc, pf);
         if (ok != 0) {
+            ok = 1;
             goto close_frame;
         }
+
+        printf("take %d\n", counter);
 
 close_frame:
         av_frame_free(&pf);
@@ -90,6 +96,7 @@ close_demuxer:
         avformat_close_input(&pfc);
     }
 failed:
+    printf("result %d\n", ok);
     return ok;
 }
 
@@ -105,16 +112,19 @@ int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, A
         pkt.size = 0;
         ok = av_read_frame(pifc, &pkt);
         if (ok != 0) {
+            ok = 1;
             goto skip_frame;
         }
         if (pifc->streams[pkt.stream_index]->codec != picc) {
             // skip other streams
+            ok = 0;
             goto skip_frame;
         }
 
         do {
             ok = avcodec_decode_video2(picc, pf, &got_frame, &pkt);
             if (ok < 0) {
+                ok = 1;
                 goto skip_frame;
             }
             pkt.data += ok;
@@ -123,9 +133,11 @@ int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, A
 
 skip_frame:
         av_free_packet(&pkt);
+        if (ok != 0) {
+            break;
+        }
     }
 
-    ok = 0;
     return ok;
 }
 
