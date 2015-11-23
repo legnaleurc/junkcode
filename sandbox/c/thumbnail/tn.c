@@ -6,6 +6,10 @@
 #include <assert.h>
 
 
+static const int START_SECOND = 300;
+static const int INTERVAL_SECOND = 600;
+
+
 int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf);
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
 
@@ -48,7 +52,7 @@ int main (int argc, char ** argv) {
         goto close_demuxer;
     }
 
-    int64_t sts = 300;
+    int64_t sts = START_SECOND;
     int counter = 0;
     while (sts < duration) {
         // seek keyframe
@@ -75,8 +79,7 @@ int main (int argc, char ** argv) {
 close_frame:
         av_frame_free(&pf);
 next_time:
-        // add 10 minute
-        sts += 600;
+        sts += INTERVAL_SECOND;
         counter += 1;
     }
 
