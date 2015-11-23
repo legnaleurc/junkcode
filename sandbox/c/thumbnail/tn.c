@@ -114,7 +114,7 @@ int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, A
         do {
             ok = avcodec_decode_video2(picc, pf, &got_frame, &pkt);
             if (ok < 0) {
-                goto skip_frame:
+                goto skip_frame;
             }
             pkt.data += ok;
             pkt.size -= ok;
@@ -148,7 +148,7 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     AVStream * pst = avformat_new_stream(pfc, pc);
     if (!pst) {
         ok = 1;
-        goto close_muxer:
+        goto close_muxer;
     }
 
     AVCodecContext * pcc = pst->codec;
