@@ -93,7 +93,10 @@ int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, A
         pkt.size = 0;
         ok = av_read_frame(pifc, &pkt);
         assert(ok == 0 || !"frame");
-        printf("pkt %d %d\n", pkt.size, pkt.flags);
+        if (pifc->streams[pkt.stream_index]->codec != picc) {
+          // skip other streams
+          continue;
+        }
 
         do {
             ok = avcodec_decode_video2(picc, pf, &got_frame, &pkt);
