@@ -150,7 +150,7 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     avformat_alloc_output_context2(&pfc, NULL, NULL, filename);
     if (!pfc) {
         ok = 1;
-        goto save_output_failed;
+        goto failed;
     }
 
     AVCodec * pc = avcodec_find_encoder(AV_CODEC_ID_PNG);
@@ -230,6 +230,6 @@ close_muxer:
     if (pfc) {
         avformat_free_context(pfc);
     }
-save_output_failed:
+failed:
     return ok;
 }
