@@ -5,7 +5,7 @@
 
 
 static const int START_SECOND = 300;
-static const int INTERVAL_SECOND = 600;
+static const int INTERVAL_SECOND = 300;
 
 
 int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf);
