@@ -131,6 +131,7 @@ int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, A
             pkt.size -= ok;
         } while (ok > 0 && pkt.size > 0 && !got_frame);
 
+        ok = 0;
 skip_frame:
         av_free_packet(&pkt);
         if (ok != 0) {
