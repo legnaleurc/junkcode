@@ -106,6 +106,7 @@ int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, A
     int got_frame = 0;
 
     while (!got_frame) {
+        // read a frame
         AVPacket pkt;
         av_init_packet(&pkt);
         pkt.data = NULL;
@@ -115,12 +116,14 @@ int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, A
             ok = 1;
             goto skip_frame;
         }
+        // the frame may belong to other streams after seeking
         if (pifc->streams[pkt.stream_index]->codec != picc) {
             // skip other streams
             ok = 0;
             goto skip_frame;
         }
 
+        // decode a picture, may need multiple frames to get one picture
         do {
             ok = avcodec_decode_video2(picc, pf, &got_frame, &pkt);
             if (ok < 0) {
@@ -146,6 +149,7 @@ skip_frame:
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif) {
     int ok = 0;
 
+    // prepare muxer
     AVFormatContext * pfc = NULL;
     avformat_alloc_output_context2(&pfc, NULL, NULL, filename);
     if (!pfc) {
@@ -153,18 +157,21 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
         goto failed;
     }
 
+    // find encoder
     AVCodec * pc = avcodec_find_encoder(AV_CODEC_ID_PNG);
     if (!pc) {
         ok = 1;
         goto close_muxer;
     }
 
+    // prepare encoding stream
     AVStream * pst = avformat_new_stream(pfc, pc);
     if (!pst) {
         ok = 1;
         goto close_muxer;
     }
 
+    // prepare encoder
     AVCodecContext * pcc = pst->codec;
     pcc->width = picc->width;
     pcc->height = picc->height;
@@ -178,25 +185,42 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
         goto close_muxer;
     }
 
+    // write file header
     ok = avformat_write_header(pfc, NULL);
     if (ok != 0) {
         ok = 1;
         goto close_encoder;
     }
 
+    // prepare pixel convertion
     struct SwsContext * psc = sws_getCachedContext(NULL, picc->width, picc->height, picc->pix_fmt, pcc->width, pcc->height, pcc->pix_fmt, SWS_BILINEAR, NULL, NULL, NULL);
     if (!psc) {
         ok = 1;
         goto close_encoder;
     }
 
+    // prepare converted picture
     AVFrame * pf = av_frame_alloc();
+    if (!pf) {
+        ok = 1;
+        goto close_sws;
+    }
     pf->width = pcc->width;
     pf->height = pcc->height;
     pf->format = pcc->pix_fmt;
-    avpicture_alloc((AVPicture *)pf, pcc->pix_fmt, pcc->width, pcc->height);
-    sws_scale(psc, (const uint8_t * const *)pif->data, pif->linesize, 0, picc->height, pf->data, pf->linesize);
+    ok = avpicture_alloc((AVPicture *)pf, pcc->pix_fmt, pcc->width, pcc->height);
+    if (ok != 0) {
+        ok = 1;
+        goto close_frame;
+    }
+    // convert pixel format
+    ok = sws_scale(psc, (const uint8_t * const *)pif->data, pif->linesize, 0, picc->height, pf->data, pf->linesize);
+    if (ok <= 0) {
+        ok = 1;
+        goto close_picture;
+    }
 
+    // encode frame
     AVPacket pkt;
     av_init_packet(&pkt);
     pkt.data = NULL;
@@ -204,21 +228,30 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     int got_frame = 0;
     ok = avcodec_encode_video2(pcc, &pkt, pf, &got_frame);
     if (!got_frame) {
-        goto close_scale;
+        ok = 1;
+        goto close_packet;
     }
     // NOTE does not matter in image
     pkt.pts = 0;
     pkt.dts = 0;
 
-    avpicture_free((AVPicture *)pf);
-    av_frame_free(&pf);
-
+    // write encoded frame
     ok = av_interleaved_write_frame(pfc, &pkt);
-    av_free_packet(&pkt);
-    av_write_trailer(pfc);
+    if (ok != 0) {
+        ok = 1;
+        goto close_file;
+    }
 
     ok = 0;
-close_scale:
+close_file:
+    av_write_trailer(pfc);
+close_packet:
+    av_free_packet(&pkt);
+close_picture:
+    avpicture_free((AVPicture *)pf);
+close_frame:
+    av_frame_free(&pf);
+close_sws:
     if (psc) {
         sws_freeContext(psc);
     }
