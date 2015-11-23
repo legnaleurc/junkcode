@@ -58,10 +58,11 @@ int main (int argc, char ** argv) {
         // seek keyframe
         int64_t ffts = av_rescale(sts, ptb->den, ptb->num);
         ok = av_seek_frame(pfc, stnb, ffts, AVSEEK_FLAG_BACKWARD);
-        if (ok != 0) {
+        if (ok < 0) {
             printf("seek failed\n");
             goto next_time;
         }
+        avcodec_flush_buffers(pcc);
 
         AVFrame * pf = av_frame_alloc();
         ok = seek_snapshot(sts, pfc, pcc, pf);
