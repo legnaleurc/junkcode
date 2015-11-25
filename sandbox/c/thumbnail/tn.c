@@ -89,13 +89,9 @@ next_time:
     }
 
     ok = 0;
-    if (pc) {
-        avcodec_close(pcc);
-    }
+    avcodec_close(pcc);
 close_demuxer:
-    if (pfc) {
-        avformat_close_input(&pfc);
-    }
+    avformat_close_input(&pfc);
 failed:
     printf("result %d\n", ok);
     return ok;
@@ -253,17 +249,11 @@ close_picture:
 close_frame:
     av_frame_free(&pf);
 close_sws:
-    if (psc) {
-        sws_freeContext(psc);
-    }
+    sws_freeContext(psc);
 close_encoder:
-    if (pcc) {
-        avcodec_close(pcc);
-    }
+    avcodec_close(pcc);
 close_muxer:
-    if (pfc) {
-        avformat_free_context(pfc);
-    }
+    avformat_free_context(pfc);
 failed:
     return ok;
 }
