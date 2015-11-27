@@ -8,7 +8,7 @@ static const int START_SECOND = 300;
 static const int INTERVAL_SECOND = 300;
 
 
-int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf);
+int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf);
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
 
 
@@ -20,8 +20,8 @@ int main (int argc, char ** argv) {
     // initialize
     const char * const INPUT_FILENAME = argv[1];
     const char * const OUTPUT_FILENAME = argv[2];
-    av_register_all();
     int ok = 0;
+    av_register_all();
 
     printf("%s\n", INPUT_FILENAME);
 
@@ -65,7 +65,7 @@ int main (int argc, char ** argv) {
         avcodec_flush_buffers(pcc);
 
         AVFrame * pf = av_frame_alloc();
-        ok = seek_snapshot(sts, pfc, pcc, pf);
+        ok = seek_snapshot(pfc, pcc, pf);
         if (ok != 0) {
             ok = 1;
             goto close_frame;
@@ -98,7 +98,7 @@ failed:
 }
 
 
-int seek_snapshot (int64_t sts, AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf) {
+int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf) {
     int ok = 0;
     int got_frame = 0;
 
@@ -154,16 +154,18 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
         goto failed;
     }
 
-    // find encoder
-    AVCodec * pc = avcodec_find_encoder(AV_CODEC_ID_PNG);
-    if (!pc) {
+    // prepare encoding stream
+    AVStream * pst = avformat_new_stream(pfc, NULL);
+    if (!pst) {
         ok = 1;
         goto close_muxer;
     }
+    pst->codec->codec_type = AVMEDIA_TYPE_VIDEO;
+    pst->codec->codec_id = av_guess_codec(pfc->oformat, NULL, filename, NULL, pst->codec->codec_type);
 
-    // prepare encoding stream
-    AVStream * pst = avformat_new_stream(pfc, pc);
-    if (!pst) {
+    // find encoder
+    AVCodec * pc = avcodec_find_encoder(pst->codec->codec_id);
+    if (!pc) {
         ok = 1;
         goto close_muxer;
     }
