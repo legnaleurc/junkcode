@@ -65,7 +65,7 @@ class Cache(object):
     def _is_too_old(self, node):
         return datetime_to_timestamp(node.modified) < self._last_recycle
 
-    def _download(node, local_path):
+    def _download(self, node, local_path):
         local_path = local_path if local_path else ''
         full_path = os.path.join(local_path, node.name)
 
