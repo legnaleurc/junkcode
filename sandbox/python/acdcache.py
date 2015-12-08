@@ -88,20 +88,22 @@ class Cache(object):
                     return False
                 return True
 
-            hasher = hashing.IncrementalHasher()
-            try:
-                print('downloading: ' + full_path)
-                self._acd_client.download_file(node.id, node.name, local_path, write_callbacks=[hasher.update])
-                print('downloaded: ' + full_path)
-            except RequestError as e:
-                print('download failed: ' + e)
-                return False
-            else:
-                local = hasher.get_result()
-                remote = node.md5
-                if local != remote:
-                    print('md5 mismatch: ' + full_path)
-                    return False
+            while True:
+                hasher = hashing.IncrementalHasher()
+                try:
+                    print('downloading: ' + full_path)
+                    self._acd_client.download_file(node.id, node.name, local_path, write_callbacks=[hasher.update])
+                    print('downloaded: ' + full_path)
+                except RequestError as e:
+                    print('download failed: ' + str(e))
+                else:
+                    local = hasher.get_result()
+                    remote = node.md5
+                    if local != remote:
+                        print('md5 mismatch: ' + full_path)
+                        os.remove(full_path)
+                    else:
+                        break
 
         preserve_mtime(node, full_path)
 
