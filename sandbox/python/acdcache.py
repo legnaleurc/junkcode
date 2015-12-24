@@ -4,6 +4,7 @@
 import sys
 import os
 import shutil
+import hashlib
 
 from acdcli.api import client as ACD
 from acdcli.cache import db as DB
@@ -21,8 +22,8 @@ class Cache(object):
         self._acd_db = DB.NodeCache(auth_folder)
         self._last_recycle = 0
 
-    def __call__(self):
-        folder_id = self._acd_db.resolve_path('/tmp')
+    def __call__(self, acd_path):
+        folder_id = self._acd_db.resolve_path(acd_path)
         children = self._acd_db.list_children(folder_id)
         children = map(lambda _: _.node, children)
         children = sorted(children, key=lambda _: _.modified, reverse=True)
@@ -82,11 +83,14 @@ class Cache(object):
                 self._download(child, full_path)
         else:
             if os.path.isfile(full_path):
-                print('skip existed: ' + full_path)
-                if os.path.getsize(full_path) != node.size:
-                    print('size mismatch: ' + full_path)
-                    return False
-                return True
+                print('checking existed: ' + full_path)
+                local = md5sum(full_path)
+                remote = node.md5
+                if local == remote:
+                    print('skip same file: ' + full_path)
+                    return True
+                print('md5 mismatch: ' + full_path)
+                os.remove(full_path)
 
             while True:
                 hasher = hashing.IncrementalHasher()
@@ -114,8 +118,12 @@ def main(args=None):
     if args is None:
         args = sys.argv
 
-    cache = Cache(args[1])
-    cache()
+    dst_path = args[1]
+    src_path = args[2:]
+
+    cache = Cache(dst_path)
+    for p in src_path:
+        cache(p)
 
     return 0
 
@@ -123,6 +131,17 @@ def main(args=None):
 def preserve_mtime(node, full_path):
     mtime = datetime_to_timestamp(node.modified)
     os.utime(full_path, (mtime, mtime))
+
+
+def md5sum(full_path):
+    hasher = hashlib.md5()
+    with open(full_path, 'rb') as fin:
+        while True:
+            chunk = fin.read(65536)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
 
 if __name__ == '__main__':
