@@ -10,10 +10,6 @@ import struct
 import subprocess as sp
 import sys
 
-from acdcli.api import client as ACD
-from acdcli.cache import db as DB
-from acdcli.api.common import RequestError
-
 
 # path: absolute path
 # name: single entity name
@@ -126,6 +122,7 @@ class VideoProcessor(object):
             self._download()
         except OSError as e:
             if e.errno == 36:
+                # file name too long
                 return
         new_file_path = self._transcode()
         self._delete_remote()
@@ -135,8 +132,8 @@ class VideoProcessor(object):
 
 class MP4Processer(VideoProcessor):
 
-    def __init__(self, fuse_path):
-        super(MP4Processer, self).__init__(fuse_path)
+    def __init__(self, fs, fuse_path):
+        super(MP4Processer, self).__init__(fs, fuse_path)
 
     @property
     def skippable(self):
@@ -204,8 +201,8 @@ class MP4Processer(VideoProcessor):
 
 class MaybeH264Processer(VideoProcessor):
 
-    def __init__(self, fuse_path):
-        super(MaybeH264Processer, self).__init__(fuse_path)
+    def __init__(self, fs, fuse_path):
+        super(MaybeH264Processer, self).__init__(fs, fuse_path)
 
     @property
     def skippable(self):
@@ -231,8 +228,8 @@ class MaybeH264Processer(VideoProcessor):
 
 class MKVProcesser(VideoProcessor):
 
-    def __init__(self, fuse_path):
-        super(MKVProcesser, self).__init__(fuse_path)
+    def __init__(self, fs, fuse_path):
+        super(MKVProcesser, self).__init__(fs, fuse_path)
 
     @property
     def skippable(self):
@@ -253,8 +250,8 @@ class MKVProcesser(VideoProcessor):
 
 class NeverH264Processer(VideoProcessor):
 
-    def __init__(self, fuse_path):
-        super(NeverH264Processer, self).__init__(fuse_path)
+    def __init__(self, fs, fuse_path):
+        super(NeverH264Processer, self).__init__(fs, fuse_path)
 
     @property
     def skippable(self):
@@ -271,6 +268,10 @@ class NeverH264Processer(VideoProcessor):
 
 
 class FileSystem(object):
+
+    @classmethod
+    def initialize(cls):
+        raise NotImplementedError()
 
     def __init__(self, *args, **kwargs):
         super(object, self).__init__(*args, **kwargs)
@@ -289,6 +290,10 @@ class FileSystem(object):
 
 
 class LocalFileSystem(FileSystem):
+
+    @classmethod
+    def initialize(cls):
+        pass
 
     def __init__(self, *args, **kwargs):
         super(LocalFileSystem, self).__init__(*args, **kwargs)
@@ -312,13 +317,20 @@ class LocalFileSystem(FileSystem):
 
 class ACDFuseFileSystem(FileSystem):
 
-    def __init__(self, *args, **kwargs):
-        super(ACDFuseFileSystem, self).__init__(*args, **kwargs)
+    _CLIENT = None
+    _DB = None
+
+    @classmethod
+    def initialize(cls):
+        from acdcli.api import client as ACD
+        from acdcli.cache import db as DB
 
         auth_folder = op.expanduser('~/.cache/acd_cli')
-        self._acd_client = ACD.ACDClient(auth_folder)
-        self._acd_db = DB.NodeCache(auth_folder)
-        self._sync()
+        cls._CLIENT = ACD.ACDClient(auth_folder)
+        cls._DB = DB.NodeCache(auth_folder)
+
+    def __init__(self, *args, **kwargs):
+        super(ACDFuseFileSystem, self).__init__(*args, **kwargs)
 
     def get_remote_path(self, fuse_path):
         return op.normpath(op.join('/', fuse_path))
@@ -326,8 +338,8 @@ class ACDFuseFileSystem(FileSystem):
     def download(self, remote_file_path, local_directory_path):
         self._sync()
 
-        node = self._acd_db.resolve(remote_file_path)
-        return self._download_from_acd(node, local_directory_path)
+        file_node, parent_node = self._DB.resolve(remote_file_path)
+        return self._download_from_acd(file_node, local_directory_path)
 
     def upload(self, local_file_path, remote_directory_path):
         self._sync()
@@ -373,19 +385,16 @@ class ACDFuseFileSystem(FileSystem):
                 return True
             os.remove(full_file_path)
 
+        from acdcli.api.common import RequestError
+
         while True:
             hasher = hashlib.md5()
             try:
-                self._acd_client.download_file(node.id, node.name, local_directory_path, write_callbacks=[
+                self._CLIENT.download_file(node.id, node.name, local_directory_path, write_callbacks=[
                     hasher.update,
                 ])
             except RequestError as e:
                 continue
-            except OSError as e:
-                if e.errno == 36:
-                    # file name too long
-                    break
-                return False
             else:
                 local = hasher.hexdigest()
                 remote = node.md5
@@ -440,6 +449,8 @@ def main(args=None):
 
     if len(args) != 2:
         return 1
+
+    ACDFuseFileSystem.initialize()
 
     for root, dirs, files in os.walk(args[1]):
         for file_name in files:
