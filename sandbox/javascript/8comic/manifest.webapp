@@ -18,6 +18,7 @@
     "systemXHR": {
     }
   },
+  "orientation": ["portrait-primary"],
   "installs_allowed_from": [
     "*"
   ],

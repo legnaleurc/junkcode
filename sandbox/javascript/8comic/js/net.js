@@ -17,7 +17,7 @@ define('net', [], function () {
         });
       });
       xhr.addEventListener('error', function (event) {
-        reject();
+        reject(event);
       });
       xhr.send();
     });

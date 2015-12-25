@@ -17,17 +17,6 @@ define('parser', ['net'], function (net) {
         };
       });
       return tmp;
-    }).then(function (comicList) {
-      return new Promise(function (resolve, reject) {
-        Promise.all(comicList.map(function (comic) {
-          return getSummary(comic.url);
-        })).then(function (comicDetailList) {
-          comicList.forEach(function (value, index) {
-            value.data = comicDetailList[index];
-          });
-          resolve(comicList);
-        });
-      });
     });
   }
   
@@ -42,5 +31,6 @@ define('parser', ['net'], function (net) {
   
   return {
     getLatest: getLatest,
+    getSummary: getSummary,
   };
 });
