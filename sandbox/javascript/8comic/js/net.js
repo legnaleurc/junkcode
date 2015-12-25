@@ -1,7 +1,5 @@
-(function (exports) {
+define('net', [], function () {
   'use strict';
-  
-  var net = {};
   
   function ajax (method, responseType, url) {
     return new Promise(function (resolve, reject) {
@@ -25,12 +23,11 @@
     });
   }
   
-  net.getPage = function getPage (url) {
-    return ajax('GET', 'document', url).then(function (response) {
-      return response.body;
-    });
+  return {
+    getPage: function getPage (url) {
+      return ajax('GET', 'document', url).then(function (response) {
+        return response.body;
+      });
+    },
   };
-  
-  exports.net = net;
-  
-})(window);
+});

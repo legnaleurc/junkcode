@@ -1,8 +1,5 @@
-(function (exports) {
+define('parser', ['net'], function (net) {
   'use strict';
-  
-  var net = exports.net;
-  var parser = {};
   
   function getLatest (offset) {
     offset = (typeof offset === 'undefined') ? 1 : offset;
@@ -43,7 +40,7 @@
     });
   }
   
-  parser.getLatest = getLatest;
-  exports.parser = parser;
-  
-})(window);
+  return {
+    getLatest: getLatest,
+  };
+});
