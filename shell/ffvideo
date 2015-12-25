@@ -6,6 +6,7 @@ import os.path as op
 import os
 import struct
 import json
+import shutil
 import subprocess as sp
 
 
@@ -22,9 +23,10 @@ H264_CRF = '18'
 
 class VideoProcessor(object):
 
-    def __init__(self, fuse_path):
+    def __init__(self, fs, fuse_path):
+        self._fs = fs
         self._fuse_path = fuse_path
-        self._remote_path = op.normpath(op.join('/', fuse_path))
+        self._remote_path = self._fs.get_remote_path(fuse_path)
         self._remote_directory = op.dirname(self._remote_path)
         self._file_name = op.basename(fuse_path)
         self._local_path = op.join('/tmp', self._file_name)
@@ -32,40 +34,17 @@ class VideoProcessor(object):
         self._is_aac = None
 
     def _download(self):
-        shell_call([
-            'acdcli', '-v', 's',
-        ])
-        for _ in range(5):
-            try:
-                shell_call([
-                    'acdcli', '-v',
-                    'dl', '-r', '4', self._remote_path, '/tmp',
-                ])
-            except sp.CalledProcessError as e:
-                if _ == 4 or e.returncode not in (32,):
-                    raise
+        return self._fs.download(self._remote_path, '/tmp')
 
     def _upload(self, new_local_file):
-        shell_call([
-            'acdcli', '-v', 's',
-        ])
-        shell_call([
-            'acdcli', '-v',
-            'ul', '-r', '4', new_local_file, self._remote_directory,
-        ])
+        return self._fs.upload(new_local_file, self._remote_directory)
 
     def _delete_local(self, new_local_file):
         os.remove(new_local_file)
         os.remove(self._local_path)
 
     def _delete_remote(self):
-        shell_call([
-            'acdcli', '-v', 's',
-        ])
-        shell_call([
-            'acdcli', '-v',
-            'rm', self._remote_path,
-        ])
+        return self._fs.trash_remote_file(self._remote_path)
 
     def _transcode(self):
         file_name = self._mangle_transcoded_file_name()
@@ -286,6 +265,96 @@ class NeverH264Processer(VideoProcessor):
         return name + '.mp4'
 
 
+class FileSystem(object):
+
+    def __init__(self, *args, **kwargs):
+        super(object, self).__init__(*args, **kwargs)
+
+    def get_remote_path(self, fuse_path):
+        raise NotImplementedError()
+
+    def download(self, remote_file, local_directory):
+        raise NotImplementedError()
+
+    def upload(self, local_file, remote_directory):
+        raise NotImplementedError()
+
+    def trash_remote_file(self, remote_file):
+        raise NotImplementedError()
+
+
+class LocalFileSystem(FileSystem):
+
+    def __init__(self, *args, **kwargs):
+        super(LocalFileSystem, self).__init__(*args, **kwargs)
+        self._trash_directory = '/tmp/trash'
+
+    def get_remote_path(self, fuse_path):
+        return fuse_path
+
+    def download(self, remote_file, local_directory):
+        shutil.copy(remote_file, local_directory)
+        return True
+
+    def upload(self, local_file, remote_directory):
+        shutil.copy(local_file, remote_directory)
+        return True
+
+    def trash_remote_file(self, remote_file):
+        shutil.copy(remote_file, self._trash_directory)
+        return True
+
+
+class ACDFuseFileSystem(FileSystem):
+
+    def __init__(self, *args, **kwargs):
+        super(ACDFuseFileSystem, self).__init__(*args, **kwargs)
+        self._sync()
+
+    def get_remote_path(self, fuse_path):
+        return op.normpath(op.join('/', fuse_path))
+
+    def download(self, remote_file, local_directory):
+        self._sync()
+
+        for _ in range(5):
+            try:
+                shell_call([
+                    'acdcli', '-v',
+                    'dl', '-r', '4', remote_file, local_directory,
+                ])
+            except sp.CalledProcessError as e:
+                if _ == 4 or e.returncode not in (32,):
+                    raise
+
+        return True
+
+    def upload(self, local_file, remote_directory):
+        self._sync()
+
+        shell_call([
+            'acdcli', '-v',
+            'ul', '-r', '4', local_file, remote_directory,
+        ])
+
+        return True
+
+    def trash_remote_file(self, remote_file):
+        self._sync()
+
+        shell_call([
+            'acdcli', '-v',
+            'rm', remote_file,
+        ])
+
+        return True
+
+    def _sync(self):
+        shell_call([
+            'acdcli', '-v', 's',
+        ])
+
+
 def create_processor(fuse_path):
     table = {
         '.mp4': MP4Processer,
@@ -301,7 +370,7 @@ def create_processor(fuse_path):
     _, ext = op.splitext(fuse_path)
     if ext not in table:
         return None
-    return table[ext](fuse_path)
+    return table[ext](ACDFuseFileSystem(), fuse_path)
 
 
 def shell_call(cmd_list):
@@ -319,10 +388,6 @@ def main(args=None):
 
     if len(args) != 2:
         return 1
-
-    shell_call([
-        'acdcli', '-v', 's',
-    ])
 
     for root, dirs, files in os.walk(args[1]):
         for file_name in files:
