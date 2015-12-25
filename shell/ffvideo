@@ -1,13 +1,18 @@
 #! /usr/bin/env python3
 # ex: et sw=4 ts=4 sts=4
 
-import sys
-import os.path as op
-import os
-import struct
+import hashlib
 import json
+import os
+import os.path as op
 import shutil
+import struct
 import subprocess as sp
+import sys
+
+from acdcli.api import client as ACD
+from acdcli.cache import db as DB
+from acdcli.api.common import RequestError
 
 
 # path: absolute path
@@ -273,13 +278,13 @@ class FileSystem(object):
     def get_remote_path(self, fuse_path):
         raise NotImplementedError()
 
-    def download(self, remote_file, local_directory):
+    def download(self, remote_file_path, local_directory_path):
         raise NotImplementedError()
 
-    def upload(self, local_file, remote_directory):
+    def upload(self, local_file_path, remote_directory_path):
         raise NotImplementedError()
 
-    def trash_remote_file(self, remote_file):
+    def trash_remote_file(self, remote_file_path):
         raise NotImplementedError()
 
 
@@ -287,21 +292,21 @@ class LocalFileSystem(FileSystem):
 
     def __init__(self, *args, **kwargs):
         super(LocalFileSystem, self).__init__(*args, **kwargs)
-        self._trash_directory = '/tmp/trash'
+        self._trash_directory_path = '/tmp/trash'
 
     def get_remote_path(self, fuse_path):
         return fuse_path
 
-    def download(self, remote_file, local_directory):
-        shutil.copy(remote_file, local_directory)
+    def download(self, remote_file_path, local_directory_path):
+        shutil.copy(remote_file_path, local_directory_path)
         return True
 
-    def upload(self, local_file, remote_directory):
-        shutil.copy(local_file, remote_directory)
+    def upload(self, local_file_path, remote_directory_path):
+        shutil.copy(local_file_path, remote_directory_path)
         return True
 
-    def trash_remote_file(self, remote_file):
-        shutil.copy(remote_file, self._trash_directory)
+    def trash_remote_file(self, remote_file_path):
+        shutil.copy(remote_file_path, self._trash_directory_path)
         return True
 
 
@@ -309,42 +314,37 @@ class ACDFuseFileSystem(FileSystem):
 
     def __init__(self, *args, **kwargs):
         super(ACDFuseFileSystem, self).__init__(*args, **kwargs)
+
+        auth_folder = op.expanduser('~/.cache/acd_cli')
+        self._acd_client = ACD.ACDClient(auth_folder)
+        self._acd_db = DB.NodeCache(auth_folder)
         self._sync()
 
     def get_remote_path(self, fuse_path):
         return op.normpath(op.join('/', fuse_path))
 
-    def download(self, remote_file, local_directory):
+    def download(self, remote_file_path, local_directory_path):
         self._sync()
 
-        for _ in range(5):
-            try:
-                shell_call([
-                    'acdcli', '-v',
-                    'dl', '-r', '4', remote_file, local_directory,
-                ])
-            except sp.CalledProcessError as e:
-                if _ == 4 or e.returncode not in (32,):
-                    raise
+        node = self._acd_db.resolve(remote_file_path)
+        return self._download_from_acd(node, local_directory_path)
 
-        return True
-
-    def upload(self, local_file, remote_directory):
+    def upload(self, local_file_path, remote_directory_path):
         self._sync()
 
         shell_call([
             'acdcli', '-v',
-            'ul', '-r', '4', local_file, remote_directory,
+            'ul', '-r', '4', local_file_path, remote_directory_path,
         ])
 
         return True
 
-    def trash_remote_file(self, remote_file):
+    def trash_remote_file(self, remote_file_path):
         self._sync()
 
         shell_call([
             'acdcli', '-v',
-            'rm', remote_file,
+            'rm', remote_file_path,
         ])
 
         return True
@@ -353,6 +353,47 @@ class ACDFuseFileSystem(FileSystem):
         shell_call([
             'acdcli', '-v', 's',
         ])
+
+    def _download_from_acd(self, node, local_directory_path):
+        if not node:
+            return False
+        if not local_directory_path:
+            return False
+        if not node.is_available():
+            return False
+        if node.is_folder():
+            return False
+
+        full_file_path = op.join(local_directory_path, node.name)
+
+        if op.isfile(full_file_path):
+            local = md5sum(full_file_path)
+            remote = node.md5
+            if local == remote:
+                return True
+            os.remove(full_file_path)
+
+        while True:
+            hasher = hashlib.md5()
+            try:
+                self._acd_client.download_file(node.id, node.name, local_directory_path, write_callbacks=[
+                    hasher.update,
+                ])
+            except RequestError as e:
+                continue
+            except OSError as e:
+                if e.errno == 36:
+                    # file name too long
+                    break
+                return False
+            else:
+                local = hasher.hexdigest()
+                remote = node.md5
+                if local == remote:
+                    break
+                os.remove(full_file_path)
+
+        return True
 
 
 def create_processor(fuse_path):
@@ -380,6 +421,17 @@ def shell_call(cmd_list):
 def shell_output(cmd_list):
     cp = sp.run(cmd_list, stdout=sp.PIPE, check=True)
     return cp.stdout
+
+
+def md5sum(full_path):
+    hasher = hashlib.md5()
+    with open(full_path, 'rb') as fin:
+        while True:
+            chunk = fin.read(65536)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
 
 def main(args=None):
