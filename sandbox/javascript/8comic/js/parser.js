@@ -9,11 +9,18 @@ define('parser', ['net'], function (net) {
       var tmp = html.querySelector('body > table:nth-child(5) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(3) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2)');
       tmp = tmp.querySelectorAll('a');
       tmp = Array.map(tmp, function (a) {
-        var title = a.textContent.trim();
-        var url = a.href;
+        var tmp = a.textContent.match(/\s*(.+)\s*\[\s*(.+)\s*\]\s*/);
+        if (tmp) {
+          var title = tmp[1].trim();
+          var latestEpisode = tmp[2].replace('漫畫', '').trim();
+        } else {
+          var title = a.textContent;
+          var latestEpisode = '';
+        }
         return {
           title: title,
-          url: url,
+          latestEpisode: latestEpisode,
+          url: a.href,
         };
       });
       return tmp;

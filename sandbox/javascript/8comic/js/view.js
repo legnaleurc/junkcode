@@ -15,7 +15,9 @@ define('view', ['parser'], function (parser) {
       this._summaries.forEach(function (summaryView) {
         summaryView.show(content);
       });
-    }.bind(this));
+    }.bind(this)).then(undefined, function (e) {
+      console.info('latest update view show', e);
+    });
   }
   
   function SummaryView (comic) {
@@ -23,7 +25,8 @@ define('view', ['parser'], function (parser) {
     this._url = comic.url;
     this._el = document.createElement('div');
     this._el.classList.add('comic-entry');
-    var title = document.createElement('p');
+    var title = document.createElement('div');
+    title.classList.add('title');
     title.textContent = this._title;
     this._el.appendChild(title);
   }
@@ -32,10 +35,11 @@ define('view', ['parser'], function (parser) {
     parent.appendChild(this._el);
     
     parser.getSummary(this._url).then(function (summary) {
-      var img = document.createElement('img');
-      img.src = summary.coverURL;
-      this._el.appendChild(img);
-    }.bind(this));
+      var url = summary.coverURL;
+      this._el.style.backgroundImage = `url("${url}")`;
+    }.bind(this)).then(undefined, function (e) {
+      console.info('summary view show', e);
+    });
   };
   
   return {

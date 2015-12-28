@@ -1,5 +1,7 @@
 body {
   margin: 0px;
+  -moz-user-select: none;
+  background-color: gray;
 }
 
 #content {
@@ -8,10 +10,22 @@ body {
 }
 
 .comic-entry {
-  width: 33vw;
-  height: 33vh;
+  width: 33.33vw;
+  height: 28vh;
+  
+  position: relative;
+  
+  background-size: 100% auto;
+  background-repeat: no-repeat;
 }
 
-.comic-entry > img {
+.comic-entry > .title {
   width: 100%;
+  
+  position: absolute;
+  bottom: 0px;
+  
+  opacity: 0.8;
+  background-color: black;
+  color: white;
 }
