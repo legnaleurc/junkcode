@@ -92,7 +92,9 @@ class Cache(object):
             print('mkdir failed: ' + full_path)
             return False
 
-        for child in node.children:
+        folders, files = self._acd_db.list_children(node.id)
+        children = folders + files
+        for child in children:
             ok = self._download(child, full_path)
             if not ok:
                 return False
