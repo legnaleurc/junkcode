@@ -1,5 +1,10 @@
-define('view', ['parser'], function (parser) {
+define('view', ['core', 'parser'], function (parser) {
   'use strict';
+  
+  function View () {
+  }
+  View.extend = core.extend;
+  
   
   function LatestUpdateView () {
     this._summaries = [];
@@ -19,6 +24,7 @@ define('view', ['parser'], function (parser) {
       console.info('latest update view show', e);
     });
   }
+  
   
   function SummaryView (comic) {
     this._title = comic.title;
