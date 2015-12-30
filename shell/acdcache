@@ -24,8 +24,8 @@ class Cache(object):
 
     def __call__(self, acd_path):
         folder = self._acd_db.resolve(acd_path)
-        children = self._acd_db.list_children(folder.id)
-        children = map(lambda _: _.node, children)
+        folders, files = self._acd_db.list_children(folder.id)
+        children = folders + files
         children = sorted(children, key=lambda _: _.modified, reverse=True)
         for child in children:
             self._recycle_space()
