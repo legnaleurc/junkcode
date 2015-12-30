@@ -23,7 +23,7 @@ class Cache(object):
         self._last_recycle = 0
 
     def __call__(self, acd_path):
-        folder_id = self._acd_db.resolve_path(acd_path)
+        folder_id = self._acd_db.resolve(acd_path)
         children = self._acd_db.list_children(folder_id)
         children = map(lambda _: _.node, children)
         children = sorted(children, key=lambda _: _.modified, reverse=True)
