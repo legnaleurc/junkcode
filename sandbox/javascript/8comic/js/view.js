@@ -1,14 +1,14 @@
 define('view', ['core', 'event', 'model', 'parser'], function (parser) {
   'use strict';
-  
+
   class View extends event.Event {
-    
+
     constructor (args) {
       super();
       args = args || {};
-      
+
       this._model = args.model || null;
-      
+
       if (typeof args.el === 'string') {
         this._el = document.querySelector(args.el);
       } else if (args.el instanceof Element) {
@@ -16,10 +16,10 @@ define('view', ['core', 'event', 'model', 'parser'], function (parser) {
       } else {
         this._el = null;
       }
-      
+
       this._tagName = args.tagName;
     }
-    
+
     get model () {
       return this._model;
     }
@@ -28,11 +28,11 @@ define('view', ['core', 'event', 'model', 'parser'], function (parser) {
       this._model = value;
       return true;
     }
-  
+
     get el () {
       return this._el;
     }
-  
+
     render () {
       if (!this._el) {
         if (!this._tagName) {
@@ -42,12 +42,12 @@ define('view', ['core', 'event', 'model', 'parser'], function (parser) {
       }
       return Promise.resolve(this);
     }
-    
+
   }
-       
-       
-  class LatestUpdateView extends {
-       
+
+
+  class LatestUpdateView extends event.Event {
+
     constructor (args) {
       super(args);
 
@@ -70,17 +70,17 @@ define('view', ['core', 'event', 'model', 'parser'], function (parser) {
         }.bind(this)));
       }.bind(this));
     }
-       
+
   }
-  
-  
+
+
   class SummaryView extends View {
-    
+
     constructor (args) {
       args.tagName = 'div';
       super(args);
     }
-    
+
     render () {
       return super.render().then(function (self) {
         this.el.classList.add('comic-entry');
@@ -95,9 +95,9 @@ define('view', ['core', 'event', 'model', 'parser'], function (parser) {
         }.bind(this));
       });
     }
-    
+
   }
-  
+
   return {
     LatestUpdateView: LatestUpdateView,
   };

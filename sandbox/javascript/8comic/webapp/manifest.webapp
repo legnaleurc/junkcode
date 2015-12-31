@@ -2,7 +2,7 @@
   "version": "0.1.0",
   "name": "8comic",
   "description": "A template with the bare minimum structure",
-  "launch_path": "/index.html",
+  "launch_path": "/html/index.html",
   "icons": {
     "16": "/img/icons/icon16x16.png",
     "48": "/img/icons/icon48x48.png",

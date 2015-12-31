@@ -1,14 +1,14 @@
-define('model', ['core', 'event', 'parser'], function (core, 'event', parser) {
+define('model', ['core', 'event', 'parser'], function (core, event, parser) {
   'use strict';
-  
+
   class Model extends event.Event {
-    
+
     constructor (data) {
       super()
-      
+
       this._data = data;
     }
-    
+
     get (key) {
       return this._data[key];
     }
@@ -17,15 +17,15 @@ define('model', ['core', 'event', 'parser'], function (core, 'event', parser) {
       this._data[key] = value;
       return this;
     }
-    
+
   }
-       
-       
+
+
   class Collection extends event.Event {
-       
+
     constructor () {
       super()
-  
+
       this._list = [];
     }
 
@@ -52,37 +52,37 @@ define('model', ['core', 'event', 'parser'], function (core, 'event', parser) {
 
   }
 
-  
+
   class ComicModel extends Model {
-    
+
     fetch () {
       var url = this.get('url');
       return parser.getSummary(url).then(function (comic) {
         this.set('coverURL', data.coverURL);
       }.bind(this));
     }
-    
+
   }
 
 
   class LatestUpdateCollection extends Collection {
-    
+
     get model () {
       return ComicModel;
     }
-    
+
     fetch () {
       return parser.getLatest().then(function (comicList) {
         this.reset(comicList);
         return this;
       }.bind(this));
     }
-    
+
   }
-  
+
   return {
     ComicModel: ComicModel,
     LatestUpdateCollection: LatestUpdateCollection,
   };
-  
+
 });
