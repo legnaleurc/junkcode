@@ -1,52 +1,102 @@
-define('view', ['core', 'parser'], function (parser) {
+define('view', ['core', 'event', 'model', 'parser'], function (parser) {
   'use strict';
   
-  function View () {
-  }
-  View.extend = core.extend;
-  
-  
-  function LatestUpdateView () {
-    this._summaries = [];
-  }
-  
-  LatestUpdateView.prototype.show = function () {
-    return parser.getLatest().then(function (comicList) {
-      this._summaries = comicList.map(function (comic) {
-        return new SummaryView(comic);
-      });
-    }.bind(this)).then(function () {
-      var content = document.querySelector('#content');
-      this._summaries.forEach(function (summaryView) {
-        summaryView.show(content);
-      });
-    }.bind(this)).then(undefined, function (e) {
-      console.info('latest update view show', e);
-    });
-  }
-  
-  
-  function SummaryView (comic) {
-    this._title = comic.title;
-    this._url = comic.url;
-    this._el = document.createElement('div');
-    this._el.classList.add('comic-entry');
-    var title = document.createElement('div');
-    title.classList.add('title');
-    title.textContent = this._title;
-    this._el.appendChild(title);
-  }
-  
-  SummaryView.prototype.show = function (parent) {
-    parent.appendChild(this._el);
+  class View extends event.Event {
     
-    parser.getSummary(this._url).then(function (summary) {
-      var url = summary.coverURL;
-      this._el.style.backgroundImage = `url("${url}")`;
-    }.bind(this)).then(undefined, function (e) {
-      console.info('summary view show', e);
-    });
-  };
+    constructor (args) {
+      super();
+      args = args || {};
+      
+      this._model = args.model || null;
+      
+      if (typeof args.el === 'string') {
+        this._el = document.querySelector(args.el);
+      } else if (args.el instanceof Element) {
+        this._el = args.el;
+      } else {
+        this._el = null;
+      }
+      
+      this._tagName = args.tagName;
+    }
+    
+    get model () {
+      return this._model;
+    }
+
+    set model (value) {
+      this._model = value;
+      return true;
+    }
+  
+    get el () {
+      return this._el;
+    }
+  
+    render () {
+      if (!this._el) {
+        if (!this._tagName) {
+          return null;
+        }
+        this._el = document.createElement(this._tagName);
+      }
+      return Promise.resolve(this);
+    }
+    
+  }
+       
+       
+  class LatestUpdateView extends {
+       
+    constructor (args) {
+      super(args);
+
+      this._summaries = [];
+    }
+
+    render () {
+      return super.render().then(function (self) {
+        return self.model.fetch();
+      }).then(function () {
+        this._summaries = this.model.map(function (comicModel) {
+          return new SummaryView({
+            model: comicModel,
+          });
+        })
+        return Promise.all(this._summaries.map(function (summaryView) {
+          return summaryView.render().then(function () {
+            this.el.appendChild(summaryView.el);
+          }.bind(this));
+        }.bind(this)));
+      }.bind(this));
+    }
+       
+  }
+  
+  
+  class SummaryView extends View {
+    
+    constructor (args) {
+      args.tagName = 'div';
+      super(args);
+    }
+    
+    render () {
+      return super.render().then(function (self) {
+        this.el.classList.add('comic-entry');
+        var title = document.createElement('div');
+        title.classList.add('title');
+        title.textContent = this.model.get('title');
+        this.el.appendChild(title);
+      }.bind(this)).then(function () {
+        return parser.getSummary(this.model.get('url')).then(function (summary) {
+          var url = summary.coverURL;
+          this.el.style.backgroundImage = `url("${url}")`;
+        }.bind(this));
+      });
+    }
+    
+  }
   
   return {
     LatestUpdateView: LatestUpdateView,
