@@ -116,10 +116,17 @@ class Cache(object):
             hasher = hashing.IncrementalHasher()
             try:
                 print('downloading: ' + full_path)
-                self._acd_client.download_file(node.id, node.name, local_path, write_callbacks=[hasher.update])
+                self._acd_client.download_file(node.id, node.name, local_path, write_callbacks=[
+                    hasher.update,
+                ])
                 print('downloaded: ' + full_path)
             except RequestError as e:
                 print('download failed: ' + str(e))
+            except OSError as e:
+                if e.errno == 36:
+                    print('warning: file name too long')
+                    return True
+                raise
             else:
                 local = hasher.get_result()
                 remote = node.md5
