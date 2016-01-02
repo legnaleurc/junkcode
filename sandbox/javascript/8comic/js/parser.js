@@ -6,7 +6,7 @@ export function getLatest (offset) {
   var url = `http://www.comicvip.com/comic/u-${offset}.html`;
 
   return net.getPage(url).then(function (html) {
-    var tmp = html.querySelector('body > table:nth-child(5) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(3) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2)');
+    var tmp = html.querySelector('body > table:nth-child(5) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(3) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1)');
     tmp = tmp.querySelectorAll('a');
     tmp = Array.map(tmp, function (a) {
       var tmp = a.textContent.match(/\s*(.+)\s*\[\s*(.+)\s*\]\s*/);
