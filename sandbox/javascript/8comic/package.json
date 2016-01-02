@@ -2,9 +2,17 @@
   "name": "8comic",
   "version": "1.0.0",
   "devDependencies": {
-    "babel-cli": "^6.0.0"
+    "webpack": "",
+    "babel-loader": "^6.0.0",
+    "babel-plugin-transform-es2015-modules-commonjs": ""
   },
   "scripts": {
-    "build": "babel js -d webapp/js"
+    "build": "webpack"
+  },
+  "babel": {
+    "plugins": [
+      "transform-es2015-modules-commonjs"
+    ],
+    "sourceMaps": true
   }
 }

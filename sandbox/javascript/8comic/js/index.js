@@ -1,11 +1,11 @@
-require(['parser', 'model', 'view'], function (parser, model, view) {
-  'use strict';
-  
-  document.addEventListener('DOMContentLoaded', function() {
-    var a = new view.LatestUpdateView({
-      el: '#content',
-      model: new model.LatestUpdateModel(),
-    });
-    a.render();
+import * as view from './view.js';
+import * as model from './model.js';
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  var a = new view.LatestUpdateView({
+    el: '#content',
+    model: new model.LatestUpdateCollection(),
   });
+  a.render();
 });

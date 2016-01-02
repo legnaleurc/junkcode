@@ -1,8 +1,9 @@
-define('core', [], function () {
+/*
+(function () {
   'use strict';
-  
+
   var slice = Array.prototype.slice;
-  
+
   function extend (object) {
     slice.call(arguments, 1).forEach(function (source) {
       var prop;
@@ -17,7 +18,7 @@ define('core', [], function () {
     });
     return object;
   }
-  
+
   return {
     extend: function (protoProps, staticProps) {
       var parent = this, child;
@@ -44,5 +45,6 @@ define('core', [], function () {
       return child;
     },
   };
-  
-});
+
+})();
+*/
