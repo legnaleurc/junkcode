@@ -155,7 +155,12 @@ def main(args=None):
 
 def preserve_mtime(node, full_path):
     mtime = datetime_to_timestamp(node.modified)
-    os.utime(full_path, (mtime, mtime))
+    try:
+        os.utime(full_path, (mtime, mtime))
+    except OSError as e:
+        # file name too long
+        if e.errno != 36:
+            raise
     return True
 
 
