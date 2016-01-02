@@ -7,5 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     el: '#content',
     model: new model.LatestUpdateCollection(),
   });
-  a.render();
+  a.render().catch(function (e) {
+    console.warn(e);
+  });
 });

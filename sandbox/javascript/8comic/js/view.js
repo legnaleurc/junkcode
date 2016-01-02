@@ -59,15 +59,15 @@ export class LatestUpdateView extends View {
       return self.model.fetch();
     }).then(function () {
       this._summaries = this.model.map(function (comicModel) {
-        return new SummaryView({
+        var view = new SummaryView({
           model: comicModel,
         });
-      })
-      return Promise.all(this._summaries.map(function (summaryView) {
-        return summaryView.render().then(function () {
-          this.el.appendChild(summaryView.el);
+        view.render().then(function () {
+          this.el.appendChild(view.el);
         }.bind(this));
-      }.bind(this)));
+        return view;
+      }.bind(this))
+      return this;
     }.bind(this));
   }
 
@@ -79,6 +79,8 @@ class SummaryView extends View {
   constructor (args) {
     args.tagName = 'div';
     super(args);
+
+    this.model.on('change:coverURL', this._onCoverURLChange.bind(this));
   }
 
   render () {
@@ -90,10 +92,12 @@ class SummaryView extends View {
       this.el.appendChild(title);
     }.bind(this)).then(function () {
       return this.model.fetch();
-    }.bind(this)).then(function () {
-      var url = this.model.get('coverURL');
-      this.el.style.backgroundImage = `url("${url}")`;
     }.bind(this));
+  }
+
+  _onCoverURLChange (event) {
+    var url = this.model.get('coverURL');
+    this.el.style.backgroundImage = `url("${url}")`;
   }
 
 }

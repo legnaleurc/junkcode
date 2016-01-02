@@ -15,7 +15,11 @@ class Model extends Event {
   }
 
   set (key, value) {
+    var oldValue = this._data[key];
     this._data[key] = value;
+    this.trigger(`change:${key}`, {
+      originalValue: oldValue,
+    });
     return this;
   }
 
