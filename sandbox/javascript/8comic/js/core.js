@@ -54,6 +54,11 @@ export class Collection extends Event {
     super()
 
     this._list = [];
+    this._dict = {};
+  }
+
+  get (id) {
+    return this._dict[id];
   }
 
   forEach (fn, context) {
@@ -68,15 +73,20 @@ export class Collection extends Event {
   reset (models) {
     if (typeof models === 'undefined') {
       this._list = [];
+      this._dict = {};
       return this;
     }
 
+    this._dict = {};
     this._list = models.map(function (model) {
       if (model instanceof Model) {
+        this._dict[model.get('id')] = model;
         return model;
       }
       var ModelClass = this.model;
-      return new ModelClass(model);
+      model = new ModelClass(model);
+      this._dict[model.get('id')] = model;
+      return model;
     }.bind(this));
 
     return this;
@@ -121,7 +131,13 @@ export class View extends Event {
     if (!this._el) {
       this._el = document.createElement(this._tagName);
     }
+    this.el.style.display = '';
     return Promise.resolve(this);
+  }
+
+  hide () {
+    this.el.style.display = 'none';
+    return this;
   }
 
 }

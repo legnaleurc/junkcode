@@ -14,6 +14,7 @@ class ComicModel extends Model {
     var url = this.get('url');
     return parser.getSummary(url).then(function (comic) {
       this.set('coverURL', comic.coverURL);
+      this.set('episodeList', comic.episodeList);
       return this;
     }.bind(this));
   }

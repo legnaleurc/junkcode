@@ -10,11 +10,6 @@ export class LatestUpdateView extends View {
   }
 
   render () {
-    if (window.__test__) {
-      debugger;
-    } else {
-      window.__test__ = '__MAGIC__';
-    }
     return super.render().then(function (self) {
       return self.model.fetch();
     }).then(function () {
@@ -66,6 +61,29 @@ class SummaryView extends View {
   _onCoverURLChange (event) {
     var url = this.model.get('coverURL');
     this.el.style.backgroundImage = `url("${url}")`;
+  }
+
+}
+
+
+export class ComicView extends View {
+
+  render () {
+    return super.render().then(function () {
+      var title = document.querySelector('#title');
+      title.textContent = this.model.get('title');
+      var cover = document.querySelector('#cover');
+      cover.src = this.model.get('coverURL');
+      var episodeList = document.querySelector('#episode-list');
+      this.model.get('episodeList').forEach(function (episode) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = episode.url;
+        a.textContent = episode.name;
+        li.appendChild(a);
+        episodeList.appendChild(li);
+      });
+    }.bind(this));
   }
 
 }
