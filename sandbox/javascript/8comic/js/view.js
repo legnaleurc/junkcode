@@ -1,49 +1,4 @@
-import {Event} from './event.js';
-
-
-class View extends Event {
-
-  constructor (args) {
-    super();
-    args = args || {};
-
-    this._model = args.model || null;
-
-    if (typeof args.el === 'string') {
-      this._el = document.querySelector(args.el);
-    } else if (args.el instanceof Element) {
-      this._el = args.el;
-    } else {
-      this._el = null;
-    }
-
-    this._tagName = args.tagName;
-  }
-
-  get model () {
-    return this._model;
-  }
-
-  set model (value) {
-    this._model = value;
-    return true;
-  }
-
-  get el () {
-    return this._el;
-  }
-
-  render () {
-    if (!this._el) {
-      if (!this._tagName) {
-        return null;
-      }
-      this._el = document.createElement(this._tagName);
-    }
-    return Promise.resolve(this);
-  }
-
-}
+import {View, router} from './core.js';
 
 
 export class LatestUpdateView extends View {
@@ -55,6 +10,11 @@ export class LatestUpdateView extends View {
   }
 
   render () {
+    if (window.__test__) {
+      debugger;
+    } else {
+      window.__test__ = '__MAGIC__';
+    }
     return super.render().then(function (self) {
       return self.model.fetch();
     }).then(function () {
@@ -90,6 +50,14 @@ class SummaryView extends View {
       title.classList.add('title');
       title.textContent = this.model.get('title');
       this.el.appendChild(title);
+
+      this.el.addEventListener('click', function (event) {
+        var id = this.model.get('id');
+        router.push({
+          type: 'comic',
+          id: id,
+        }, `#comic/${id}`);
+      }.bind(this));
     }.bind(this)).then(function () {
       return this.model.fetch();
     }.bind(this));

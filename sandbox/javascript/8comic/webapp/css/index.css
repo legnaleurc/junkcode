@@ -4,7 +4,7 @@ body {
   background-color: gray;
 }
 
-#content {
+#latest-update.active {
   display: flex;
   flex-wrap: wrap;
 }
@@ -12,20 +12,28 @@ body {
 .comic-entry {
   width: 33.33vw;
   height: 28vh;
-  
+
   position: relative;
-  
+
   background-size: 100% auto;
   background-repeat: no-repeat;
 }
 
 .comic-entry > .title {
   width: 100%;
-  
+
   position: absolute;
   bottom: 0px;
-  
+
   opacity: 0.8;
   background-color: black;
   color: white;
+}
+
+#comic-info {
+  display: none;
+}
+
+#comic-info.active {
+  display: block;
 }

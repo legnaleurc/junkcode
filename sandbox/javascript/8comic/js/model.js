@@ -1,69 +1,14 @@
-import {Event} from './event.js';
+import {Model, Collection} from './core.js';
 import * as parser from './parser.js';
 
 
-class Model extends Event {
-
-  constructor (data) {
-    super()
-
-    this._data = data;
-  }
-
-  get (key) {
-    return this._data[key];
-  }
-
-  set (key, value) {
-    var oldValue = this._data[key];
-    this._data[key] = value;
-    this.trigger(`change:${key}`, {
-      originalValue: oldValue,
-    });
-    return this;
-  }
-
-}
-
-
-class Collection extends Event {
-
-  constructor () {
-    super()
-
-    this._list = [];
-  }
-
-  forEach (fn, context) {
-    this._list.forEach(fn, context || this);
-    return this;
-  }
-
-  map (fn, context) {
-    return this._list.map(fn, context || this);
-  }
-
-  reset (models) {
-    if (typeof models === 'undefined') {
-      this._list = [];
-      return this;
-    }
-
-    this._list = models.map(function (model) {
-      if (model instanceof Model) {
-        return model;
-      }
-      var ModelClass = this.model;
-      return new ModelClass(model);
-    }.bind(this));
-
-    return this;
-  }
-
-}
-
-
 class ComicModel extends Model {
+
+  constructor (args) {
+    var id = args.url.match(/\/(\d+)\.html$/);
+    args.id = id ? id[1] : '0';
+    super(args);
+  }
 
   fetch () {
     var url = this.get('url');
