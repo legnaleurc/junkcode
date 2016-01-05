@@ -2,11 +2,18 @@ import {Model, Collection} from './core.js';
 import * as parser from './parser.js';
 
 
-class ComicModel extends Model {
+export class ComicModel extends Model {
+
+  static get (id) {
+    return globalComicCollection.get(id);
+  }
 
   constructor (args) {
-    var id = args.url.match(/\/(\d+)\.html$/);
-    args.id = id ? id[1] : '0';
+    args.url = args.url || '';
+    var id = args.id || args.url.match(/\/(\d+)\.html$/);
+    args.id = args.id || (id ? id[1] : '0');
+    args.coverURL = args.coverURL || '';
+    args.episodeList = args.episodeList || [];
     super(args);
   }
 
@@ -22,6 +29,16 @@ class ComicModel extends Model {
 }
 
 
+class ComicCollection extends Collection {
+
+  get model () {
+    return ComicModel;
+  }
+
+}
+let globalComicCollection = new ComicCollection();
+
+
 export class LatestUpdateCollection extends Collection {
 
   get model () {
@@ -30,6 +47,9 @@ export class LatestUpdateCollection extends Collection {
 
   fetch () {
     return parser.getLatest().then(function (comicList) {
+      comicList.forEach(function (comic) {
+        globalComicCollection.add(comic);
+      });
       this.reset(comicList);
       return this;
     }.bind(this));

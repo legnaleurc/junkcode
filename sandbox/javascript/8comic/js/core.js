@@ -37,6 +37,14 @@ export class Model extends Event {
   }
 
   set (key, value) {
+    if (key instanceof Model) {
+      for (let k in key._data) {
+        if (key._data.hasOwnProperty(k)) {
+          this.set(k, key._data[k]);
+        }
+      }
+      return this;
+    }
     var oldValue = this._data[key];
     this._data[key] = value;
     this.trigger(`change:${key}`, {
@@ -70,23 +78,29 @@ export class Collection extends Event {
     return this._list.map(fn, context || this);
   }
 
+  // TODO update duplicate
+  add (model) {
+    if (model instanceof Model) {
+      this._dict[model.get('id')] = model;
+      return model;
+    }
+    var ModelClass = this.model;
+    model = new ModelClass(model);
+    this._dict[model.get('id')] = model;
+    this._list.push(model);
+    return this;
+  }
+
   reset (models) {
+    this._list = [];
+    this._dict = {};
+
     if (typeof models === 'undefined') {
-      this._list = [];
-      this._dict = {};
       return this;
     }
 
-    this._dict = {};
-    this._list = models.map(function (model) {
-      if (model instanceof Model) {
-        this._dict[model.get('id')] = model;
-        return model;
-      }
-      var ModelClass = this.model;
-      model = new ModelClass(model);
-      this._dict[model.get('id')] = model;
-      return model;
+    models.forEach(function (model) {
+      this.add(model);
     }.bind(this));
 
     return this;
@@ -95,7 +109,55 @@ export class Collection extends Event {
 }
 
 
+class Router extends Event {
+
+  constructor () {
+    super();
+
+    this._activities = {};
+  }
+
+  start (initialType, args) {
+    var view = this._activities[initialType];
+    return view.render().then(function () {
+      return view.show();
+    });
+  }
+
+  add (type, view) {
+    this._activities[type] = view;
+  }
+
+  push (type, args) {
+    var view = this._activities[type];
+    for (let t in this._activities) {
+      if (this._activities.hasOwnProperty(t)) {
+        if (t === type) {
+          continue;
+        }
+        this._activities[t].hide();
+      }
+    }
+    return view.render().then(function () {
+      return view.show();
+    }).then(function () {
+      this.trigger('change', {
+        type: type,
+        args: args,
+      });
+      return this;
+    }.bind(this));
+  }
+
+}
+let globalRouter = new Router();
+
+
 export class View extends Event {
+
+  static get router () {
+    return globalRouter;
+  }
 
   constructor (args) {
     super();
@@ -131,27 +193,17 @@ export class View extends Event {
     if (!this._el) {
       this._el = document.createElement(this._tagName);
     }
-    this.el.style.display = '';
+    return Promise.resolve(this);
+  }
+
+  show () {
+    this.el.classList.add('active');
     return Promise.resolve(this);
   }
 
   hide () {
-    this.el.style.display = 'none';
-    return this;
+    this.el.classList.remove('active');
+    return Promise.resolve(this);
   }
 
 }
-
-
-class Router extends Event {
-
-  push (state, hash) {
-    history.pushState(state, hash, hash);
-    this.trigger('change', state);
-  }
-
-}
-export var router = new Router();
-window.addEventListener('popstate', function (event) {
-  router.trigger('change', event.state);
-});

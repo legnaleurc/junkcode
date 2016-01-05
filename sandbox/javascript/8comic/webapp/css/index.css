@@ -4,6 +4,10 @@ body {
   background-color: gray;
 }
 
+#latest-update {
+  display: none;
+}
+
 #latest-update.active {
   display: flex;
   flex-wrap: wrap;
