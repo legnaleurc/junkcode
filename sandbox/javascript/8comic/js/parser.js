@@ -53,24 +53,34 @@ export function getSummary (url) {
 
 export function getPagesInEpisode (url, catid) {
   var episodeURL = 'http://www.comicvip.com' + cview(url, catid);
+  var ch = episodeURL.match(/ch=(\d+)/);
+  if (!ch) {
+    return Promise.resolve(null);
+  }
+  ch = ch[1];
 
   return net.getPage(episodeURL).then(function (html) {
-    var firstPage = html.querySelector('#TheImg');
-    var firstPageURL = firstPage.src;
-    var pageIndex = html.querySelector('#pageindex');
-    // we already have the first page
-    var indexes = Array.slice(pageIndex.children, 1);
-    indexes = indexes.map(function (option) {
-      var ch = option.value;
-      var url = j(episodeURL, ch);
-      return net.getPage(url).then(function (html) {
-        var page = html.querySelector('#TheImg');
-        return page.src;
-      });
+    var scripts = html.querySelectorAll('script');
+    var script = Array.prototype.find.call(scripts, function (script) {
+      return script.textContent.indexOf('sp%28%29') >= 0;
     });
-    // add back the placeholder of the first page
-    indexes.unshift(Promise.resolve(firstPageURL));
-    return Promise.all(indexes);
+    if (!script) {
+      return Promise.resolve(null);
+    }
+
+    script = script.textContent;
+    var chs = script.match(/var chs=(\d+);/);
+    var ti = script.match(/var ti=(\d+);/);
+    var cs = script.match(/var cs='([^\']+)';/);
+    if (!chs || !ti || !cs) {
+      return Promise.resolve(null);
+    }
+
+    chs = chs[1];
+    ti = ti[1];
+    cs = cs[1];
+    var urls = sp(cs, chs, ch, ti);
+    return Promise.resolve(urls);
   });
 }
 
@@ -101,4 +111,54 @@ function reurl (url, keyname, keyvalue) {
 
 function j (url, n) {
   return reurl(url, "ch", ch + "-" + n);
+}
+
+// cs: chapter information
+// chs: total page count
+// ch: current episode
+// ti: unknown
+function sp (cs, chs, ch, ti) {
+    var f = 50;
+    var c = '';
+    var ci = 0;
+    var pi = '';
+    var ni = '';
+    var ps = ''; // total page count
+
+    var cc = cs.length;
+    for (let i = 0; i < cc / f; i++) {
+        if (ss(cs, i * f, 4) == ch) {
+            c = ss(cs, i * f, f, f);
+            ci = i;
+            break;
+        }
+    }
+    if (c == '') {
+        c = ss(cs, cc - f, f);
+        ch = chs;
+    }
+    ps = ss(c, 7, 3);
+    ps = parseInt(ps, 10);
+    var a = [];
+    for (let p = 1; p <= ps; ++p) {
+      a.push(si(c, ti, p, f));
+    }
+    return a;
+}
+
+function ss (a, b, c, d) {
+    var e = a.substring(b, b + c);
+    return d == null ? e.replace(/[a-z]*/gi, "") : e;
+}
+
+function si (c, ti, p, f) {
+    return 'http://img' + ss(c, 4, 2) + '.6comic.com:99/' + ss(c, 6, 1) + '/' + ti + '/' + ss(c, 0, 4) + '/' + nn(p) + '_' + ss(c, mm(p) + 10, 3, f) + '.jpg';
+}
+
+function nn (n) {
+    return n < 10 ? '00' + n : n < 100 ? '0' + n : n;
+}
+
+function mm (p) {
+    return (parseInt((p - 1) / 10) % 10) + (((p - 1) % 10) * 3);
 }
