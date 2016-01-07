@@ -10,9 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     el: '#latest-update',
     model: latestUpdateCollection,
   });
-  latestUpdateView.render().catch(function (e) {
-    console.warn(e);
-  });
 
   var comicView = new view.ComicView({
     el: '#comic-info',
@@ -21,7 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }),
   });
 
+  var episodeView = new view.EpisodeView({
+    el: '#episode',
+    model: new model.PageCollection(),
+  });
+
   View.router.add('index', latestUpdateView);
   View.router.add('comic', comicView);
+  View.router.add('episode', episodeView);
   View.router.start('index');
 });

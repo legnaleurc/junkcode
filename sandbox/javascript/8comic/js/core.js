@@ -29,7 +29,7 @@ export class Model extends Event {
   constructor (data) {
     super()
 
-    this._data = data;
+    this._data = data || {};
   }
 
   get (key) {

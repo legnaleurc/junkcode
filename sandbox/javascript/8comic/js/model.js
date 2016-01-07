@@ -56,3 +56,20 @@ export class LatestUpdateCollection extends Collection {
   }
 
 }
+
+
+export class PageCollection extends Model {
+
+  // TODO 8comic specific, generalize this
+  fetch () {
+    var payload = this.get('payload');
+    if (!payload || !payload.url || !payload.catid) {
+      this.set('pageList', null);
+      return Promise.resolve(this);
+    }
+    return parser.getPagesInEpisode(payload.url, payload.catid).then(function (pageList) {
+      this.set('pageList', pageList);
+      return this;
+    }.bind(this));
+  }
+}

@@ -89,26 +89,41 @@ export class ComicView extends View {
 
     this._initialized = false;
 
+    var episodeList = document.querySelector('#episode-list');
+    episodeList.addEventListener('click', function (event) {
+      var li = event.target;
+      var url = li.dataset.url;
+      var catid = li.dataset.catid;
+      if (!url || !catid) {
+        return;
+      }
+
+      View.router.push('episode', {
+        url: url,
+        catid: catid,
+      });
+    });
+
     this.model.on('change:title', function () {
       var title = document.querySelector('#title');
       title.textContent = this.model.get('title');
     }.bind(this));
+
     this.model.on('change:coverURL', function () {
       var cover = document.querySelector('#cover');
       cover.src = this.model.get('coverURL');
     }.bind(this));
+
     this.model.on('change:episodeList', function () {
-      var episodeList = document.querySelector('#episode-list');
       while (episodeList.firstChild) {
         episodeList.removeChild(episodeList.firstChild);
       }
 
       this.model.get('episodeList').forEach(function (episode) {
         var li = document.createElement('li');
-        var a = document.createElement('a');
-        a.href = episode.url;
-        a.textContent = episode.name;
-        li.appendChild(a);
+        li.textContent = episode.name;
+        li.dataset.url = episode.url;
+        li.dataset.catid = episode.catid;
         episodeList.appendChild(li);
       });
     }.bind(this));
@@ -132,6 +147,47 @@ export class ComicView extends View {
 
     return super.render().then(function () {
       this._initialized = true;
+    }.bind(this));
+  }
+
+}
+
+
+export class EpisodeView extends View {
+
+  constructor (args) {
+    super(args);
+
+    // TODO simplify this
+    View.router.on('change', function (event) {
+      var detail = event.detail;
+      if (detail.type !== 'episode') {
+        return;
+      }
+      this.model.set('payload', detail.args);
+    }.bind(this));
+
+    this.model.on('change:payload', function (event) {
+      this.model.fetch().then(function () {
+        var pageList = this.model.get('pageList');
+        if (!pageList) {
+          return this;
+        }
+        pageList.forEach(function (pageURL) {
+          var img = document.createElement('img');
+          img.src = pageURL;
+          this.el.appendChild(img);
+        }.bind(this));
+      }.bind(this));
+    }.bind(this));
+  }
+
+  render () {
+    return super.render().then(function () {
+      while (this.el.firstChild) {
+        this.el.removeChild(this.el.firstChild);
+      }
+      return this;
     }.bind(this));
   }
 
