@@ -41,3 +41,25 @@ body {
 #comic-info.active {
   display: block;
 }
+
+#comic-info ul {
+  display: flex;
+  flex-wrap: wrap;
+
+  padding-left: 0px;
+}
+
+#comic-info ul > li {
+  width: 20vw;
+  list-style-type: none;
+  text-align: center;
+  margin: 10px 0px;
+}
+
+#episode {
+  display: none;
+}
+
+#episode.active {
+  display: block;
+}
