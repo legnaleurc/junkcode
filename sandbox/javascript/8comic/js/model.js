@@ -58,7 +58,7 @@ export class LatestUpdateCollection extends Collection {
 }
 
 
-export class PageCollection extends Model {
+export class PageModel extends Model {
 
   // TODO 8comic specific, generalize this
   fetch () {

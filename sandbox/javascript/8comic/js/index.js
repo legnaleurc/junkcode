@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var episodeView = new view.EpisodeView({
     el: '#episode',
-    model: new model.PageCollection(),
+    model: new model.PageModel(),
   });
 
   View.router.add('index', latestUpdateView);
