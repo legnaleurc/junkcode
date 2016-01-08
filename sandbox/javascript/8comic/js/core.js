@@ -115,13 +115,20 @@ class Router extends Event {
     super();
 
     this._activities = {};
+    this._stack = [];
   }
 
   start (initialType, args) {
     var view = this._activities[initialType];
     return view.render().then(function () {
       return view.show();
-    });
+    }).then(function () {
+      this._stack.push(initialType);
+      this.trigger('change', {
+        type: initialType,
+        args: args,
+      });
+    }.bind(this));
   }
 
   add (type, view) {
@@ -129,7 +136,6 @@ class Router extends Event {
   }
 
   push (type, args) {
-    var view = this._activities[type];
     for (let t in this._activities) {
       if (this._activities.hasOwnProperty(t)) {
         if (t === type) {
@@ -138,15 +144,39 @@ class Router extends Event {
         this._activities[t].hide();
       }
     }
+    var view = this._activities[type];
     return view.render().then(function () {
       return view.show();
     }).then(function () {
+      this._stack.push(type);
       this.trigger('change', {
         type: type,
         args: args,
       });
       return this;
     }.bind(this));
+  }
+
+  pop () {
+    var latestType = this._stack.pop();
+    var index = this._stack.length - 1;
+    if (index < 0) {
+      return;
+    }
+
+    var topType = this._stack[index];
+    for (let t in this._activities) {
+      if (this._activities.hasOwnProperty(t)) {
+        if (t === topType) {
+          continue;
+        }
+        this._activities[t].hide();
+      }
+    }
+    var view = this._activities[topType];
+    return view.render().then(function () {
+      return view.show();
+    });
   }
 
 }

@@ -6,6 +6,10 @@ import {View} from './core.js';
 document.addEventListener('DOMContentLoaded', function() {
   var latestUpdateCollection = new model.LatestUpdateCollection();
 
+  var navigationView = new view.NavigationView({
+    el: '#nav-bar',
+  });
+
   var latestUpdateView = new view.LatestUpdateView({
     el: '#latest-update',
     model: latestUpdateCollection,

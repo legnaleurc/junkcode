@@ -195,3 +195,76 @@ export class EpisodeView extends View {
   }
 
 }
+
+
+export class NavigationView extends View {
+
+  constructor (args) {
+    super(args);
+
+    this._dispatcher = {
+      index: this._onIndex.bind(this),
+      comic: this._onComic.bind(this),
+      episode: this._onEpisode.bind(this),
+    };
+
+    // TODO simplify this
+    View.router.on('change', function (event) {
+      var detail = event.detail;
+      var actor = this._dispatcher[detail.type];
+      if (!actor) {
+        return;
+      }
+      actor(detail.args);
+    }.bind(this));
+
+    var back = document.querySelector('#back');
+    back.addEventListener('click', function (event) {
+      View.router.pop();
+    }.bind(this));
+  }
+
+  _onIndex (args) {
+    var title = this.el.querySelector('#nav-title');
+    var left = this.el.querySelector('#left-nav-action');
+    var right = this.el.querySelector('#right-nav-action');
+
+    title.textContent = 'index';
+    // TODO toggle class, don't modify style
+    Array.forEach(left.children, function (element) {
+      element.style.display = 'none';
+    });
+    Array.forEach(right.children, function (element) {
+      element.style.display = 'none';
+    });
+  }
+
+  _onComic (args) {
+    var title = this.el.querySelector('#nav-title');
+    var left = this.el.querySelector('#left-nav-action');
+    var right = this.el.querySelector('#right-nav-action');
+
+    title.textContent = 'comic';
+    // TODO toggle class, don't modify style
+    var back = left.querySelector('#back');
+    back.style.display = '';
+    Array.forEach(right.children, function (element) {
+      element.style.display = 'none';
+    });
+  }
+
+  _onEpisode (args) {
+    var title = this.el.querySelector('#nav-title');
+    var left = this.el.querySelector('#left-nav-action');
+    var right = this.el.querySelector('#right-nav-action');
+
+    title.textContent = 'episode';
+    // TODO toggle class, don't modify style
+    var back = left.querySelector('#back');
+    back.style.display = '';
+    Array.forEach(right.children, function (element) {
+      element.style.display = 'none';
+    });
+  }
+
+}

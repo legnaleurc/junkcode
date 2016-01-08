@@ -1,55 +1,69 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>8comic</title>
-        <meta name="description" content="A privileged app stub">
+  <head>
+    <meta charset="utf-8">
+    <title>8comic</title>
+    <meta name="description" content="A privileged app stub">
 
-        <!--
-          viewport allows you to control how mobile browsers will render your content.
-          width=device-width tells mobile browsers to render your content across the
-          full width of the screen, without being zoomed out (by default it would render
-          it at a desktop width, then shrink it to fit.)
-          Read more about it here:
-          https://developer.mozilla.org/Mozilla/Mobile/Viewport_meta_tag
-        -->
-        <meta name="viewport" content="width=device-width">
-        <link rel="stylesheet" href="/css/index.css">
+    <!--
+      viewport allows you to control how mobile browsers will render your content.
+      width=device-width tells mobile browsers to render your content across the
+      full width of the screen, without being zoomed out (by default it would render
+      it at a desktop width, then shrink it to fit.)
+      Read more about it here:
+      https://developer.mozilla.org/Mozilla/Mobile/Viewport_meta_tag
+    -->
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="/css/index.css">
 
-        <!--
-        Inline JavaScript code is not allowed for privileged and certified apps,
-        due to Content Security Policy restrictions.
-        You can read more about it here: https://developer.mozilla.org/Apps/CSP
-        Plus keeping your JavaScript separated from your HTML is always a good practice!
+    <!--
+    Inline JavaScript code is not allowed for privileged and certified apps,
+    due to Content Security Policy restrictions.
+    You can read more about it here: https://developer.mozilla.org/Apps/CSP
+    Plus keeping your JavaScript separated from your HTML is always a good practice!
 
-        We're also using the 'defer' attribute. This allows us to tell the browser that
-        it should not wait for this file to load before continuing to load the rest of
-        resources in the page. Then, once everything has been loaded, it will parse and
-        execute the deferred files.
-        Read about defer: https://developer.mozilla.org/Web/HTML/Element/script#attr-defer
-        -->
-        <script type="text/javascript" src="/js/bundle.js" defer></script>
+    We're also using the 'defer' attribute. This allows us to tell the browser that
+    it should not wait for this file to load before continuing to load the rest of
+    resources in the page. Then, once everything has been loaded, it will parse and
+    execute the deferred files.
+    Read about defer: https://developer.mozilla.org/Web/HTML/Element/script#attr-defer
+    -->
+    <script type="text/javascript" src="/js/bundle.js" defer></script>
 
-        <!--
-        The following two lines are for loading the localisations library
-        and the localisation data-so people can use the app in their
-        own language (as long as you provide translations).
-        -->
-        <link rel="prefetch" type="application/l10n" href="data/locales.ini" />
-        <script type="text/javascript" src="js/libs/l10n.js" defer></script>
-    </head>
-    <body>
-        <div id="latest-update" class="active">
-        </div>
+    <!--
+    The following two lines are for loading the localisations library
+    and the localisation data-so people can use the app in their
+    own language (as long as you provide translations).
+    -->
+    <link rel="prefetch" type="application/l10n" href="data/locales.ini" />
+    <script type="text/javascript" src="js/libs/l10n.js" defer></script>
+  </head>
+  <body>
 
-        <div id="comic-info">
-            <h1 id="title"></h1>
-            <img id="cover" />
-            <ul id="episode-list">
-            </ul>
-        </div>
+    <div id="nav-bar">
+      <div id="left-nav-action">
+        <span id="back">&lt;&lt;&lt;</span>
+      </div>
+      <h1 id="nav-title"></h1>
+      <div id="right-nav-action"></div>
+    </div>
 
-        <div id="episode">
-        </div>
-    </body>
+    <div id="content">
+
+      <div id="latest-update">
+      </div>
+
+      <div id="comic-info">
+        <h1 id="title"></h1>
+        <img id="cover" />
+        <ul id="episode-list">
+        </ul>
+      </div>
+
+      <div id="episode">
+      </div>
+
+    </div>
+
+  </body>
 </html>

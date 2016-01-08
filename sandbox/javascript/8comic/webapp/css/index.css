@@ -1,7 +1,29 @@
 body {
   margin: 0px;
   -moz-user-select: none;
-  background-color: gray;
+}
+
+#nav-bar {
+  /* if visible, always on top */
+  z-index: 1;
+
+  width: 100%;
+  height: 10vh;
+
+  position: fixed;
+  top: 0px;
+
+  background-color: black;
+  color: white;
+
+  display: flex;
+}
+
+#content {
+  width: 100%;
+
+  /* the height of #nav-bar */
+  margin-top: 10vh;
 }
 
 #latest-update {
