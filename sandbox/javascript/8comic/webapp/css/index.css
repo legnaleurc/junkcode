@@ -56,6 +56,10 @@ body {
   margin: 10px 0px;
 }
 
+#comic-info ul > li.latest {
+  color: red;
+}
+
 #episode {
   display: none;
 }

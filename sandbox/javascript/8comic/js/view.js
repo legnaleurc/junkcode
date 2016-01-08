@@ -122,6 +122,9 @@ export class ComicView extends View {
       this.model.get('episodeList').forEach(function (episode) {
         var li = document.createElement('li');
         li.textContent = episode.name;
+        if (episode.updateAge >= 0) {
+          li.classList.add('latest');
+        }
         li.dataset.url = episode.url;
         li.dataset.catid = episode.catid;
         episodeList.appendChild(li);

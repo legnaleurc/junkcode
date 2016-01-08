@@ -35,10 +35,26 @@ export function getSummary (url) {
     // TODO volume, may need two tabs
     // html.querySelectorAll('a.Vol')
     episodeLinks = Array.map(episodeLinks, function (anchor) {
+      var name = anchor.textContent;
+      var updateAge = -1;
+      var font = anchor.querySelector('font');
+      if (font) {
+        name = font.textContent;
+        let script = anchor.querySelector('script');
+        script = script.textContent;
+        script = script.match(/isnew\('([^']*)','([^']*)',(\d+)\)/);
+        if (script) {
+          let dd = script[1];
+          let nn = script[2];
+          let showimg = parseInt(script[3], 10);
+          updateAge = isnew(dd, nn, showimg);
+        }
+      }
       var action = anchor.getAttribute('onClick');
       action = action.match(/cview\('([^']+)',(\d+)\)/);
       return {
-        name: anchor.textContent,
+        name: name,
+        updateAge: updateAge,
         url: action ? action[1] : '',
         catid: action ? action[2] : '',
       };
@@ -85,7 +101,7 @@ export function getPagesInEpisode (url, catid) {
 }
 
 
-// copied from 8comic
+// copied and modified from 8comic
 function cview (url, catid) {
   var baseurl = "";
   if (catid == 4 || catid == 6 || catid == 12 || catid == 22) baseurl="/show/cool-";
@@ -95,6 +111,25 @@ function cview (url, catid) {
   if (catid == 3 || catid == 8 || catid == 15 || catid == 16 || catid == 18 || catid == 20) baseurl="/show/best-manga-";
   url = url.replace(".html", "").replace("-", ".html?ch=");
   return baseurl + url;
+}
+
+function isnew(dd, nn) {
+  var nd = new Date();
+  if (nn == null || nn == '') {
+    nn = nd.getYear() + '-' + (nd.getMonth() + 1) + '-' + nd.getDate();
+  }
+  var ddd = dd.split('-');
+  var nnn = nn.split('-');
+  var y1 = parseInt(ddd[0], 10);
+  var m1 = parseInt(ddd[1], 10);
+  var d1 = parseInt(ddd[2], 10);
+  var y2 = parseInt(nnn[0], 10);
+  var m2 = parseInt(nnn[1], 10);
+  var d2 = parseInt(nnn[2], 10);
+  var dt1 = (y1 - 1900) * 365 + (m1 - 1) * 30 + d1;
+  var dt2 = (y2 - 1900) * 365 + (m2 - 1) * 30 + d2;
+
+  return dt2 - dt1;
 }
 
 function reurl (url, keyname, keyvalue) {
@@ -120,16 +155,12 @@ function j (url, n) {
 function sp (cs, chs, ch, ti) {
     var f = 50;
     var c = '';
-    var ci = 0;
-    var pi = '';
-    var ni = '';
     var ps = ''; // total page count
 
     var cc = cs.length;
     for (let i = 0; i < cc / f; i++) {
         if (ss(cs, i * f, 4) == ch) {
             c = ss(cs, i * f, f, f);
-            ci = i;
             break;
         }
     }
