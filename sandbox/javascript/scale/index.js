@@ -27,21 +27,29 @@
 
   function calculateScale (touches) {
     var pinch = Object.assign({}, originalPinches);
-    Array.forEach(touches, (touch) => {
+    Array.prototype.forEach.call(touches, (touch) => {
       pinch[touch.identifier] = {
         x: touch.clientX,
         y: touch.clientY,
       };
     });
-    var a = this._abs(originalPinches);
-    var b = this._abs(pinch);
+    var a = abs(originalPinches);
+    var b = abs(pinch);
     var c = b / a;
     c = c <= 1.0 ? 1.0 : c;
     return c;
   }
 
+  function abs (pinch) {
+    return Object.keys(pinch).reduce(function (ak, bk) {
+      var a = pinch[ak];
+      var b = pinch[bk];
+      return Math.pow(Math.pow(a.x - b.x, 2.0) + Math.pow(a.y - b.y, 2.0), 0.5);
+    });
+  }
+
   el.addEventListener('touchstart', function (event) {
-    Array.forEach(event.touches, (touch) => {
+    Array.prototype.forEach.call(event.touches, (touch) => {
       originalPinches[touch.identifier] = {
         x: touch.clientX,
         y: touch.clientY,
@@ -52,7 +60,7 @@
   });
 
   el.addEventListener('touchend', function (event) {
-    Array.forEach(event.touches, (touch) => {
+    Array.prototype.forEach.call(event.touches, (touch) => {
       delete originalPinches[touch.identifier];
     });
 
