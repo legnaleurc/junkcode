@@ -1,0 +1,18 @@
+html {
+  width: 100%;
+}
+
+body {
+  width: 100%;
+  margin-top: 0px;
+  margin-left: 0px;
+}
+
+#content {
+  width: 100%;
+  will-change: transform;
+}
+
+#content > img {
+  width: 100%;
+}
