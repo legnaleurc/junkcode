@@ -1,14 +1,15 @@
 #! /usr/bin/env python3
 # ex: et sts=4 ts=4 sw=4
 
-import sys
+import argparse
+import hashlib
 import os
 import shutil
-import hashlib
+import sys
 
 from acdcli.api import client as ACD
-from acdcli.cache import db as DB
 from acdcli.api.common import RequestError
+from acdcli.cache import db as DB
 from acdcli.utils import hashing
 from acdcli.utils.time import datetime_to_timestamp
 
@@ -38,7 +39,7 @@ class Cache(object):
 
         while True:
             free_space = self._get_free_space()
-            if free_space > 10:
+            if free_space > 0:
                 break
 
             full_path, mtime = entries.pop(0)
@@ -57,11 +58,16 @@ class Cache(object):
         return entries
 
     def _get_free_space(self):
+        used = self._get_cache_size()
+        return 40 * 1024 * 1024 * 1024 - used
         s = os.statvfs(self._cache_folder)
         s = s.f_frsize * s.f_bavail
         s = s / 1024
         s = s / 1024 / 1024
         return s
+
+    def _get_cache_size(self):
+        return get_folder_size(self._cache_folder)
 
     def _is_too_old(self, node):
         return datetime_to_timestamp(node.modified) < self._last_recycle
@@ -143,14 +149,25 @@ def main(args=None):
     if args is None:
         args = sys.argv
 
-    dst_path = args[1]
-    src_path = args[2:]
+    args = parse_args(args)
+    dst_path = args.destination[0]
+    src_paths = args.sources
 
     cache = Cache(dst_path)
-    for p in src_path:
+    for p in src_paths:
         cache(p)
 
     return 0
+
+
+def parse_args(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('destination', type=str, nargs=1,
+                        help='download to this local directory')
+    parser.add_argument('sources', type=str, nargs='+',
+                        help='ACD directories')
+    args = parser.parse_args(args[1:])
+    return args
 
 
 def preserve_mtime(node, full_path):
@@ -173,6 +190,12 @@ def md5sum(full_path):
                 break
             hasher.update(chunk)
     return hasher.hexdigest()
+
+
+def get_folder_size(path):
+    g = os.scandir(path)
+    g = (get_folder_size(_.path) if _.is_dir() else _.stat().st_size for _ in g)
+    return sum(g)
 
 
 if __name__ == '__main__':
