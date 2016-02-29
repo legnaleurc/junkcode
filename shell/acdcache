@@ -58,8 +58,8 @@ class Cache(object):
         return entries
 
     def _get_free_space(self):
-        used = self._get_cache_size()
-        return 40 * 1024 * 1024 * 1024 - used
+        # used = self._get_cache_size()
+        # return 40 * 1024 * 1024 * 1024 - used
         s = os.statvfs(self._cache_folder)
         s = s.f_frsize * s.f_bavail
         s = s / 1024
