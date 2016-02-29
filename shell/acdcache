@@ -39,7 +39,7 @@ class Cache(object):
 
         while True:
             free_space = self._get_free_space()
-            if free_space > 0:
+            if free_space > 10:
                 break
 
             full_path, mtime = entries.pop(0)
