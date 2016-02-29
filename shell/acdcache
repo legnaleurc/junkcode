@@ -39,6 +39,7 @@ class Cache(object):
 
         while True:
             free_space = self._get_free_space()
+            print('free space: {0} GB'.format(free_space))
             if free_space > 10:
                 break
 
