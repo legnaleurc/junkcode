@@ -44,13 +44,14 @@ class OpenVPNHandler(web.RequestHandler):
             self.set_status(400)
             return
 
+        prefix = name
         with tempfile.TemporaryFile() as fout:
             with zipfile.ZipFile(fout, 'w') as zout:
                 with open('./client.conf', 'r') as tpl:
-                    zout.writestr('client.conf', tpl.read().format(host='wcpan.me', name=name))
-                zout.write('/etc/openvpn/easy-rsa/2.0/keys/ca.crt', 'ca.crt')
-                zout.write('/etc/openvpn/easy-rsa/2.0/keys/{0}.crt'.format(name), '{0}.crt'.format(name))
-                zout.write('/etc/openvpn/easy-rsa/2.0/keys/{0}.key'.format(name), '{0}.key'.format(name))
+                    zout.writestr('{0}/client.conf'.format(prefix), tpl.read().format(host='wcpan.me', name=name))
+                zout.write('/etc/openvpn/easy-rsa/2.0/keys/ca.crt', '{0}/ca.crt'.format(prefix))
+                zout.write('/etc/openvpn/easy-rsa/2.0/keys/{0}.crt'.format(name), '{0}/{1}.crt'.format(prefix, name))
+                zout.write('/etc/openvpn/easy-rsa/2.0/keys/{0}.key'.format(name), '{0}/{1}.key'.format(prefix, name))
             fout.seek(0, 0)
 
             self.set_header('Content-Type', 'application/octet-stream')
