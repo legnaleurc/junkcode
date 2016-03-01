@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 # ex: ts=4 sts=4 sw=4 et
 
+import contextlib
 import datetime
 import grp
 import os
@@ -10,7 +11,6 @@ import subprocess
 import sys
 import tempfile
 import zipfile
-import contextlib
 
 from tornado import ioloop, web, httpserver, netutil, log, gen, process
 
@@ -18,7 +18,7 @@ from tornado import ioloop, web, httpserver, netutil, log, gen, process
 class IndexHandler(web.RequestHandler):
 
     def get(self):
-        self.render('index.html')
+        self.render('./index.html')
 
 
 class OpenVPNHandler(web.RequestHandler):
@@ -26,19 +26,22 @@ class OpenVPNHandler(web.RequestHandler):
     @gen.coroutine
     def get(self):
         email = self.get_argument('email', None)
-        if not email or email.find('/') >= 0:
-            self.set_status(403)
+        if not email:
+            self.set_status(400)
             return
 
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
         name = '{0}_{1}'.format(email, timestamp)
+        if not check_name(name):
+            self.set_status(400)
+            return
 
         with open(os.devnull, 'w') as null:
             p = process.Subprocess(['./gk.sh', email, name], stdout=null, stderr=null)
             exit_code = yield gen.Task(p.set_exit_callback)
 
         if exit_code != 0:
-            self.set_status(403)
+            self.set_status(400)
             return
 
         with tempfile.TemporaryFile() as fout:
@@ -54,6 +57,11 @@ class OpenVPNHandler(web.RequestHandler):
             self.set_header('Content-Disposition', 'attachment; filename="{0}.zip"'.format(name))
             self.write(fout.read())
             yield self.flush()
+
+
+def check_name(name):
+    m = re.match(r'^[a-zA-Z0-9_-@.]+$', name)
+    return bool(m)
 
 
 @contextlib.contextmanager
