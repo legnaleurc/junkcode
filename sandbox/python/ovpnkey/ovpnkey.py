@@ -89,7 +89,7 @@ def main(args=None):
         (r'/key', OpenVPNHandler),
     ])
     server = httpserver.HTTPServer(application)
-    with unix_socket('/tmp/openvpn.socket', 'www-data', 'www-data') as socket:
+    with unix_socket('/tmp/ovpnkey.socket', 'www-data', 'www-data') as socket:
         server.add_socket(socket)
         main_loop.start()
 
