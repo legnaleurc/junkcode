@@ -61,7 +61,7 @@ class OpenVPNHandler(web.RequestHandler):
 
 
 def check_name(name):
-    m = re.match(r'^[a-zA-Z0-9_-@.]+$', name)
+    m = re.match(r'^[a-zA-Z0-9_@.\-]+$', name)
     return bool(m)
 
 
