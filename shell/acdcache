@@ -29,18 +29,19 @@ class Cache(object):
         children = folders + files
         children = sorted(children, key=lambda _: _.modified, reverse=True)
         for child in children:
-            self._recycle_space()
             if self._is_too_old(child):
                 break
+            self._reserve_space(child)
             self._download(child, self._cache_folder)
 
-    def _recycle_space(self):
+    def _reserve_space(self, node):
         entries = self._get_cache_entries()
 
         while True:
             free_space = self._get_free_space()
-            print('free space: {0} GB'.format(free_space))
-            if free_space > 10:
+            required_space = self._get_node_size(node)
+            print('free space: {0} GB, required: {1} GB'.format(free_space / 1024 / 1024, required_space / 1024 / 1024))
+            if free_space > required_space:
                 break
 
             full_path, mtime = entries.pop(0)
@@ -58,14 +59,25 @@ class Cache(object):
         entries = sorted(entries, key=lambda _: _[1])
         return entries
 
+    # in bytes
     def _get_free_space(self):
-        # used = self._get_cache_size()
-        # return 40 * 1024 * 1024 * 1024 - used
         s = os.statvfs(self._cache_folder)
         s = s.f_frsize * s.f_bavail
         s = s / 1024
-        s = s / 1024 / 1024
         return s
+
+    # in bytes
+    def _get_node_size(self, node):
+        if not node.is_available:
+            return 0
+
+        if not node.is_folder:
+            return node.size
+
+        folders, files = self._acd_db.list_children(node.id)
+        children = folders + files
+        children = (self._get_node_size(_) for _ in children)
+        return sum(children)
 
     def _get_cache_size(self):
         return get_folder_size(self._cache_folder)
