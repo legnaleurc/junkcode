@@ -71,7 +71,7 @@ class Cache(object):
         return get_folder_size(self._cache_folder)
 
     def _is_too_old(self, node):
-        return datetime_to_timestamp(node.modified) < self._last_recycle
+        return datetime_to_timestamp(node.modified) <= self._last_recycle
 
     def _download(self, node, local_path):
         local_path = local_path if local_path else ''
