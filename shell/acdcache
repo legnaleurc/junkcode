@@ -40,7 +40,7 @@ class Cache(object):
         while True:
             free_space = self._get_free_space()
             required_space = self._get_node_size(node)
-            print('free space: {0} GB, required: {1} GB'.format(free_space / 1024 / 1024, required_space / 1024 / 1024))
+            print('free space: {0} GB, required: {1} GB'.format(free_space / 1024 / 1024 / 1024, required_space / 1024 / 1024 / 1024))
             if free_space > required_space:
                 break
 
@@ -63,7 +63,6 @@ class Cache(object):
     def _get_free_space(self):
         s = os.statvfs(self._cache_folder)
         s = s.f_frsize * s.f_bavail
-        s = s / 1024
         return s
 
     # in bytes
