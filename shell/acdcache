@@ -23,16 +23,22 @@ class Cache(object):
         self._acd_db = DB.NodeCache(auth_folder)
         self._last_recycle = 0
 
-    def __call__(self, acd_path):
-        folder = self._acd_db.resolve(acd_path)
-        folders, files = self._acd_db.list_children(folder.id)
-        children = folders + files
-        children = sorted(children, key=lambda _: _.modified, reverse=True)
+    def __call__(self, acd_paths):
+        children = self._get_unified_children(acd_paths)
         for child in children:
             if self._is_too_old(child):
                 break
             self._reserve_space(child)
             self._download(child, self._cache_folder)
+
+    def _get_unified_children(self, acd_paths):
+        children = []
+        for acd_path in acd_paths:
+            folder = self._acd_db.resolve(acd_path)
+            folders, files = self._acd_db.list_children(folder.id)
+            children.extend(folders + files)
+        children = sorted(children, key=lambda _: _.modified, reverse=True)
+        return children
 
     def _reserve_space(self, node):
         entries = self._get_cache_entries()
@@ -166,8 +172,7 @@ def main(args=None):
     src_paths = args.sources
 
     cache = Cache(dst_path)
-    for p in src_paths:
-        cache(p)
+    cache(src_paths)
 
     return 0
 
