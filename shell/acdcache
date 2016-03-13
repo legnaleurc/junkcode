@@ -28,7 +28,6 @@ class Cache(object):
         for child in children:
             if self._is_too_old(child):
                 break
-            self._reserve_space(child)
             self._download(child, self._cache_folder)
 
     def _get_unified_children(self, acd_paths):
@@ -135,6 +134,8 @@ class Cache(object):
                 return True
             print('md5 mismatch: ' + full_path)
             os.remove(full_path)
+
+        self._reserve_space(node)
 
         while True:
             hasher = hashing.IncrementalHasher()
