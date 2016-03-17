@@ -1,6 +1,6 @@
 #! /bin/sh
 
-cd /etc/openvpn/easy-rsa/2.0
+cd "$1"
 . ./vars
-export KEY_EMAIL="$1"
-./pkitool "$2"
+export KEY_EMAIL="$2"
+./pkitool "$3"

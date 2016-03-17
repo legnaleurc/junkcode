@@ -15,6 +15,11 @@ import zipfile
 from tornado import ioloop, web, httpserver, netutil, log, gen, process
 
 
+EASY_RSA_ROOT = '/etc/openvpn/easy-rsa/2.0'
+OPENVPN_HOST = 'wcpan.me'
+OPENVPN_PORT = 1194
+
+
 class IndexHandler(web.RequestHandler):
 
     def get(self):
@@ -37,7 +42,7 @@ class OpenVPNHandler(web.RequestHandler):
             return
 
         with open(os.devnull, 'w') as null:
-            p = process.Subprocess(['./gk.sh', email, name], stdout=null, stderr=null)
+            p = process.Subprocess(['./gk.sh', EASY_RSA_ROOT, email, name], stdout=null, stderr=null)
             exit_code = yield gen.Task(p.set_exit_callback)
 
         if exit_code != 0:
@@ -48,10 +53,10 @@ class OpenVPNHandler(web.RequestHandler):
         with tempfile.TemporaryFile() as fout:
             with zipfile.ZipFile(fout, 'w') as zout:
                 with open('./client.conf', 'r') as tpl:
-                    zout.writestr('{0}/client.conf'.format(prefix), tpl.read().format(host='wcpan.me', name=name))
-                zout.write('/etc/openvpn/easy-rsa/2.0/keys/ca.crt', '{0}/ca.crt'.format(prefix))
-                zout.write('/etc/openvpn/easy-rsa/2.0/keys/{0}.crt'.format(name), '{0}/{1}.crt'.format(prefix, name))
-                zout.write('/etc/openvpn/easy-rsa/2.0/keys/{0}.key'.format(name), '{0}/{1}.key'.format(prefix, name))
+                    zout.writestr('{0}/client.conf'.format(prefix), tpl.read().format(host=OPENVPN_HOST, port=OPENVPN_PORT, name=name))
+                zout.write('{0}/keys/ca.crt'.format(EASY_RSA_ROOT), '{0}/ca.crt'.format(prefix))
+                zout.write('{0}/keys/{1}.crt'.format(EASY_RSA_ROOT, name), '{0}/{1}.crt'.format(prefix, name))
+                zout.write('{0}/keys/{1}.key'.format(EASY_RSA_ROOT, name), '{0}/{1}.key'.format(prefix, name))
             fout.seek(0, 0)
 
             self.set_header('Content-Type', 'application/octet-stream')
