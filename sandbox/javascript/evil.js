@@ -79,6 +79,22 @@
         return fn().then(partial(asyncWhile, condition, fn));
     };
 
+    function subcoro (g) {
+      var next = g.next();
+      if (!next.done) {
+        return Promise.resolve();
+      }
+      var p = next.value;
+      return p.then(() => {
+        return subcoro(g);
+      });
+    }
+
+    exports.coro = function (gfn) {
+      var g = gfn();
+      return subcoro(g);
+    };
+
 }(((typeof exports === 'undefined') ? undefined : exports), this));
 
 // ex: ts=4 sts=4 sw=4 et
