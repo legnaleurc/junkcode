@@ -80,19 +80,19 @@
     };
 
     function subcoro (g, rv) {
-      var next = g.next(rv);
-      var p = next.value;
-      if (!next.done) {
-        return Promise.resolve(p);
-      }
-      return p.then((rv) => {
-        return subcoro(g, rv);
-      });
+        var next = g.next(rv);
+        var p = next.value;
+        if (!next.done) {
+            return Promise.resolve(p);
+        }
+        return p.then((rv) => {
+            return subcoro(g, rv);
+        });
     }
 
     exports.coro = function (gfn) {
-      var g = gfn();
-      return subcoro(g);
+        var g = gfn();
+        return subcoro(g);
     };
 
 }(((typeof exports === 'undefined') ? undefined : exports), this));
