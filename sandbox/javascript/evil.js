@@ -79,14 +79,14 @@
         return fn().then(partial(asyncWhile, condition, fn));
     };
 
-    function subcoro (g) {
-      var next = g.next();
-      if (!next.done) {
-        return Promise.resolve();
-      }
+    function subcoro (g, rv) {
+      var next = g.next(rv);
       var p = next.value;
-      return p.then(() => {
-        return subcoro(g);
+      if (!next.done) {
+        return Promise.resolve(p);
+      }
+      return p.then((rv) => {
+        return subcoro(g, rv);
       });
     }
 
