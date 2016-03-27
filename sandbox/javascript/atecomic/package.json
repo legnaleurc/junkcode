@@ -1,0 +1,19 @@
+{
+  "name": "atecomic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  	"server": "node --harmony index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+  	"koa": "",
+  	"koa-route": "",
+  	"request": "",
+  	"iconv-lite": "",
+  	"jsdom": ""
+  }
+}
