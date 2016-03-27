@@ -82,7 +82,7 @@
     function subcoro (g, rv) {
         var next = g.next(rv);
         var p = next.value;
-        if (!next.done) {
+        if (next.done) {
             return Promise.resolve(p);
         }
         return p.then((rv) => {
