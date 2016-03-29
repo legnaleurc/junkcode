@@ -12,8 +12,7 @@
   "dependencies": {
   	"koa": "",
   	"koa-route": "",
-  	"request": "",
-  	"iconv-lite": "",
+  	"node-fetch": "",
   	"jsdom": ""
   }
 }
