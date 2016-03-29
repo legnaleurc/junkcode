@@ -1,6 +1,27 @@
 # comic server
 
-need few tasks:
+## need few API
+
+### GET /latest
+
+Get latest updated comics. Returns a list of [comic object].
+
+#### Optional Parameters
+
+* offset
+    * Start point of the list. Default is 0.
+* length
+    * The list length. Default is 30.
+
+### GET /comic/{id}
+
+Get a [comic object] by the given ID.
+
+### GET /comic/{id}/{episode_id}
+
+Get a [episode object] by the given ID.
+
+## need few tasks
 
 ```python
 def from_latest_update():
@@ -18,7 +39,7 @@ def process_comic_queue():
         global_data_base.add(comic_data)
 ```
 
-fields needed in each comic:
+## fields needed in each comic
 
 * ID
 * title
@@ -29,7 +50,7 @@ fields needed in each comic:
 * author
 * publisher
 
-fields needed in each episode:
+## fields needed in each episode
 
 * ID
 * comic ID
