@@ -108,6 +108,32 @@ function isnew(dd, nn) {
 }
 
 
+function * fetchAll () {
+  var pageURL = 'http://www.comicbus.com/comic/all.html';
+  var all = yield net.getPage(pageURL);
+  all = all.querySelectorAll('table[id] > tbody > tr > td > a');
+  all = Array.prototype.map.call(all, (a) => {
+    return url.resolve(pageURL, a.href);
+  });
+  return all;
+}
+
+
+function main () {
+  var co = require('co');
+  co(fetchAll).then((all) => {
+    console.info(all);
+  }).catch((e) => {
+    console.warn(e);
+  });
+}
+
+
+if (!module.parent) {
+  return main();
+}
+
+
 module.exports = {
   getLatest: getLatest,
 };
