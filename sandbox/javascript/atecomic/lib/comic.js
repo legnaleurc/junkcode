@@ -1,9 +1,9 @@
 'use strict';
 
-
 var url = require('url');
 
 var net = require('./net.js');
+var db = require('./db.js');
 
 
 function * getLatest (offset) {
@@ -88,6 +88,14 @@ function getSummary (html) {
 }
 
 
+function getComicIDFromURL (pageURL) {
+  var id = pageURL.match(/\/(\d+)\.html$/);
+  id = id ? id[1] : '0';
+  return parseInt(id, 10);
+}
+
+
+// copied from 8comic
 function isnew(dd, nn) {
   var nd = new Date();
   if (nn == null || nn == '') {
@@ -113,8 +121,14 @@ function * fetchAll () {
   var all = yield net.getPage(pageURL);
   all = all.querySelectorAll('table[id] > tbody > tr > td > a');
   all = Array.prototype.map.call(all, (a) => {
-    return url.resolve(pageURL, a.href);
+    return {
+      id: getComicIDFromURL(a.href),
+      url: url.resolve(pageURL, a.href),
+    };
   });
+
+  var db_ = db.getInstance();
+  yield db_.addRefreshTasks(all);
   return all;
 }
 

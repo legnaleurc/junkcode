@@ -2,7 +2,7 @@
 
 ## need few API
 
-### GET /latest
+### GET /updates
 
 Get latest updated comics. Returns a list of [comic object].
 
@@ -13,11 +13,11 @@ Get latest updated comics. Returns a list of [comic object].
 * length
     * The list length. Default is 30.
 
-### GET /comic/{id}
+### GET /comics/{comic_id}
 
 Get a [comic object] by the given ID.
 
-### GET /comic/{id}/{episode_id}
+### GET /comics/{comic_id}/episodes/{episode_id}
 
 Get a [episode object] by the given ID.
 
@@ -55,3 +55,10 @@ def process_comic_queue():
 * ID
 * comic ID
 * page image URL list
+
+## tables
+
+* refresh_queue
+    * id
+    * comic_id
+    * url

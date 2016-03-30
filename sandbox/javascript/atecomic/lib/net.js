@@ -1,6 +1,5 @@
 'use strict';
 
-
 var fetch = require('node-fetch');
 var jsdom = require('jsdom');
 

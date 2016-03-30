@@ -9,7 +9,7 @@ var comic = require('./lib/comic.js');
 function main (args) {
   var app = koa();
 
-  app.use(koaRoute.get('/latest', comic.getLatest));
+  app.use(koaRoute.get('/updates', comic.getLatest));
 
   app.listen(8000);
 
