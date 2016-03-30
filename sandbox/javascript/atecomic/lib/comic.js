@@ -129,14 +129,27 @@ function * fetchAll () {
 
   var db_ = db.getInstance();
   yield db_.addRefreshTasks(all);
-  return all;
+}
+
+
+function * pollAll () {
+  var db_ = db.getInstance();
+
+  var tasks = yield db_.getDirtyRefreshTasks();
+  tasks.forEach((comic) => {
+    yield * fetchComic(comic);
+  });
+}
+
+
+function * fetchComic (comic) {
+  var html = yield net.getPage(comic.url);
 }
 
 
 function main () {
   var co = require('co');
-  co(fetchAll).then((all) => {
-    console.info(all);
+  co(pollAll).then(() => {
   }).catch((e) => {
     console.warn(e);
   });

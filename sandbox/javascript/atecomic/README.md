@@ -62,3 +62,4 @@ def process_comic_queue():
     * id
     * comic_id
     * url
+    * dirty
