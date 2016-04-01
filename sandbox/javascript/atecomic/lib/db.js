@@ -5,7 +5,7 @@ var sqlite3 = require('sqlite3').verbose();
 var gDB = null;
 
 
-function Dababase (path) {
+function Database (path) {
   var _ = this._ = {};
   _.db = new sqlite3.Database(path);
   _.waitingRefresh = null;
@@ -13,7 +13,7 @@ function Dababase (path) {
   return this;
 }
 
-Dababase.prototype.addRefreshTasks = function addRefreshTasks (comic_list) {
+Database.prototype.addRefreshTasks = function addRefreshTasks (comic_list) {
   var db = this._.db;
 
   db.serialize(() => {
@@ -59,21 +59,21 @@ function notifyDirtyRefresh (_) {
 
 
 function getDirtyRefreshTasks_ (db) {
-  var tasks = [];
-  db.serialize(() => {
-    var statement = db.prepare('SELECT `comic_id`, `url` FROM `refresh_tasks` WHERE `dirty` = 1;');
-    statement.all((e, rows) => {
-      rows = rows.map((row) => {
-        return {
-          id: row.comic_id,
-          url: row.url,
-        };
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      var statement = db.prepare('SELECT `comic_id`, `url` FROM `refresh_tasks` WHERE `dirty` = 1;');
+      statement.all((e, rows) => {
+        var tasks = rows.map((row) => {
+          return {
+            id: row.comic_id,
+            url: row.url,
+          };
+        });
+        resolve(tasks);
       });
-      tasks.concat(rows);
+      statement.finalize();
     });
-    statement.finalize();
   });
-  return Promise.resolve(tasks);
 }
 
 
@@ -91,7 +91,7 @@ function createTable (rawDB) {
 
 function getInstance () {
   if (!gDB) {
-    gDB = new Dababase('/tmp/atecomic.sqlite');
+    gDB = new Database('/tmp/atecomic.sqlite');
   }
   return gDB;
 }

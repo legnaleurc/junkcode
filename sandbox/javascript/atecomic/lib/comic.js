@@ -4,13 +4,14 @@ var url = require('url');
 
 var net = require('./net.js');
 var db = require('./db.js');
+var asyncio = require('./asyncio.js');
 
 
 function * getLatest (offset) {
   // FIXME what the hell of the first argument?
   // offset = (typeof offset === 'undefined') ? 1 : offset;
   var offset = 1;
-  var rootURL = `http://www.comicvip.com/comic/u-${offset}.html`;
+  var rootURL = `http://www.comicbus.com/comic/u-${offset}.html`;
   var html = yield net.getPage(rootURL);
   var tmp = html.querySelector('body > table:nth-child(5) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(3) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1)');
   tmp = tmp.querySelectorAll('a');
@@ -136,7 +137,7 @@ function * pollAll () {
   var db_ = db.getInstance();
 
   var tasks = yield db_.getDirtyRefreshTasks();
-  tasks.forEach((comic) => {
+  yield asyncio.asyncForEach(tasks, function * (comic) {
     yield * fetchComic(comic);
   });
 }
@@ -144,14 +145,109 @@ function * pollAll () {
 
 function * fetchComic (comic) {
   var html = yield net.getPage(comic.url);
+  var parsed = {
+    id: comic.id,
+    url: comic.url,
+    title: parseTitle(html),
+    coverURL: parseCoverURL(html, comic.url),
+    author: parseAuthor(html),
+    mtime: parseMTime(html),
+    brief: parseBrief(html),
+  };
+  var episodeList = parseEpisodeList(html, comic.url);
+  parsed.chapters = episodeList.chapters;
+  parsed.volumes = episodeList.volumes;
+}
+
+
+function parseTitle (comicMainPage) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > font:nth-child(1)');
+  return node.textContent.trim();
+}
+
+
+function parseCoverURL (comicMainPage, comicURL) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > img:nth-child(1)');
+  return url.resolve(comicURL, node.src);
+}
+
+
+function parseAuthor (comicMainPage) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(2)');
+  return node.textContent.trim();
+}
+
+
+function parseMTime (comicMainPage) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(11) > td:nth-child(2)');
+  var m = node.textContent.match(/^(\d\d\d\d)-(\d\d)-(\d\d)$/);
+  m = m.slice(1).map((s) => {
+    return parseInt(s, 10);
+  });
+  var date = new Date(m[0], m[1], m[2]);
+  return date;
+}
+
+
+function parseBrief (comicMainPage) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1)');
+  return node.textContent.trim();
+}
+
+
+function parseEpisodeList (comicMainPage, comicURL) {
+  var chapterLinks = parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Ch');
+  var volumeLinks = parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Vol');
+
+  return {
+    chapters: chapterLinks,
+    volumes: volumeLinks,
+  };
+}
+
+
+function parseEpisodeListByCategory (comicMainPage, comicURL, selector) {
+  var links = comicMainPage.querySelectorAll(selector);
+
+  links = Array.prototype.map.call(links, function (anchor) {
+    var name = anchor.textContent;
+    var updateAge = -1;
+    var font = anchor.querySelector('font');
+    if (font) {
+      name = font.textContent;
+      let script = anchor.querySelector('script');
+      script = script.textContent;
+      script = script.match(/isnew\('([^']*)','([^']*)',(\d+)\)/);
+      if (script) {
+        let dd = script[1];
+        let nn = script[2];
+        let showimg = parseInt(script[3], 10);
+        updateAge = isnew(dd, nn, showimg);
+      }
+    }
+    var action = anchor.getAttribute('onClick');
+    action = action.match(/cview\('([^']+)',(\d+)\)/);
+    var pageURL = action ? url.resolve(comicURL, action[1]) : '';
+    return {
+      name: name.trim(),
+      updateAge: updateAge,
+      url: pageURL,
+      catid: action ? action[2] : '',
+    };
+  });
+
+  return links;
 }
 
 
 function main () {
   var co = require('co');
-  co(pollAll).then(() => {
+  co(function * () {
+    // yield * fetchAll();
+    yield * pollAll();
+  }).then(() => {
   }).catch((e) => {
-    console.warn(e);
+    throw e;
   });
 }
 
