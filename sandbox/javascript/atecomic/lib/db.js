@@ -65,30 +65,24 @@ Database.prototype.updateComic = function updateComic (comic) {
     // TODO flush existing episodes? when?
     // TODO deal about episode's mtime
 
-    yield asyncio.forEach(comic.volumes, function * (episode) {
-      statement = yield db.prepare('INSERT INTO `episodes` (`comic_id`, `title`, `mtime`, `volume`, `chapter`, `url`) VALUES (?, ?, ?, ?, ?, ?);');
-      statement = yield statement.run(comicID, episode.title, 0, 1, 0, episode.url);
-      var episodeID = statement.lastID;
-      console.info('inserted episode id', episodeID);
+    yield asyncio.forEach(comic.episodes, function * (episode) {
+      var statement = yield db.prepare('SELECT `id` FROM `episodes` WHERE `comic_id` = ? AND `episode_id` = ?;');
+      var rows = yield statement.all(comicID, episode.id);
+      if (rows.length === 0) {
+        statement = yield db.prepare('INSERT INTO `episodes` (`comic_id`, `episode_id`, `title`, `mtime`, `volume`, `chapter`, `url`) VALUES (?, ?, ?, ?, ?, ?, ?);');
+        statement = yield statement.run(comicID, episode.id, episode.title, 0, episode.isVolume, episode.isChapter, episode.url);
+        var episodeID = statement.lastID;
+        console.info('inserted episode id', episodeID);
 
-      yield asyncio.forEach(episode.pages, function * (pageURL) {
-        statement = yield db.prepare('INSERT INTO `pages` (`episode_id`, `url`) VALUES (?, ?);');
-        statement = yield statement.run(episodeID, pageURL);
-        console.info('inserted page id', statement.lastID);
-      });
-    });
-
-    yield asyncio.forEach(comic.chapters, function * (episode) {
-      statement = yield db.prepare('INSERT INTO `episodes` (`comic_id`, `title`, `mtime`, `volume`, `chapter`, `url`) VALUES (?, ?, ?, ?, ?, ?);');
-      statement = yield statement.run(comicID, episode.title, 0, 0, 1, episode.url);
-      var episodeID = statement.lastID;
-      console.info('inserted episode id', episodeID);
-
-      yield asyncio.forEach(episode.pages, function * (pageURL) {
-        statement = yield db.prepare('INSERT INTO `pages` (`episode_id`, `url`) VALUES (?, ?);');
-        statement = yield statement.run(episodeID, pageURL);
-        console.info('inserted page id', statement.lastID);
-      });
+        yield asyncio.forEach(episode.pages, function * (pageURL) {
+          statement = yield db.prepare('INSERT INTO `pages` (`episode_id`, `url`) VALUES (?, ?);');
+          statement = yield statement.run(episodeID, pageURL);
+          console.info('inserted page id', statement.lastID);
+        });
+      } else {
+        var episodeID = rows[0];
+        console.info('found episode id', episodeID);
+      }
     });
 
     statement.finalize();
@@ -159,6 +153,7 @@ function * createTable (rawDB) {
   yield rawDB.run(`CREATE TABLE IF NOT EXISTS \`episodes\` (
     \`id\` INTEGER PRIMARY KEY AUTOINCREMENT,
     \`comic_id\` INTEGER NOT NULL,
+    \`episode_id\` INTEGER NOT NULL,
     \`title\` TEXT NOT NULL,
     \`mtime\` INTEGER NOT NULL,
     \`volume\` INTEGER NOT NULL,

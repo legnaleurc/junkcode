@@ -7,57 +7,162 @@ var db = require('./db.js');
 var asyncio = require('./asyncio.js');
 
 
-function * getLatest (offset) {
-  // FIXME what the hell of the first argument?
-  // offset = (typeof offset === 'undefined') ? 1 : offset;
-  var offset = 1;
-  var rootURL = `http://www.comicbus.com/comic/u-${offset}.html`;
+function * getUpdates () {
+  let comicList = [];
+  for (let i = 1; i <= 5; ++i) {
+    comicList = comicList.concat(yield * getUpdatesByPage(i));
+  }
+  comicList = comicList.filter((value, index, self) => {
+    return self.findIndex((aValue) => {
+      return value.id === aValue.id;
+    }) === index;
+  });
+
+  var db_ = yield db.getInstance();
+
+  yield asyncio.forEach(comicList, function * (comic) {
+    console.info(comic);
+    comic = yield * fetchComic(comic);
+    console.info(comic);
+    // TODO transaction?
+    yield db_.updateComic(comic);
+    yield db_.clearComic(comic.id);
+  });
+}
+
+
+function * getUpdatesByPage (page) {
+  var rootURL = `http://www.comicbus.com/comic/u-${page}.html`;
   var html = yield net.getPage(rootURL);
   var tmp = html.querySelector('body > table:nth-child(5) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(3) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1)');
   tmp = tmp.querySelectorAll('a');
 
   var comicList = Array.prototype.map.call(tmp, (a) => {
-    var tmp = a.textContent.match(/\s*(.+)\s*\[\s*(.+)\s*\]\s*/);
-    if (tmp) {
-      var title = tmp[1].trim();
-      var latestEpisode = tmp[2].replace('漫畫', '').trim();
-    } else {
-      var title = a.textContent;
-      var latestEpisode = '';
-    }
     var pageURL = url.resolve(rootURL, a.href);
-    var id = pageURL.match(/\/(\d+)\.html$/);
-    id = id ? id[1] : '0';
+    var id = getComicIDFromURL(pageURL);
     return {
       id: id,
-      title: title,
-      latestEpisode: latestEpisode,
       url: pageURL,
     };
   });
 
-  comicList = comicList.map((comic) => {
-    return new Promise((resolve, reject) => {
-      net.getPage(comic.url).then((html) => {
-        var summary = getSummary(html);
-        comic.coverURL = url.resolve(comic.url, summary.coverURL);
-        comic.episodeList = summary.episodeList;
-        resolve(comic);
-      });
-    });
-  });
-  comicList = yield Promise.all(comicList);
-
-  this.body = JSON.stringify(comicList);
+  return comicList;
 }
 
 
-function getSummary (html) {
-  var cover = html.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > img:nth-child(1)');
-  var episodeLinks = html.querySelectorAll('a.Ch');
-  // TODO volume, may need two tabs
-  // html.querySelectorAll('a.Vol')
-  episodeLinks = Array.prototype.map.call(episodeLinks, function (anchor) {
+function getComicIDFromURL (pageURL) {
+  var id = pageURL.match(/\/(\d+)\.html$/);
+  id = id ? id[1] : '0';
+  return parseInt(id, 10);
+}
+
+
+function * fetchAll () {
+  var pageURL = 'http://www.comicbus.com/comic/all.html';
+  var all = yield net.getPage(pageURL);
+  all = all.querySelectorAll('table[id] > tbody > tr > td > a');
+  all = Array.prototype.map.call(all, (a) => {
+    return {
+      id: getComicIDFromURL(a.href),
+      url: url.resolve(pageURL, a.href),
+    };
+  });
+
+  var db_ = yield db.getInstance();
+  yield db_.addRefreshTasks(all);
+}
+
+
+function * pollAll () {
+  var db_ = yield db.getInstance();
+
+  var tasks = yield db_.getDirtyRefreshTasks();
+  yield asyncio.forEach(tasks, function * (comic) {
+    console.info(comic);
+    comic = yield * fetchComic(comic);
+    console.info(comic);
+    // TODO transaction?
+    yield db_.updateComic(comic);
+    yield db_.clearComic(comic.id);
+  });
+}
+
+
+function * fetchComic (comic) {
+  var html = yield net.getPage(comic.url);
+  var parsed = {
+    id: comic.id,
+    url: comic.url,
+    title: parseTitle(html),
+    coverURL: parseCoverURL(html, comic.url),
+    author: parseAuthor(html),
+    mtime: parseMTime(html),
+    brief: parseBrief(html),
+  };
+  parsed.episodes = yield * parseEpisodeList(html, comic.url);
+  return parsed;
+}
+
+
+function parseTitle (comicMainPage) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > font:nth-child(1)');
+  return node.textContent.trim();
+}
+
+
+function parseCoverURL (comicMainPage, comicURL) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > img:nth-child(1)');
+  return url.resolve(comicURL, node.src);
+}
+
+
+function parseAuthor (comicMainPage) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(2)');
+  return node.textContent.trim();
+}
+
+
+function parseMTime (comicMainPage) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(11) > td:nth-child(2)');
+  var m = node.textContent.match(/^(\d\d\d\d)-(\d\d)-(\d\d)$/);
+  m = m.slice(1).map((s) => {
+    return parseInt(s, 10);
+  });
+  var date = new Date(m[0], m[1], m[2]);
+  return date;
+}
+
+
+function parseBrief (comicMainPage) {
+  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1)');
+  return node.textContent.trim();
+}
+
+
+function * parseEpisodeList (comicMainPage, comicURL) {
+  var chapterFromPage = new Map();
+  var volumeLinks = yield * parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Vol', chapterFromPage);
+  volumeLinks = volumeLinks.map((episode) => {
+    episode.isVolume = true;
+    episode.isChapter = false;
+    return episode;
+  });
+  var chapterLinks = yield * parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Ch', chapterFromPage);
+  chapterLinks = chapterLinks.map((episode) => {
+    episode.isVolume = false;
+    episode.isChapter = true;
+    return episode;
+  });
+
+  return volumeLinks.concat(chapterLinks);
+}
+
+
+function * parseEpisodeListByCategory (comicMainPage, comicURL, selector, chapterFromPage) {
+  var links = comicMainPage.querySelectorAll(selector);
+  links = Array.prototype.slice.call(links);
+
+  links = yield asyncio.map(links, function * (anchor) {
     var name = anchor.textContent;
     var updateAge = -1;
     var font = anchor.querySelector('font');
@@ -73,26 +178,70 @@ function getSummary (html) {
         updateAge = isnew(dd, nn, showimg);
       }
     }
+
     var action = anchor.getAttribute('onClick');
     action = action.match(/cview\('([^']+)',(\d+)\)/);
+    var detail = cview(action[1], parseInt(action[2], 10));
+    var pageFunction = yield * getPageFunction(chapterFromPage, detail.commonURL);
+    var pages = pageFunction(detail.ch);
+
     return {
-      name: name,
+      id: parseInt(detail.ch, 10),
+      title: name.trim(),
       updateAge: updateAge,
-      url: action ? action[1] : '',
-      catid: action ? action[2] : '',
+      url: detail.url,
+      pages: pages,
     };
   });
-  return {
-    coverURL: cover ? cover.src : null,
-    episodeList: episodeLinks,
-  };
+
+  return links;
 }
 
 
-function getComicIDFromURL (pageURL) {
-  var id = pageURL.match(/\/(\d+)\.html$/);
-  id = id ? id[1] : '0';
-  return parseInt(id, 10);
+function * getPageFunction (chapterFromPage, pageURL) {
+  if (chapterFromPage.has(pageURL)) {
+    return chapterFromPage.get(pageURL);
+  }
+
+  var html = yield net.getPage(pageURL);
+  var scripts = html.querySelectorAll('script');
+  var script = Array.prototype.find.call(scripts, function (script) {
+    return script.textContent.indexOf('sp%28%29') >= 0;
+  });
+  if (!script) {
+    return null;
+  }
+
+  script = script.textContent;
+  var chs = script.match(/var chs=(\d+);/);
+  var ti = script.match(/var ti=(\d+);/);
+  var cs = script.match(/var cs='([^\']+)';/);
+  if (!chs || !ti || !cs) {
+    return null;
+  }
+
+  chs = chs[1];
+  ti = ti[1];
+  cs = cs[1];
+
+  var fn = (ch) => {
+    return sp(cs, chs, ch, ti);
+  };
+  chapterFromPage.set(pageURL, fn);
+  return fn;
+}
+
+
+function main () {
+  var co = require('co');
+  co(function * () {
+    // yield * fetchAll();
+    // yield * pollAll();
+    yield * getUpdates();
+  }).then(() => {
+  }).catch((e) => {
+    throw e;
+  });
 }
 
 
@@ -213,187 +362,6 @@ function mm (p) {
   return (parseInt((p - 1) / 10) % 10) + (((p - 1) % 10) * 3);
 }
 // end
-
-
-function * fetchAll () {
-  var pageURL = 'http://www.comicbus.com/comic/all.html';
-  var all = yield net.getPage(pageURL);
-  all = all.querySelectorAll('table[id] > tbody > tr > td > a');
-  all = Array.prototype.map.call(all, (a) => {
-    return {
-      id: getComicIDFromURL(a.href),
-      url: url.resolve(pageURL, a.href),
-    };
-  });
-
-  var db_ = yield db.getInstance();
-  yield db_.addRefreshTasks(all);
-}
-
-
-function * pollAll () {
-  var db_ = yield db.getInstance();
-
-  var tasks = yield db_.getDirtyRefreshTasks();
-  yield asyncio.forEach(tasks, function * (comic) {
-    console.info(comic);
-    comic = yield * fetchComic(comic);
-    console.info(comic);
-    // TODO transaction?
-    yield db_.updateComic(comic);
-    yield db_.clearComic(comic.id);
-  });
-}
-
-
-function * fetchComic (comic) {
-  var html = yield net.getPage(comic.url);
-  var parsed = {
-    id: comic.id,
-    url: comic.url,
-    title: parseTitle(html),
-    coverURL: parseCoverURL(html, comic.url),
-    author: parseAuthor(html),
-    mtime: parseMTime(html),
-    brief: parseBrief(html),
-  };
-  var episodeList = yield * parseEpisodeList(html, comic.url);
-  parsed.chapters = episodeList.chapters;
-  parsed.volumes = episodeList.volumes;
-  return parsed;
-}
-
-
-function parseTitle (comicMainPage) {
-  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > font:nth-child(1)');
-  return node.textContent.trim();
-}
-
-
-function parseCoverURL (comicMainPage, comicURL) {
-  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > img:nth-child(1)');
-  return url.resolve(comicURL, node.src);
-}
-
-
-function parseAuthor (comicMainPage) {
-  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(2)');
-  return node.textContent.trim();
-}
-
-
-function parseMTime (comicMainPage) {
-  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(11) > td:nth-child(2)');
-  var m = node.textContent.match(/^(\d\d\d\d)-(\d\d)-(\d\d)$/);
-  m = m.slice(1).map((s) => {
-    return parseInt(s, 10);
-  });
-  var date = new Date(m[0], m[1], m[2]);
-  return date;
-}
-
-
-function parseBrief (comicMainPage) {
-  var node = comicMainPage.querySelector('body > table:nth-child(7) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1)');
-  return node.textContent.trim();
-}
-
-
-function * parseEpisodeList (comicMainPage, comicURL) {
-  var chapterFromPage = new Map();
-  var chapterLinks = yield * parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Ch', chapterFromPage);
-  var volumeLinks = yield * parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Vol', chapterFromPage);
-
-  return {
-    chapters: chapterLinks,
-    volumes: volumeLinks,
-  };
-}
-
-
-function * parseEpisodeListByCategory (comicMainPage, comicURL, selector, chapterFromPage) {
-  var links = comicMainPage.querySelectorAll(selector);
-  links = Array.prototype.slice.call(links);
-
-  links = yield asyncio.map(links, function * (anchor) {
-    var name = anchor.textContent;
-    var updateAge = -1;
-    var font = anchor.querySelector('font');
-    if (font) {
-      name = font.textContent;
-      let script = anchor.querySelector('script');
-      script = script.textContent;
-      script = script.match(/isnew\('([^']*)','([^']*)',(\d+)\)/);
-      if (script) {
-        let dd = script[1];
-        let nn = script[2];
-        let showimg = parseInt(script[3], 10);
-        updateAge = isnew(dd, nn, showimg);
-      }
-    }
-
-    var action = anchor.getAttribute('onClick');
-    action = action.match(/cview\('([^']+)',(\d+)\)/);
-    var detail = cview(action[1], parseInt(action[2], 10));
-    var pageFunction = yield * getPageFunction(chapterFromPage, detail.commonURL);
-    var pages = pageFunction(detail.ch);
-
-    return {
-      title: name.trim(),
-      updateAge: updateAge,
-      url: detail.url,
-      pages: pages,
-    };
-  });
-
-  return links;
-}
-
-
-function * getPageFunction (chapterFromPage, pageURL) {
-  if (chapterFromPage.has(pageURL)) {
-    return chapterFromPage.get(pageURL);
-  }
-
-  var html = yield net.getPage(pageURL);
-  var scripts = html.querySelectorAll('script');
-  var script = Array.prototype.find.call(scripts, function (script) {
-    return script.textContent.indexOf('sp%28%29') >= 0;
-  });
-  if (!script) {
-    return null;
-  }
-
-  script = script.textContent;
-  var chs = script.match(/var chs=(\d+);/);
-  var ti = script.match(/var ti=(\d+);/);
-  var cs = script.match(/var cs='([^\']+)';/);
-  if (!chs || !ti || !cs) {
-    return null;
-  }
-
-  chs = chs[1];
-  ti = ti[1];
-  cs = cs[1];
-
-  var fn = (ch) => {
-    return sp(cs, chs, ch, ti);
-  };
-  chapterFromPage.set(pageURL, fn);
-  return fn;
-}
-
-
-function main () {
-  var co = require('co');
-  co(function * () {
-    // yield * fetchAll();
-    yield * pollAll();
-  }).then(() => {
-  }).catch((e) => {
-    throw e;
-  });
-}
 
 
 if (!module.parent) {
