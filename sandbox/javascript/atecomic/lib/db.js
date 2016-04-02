@@ -109,8 +109,8 @@ Database.prototype.getLatestComics = function getLatestComics (offset, length) {
 
   return co(function * () {
     if (length <= 0) {
-      var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`  FROM `comics` ORDER BY `mtime` DESC;');
-      var rows = yield statement.all();
+      var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`  FROM `comics` ORDER BY `mtime` DESC LIMIT -1 OFFSET ?;');
+      var rows = yield statement.all(Math.max(offset, 0));
     } else {
       var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`  FROM `comics` ORDER BY `mtime` DESC LIMIT ? OFFSET ?;');
       var rows = yield statement.all(length, offset);
@@ -128,8 +128,8 @@ Database.prototype.getComics = function getComics (offset, length) {
 
   return co(function * () {
     if (length <= 0) {
-      var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`, `author`, `mtime`, `cover_url`, `brief` FROM `comics`;');
-      var rows = yield statement.all();
+      var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`, `author`, `mtime`, `cover_url`, `brief` FROM `comics` LIMIT -1 OFFSET ?;');
+      var rows = yield statement.all(Math.max(offset, 0));
     } else {
       var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`, `author`, `mtime`, `cover_url`, `brief` FROM `comics` LIMIT ? OFFSET ?;');
       var rows = yield statement.all(offset, length);
