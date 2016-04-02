@@ -17,9 +17,13 @@ Get latest updated comics. Returns a list of [comic object].
 
 Get a [comic object] by the given ID.
 
-### GET /comics/{comic_id}/episodes/{episode_id}
+### GET /comics/{comic_id}/episodes
 
-Get a [episode object] by the given ID.
+Get a [episode list] by the given ID.
+
+### GET /comics/{comic_id}/episodes/{episode_id}/pages
+
+Get a [page list] by the given ID.
 
 ## need few tasks
 

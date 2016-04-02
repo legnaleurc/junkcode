@@ -14,7 +14,6 @@ function main (args) {
     yield * comic.pollAll();
     yield * comic.getUpdates();
   }).then(() => {
-    console.info(111);
     var app = koa();
 
     app.use(koaRoute.get('/updates', api.getUpdates));
