@@ -10,7 +10,6 @@ var comic = require('./lib/comic.js');
 
 function main (args) {
   co(function * () {
-    console.info(111);
     yield * comic.fetchAll();
     yield * comic.pollAll();
     yield * comic.getUpdates();
