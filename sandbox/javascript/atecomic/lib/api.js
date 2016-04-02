@@ -18,17 +18,21 @@ function * getComic (comicID, next) {
   if (this.method !== 'GET') {
     return yield next;
   }
-  console.info(arguments);
-  this.body = 'hello\n';
+
+  var db_ = yield db.getInstance();
+  var comic = yield db_.getComic(comicID);
+  this.body = JSON.stringify(comic) + '\n';
 }
 
 
-function * getEpisodes (comicID, episodeID, next) {
+function * getEpisodes (comicID, next) {
   if (this.method !== 'GET') {
     return yield next;
   }
-  console.info(arguments);
-  this.body = 'hello\n';
+
+  var db_ = yield db.getInstance();
+  var episodes = yield db_.getEpisodes(comicID);
+  this.body = JSON.stringify(episodes) + '\n';
 }
 
 
@@ -36,8 +40,10 @@ function * getPages (comicID, episodeID, next) {
   if (this.method !== 'GET') {
     return yield next;
   }
-  console.info(arguments);
-  this.body = 'hello\n';
+
+  var db_ = yield db.getInstance();
+  var pages = yield db_.getPages(episodeID);
+  this.body = JSON.stringify(pages) + '\n';
 }
 
 

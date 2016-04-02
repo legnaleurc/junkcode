@@ -116,6 +116,54 @@ Database.prototype.getLatestComics = function getLatestComics (offset, length) {
 };
 
 
+Database.prototype.getComic = function getComic (comicID) {
+  var db = this._.db;
+
+  return co(function * () {
+    var statement = yield db.prepare('SELECT `title`, `cover_url`, `author`, `mtime`, `cover_url`, `brief` FROM `comics` WHERE `id` = ?;');
+    var rows = yield statement.all(comicID);
+    statement.finalize();
+    if (rows.length === 0) {
+      return null;
+    } else {
+      return rows[0];
+    }
+  });
+};
+
+
+Database.prototype.getEpisodes = function getEpisodes (comicID) {
+  var db = this._.db;
+
+  return co(function * () {
+    var statement = yield db.prepare('SELECT `id`, `title`, `volume`, `chapter` FROM `episodes` WHERE `comic_id` = ?;');
+    var rows = yield statement.all(comicID);
+    statement.finalize();
+    return rows.map((row) => {
+      return {
+        id: row.id,
+        title: row.title,
+        volume: !!row.volume,
+        chapter: !!row.chapter,
+      };
+    });
+  });
+};
+
+
+Database.prototype.getPages = function getPages (episodeID) {
+  var db = this._.db;
+
+  return co(function * () {
+    var statement = yield db.prepare('SELECT `url` FROM `pages` WHERE `episode_id` = ?;');
+    var rows = yield statement.all(episodeID);
+    statement.finalize();
+    return rows.map((row) => {
+      return row.url;
+    });
+  });
+};
+
 
 // see Database.prototype.getDirtyRefreshTasks
 function notifyDirtyRefresh (_) {
