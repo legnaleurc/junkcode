@@ -236,7 +236,10 @@ function * pollAll () {
 
   var tasks = yield db_.getDirtyRefreshTasks();
   yield asyncio.forEach(tasks, function * (comic) {
-    var comic = yield * fetchComic(comic);
+    console.info(comic);
+    comic = yield * fetchComic(comic);
+    console.info(comic);
+    // TODO transaction?
     yield db_.updateComic(comic);
     yield db_.clearComic(comic.id);
   });

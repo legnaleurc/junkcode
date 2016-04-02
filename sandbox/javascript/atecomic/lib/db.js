@@ -11,7 +11,7 @@ var gDB = null;
 function Database (rawDB) {
   var _ = this._ = {};
   _.waitingRefresh = null;
-  _.db = db;
+  _.db = rawDB;
 }
 
 
@@ -20,7 +20,7 @@ Database.prototype.addRefreshTasks = function addRefreshTasks (comicList) {
 
   return co(function * () {
     var statement = yield db.prepare('INSERT OR IGNORE INTO `refresh_tasks` (`comic_id`, `url`, `dirty`) VALUES (?, ?, ?);');
-    yield asyncio.forEach(comicList, (comic) => {
+    yield asyncio.forEach(comicList, function * (comic) {
       yield statement.run(comic.id, comic.url, 1);
     });
     statement.finalize();
@@ -54,10 +54,12 @@ Database.prototype.updateComic = function updateComic (comic) {
       statement = yield db.prepare('INSERT INTO `comics` (`comic_id`, `title`, `author`, `mtime`, `cover_url`, `url`, `brief`) VALUES (?, ?, ?, ?, ?, ?, ?);');
       statement = yield statement.run(comic.id, comic.title, comic.author, comic.mtime.getTime(), comic.coverURL, comic.url, comic.brief);
       var comicID = statement.lastID;
+      console.info('inserted comic id', comicID);
     } else {
       statement = yield db.prepare('UPDATE `comics` SET `title` = ?, `author` = ?, `mtime` = ?, `cover_url` = ?, `url` = ?, `brief` = ? WHERE `comic_id` = ?;');
       statement = yield statement.run(comic.title, comic.author, comic.mtime.getTime(), comic.coverURL, comic.url, comic.brief, comic.id);
       var comicID = rows[0];
+      console.info('found comic id', comicID);
     }
 
     // TODO flush existing episodes? when?
@@ -67,10 +69,12 @@ Database.prototype.updateComic = function updateComic (comic) {
       statement = yield db.prepare('INSERT INTO `episodes` (`comic_id`, `title`, `mtime`, `volume`, `chapter`, `url`) VALUES (?, ?, ?, ?, ?, ?);');
       statement = yield statement.run(comicID, episode.title, 0, 1, 0, episode.url);
       var episodeID = statement.lastID;
+      console.info('inserted episode id', episodeID);
 
       yield asyncio.forEach(episode.pages, function * (pageURL) {
         statement = yield db.prepare('INSERT INTO `pages` (`episode_id`, `url`) VALUES (?, ?);');
         statement = yield statement.run(episodeID, pageURL);
+        console.info('inserted page id', statement.lastID);
       });
     });
 
@@ -78,15 +82,28 @@ Database.prototype.updateComic = function updateComic (comic) {
       statement = yield db.prepare('INSERT INTO `episodes` (`comic_id`, `title`, `mtime`, `volume`, `chapter`, `url`) VALUES (?, ?, ?, ?, ?, ?);');
       statement = yield statement.run(comicID, episode.title, 0, 0, 1, episode.url);
       var episodeID = statement.lastID;
+      console.info('inserted episode id', episodeID);
 
       yield asyncio.forEach(episode.pages, function * (pageURL) {
         statement = yield db.prepare('INSERT INTO `pages` (`episode_id`, `url`) VALUES (?, ?);');
         statement = yield statement.run(episodeID, pageURL);
+        console.info('inserted page id', statement.lastID);
       });
     });
 
-
     statement.finalize();
+  });
+};
+
+
+Database.prototype.clearComic = function clearComic (comicID) {
+  var db = this._.db;
+
+  return co(function * () {
+    var statement = yield db.prepare('UPDATE `refresh_tasks` SET `dirty` = 0 WHERE `comic_id` = ?;');
+    statement = yield statement.run(comicID);
+    statement.finalize();
+    console.info('cleansed comic id', comicID);
   });
 };
 
@@ -110,7 +127,12 @@ function getDirtyRefreshTasks_ (db) {
     var statement = yield db.prepare('SELECT `comic_id`, `url` FROM `refresh_tasks` WHERE `dirty` = 1;');
     var rows = yield statement.all();
     statement.finalize();
-    return rows;
+    return rows.map((row) => {
+      return {
+        id: row.comic_id,
+        url: row.url,
+      };
+    });
   });
 }
 
