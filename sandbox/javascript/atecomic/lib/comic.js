@@ -226,13 +226,13 @@ function * fetchAll () {
     };
   });
 
-  var db_ = db.getInstance();
+  var db_ = yield db.getInstance();
   yield db_.addRefreshTasks(all);
 }
 
 
 function * pollAll () {
-  var db_ = db.getInstance();
+  var db_ = yield db.getInstance();
 
   var tasks = yield db_.getDirtyRefreshTasks();
   yield asyncio.forEach(tasks, function * (comic) {
