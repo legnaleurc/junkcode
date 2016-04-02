@@ -105,11 +105,35 @@ Database.prototype.clearComic = function clearComic (comicID) {
 Database.prototype.getLatestComics = function getLatestComics (offset, length) {
   var db = this._.db;
   offset = typeof offset === 'undefined' ? 0 : offset;
-  length = typeof length === 'undefined' ? 10 : length;
+  length = typeof length === 'undefined' ? 0 : length;
 
   return co(function * () {
-    var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`  FROM `comics` ORDER BY `mtime` DESC LIMIT ? OFFSET ?;');
-    var rows = yield statement.all(length, offset);
+    if (length <= 0) {
+      var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`  FROM `comics` ORDER BY `mtime` DESC;');
+      var rows = yield statement.all();
+    } else {
+      var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`  FROM `comics` ORDER BY `mtime` DESC LIMIT ? OFFSET ?;');
+      var rows = yield statement.all(length, offset);
+    }
+    statement.finalize();
+    return rows;
+  });
+};
+
+
+Database.prototype.getComics = function getComics (offset, length) {
+  var db = this._.db;
+  offset = typeof offset === 'undefined' ? 0 : offset;
+  length = typeof length === 'undefined' ? 0 : length;
+
+  return co(function * () {
+    if (length <= 0) {
+      var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`, `author`, `mtime`, `cover_url`, `brief` FROM `comics`;');
+      var rows = yield statement.all();
+    } else {
+      var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`, `author`, `mtime`, `cover_url`, `brief` FROM `comics` LIMIT ? OFFSET ?;');
+      var rows = yield statement.all(offset, length);
+    }
     statement.finalize();
     return rows;
   });
