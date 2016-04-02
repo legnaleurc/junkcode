@@ -120,7 +120,7 @@ Database.prototype.getComic = function getComic (comicID) {
   var db = this._.db;
 
   return co(function * () {
-    var statement = yield db.prepare('SELECT `title`, `cover_url`, `author`, `mtime`, `cover_url`, `brief` FROM `comics` WHERE `id` = ?;');
+    var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`, `author`, `mtime`, `cover_url`, `brief` FROM `comics` WHERE `id` = ?;');
     var rows = yield statement.all(comicID);
     statement.finalize();
     if (rows.length === 0) {
