@@ -96,8 +96,8 @@ function getComicIDFromURL (pageURL) {
 }
 
 
-// copied from 8comic
-function isnew(dd, nn) {
+// translated from 8comic
+function isnew (dd, nn) {
   var nd = new Date();
   if (nn == null || nn == '') {
     nn = nd.getYear() + '-' + (nd.getMonth() + 1) + '-' + nd.getDate();
@@ -115,6 +115,104 @@ function isnew(dd, nn) {
 
   return dt2 - dt1;
 }
+
+
+function cview (episodePath, catid) {
+  var baseURL = 'http://v.comicbus.com';
+
+  switch (catid) {
+    case 4:
+    case 6:
+    case 12:
+    case 22:
+      baseURL += '/online/Domain-';
+      break;
+    case 1:
+    case 17:
+    case 19:
+    case 21:
+    case 3:
+    case 8:
+    case 15:
+    case 16:
+    case 18:
+    case 20:
+      baseURL += '/online/finance-';
+      break;
+    case 2:
+    case 5:
+    case 7:
+    case 9:
+    case 10:
+    case 11:
+    case 13:
+    case 14:
+      baseURL += '/online/insurance-';
+      break;
+  }
+
+  var part = episodePath.replace('.html', '').split('-');
+  var commonURL = baseURL + part[0] + '.html';
+  var ch = part[1];
+
+  return {
+    url: commonURL + '?ch=' + ch,
+    commonURL: commonURL,
+    ch: ch,
+  };
+}
+
+
+// cs: chapter information
+// chs: total page count
+// ch: current episode
+// ti: unknown
+function sp (cs, chs, ch, ti) {
+  var f = 50;
+  var c = '';
+  var ps = ''; // total page count
+
+  var cc = cs.length;
+  for (let i = 0; i < cc / f; i++) {
+    if (ss(cs, i * f, 4) == ch) {
+      c = ss(cs, i * f, f, f);
+      break;
+    }
+  }
+  if (c == '') {
+    c = ss(cs, cc - f, f);
+    ch = chs;
+  }
+  ps = ss(c, 7, 3);
+  ps = parseInt(ps, 10);
+  var a = [];
+  for (let p = 1; p <= ps; ++p) {
+    a.push(si(c, ti, p, f));
+  }
+  return a;
+}
+
+
+function ss (a, b, c, d) {
+  var e = a.substring(b, b + c);
+  return d == null ? e.replace(/[a-z]*/gi, "") : e;
+}
+
+
+function si (c, ti, p, f) {
+  return 'http://img' + ss(c, 4, 2) + '.6comic.com:99/' + ss(c, 6, 1) + '/' + ti + '/' + ss(c, 0, 4) + '/' + nn(p) + '_' + ss(c, mm(p) + 10, 3, f) + '.jpg';
+}
+
+
+function nn (n) {
+  return n < 10 ? '00' + n : n < 100 ? '0' + n : n;
+}
+
+
+function mm (p) {
+  return (parseInt((p - 1) / 10) % 10) + (((p - 1) % 10) * 3);
+}
+// end
 
 
 function * fetchAll () {
@@ -137,8 +235,10 @@ function * pollAll () {
   var db_ = db.getInstance();
 
   var tasks = yield db_.getDirtyRefreshTasks();
-  yield asyncio.asyncForEach(tasks, function * (comic) {
-    yield * fetchComic(comic);
+  yield asyncio.forEach(tasks, function * (comic) {
+    var comic = yield * fetchComic(comic);
+    yield db_.updateComic(comic);
+    yield db_.clearComic(comic.id);
   });
 }
 
@@ -154,9 +254,10 @@ function * fetchComic (comic) {
     mtime: parseMTime(html),
     brief: parseBrief(html),
   };
-  var episodeList = parseEpisodeList(html, comic.url);
+  var episodeList = yield * parseEpisodeList(html, comic.url);
   parsed.chapters = episodeList.chapters;
   parsed.volumes = episodeList.volumes;
+  return parsed;
 }
 
 
@@ -195,9 +296,10 @@ function parseBrief (comicMainPage) {
 }
 
 
-function parseEpisodeList (comicMainPage, comicURL) {
-  var chapterLinks = parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Ch');
-  var volumeLinks = parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Vol');
+function * parseEpisodeList (comicMainPage, comicURL) {
+  var chapterFromPage = new Map();
+  var chapterLinks = yield * parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Ch', chapterFromPage);
+  var volumeLinks = yield * parseEpisodeListByCategory(comicMainPage, comicURL, 'a.Vol', chapterFromPage);
 
   return {
     chapters: chapterLinks,
@@ -206,10 +308,11 @@ function parseEpisodeList (comicMainPage, comicURL) {
 }
 
 
-function parseEpisodeListByCategory (comicMainPage, comicURL, selector) {
+function * parseEpisodeListByCategory (comicMainPage, comicURL, selector, chapterFromPage) {
   var links = comicMainPage.querySelectorAll(selector);
+  links = Array.prototype.slice.call(links);
 
-  links = Array.prototype.map.call(links, function (anchor) {
+  links = yield asyncio.map(links, function * (anchor) {
     var name = anchor.textContent;
     var updateAge = -1;
     var font = anchor.querySelector('font');
@@ -225,18 +328,56 @@ function parseEpisodeListByCategory (comicMainPage, comicURL, selector) {
         updateAge = isnew(dd, nn, showimg);
       }
     }
+
     var action = anchor.getAttribute('onClick');
     action = action.match(/cview\('([^']+)',(\d+)\)/);
-    var pageURL = action ? url.resolve(comicURL, action[1]) : '';
+    var detail = cview(action[1], parseInt(action[2], 10));
+    var pageFunction = yield * getPageFunction(chapterFromPage, detail.commonURL);
+    var pages = pageFunction(detail.ch);
+
     return {
       name: name.trim(),
       updateAge: updateAge,
-      url: pageURL,
-      catid: action ? action[2] : '',
+      url: detail.url,
+      pages: pages,
     };
   });
 
   return links;
+}
+
+
+function * getPageFunction (chapterFromPage, pageURL) {
+  if (chapterFromPage.has(pageURL)) {
+    return chapterFromPage.get(pageURL);
+  }
+
+  var html = yield net.getPage(pageURL);
+  var scripts = html.querySelectorAll('script');
+  var script = Array.prototype.find.call(scripts, function (script) {
+    return script.textContent.indexOf('sp%28%29') >= 0;
+  });
+  if (!script) {
+    return null;
+  }
+
+  script = script.textContent;
+  var chs = script.match(/var chs=(\d+);/);
+  var ti = script.match(/var ti=(\d+);/);
+  var cs = script.match(/var cs='([^\']+)';/);
+  if (!chs || !ti || !cs) {
+    return null;
+  }
+
+  chs = chs[1];
+  ti = ti[1];
+  cs = cs[1];
+
+  var fn = (ch) => {
+    return sp(cs, chs, ch, ti);
+  };
+  chapterFromPage.set(pageURL, fn);
+  return fn;
 }
 
 

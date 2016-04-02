@@ -6,7 +6,7 @@ var co = require('co');
 
 // WARNING this is slow if array is large
 // because it builds all promises at once
-function asyncForEach (array, generator) {
+function forEach (array, generator) {
   return array.reduce((previous, current, index, self) => {
     return previous.then(() => {
       return co(function * () {
@@ -14,6 +14,19 @@ function asyncForEach (array, generator) {
       });
     });
   }, Promise.resolve());
+}
+
+
+function map (array, generator) {
+  return array.reduce((previous, current, index, self) => {
+    return previous.then((newArray) => {
+      return co(function * () {
+        var rv = yield * generator(current, index, self);
+        newArray.push(rv);
+        return newArray;
+      });
+    });
+  }, Promise.resolve([]));
 }
 
 
@@ -33,7 +46,7 @@ function * waitAsGenerator (msDelay, payload) {
 
 function main () {
   co(function * () {
-    yield asyncForEach([1, 2, 3, 4], function * (value, index, self) {
+    yield forEach([1, 2, 3, 4], function * (value, index, self) {
       console.info('wait as promise');
       var rv = yield waitAsPromise(1000, value);
       console.info('ok', value, index, self, rv);
@@ -41,8 +54,20 @@ function main () {
       rv = yield * waitAsGenerator(1000, value);
       console.info('ok', value, index, self, rv);
     });
-  }).then(() => {
-    console.info('done');
+
+    var k = yield map([1, 2, 3, 4], function * (value, index, self) {
+      console.info('wait as promise');
+      var rv = yield waitAsPromise(1000, value);
+      console.info('ok', value, index, self, rv);
+      console.info('wait as generator');
+      rv = yield * waitAsGenerator(1000, value);
+      console.info('ok', value, index, self, rv);
+      return rv * 2;
+    });
+
+    return k;
+  }).then((rv) => {
+    console.info('done', rv);
   }).catch((e) => {
     console.warn(e);
   });
@@ -55,5 +80,6 @@ if (!module.parent) {
 
 
 module.exports = {
-  asyncForEach: asyncForEach,
+  forEach: forEach,
+  map: map,
 };
