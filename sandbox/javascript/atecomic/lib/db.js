@@ -1,30 +1,30 @@
 'use strict';
 
-var sqlite3 = require('sqlite3').verbose();
+var co = require('co');
+var sqlite3 = require('co-sqlite3');
+
+var asyncio = require('./asyncio.js');
 
 var gDB = null;
 
 
-function Database (path) {
+function Database (rawDB) {
   var _ = this._ = {};
-  _.db = new sqlite3.Database(path);
   _.waitingRefresh = null;
-  createTable(_.db);
-  return this;
+  _.db = db;
 }
 
-Database.prototype.addRefreshTasks = function addRefreshTasks (comic_list) {
+
+Database.prototype.addRefreshTasks = function addRefreshTasks (comicList) {
   var db = this._.db;
 
-  db.serialize(() => {
-    var statement = db.prepare('INSERT OR IGNORE INTO `refresh_tasks` (`comic_id`, `url`, `dirty`) VALUES (?, ?, ?);');
-    comic_list.forEach((comic) => {
-      statement.run(comic.id, comic.url, 1);
+  return co(function * () {
+    var statement = yield db.prepare('INSERT OR IGNORE INTO `refresh_tasks` (`comic_id`, `url`, `dirty`) VALUES (?, ?, ?);');
+    yield asyncio.forEach(comicList, (comic) => {
+      yield statement.run(comic.id, comic.url, 1);
     });
     statement.finalize();
   });
-
-  return Promise.resolve(this);
 };
 
 
@@ -44,6 +44,53 @@ Database.prototype.getDirtyRefreshTasks = function getDirtyRefreshTasks () {
 };
 
 
+Database.prototype.updateComic = function updateComic (comic) {
+  var db = this._.db;
+
+  return co(function * () {
+    var statement = yield db.prepare('SELECT `id` FROM `comics` WHERE `comic_id` = ?;');
+    var rows = yield statement.all(comic.id);
+    if (rows.length === 0) {
+      statement = yield db.prepare('INSERT INTO `comics` (`comic_id`, `title`, `author`, `mtime`, `cover_url`, `url`, `brief`) VALUES (?, ?, ?, ?, ?, ?, ?);');
+      statement = yield statement.run(comic.id, comic.title, comic.author, comic.mtime.getTime(), comic.coverURL, comic.url, comic.brief);
+      var comicID = statement.lastID;
+    } else {
+      statement = yield db.prepare('UPDATE `comics` SET `title` = ?, `author` = ?, `mtime` = ?, `cover_url` = ?, `url` = ?, `brief` = ? WHERE `comic_id` = ?;');
+      statement = yield statement.run(comic.title, comic.author, comic.mtime.getTime(), comic.coverURL, comic.url, comic.brief, comic.id);
+      var comicID = rows[0];
+    }
+
+    // TODO flush existing episodes? when?
+    // TODO deal about episode's mtime
+
+    yield asyncio.forEach(comic.volumes, function * (episode) {
+      statement = yield db.prepare('INSERT INTO `episodes` (`comic_id`, `title`, `mtime`, `volume`, `chapter`, `url`) VALUES (?, ?, ?, ?, ?, ?);');
+      statement = yield statement.run(comicID, episode.title, 0, 1, 0, episode.url);
+      var episodeID = statement.lastID;
+
+      yield asyncio.forEach(episode.pages, function * (pageURL) {
+        statement = yield db.prepare('INSERT INTO `pages` (`episode_id`, `url`) VALUES (?, ?);');
+        statement = yield statement.run(episodeID, pageURL);
+      });
+    });
+
+    yield asyncio.forEach(comic.chapters, function * (episode) {
+      statement = yield db.prepare('INSERT INTO `episodes` (`comic_id`, `title`, `mtime`, `volume`, `chapter`, `url`) VALUES (?, ?, ?, ?, ?, ?);');
+      statement = yield statement.run(comicID, episode.title, 0, 0, 1, episode.url);
+      var episodeID = statement.lastID;
+
+      yield asyncio.forEach(episode.pages, function * (pageURL) {
+        statement = yield db.prepare('INSERT INTO `pages` (`episode_id`, `url`) VALUES (?, ?);');
+        statement = yield statement.run(episodeID, pageURL);
+      });
+    });
+
+
+    statement.finalize();
+  });
+};
+
+
 // see Database.prototype.getDirtyRefreshTasks
 function notifyDirtyRefresh (_) {
   if (!_.waitingRefresh) {
@@ -59,41 +106,73 @@ function notifyDirtyRefresh (_) {
 
 
 function getDirtyRefreshTasks_ (db) {
-  return new Promise((resolve, reject) => {
-    db.serialize(() => {
-      var statement = db.prepare('SELECT `comic_id`, `url` FROM `refresh_tasks` WHERE `dirty` = 1;');
-      statement.all((e, rows) => {
-        var tasks = rows.map((row) => {
-          return {
-            id: row.comic_id,
-            url: row.url,
-          };
-        });
-        resolve(tasks);
-      });
-      statement.finalize();
+  return co(function * () {
+    var statement = yield db.prepare('SELECT `comic_id`, `url` FROM `refresh_tasks` WHERE `dirty` = 1;');
+    var rows = yield statement.all();
+    statement.finalize();
+    return rows;
+  });
+}
+
+
+function * createTable (rawDB) {
+  yield rawDB.run(`CREATE TABLE IF NOT EXISTS \`refresh_tasks\` (
+    \`id\` INTEGER PRIMARY KEY AUTOINCREMENT,
+    \`comic_id\` INTEGER UNIQUE NOT NULL,
+    \`url\` TEXT NOT NULL,
+    \`dirty\` INTEGER NOT NULL
+  );`);
+
+  yield rawDB.run(`CREATE TABLE IF NOT EXISTS \`comics\` (
+    \`id\` INTEGER PRIMARY KEY AUTOINCREMENT,
+    \`comic_id\` INTEGER UNIQUE NOT NULL,
+    \`title\` TEXT NOT NULL,
+    \`author\` TEXT NOT NULL,
+    \`mtime\` INTEGER NOT NULL,
+    \`cover_url\` TEXT NOT NULL,
+    \`url\` TEXT NOT NULL,
+    \`brief\` TEXT NOT NULL
+  );`);
+
+  yield rawDB.run(`CREATE TABLE IF NOT EXISTS \`episodes\` (
+    \`id\` INTEGER PRIMARY KEY AUTOINCREMENT,
+    \`comic_id\` INTEGER NOT NULL,
+    \`title\` TEXT NOT NULL,
+    \`mtime\` INTEGER NOT NULL,
+    \`volume\` INTEGER NOT NULL,
+    \`chapter\` INTEGER NOT NULL,
+    \`url\` TEXT NOT NULL
+  );`);
+
+  yield rawDB.run(`CREATE TABLE IF NOT EXISTS \`pages\` (
+    \`id\` INTEGER PRIMARY KEY AUTOINCREMENT,
+    \`episode_id\` INTEGER NOT NULL,
+    \`url\` TEXT NOT NULL
+  );`);
+
+  return rawDB;
+}
+
+
+function fromPath (path) {
+  return sqlite3(path).then((db) => {
+    return co(function * () {
+      return yield * createTable(db);
     });
+  }).then((db) => {
+    return new Database(db);
   });
-}
-
-
-function createTable (rawDB) {
-  rawDB.serialize(() => {
-    rawDB.run(`CREATE TABLE IF NOT EXISTS \`refresh_tasks\` (
-      \`id\` INTEGER PRIMARY KEY AUTOINCREMENT,
-      \`comic_id\` INTEGER UNIQUE NOT NULL,
-      \`url\` TEXT NOT NULL,
-      \`dirty\` INTEGER NOT NULL
-    );`);
-  });
-}
+};
 
 
 function getInstance () {
-  if (!gDB) {
-    gDB = new Database('/tmp/atecomic.sqlite');
+  if (gDB) {
+    return Promise.resolve(gDB);
   }
-  return gDB;
+  return fromPath('/tmp/atecomic.sqlite').then((db) => {
+    gDB = db;
+    return gDB;
+  });
 }
 
 

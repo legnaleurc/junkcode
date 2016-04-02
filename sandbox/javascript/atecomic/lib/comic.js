@@ -336,7 +336,7 @@ function * parseEpisodeListByCategory (comicMainPage, comicURL, selector, chapte
     var pages = pageFunction(detail.ch);
 
     return {
-      name: name.trim(),
+      title: name.trim(),
       updateAge: updateAge,
       url: detail.url,
       pages: pages,
