@@ -370,5 +370,5 @@ if (!module.parent) {
 
 
 module.exports = {
-  getLatest: getLatest,
+  getUpdates: getUpdates,
 };

@@ -102,6 +102,21 @@ Database.prototype.clearComic = function clearComic (comicID) {
 };
 
 
+Database.prototype.getLatestComics = function getLatestComics (offset, length) {
+  var db = this._.db;
+  offset = typeof offset === 'undefined' ? 0 : offset;
+  length = typeof length === 'undefined' ? 10 : length;
+
+  return co(function * () {
+    var statement = yield db.prepare('SELECT `id`, `title`, `cover_url`  FROM `comics` ORDER BY `mtime` DESC LIMIT ? OFFSET ?;');
+    var rows = yield statement.all(length, offset);
+    statement.finalize();
+    return rows;
+  });
+};
+
+
+
 // see Database.prototype.getDirtyRefreshTasks
 function notifyDirtyRefresh (_) {
   if (!_.waitingRefresh) {
