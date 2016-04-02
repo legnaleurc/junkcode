@@ -235,8 +235,8 @@ function * getPageFunction (chapterFromPage, pageURL) {
 function main () {
   var co = require('co');
   co(function * () {
-    // yield * fetchAll();
-    // yield * pollAll();
+    yield * fetchAll();
+    yield * pollAll();
     yield * getUpdates();
   }).then(() => {
   }).catch((e) => {
@@ -371,4 +371,6 @@ if (!module.parent) {
 
 module.exports = {
   getUpdates: getUpdates,
+  fetchAll: fetchAll,
+  pollAll: pollAll,
 };
