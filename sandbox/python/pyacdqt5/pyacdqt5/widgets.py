@@ -10,3 +10,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
+
+    def setModel(self, model):
+        self._ui.treeView.setModel(model)

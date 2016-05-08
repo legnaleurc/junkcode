@@ -3,6 +3,7 @@ import sys
 from PyQt5 import QtWidgets
 
 from . import widgets
+from . import models
 
 
 def main(args=None):
@@ -13,5 +14,8 @@ def main(args=None):
 
     window = widgets.MainWindow()
     window.show()
+
+    model = models.ACDModel()
+    window.setModel(model)
 
     return app.exec_()
