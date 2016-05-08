@@ -60,6 +60,13 @@ class ACDModel(QtCore.QAbstractItemModel):
         node = index.internalPointer()
         return node.name
 
+    def flags(self, index):
+        default_flags = super(ACDModel, self).flags(index)
+        if index.isValid():
+            return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsDropEnabled | default_flags
+        else:
+            return QtCore.Qt.ItemIsDropEnabled | default_flags
+
 
 class Node(object):
 
