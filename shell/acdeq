@@ -6,6 +6,7 @@ from __future__ import print_function
 import sqlite3
 import sys
 import os.path as op
+import functools as fp
 
 
 def main(args=None):
@@ -16,10 +17,15 @@ def main(args=None):
     db_path = op.expanduser('~/.cache/acd_cli/nodes.db')
 
     with sqlite3.connect(db_path) as db:
-        g_rows = (db.execute('SELECT `md5` FROM `files` WHERE `id`=?;', (_,))
+        g_rows = (db.execute('SELECT `md5`, `size` FROM `files` WHERE `id`=?;', (_,))
                     for _ in ids)
-        rows = (_.fetchone() for _ in g_rows)
-        print(len(set(rows)) == 1)
+        rows = [_.fetchone() for _ in g_rows]
+        s = set(_[0] for _ in rows)
+        if len(s) == 1:
+            print(True)
+        else:
+            s = [_[1] for _ in rows]
+            print(s)
 
     return 0
 
