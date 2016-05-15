@@ -1,0 +1,29 @@
+#! /usr/bin/env python2
+
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import sqlite3
+import sys
+import os.path as op
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    ids = args[1:]
+    db_path = op.expanduser('~/.cache/acd_cli/nodes.db')
+
+    with sqlite3.connect(db_path) as db:
+        g_rows = (db.execute('SELECT `md5` FROM `files` WHERE `id`=?;', (_,))
+                    for _ in ids)
+        rows = (_.fetchone() for _ in g_rows)
+        print(len(set(rows)) == 1)
+
+    return 0
+
+
+if __name__ == '__main__':
+    exit_code = main()
+    sys.exit(exit_code)
