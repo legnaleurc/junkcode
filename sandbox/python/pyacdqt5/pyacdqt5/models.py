@@ -14,7 +14,7 @@ class ACDModel(QtCore.QAbstractItemModel):
         self._root = Node(self._db)
 
     def columnCount(self, parent=QtCore.QModelIndex()):
-        return 1
+        return 2
 
     def rowCount(self, parent=QtCore.QModelIndex()):
         if not parent.isValid():
@@ -48,7 +48,7 @@ class ACDModel(QtCore.QAbstractItemModel):
             return QtCore.QModelIndex()
 
         row = parent_node.index
-        return self.createIndex(row, index.column(), parent_node)
+        return self.createIndex(row, 0, parent_node)
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if role != QtCore.Qt.DisplayRole:
@@ -58,7 +58,13 @@ class ACDModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant()
 
         node = index.internalPointer()
-        return node.name
+        column = index.column()
+        if column == 0:
+            return node.name
+        elif column == 1:
+            return toQDateTime(node.modified)
+
+        return QtCore.QVariant()
 
     def flags(self, index):
         default_flags = super(ACDModel, self).flags(index)
@@ -102,9 +108,17 @@ class Node(object):
     def name(self):
         return self._node.name
 
+    @property
+    def modified(self):
+        return self._node.modified
+
     def _load_children(self):
         folders, files = self._db.list_children(self._node.id)
         self._folders = [Node(self._db, _, self, i) for i, _ in enumerate(folders)]
         offset = len(self._folders)
         self._files = [Node(self._db, _, self, offset + i) for i, _ in enumerate(files)]
         self._children = self._folders + self._files
+
+
+def toQDateTime(dt):
+    return QtCore.QDateTime.fromMSecsSinceEpoch(dt.timestamp() * 1000)
