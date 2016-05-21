@@ -28,11 +28,7 @@ class Cache(object):
         print()
         sys.exit(0)
 
-    def exists(self, node_id):
-        print('checking:', node_id)
-        return False
-
-    def background_download(self, node_id):
+    def download(self, node_id):
         node = self._context.get_node(node_id)
         if not node:
             return
@@ -249,10 +245,7 @@ def main(args=None):
     print('ready')
     while True:
         id_ = read_user_input()
-        if cache.exists(id_):
-            continue
-
-        cache.background_download(id_)
+        cache.download(id_)
 
     return 0
 
