@@ -1,0 +1,82 @@
+#! /usr/bin/env python3
+
+
+import os.path as op
+import queue
+import signal
+import sys
+import threading
+
+
+class Cache(object):
+
+    def __init__(self, cache_folder):
+        self._cache_folder = cache_folder
+        auth_folder = op.expanduser('~/.cache/acd_cli')
+        self._download_queue = queue.Queue()
+        self._download_thread = None
+
+    def stop(self, signum, frame):
+        self._download_queue.put(None)
+        self._download_thread.join()
+        sys.exit(0)
+
+    def exists(self, node_id):
+        print('checking:', node_id)
+        return False
+
+    def background_download(self, node_id):
+        self._download_queue.put(node_id)
+
+        if not self._download_thread:
+            self._download_thread = DownloadThread(self._download_queue)
+            self._download_thread.start()
+
+
+
+class DownloadThread(threading.Thread):
+
+    def __init__(self, dl_queue):
+        super(DownloadThread, self).__init__()
+
+        self._queue = dl_queue
+
+    # Override
+    def run(self):
+        while True:
+            node_id = self._queue.get()
+            if node_id is None:
+                # special value, need stop
+                break
+            self._download(node_id)
+            self._queue.task_done()
+
+    def _download(self, node_id):
+        print('downloading', node_id)
+
+
+def read_user_input():
+    line = input()
+    return line.rstrip()
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    cache = Cache('.')
+
+    signal.signal(signal.SIGINT, cache.stop)
+
+    while True:
+        id_ = read_user_input()
+        if cache.exists(id_):
+            continue
+
+        cache.background_download(id_)
+
+    return 0
+
+if __name__ == '__main__':
+    exit_code = main()
+    sys.exit(exit_code)
