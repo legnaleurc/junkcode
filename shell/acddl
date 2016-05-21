@@ -238,7 +238,7 @@ def main(args=None):
     if args is None:
         args = sys.argv
 
-    cache = Cache('.')
+    cache = Cache(args[1])
 
     signal.signal(signal.SIGINT, cache.stop)
 
