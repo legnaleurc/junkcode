@@ -1,24 +1,28 @@
 #! /usr/bin/env python3
 
 
+import contextlib
 import os.path as op
 import queue
 import signal
 import sys
 import threading
 
+from acdcli.api import client as ACD
+from acdcli.cache import db as DB
+
 
 class Cache(object):
 
     def __init__(self, cache_folder):
-        self._cache_folder = cache_folder
-        auth_folder = op.expanduser('~/.cache/acd_cli')
-        self._download_queue = queue.Queue()
+        self._context = Context(cache_folder)
         self._download_thread = None
 
     def stop(self, signum, frame):
-        self._download_queue.put(None)
-        self._download_thread.join()
+        self._context.end_queue()
+        if self._download_thread:
+            self._download_thread.join()
+        print()
         sys.exit(0)
 
     def exists(self, node_id):
@@ -26,33 +30,89 @@ class Cache(object):
         return False
 
     def background_download(self, node_id):
-        self._download_queue.put(node_id)
+        node = self._context.get_node(node_id)
+        if not node:
+            return
+
+        self._context.push_queue(node)
 
         if not self._download_thread:
-            self._download_thread = DownloadThread(self._download_queue)
+            self._download_thread = DownloadThread(self._context)
             self._download_thread.start()
-
 
 
 class DownloadThread(threading.Thread):
 
-    def __init__(self, dl_queue):
+    def __init__(self, context):
         super(DownloadThread, self).__init__()
 
-        self._queue = dl_queue
+        self._context = context
 
     # Override
     def run(self):
         while True:
-            node_id = self._queue.get()
-            if node_id is None:
-                # special value, need stop
-                break
-            self._download(node_id)
-            self._queue.task_done()
+            with self._context.pop_queue() as node:
+                if node is None:
+                    # special value, need stop
+                    break
+                self._download(node, self._context.root_folder)
 
-    def _download(self, node_id):
-        print('downloading', node_id)
+    def _download(self, node, local_path):
+        print(node, local_path)
+        return False
+        local_path = local_path if local_path else ''
+        full_path = os.path.join(local_path, node.name)
+
+        if not node.is_available:
+            return False
+
+        if node.is_folder:
+            ok = self._download_folder(node, full_path)
+        else:
+            ok = self._download_file(node, local_path, full_path)
+
+        if not ok:
+            return False
+
+        ok = preserve_mtime(node, full_path)
+
+        return ok
+
+
+# used by both threads
+class Context(object):
+
+    def __init__(self, cache_folder):
+        self._cache_folder = cache_folder
+        auth_folder = op.expanduser('~/.cache/acd_cli')
+        self._acd_client = ACD.ACDClient(auth_folder)
+        self._acd_db = DB.NodeCache(auth_folder)
+        self._download_queue = queue.Queue()
+
+    # thread safe
+    @property
+    def root_folder(self):
+        return self._cache_folder
+
+    # main thread
+    def end_queue(self):
+        self._download_queue.put(None)
+
+    # main thread
+    def push_queue(self, node):
+        self._download_queue.put(node)
+
+    # worker thread
+    @contextlib.contextmanager
+    def pop_queue(self):
+        try:
+            yield self._download_queue.get()
+        finally:
+            self._download_queue.task_done()
+
+    # both thread
+    def get_node(self, node_id):
+        return self._acd_db.get_node(node_id)
 
 
 def read_user_input():
@@ -68,6 +128,7 @@ def main(args=None):
 
     signal.signal(signal.SIGINT, cache.stop)
 
+    print('ready')
     while True:
         id_ = read_user_input()
         if cache.exists(id_):
