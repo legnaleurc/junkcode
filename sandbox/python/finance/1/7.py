@@ -7,29 +7,54 @@ from __future__ import unicode_literals
 import sys
 
 
-def buy(n):
+def buy_z(n, x, y):
     i = 1
-    j = 1
-    k = 1
     while True:
-        x = i * 5
-        y = j * 3
-        z = k * 2
+        z = i * 2
         total = x * 5 + y * 6 + z * 10
         if total < 100:
             i += 1
         elif total <= n:
-            print(x, 3, 2)
+            print('x={0}, y={1}, z={2}'.format(x, y, z))
             i += 1
         else:
             break
+
+
+def buy_y(n, x):
+    i = 1
+    while True:
+        y = i * 3
+        total = x * 5 + y * 6 + 2 * 10
+        if total > n:
+            break
+        buy_z(n, x, y)
+        i += 1
+
+
+def buy_x(n):
+    i = 1
+    while True:
+        x = i * 5
+        total = x * 5 + 3 * 6 + 2 * 10
+        if total > n:
+            break
+        buy_y(n, x)
+        i += 1
+
+
+def buy(n):
+    buy_x(n)
 
 
 def main(args=None):
     if args is None:
         args = sys.argv
 
-    buy(300)
+    print('輸入 N：')
+    n = raw_input().strip()
+    n = int(n)
+    buy(n)
 
     return 0
 
