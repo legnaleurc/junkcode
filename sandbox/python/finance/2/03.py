@@ -7,10 +7,10 @@ from __future__ import unicode_literals
 import sys
 
 
-def calc(n):
+def calc(a, b):
     sum_ = 0
-    for i in range(1, n + 1):
-        sum_ += 1. / 2 ** i
+    for n in range(0, 10):
+        sum_ += a[n] * b[9 - n]
     return sum_
 
 
@@ -18,10 +18,10 @@ def main(args=None):
     if args is None:
         args = sys.argv
 
-    line = raw_input('n = ').strip()
-    n = int(line)
-    result = calc(n)
-    print('result = {0}'.format(result))
+    a = [18, -51, 23, 35, 10, 9, -3, 52, 81, 69]
+    b = [28, 32, -35, 40, 73, 17, 92, 32, 13, 29]
+    sum_ = calc(a, b)
+    print(sum_)
 
     return 0
 
