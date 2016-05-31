@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "GBF",
+  "version": "1.0",
+
+  "description": "Nothing is ready, everything is broken.",
+
+  "author": "Wei-Cheng Pan",
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "devtools_page": "devtools.html",
+
+  "permissions": [
+    "tabs"
+  ]
+}
