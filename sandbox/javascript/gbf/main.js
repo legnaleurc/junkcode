@@ -41,10 +41,21 @@ function factory ($) {
           GBF.updateWeaponSkillLevel(response);
         },
       },
+      {
+        path: /^\/weapon\/weapon\/\d+$/,
+        action: function (args, request, response) {
+          if (GBF.weaponLock) {
+            GBF.weaponLock();
+            GBF.weaponLock = null;
+          }
+//          GBF.updateWeaponSkillLevel(response);
+        },
+      },
     ],
     metasets: {},
     weapons: {},
     paramToWeapon: {},
+    weaponLock: null,
   };
 
 
@@ -68,6 +79,53 @@ function factory ($) {
     }
 
     return () => {};
+  }
+
+
+  function subco (g, rv) {
+    var next = g.next(rv);
+    var p = next.value;
+    if (next.done) {
+      return Promise.resolve(p);
+    }
+    return p.then((rv) => {
+      return subco(g, rv);
+    });
+  }
+
+  function co (gfn) {
+    var g = gfn();
+    return subco(g);
+  };
+
+
+  function * collectWeapon (nbWeapon) {
+    for (var i = 0; i < nbWeapon; ++i) {
+      var w = $($('#lis-weapon').children()[i]);
+      w.trigger('tap');
+      yield waitWeaponData();
+      yield waitHuman();
+      $('.btn-pc-footer-back').trigger('tap');
+      yield waitHuman();
+    }
+  }
+
+
+  function waitHuman () {
+    var interval = Math.random() * 2000 + 1000;
+    return new Promise((resolve) => {
+      setTimeout(resolve, interval);
+    });
+  }
+
+
+  function waitWeaponData () {
+    return new Promise((resolve) => {
+      if (GBF.weaponLock) {
+        GBF.weaponLock();
+      }
+      GBF.weaponLock = resolve;
+    });
   }
 
 
@@ -114,6 +172,11 @@ function factory ($) {
         console.error(e);
       }
     });
+  };
+
+  GBF.collectWeapon = function () {
+    var nbWeapon = $('#lis-weapon').children().length;
+    return subco(collectWeapon(nbWeapon));
   };
 
   return GBF;
