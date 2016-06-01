@@ -28,7 +28,12 @@ function factory ($) {
         action: function (args, request, response) {
           var weapons = response.list;
 
-          GBF.addWeapons(weapons);
+          if (GBF.weaponLock) {
+            GBF.weaponLock();
+            GBF.weaponLock = null;
+          }
+
+//          GBF.addWeapons(weapons);
         },
       },
       {
@@ -38,7 +43,7 @@ function factory ($) {
             return;
           }
 
-          GBF.updateWeaponSkillLevel(response);
+//          GBF.updateWeaponSkillLevel(response);
         },
       },
       {
@@ -101,12 +106,18 @@ function factory ($) {
 
   function * collectWeapon (nbWeapon) {
     for (var i = 0; i < nbWeapon; ++i) {
-      var w = $($('#lis-weapon').children()[i]);
+      var j = i % 20;
+      var w = $($('#lis-weapon').children()[j]);
       w.trigger('tap');
       yield waitWeaponData();
       yield waitHuman();
-      $('.btn-pc-footer-back').trigger('tap');
+      $('.prt-lead-link').trigger('tap');
       yield waitHuman();
+      if (i % 20 == 19) {
+        w = $('.btn-forward').trigger('tap');
+        yield waitWeaponData();
+        yield waitHuman();
+      }
     }
   }
 
@@ -175,7 +186,8 @@ function factory ($) {
   };
 
   GBF.collectWeapon = function () {
-    var nbWeapon = $('#lis-weapon').children().length;
+    var tmp = $('.txt-possessed-weapon').text().match(/(\d+)\s*\//);
+    var nbWeapon = parseInt(tmp[1], 10);
     return subco(collectWeapon(nbWeapon));
   };
 
