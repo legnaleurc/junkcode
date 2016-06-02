@@ -26,42 +26,87 @@ function factory ($) {
       {
         path: /^\/weapon\/list\/\d+\/0$/,
         action: function (args, request, response) {
-          var weapons = response.list;
-
           if (GBF.weaponLock) {
             GBF.weaponLock();
             GBF.weaponLock = null;
           }
-
-//          GBF.addWeapons(weapons);
-        },
-      },
-      {
-        path: /^\/weapon\/weapons_parameter$/,
-        action: function (args, request, response) {
-          if (request.parameter_name !== 'skill_level') {
-            return;
-          }
-
-//          GBF.updateWeaponSkillLevel(response);
         },
       },
       {
         path: /^\/weapon\/weapon\/\d+$/,
         action: function (args, request, response) {
+          GBF.addWeapon(response);
+
           if (GBF.weaponLock) {
             GBF.weaponLock();
             GBF.weaponLock = null;
           }
-//          GBF.updateWeaponSkillLevel(response);
         },
       },
     ],
     metasets: {},
     weapons: {},
-    paramToWeapon: {},
     weaponLock: null,
   };
+
+  class Weapon {
+
+    constructor (weapon) {
+      this._ = {
+        id: weapon.id,
+        master: weapon.master,
+        param: weapon.param,
+        skill1: weapon.skill1.level.took_skill ? new WeaponSkill(weapon.skill1) : null,
+        skill2: weapon.skill2.level.took_skill ? new WeaponSkill(weapon.skill2) : null,
+      };
+    }
+
+    get id () {
+      return this._.id;
+    }
+
+    get name () {
+      return this._.master.name;
+    }
+
+    get attack () {
+      return parseInt(this._.param.attack, 10);
+    }
+
+    get imageURL () {
+      return `http://game-a.granbluefantasy.jp/assets/img_mid/sp/assets/weapon/b/${this._.master.id}.png`;
+    }
+
+    get skillLevel () {
+      return parseInt(this._.param.skill_level, 10);
+    }
+
+    get skill1 () {
+      return this._.skill1;
+    }
+
+    get skill2 () {
+      return this._.skill2;
+    }
+
+  }
+
+
+  class WeaponSkill {
+
+    constructor (skill) {
+      this._ = skill;
+    }
+
+    get name () {
+      return this._.name;
+    }
+
+    get comment () {
+      return this._.comment;
+    }
+
+  }
 
 
   function parseURL (url) {
@@ -101,7 +146,7 @@ function factory ($) {
   function co (gfn) {
     var g = gfn();
     return subco(g);
-  };
+  }
 
 
   function * collectWeapon (nbWeapon) {
@@ -152,23 +197,9 @@ function factory ($) {
   };
 
 
-  GBF.addWeapons = function (weapons) {
-    for (var weapon of weapons) {
-      var id = weapon.master.id;
-      GBF.weapons[id] = weapon;
-      GBF.paramToWeapon[weapon.param.id] = id;
-    }
-  };
-
-
-  GBF.updateWeaponSkillLevel = function (weaponSkillMap) {
-    for (var id in weaponSkillMap) {
-      if (!GBF.paramToWeapon[id]) {
-        continue;
-      }
-      var weaponID = GBF.paramToWeapon[id];
-      GBF.weapons[weaponID].skillLevel = weaponSkillMap[id];
-    }
+  GBF.addWeapon = function (weapon) {
+    var id = weapon.id;
+    GBF.weapons[id] = new Weapon(weapon);
   };
 
 
