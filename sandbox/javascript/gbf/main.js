@@ -61,6 +61,15 @@ function factory ($) {
       };
     }
 
+    static toJSON (key, value) {
+      if (value instanceof Weapon) {
+        return value._;
+      } else if (value instanceof WeaponSkill) {
+        return value._;
+      }
+      return value;
+    }
+
     get id () {
       return this._.id;
     }
@@ -219,7 +228,13 @@ function factory ($) {
   GBF.collectWeapon = function () {
     var tmp = $('.txt-possessed-weapon').text().match(/(\d+)\s*\//);
     var nbWeapon = parseInt(tmp[1], 10);
-    return subco(collectWeapon(nbWeapon));
+    return subco(collectWeapon(nbWeapon)).then(() => {
+      var tmp = JSON.stringify(GBF.weapons, Weapon.toJSON);
+      tmp = encodeURIComponent(tmp);
+      tmp = unescape(tmp);
+      tmp = btoa(tmp);
+      console.info(`http://localhost:8000/#${tmp}`);
+    });
   };
 
   return GBF;
