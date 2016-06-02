@@ -152,8 +152,8 @@ function factory ($) {
   function * collectWeapon (nbWeapon) {
     for (var i = 0; i < nbWeapon; ++i) {
       var j = i % 20;
-      var w = $($('#lis-weapon').children()[j]);
-      w.trigger('tap');
+      var w = $('#lis-weapon').children();
+      w = $(w[j]).trigger('tap');
       yield waitWeaponData();
       yield waitHuman();
       $('.prt-lead-link').trigger('tap');
