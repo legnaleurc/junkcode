@@ -87,7 +87,7 @@
 	}
 
 	function update(){
-		/* Šî–{’l */
+		/* åŸºæœ¬å€¤ */
 		var rank = document.personal.rank.value;
 		var job_atk = document.personal.job_atk.value;
 		var master_atk = document.personal.master_atk.value;
@@ -109,11 +109,11 @@
 
 		var hp_coefficient = 2 * hp_percent / 100 * hp_percent / 100 - 5 * hp_percent / 100 + 3;
 
-		/* ‰ÁŒì */
+		/* åŠ è­· */
 		var summon_type = document.getElementsByName("summon_type");
 		var summon_percent = document.getElementsByName("summon_percent");
 
-		/* •Ší */
+		/* æ­¦å™¨ */
 		var weapon_atk = document.getElementsByName("weapon_atk")
 		var type_bonus = document.getElementsByName("type_bonus")
 		var cosmos = document.getElementsByName("cosmos")
@@ -355,7 +355,7 @@
 			}
 		}
 
-		/* ¢Š« */
+		/* å¬å–š */
 		var summon_atk = document.getElementsByName("summon_atk")
 		for (i=0; i<5; i++ ) {
 			if ( eval(summon_atk[i].value) != null ) {
@@ -363,14 +363,14 @@
 			}
 		}
 		
-		/* ƒoƒt */
+		/* ãƒãƒ• */
 		var buff_koujin    = document.personal.buff_koujin.value;
 		var buff_attribute = document.personal.buff_attribute.value;
 		var buff_multiply  = document.personal.buff_multiply.value;
 		var total_multiply = 0;
 		
-		/* Œ‹‰Ê•\¦ */
-		/* ¢Š« */
+		/* çµæœè¡¨ç¤º */
+		/* å¬å–š */
 		var unknown_bonus = 100;
 		var magna_bonus = 100;
 		var zeus_bonus = 100;
@@ -550,7 +550,7 @@
 		var flag = decodeNumber(2);
 
 		if (flag < 1000) {
-			/* ‰Šúƒo[ƒWƒ‡ƒ“ */
+			/* åˆæœŸãƒãƒ¼ã‚¸ãƒ§ãƒ³ */
 			document.personal.rank.value = flag;
 			document.personal.job_atk.value = decodeNumber(3);
 			document.personal.master_atk.value = decodeNumber(2);
@@ -590,7 +590,7 @@
 			}
 
 		} else {
-			/* ƒo[ƒWƒ‡ƒ“‚ ‚è */
+			/* ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‚ã‚Š */
 			var version = decodeNumber(2);
 			if (version == 0) {
 				document.personal.rank.value = decodeNumber(2);
@@ -717,7 +717,7 @@
 	  return true;
 	  m = String.fromCharCode(event.keyCode);
 	  if ( event.keyCode >= 96 && event.keyCode <= 105 ) return true;
-	  if("0123456789\t\b\r".indexOf(m, 0) < 0) return false;
+	  if("0123456789Â¥tÂ¥bÂ¥r".indexOf(m, 0) < 0) return false;
 	  return true;
 	}
 
