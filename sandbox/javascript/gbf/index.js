@@ -2,9 +2,23 @@
   'use strict';
 
   function main () {
+    var jobFields = new Backbone.Collection([
+      {
+        name: 'rank',
+        comment: 'Rank lv.',
+      },
+    ]);
+    var jobStatus = new GBF.JobTable({
+      collection: jobFields,
+      el: '#hero-status',
+    });
+
+    jobStatus.render();
+
     var tmp = location.hash.substr(1);
-    tmp = loadFromBase64(tmp);
-    console.info(tmp);
+    if (tmp) {
+      tmp = loadFromBase64(tmp);
+    }
   }
 
   function loadFromBase64 (b64) {
