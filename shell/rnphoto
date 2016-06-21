@@ -1,0 +1,50 @@
+#! /usr/bin/env python3
+
+import argparse
+import datetime
+import pathlib
+import sys
+
+import piexif
+
+
+def parse_args(raw_args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('files', type=str, nargs='*')
+    args = parser.parse_args(raw_args[1:])
+    return args
+
+
+def get_path(file_name):
+    return pathlib.Path(file_name).resolve()
+
+
+def get_timestamp(file_path):
+    info = piexif.load(str(file_path))
+    timestamp = info['Exif'][36867].decode('utf-8')
+    dt = datetime.datetime.strptime(timestamp, '%Y:%m:%d %H:%M:%S')
+    timestamp = dt.strftime('%Y%m%d_%H%M%S')
+    return timestamp
+
+
+def rename(file_path, timestamp):
+    ext = file_path.suffix.lower()
+    file_path.rename(file_path.parent / (timestamp + ext))
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    args = parse_args(args)
+    for file_name in args.files:
+        file_path = get_path(file_name)
+        timestamp = get_timestamp(file_path)
+        rename(file_path, timestamp)
+
+    return 0
+
+
+if __name__ == '__main__':
+    exit_code = main()
+    sys.exit(exit_code)
