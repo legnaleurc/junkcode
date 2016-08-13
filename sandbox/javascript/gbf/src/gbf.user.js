@@ -6,6 +6,7 @@
 // @author       You
 // @match        http://game.granbluefantasy.jp/*
 // @grant        unsafeWindow
+// @grant        GM_openInTab
 // ==/UserScript==
 
 'use strict';
@@ -14,15 +15,15 @@
 function factory ($) {
   var GBF = {
     ajaxActionList: [
-      {
-        path: /^\/deckcombination\/deck_combination_list\/(\d+)$/,
-        action: function (args, request, response) {
-          var metasetNumber = parseInt(args[1], 10);
-          var sets = response.list;
+      // {
+      //   path: /^\/deckcombination\/deck_combination_list\/(\d+)$/,
+      //   action: function (args, request, response) {
+      //     var metasetNumber = parseInt(args[1], 10);
+      //     var sets = response.list;
 
-          GBF.addMetaset(metasetNumber, sets);
-        },
-      },
+      //     GBF.addMetaset(metasetNumber, sets);
+      //   },
+      // },
       {
         path: /^\/weapon\/list\/\d+\/0$/,
         action: function (args, request, response) {
@@ -233,7 +234,7 @@ function factory ($) {
       tmp = encodeURIComponent(tmp);
       tmp = unescape(tmp);
       tmp = btoa(tmp);
-      console.info(`http://localhost:8000/#${tmp}`);
+      GM_openInTab(`http://localhost:8000/#${tmp}`);
     });
   };
 
