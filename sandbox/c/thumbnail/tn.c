@@ -11,6 +11,9 @@ static const int INTERVAL_SECOND = 300;
 
 int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi);
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
+AVPacket * read_raw_video_frame(AVFormatContext * pifc, int vi);
+void delete_raw_video_frame(AVPacket ** pkt);
+int decode_video_frame();
 
 
 int main (int argc, char ** argv) {
@@ -113,53 +116,9 @@ failed:
 int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi) {
     int ok = 0;
 
-    while (1) {
-        // read a frame
-        AVPacket pkt;
-        av_init_packet(&pkt);
-        pkt.data = NULL;
-        pkt.size = 0;
-        ok = av_read_frame(pifc, &pkt);
-        if (ok != 0) {
-            ok = 1;
-            goto skip_frame;
-        }
-        // the frame may belong to other streams after seeking
-        if (pkt.stream_index != vi) {
-            // skip other streams
-            ok = 0;
-            goto skip_frame;
-        }
-
-        // decode a picture, may need multiple frames to get one picture
-        while (1) {
-            ok = avcodec_send_packet(picc, &pkt);
-            if (ok != 0) {
-                ok = AVUNERROR(ok);
-                goto skip_frame;
-            }
-            ok = avcodec_receive_frame(picc, pf);
-            ok = AVUNERROR(ok);
-            if (ok == 0) {
-                goto got_frame;
-            } else if (ok == EAGAIN) {
-                ok = 0;
-            } else {
-                ok = 0;
-                goto skip_frame;
-            }
-        }
-
-got_frame:
-        ok = 0;
-        break;
-skip_frame:
-        av_packet_unref(&pkt);
-        if (ok != 0) {
-            return ok;
-        }
-    }
-
+    AVPacket * pkt = read_raw_video_frame(pifc, vi);
+    ok = decode_video_frame(picc, pkt, pf);
+    delete_raw_video_frame(&pkt);
     return ok;
 }
 
@@ -295,5 +254,70 @@ free_encoder:
 close_muxer:
     avformat_free_context(pfc);
 failed:
+    return ok;
+}
+
+
+AVPacket * read_raw_video_frame (AVFormatContext * pifc, int vi) {
+    int ok = 0;
+
+    AVPacket * pkt = av_malloc(sizeof(AVPacket));
+    av_init_packet(pkt);
+    pkt->data = NULL;
+    pkt->size = 0;
+
+    while (1) {
+        // read a raw packet
+        ok = av_read_frame(pifc, pkt);
+        if (ok != 0) {
+            ok = AVUNERROR(ok);
+            goto failed;
+        }
+
+        // the raw packet may belong to other streams after seeking
+        if (pkt->stream_index == vi) {
+            break;
+        }
+        av_packet_unref(pkt);
+    }
+
+    return pkt;
+
+failed:
+    delete_raw_video_frame(&pkt);
+    return NULL;
+}
+
+
+void delete_raw_video_frame (AVPacket ** pkt) {
+    if (!pkt || !*pkt) {
+        return;
+    }
+
+    av_packet_unref(*pkt);
+    av_freep(pkt);
+}
+
+
+int decode_video_frame (AVCodecContext * picc, AVPacket * pkt, AVFrame * pf) {
+    int ok = 0;
+
+    // may need to feed multiple times to get one frame
+    while (1) {
+        ok = avcodec_send_packet(picc, pkt);
+        if (ok != 0) {
+            ok = AVUNERROR(ok);
+            return ok;
+        }
+
+        ok = avcodec_receive_frame(picc, pf);
+        ok = AVUNERROR(ok);
+        if (ok != EAGAIN) {
+            // maybe failed, just return the error code
+            return ok;
+        }
+        // need to feed raw packet again
+    }
+
     return ok;
 }
