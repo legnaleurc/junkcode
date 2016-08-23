@@ -117,8 +117,14 @@ int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, 
     int ok = 0;
 
     AVPacket * pkt = read_raw_video_frame(pifc, vi);
+    if (!pkt) {
+        return -1;
+    }
+
     ok = decode_video_frame(picc, pkt, pf);
+
     delete_raw_video_frame(&pkt);
+
     return ok;
 }
 
