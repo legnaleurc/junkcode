@@ -13,7 +13,7 @@ int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, 
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
 AVPacket * read_raw_video_frame(AVFormatContext * pifc, int vi);
 void delete_raw_video_frame(AVPacket ** pkt);
-int decode_video_frame();
+int decode_video_frame(AVCodecContext * picc, const AVPacket * pkt, AVFrame * pf);
 
 
 int main (int argc, char ** argv) {
@@ -305,7 +305,7 @@ void delete_raw_video_frame (AVPacket ** pkt) {
 }
 
 
-int decode_video_frame (AVCodecContext * picc, AVPacket * pkt, AVFrame * pf) {
+int decode_video_frame (AVCodecContext * picc, const AVPacket * pkt, AVFrame * pf) {
     int ok = 0;
 
     // may need to feed multiple times to get one frame
