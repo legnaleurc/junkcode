@@ -10,7 +10,7 @@ tn: tn.c
 	$(STRIP) $@
 
 debug: tn.c
-	$(CC) -o $@ -g $(EXTRA_CFLAGS) $(EXTRA_LDFLAGS) $+
+	$(CC) -o $@ -g -fsanitize=address $(EXTRA_CFLAGS) $(EXTRA_LDFLAGS) $+
 
 clean:
 	$(RM) tn debug
