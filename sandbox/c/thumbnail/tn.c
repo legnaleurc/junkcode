@@ -2,13 +2,14 @@
 
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
 
 
 static const int START_SECOND = 300;
 static const int INTERVAL_SECOND = 300;
 
 
-int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf);
+int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi);
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
 
 
@@ -40,11 +41,20 @@ int main (int argc, char ** argv) {
     int64_t duration = av_rescale(pst->duration, ptb->num, ptb->den);
 
     // find codec
-    AVCodecContext * pcc = pst->codec;
-    AVCodec * pc = avcodec_find_decoder(pcc->codec_id);
+    AVCodec * pc = avcodec_find_decoder(pst->codecpar->codec_id);
     if (!pc) {
         ok = 1;
         goto close_demuxer;
+    }
+    AVCodecContext * pcc = avcodec_alloc_context3(pc);
+    if (!pcc) {
+        ok = 1;
+        goto close_demuxer;
+    }
+    ok = avcodec_parameters_to_context(pcc, pst->codecpar);
+    if (ok < 0) {
+        ok = 1;
+        goto close_decoder;
     }
     ok = avcodec_open2(pcc, pc, NULL);
     if (ok != 0) {
@@ -65,7 +75,7 @@ int main (int argc, char ** argv) {
         avcodec_flush_buffers(pcc);
 
         AVFrame * pf = av_frame_alloc();
-        ok = seek_snapshot(pfc, pcc, pf);
+        ok = seek_snapshot(pfc, pcc, pf, stnb);
         if (ok != 0) {
             ok = 1;
             goto close_frame;
@@ -90,6 +100,8 @@ next_time:
 
     ok = 0;
     avcodec_close(pcc);
+close_decoder:
+    avcodec_free_context(&pcc);
 close_demuxer:
     avformat_close_input(&pfc);
 failed:
@@ -98,11 +110,10 @@ failed:
 }
 
 
-int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf) {
+int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi) {
     int ok = 0;
-    int got_frame = 0;
 
-    while (!got_frame) {
+    while (1) {
         // read a frame
         AVPacket pkt;
         av_init_packet(&pkt);
@@ -114,28 +125,38 @@ int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf) 
             goto skip_frame;
         }
         // the frame may belong to other streams after seeking
-        if (pifc->streams[pkt.stream_index]->codec != picc) {
+        if (pkt.stream_index != vi) {
             // skip other streams
             ok = 0;
             goto skip_frame;
         }
 
         // decode a picture, may need multiple frames to get one picture
-        do {
-            ok = avcodec_decode_video2(picc, pf, &got_frame, &pkt);
-            if (ok < 0) {
-                ok = 1;
+        while (1) {
+            ok = avcodec_send_packet(picc, &pkt);
+            if (ok != 0) {
+                ok = AVUNERROR(ok);
                 goto skip_frame;
             }
-            pkt.data += ok;
-            pkt.size -= ok;
-        } while (ok > 0 && pkt.size > 0 && !got_frame);
+            ok = avcodec_receive_frame(picc, pf);
+            ok = AVUNERROR(ok);
+            if (ok == 0) {
+                goto got_frame;
+            } else if (ok == EAGAIN) {
+                ok = 0;
+            } else {
+                ok = 0;
+                goto skip_frame;
+            }
+        }
 
+got_frame:
         ok = 0;
+        break;
 skip_frame:
-        av_free_packet(&pkt);
+        av_packet_unref(&pkt);
         if (ok != 0) {
-            break;
+            return ok;
         }
     }
 
@@ -160,28 +181,39 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
         ok = 1;
         goto close_muxer;
     }
-    pst->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    pst->codec->codec_id = av_guess_codec(pfc->oformat, NULL, filename, NULL, pst->codec->codec_type);
 
     // find encoder
-    AVCodec * pc = avcodec_find_encoder(pst->codec->codec_id);
+    enum AVCodecID codec_id = av_guess_codec(pfc->oformat, NULL, filename, NULL, AVMEDIA_TYPE_VIDEO);
+    if (codec_id == AV_CODEC_ID_NONE) {
+        ok = 1;
+        goto close_muxer;
+    }
+    AVCodec * pc = avcodec_find_encoder(codec_id);
     if (!pc) {
         ok = 1;
         goto close_muxer;
     }
 
     // prepare encoder
-    AVCodecContext * pcc = pst->codec;
+    AVCodecContext * pcc = avcodec_alloc_context3(pc);
     pcc->width = picc->width;
     pcc->height = picc->height;
     pcc->pix_fmt = pc->pix_fmts[0];
     pcc->bit_rate = picc->bit_rate;
     pcc->codec_id = pc->id;
     pcc->codec_type = pc->type;
+    pcc->time_base.num = 1;
+    pcc->time_base.den = 1;
     ok = avcodec_open2(pcc, pc, NULL);
     if (ok != 0) {
         ok = 1;
-        goto close_muxer;
+        goto free_encoder;
+    }
+
+    ok = avcodec_parameters_from_context(pst->codecpar, pcc);
+    if (ok < 0) {
+        ok = 1;
+        goto free_encoder;
     }
 
     // write file header
@@ -207,9 +239,9 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     pf->width = pcc->width;
     pf->height = pcc->height;
     pf->format = pcc->pix_fmt;
-    ok = avpicture_alloc((AVPicture *)pf, pcc->pix_fmt, pcc->width, pcc->height);
-    if (ok != 0) {
-        ok = 1;
+    ok = av_image_alloc(pf->data, pf->linesize, pcc->width, pcc->height, pcc->pix_fmt, 1);
+    if (ok < 0) {
+        ok = AVUNERROR(ok);
         goto close_frame;
     }
     // convert pixel format
@@ -224,10 +256,14 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
     av_init_packet(&pkt);
     pkt.data = NULL;
     pkt.size = 0;
-    int got_frame = 0;
-    ok = avcodec_encode_video2(pcc, &pkt, pf, &got_frame);
-    if (!got_frame) {
-        ok = 1;
+    ok = avcodec_send_frame(pcc, pf);
+    if (ok != 0) {
+        ok = AVUNERROR(ok);
+        goto close_packet;
+    }
+    ok = avcodec_receive_packet(pcc, &pkt);
+    if (ok != 0) {
+        ok = AVUNERROR(ok);
         goto close_packet;
     }
     // NOTE does not matter in image
@@ -245,15 +281,17 @@ int save_snapshot (const char * filename, const AVCodecContext * picc, const AVF
 close_file:
     av_write_trailer(pfc);
 close_packet:
-    av_free_packet(&pkt);
+    av_packet_unref(&pkt);
 close_picture:
-    avpicture_free((AVPicture *)pf);
+    av_freep(&pf->data[0]);
 close_frame:
     av_frame_free(&pf);
 close_sws:
     sws_freeContext(psc);
 close_encoder:
     avcodec_close(pcc);
+free_encoder:
+    avcodec_free_context(&pcc);
 close_muxer:
     avformat_free_context(pfc);
 failed:
