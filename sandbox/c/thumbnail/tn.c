@@ -296,12 +296,12 @@ failed:
 
 
 void delete_raw_video_frame (AVPacket ** pkt) {
-    if (!pkt || !*pkt) {
-        return;
+    if (pkt) {
+        if (*pkt) {
+            av_packet_unref(*pkt);
+        }
+        av_freep(pkt);
     }
-
-    av_packet_unref(*pkt);
-    av_freep(pkt);
 }
 
 
