@@ -1,5 +1,7 @@
 // ex: et ts=4 sts=4 sw=4
 
+#include <stdlib.h>
+
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
@@ -9,11 +11,24 @@ static const int START_SECOND = 300;
 static const int INTERVAL_SECOND = 300;
 
 
+typedef struct {
+    AVFormatContext * format_context;
+    AVStream * stream;
+    AVCodec * codec;
+    AVCodecContext * codec_context;
+    int stream_index;
+    AVRational * time_base;
+    int64_t duration;
+} InputContext;
+
+
+InputContext * open_input_video (const char * filename);
+void close_input_video(InputContext ** input_context);
 int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi);
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
-AVPacket * read_raw_video_frame(AVFormatContext * pifc, int vi);
-void delete_raw_video_frame(AVPacket ** pkt);
-int decode_video_frame(AVCodecContext * picc, const AVPacket * pkt, AVFrame * pf);
+AVPacket * read_raw_video_frame (AVFormatContext * pifc, int vi);
+void delete_raw_video_frame (AVPacket ** pkt);
+int decode_video_frame (AVCodecContext * picc, const AVPacket * pkt, AVFrame * pf);
 
 
 int main (int argc, char ** argv) {
@@ -29,56 +44,26 @@ int main (int argc, char ** argv) {
 
     printf("%s\n", INPUT_FILENAME);
 
-    // open file
-    AVFormatContext * pfc = NULL;
-    ok = avformat_open_input(&pfc, INPUT_FILENAME, NULL, NULL);
-    if (ok != 0) {
-        ok = 1;
+    InputContext * input_context = open_input_video(INPUT_FILENAME);
+    if (!input_context) {
+        ok = EXIT_FAILURE;
         goto failed;
-    }
-
-    // find stream
-    int stnb = av_find_best_stream(pfc, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
-    AVStream * pst = pfc->streams[stnb];
-    AVRational * ptb = &pst->time_base;
-    int64_t duration = av_rescale(pst->duration, ptb->num, ptb->den);
-
-    // find codec
-    AVCodec * pc = avcodec_find_decoder(pst->codecpar->codec_id);
-    if (!pc) {
-        ok = 1;
-        goto close_demuxer;
-    }
-    AVCodecContext * pcc = avcodec_alloc_context3(pc);
-    if (!pcc) {
-        ok = 1;
-        goto close_demuxer;
-    }
-    ok = avcodec_parameters_to_context(pcc, pst->codecpar);
-    if (ok < 0) {
-        ok = 1;
-        goto close_decoder;
-    }
-    ok = avcodec_open2(pcc, pc, NULL);
-    if (ok != 0) {
-        ok = 1;
-        goto close_demuxer;
     }
 
     int64_t sts = START_SECOND;
     int counter = 0;
-    while (sts < duration) {
+    while (sts < input_context->duration) {
         // seek keyframe
-        int64_t ffts = av_rescale(sts, ptb->den, ptb->num);
-        ok = av_seek_frame(pfc, stnb, ffts, AVSEEK_FLAG_BACKWARD);
+        int64_t ffts = av_rescale(sts, input_context->time_base->den, input_context->time_base->num);
+        ok = av_seek_frame(input_context->format_context, input_context->stream_index, ffts, AVSEEK_FLAG_BACKWARD);
         if (ok < 0) {
             printf("seek failed\n");
             goto next_time;
         }
-        avcodec_flush_buffers(pcc);
+        avcodec_flush_buffers(input_context->codec_context);
 
         AVFrame * pf = av_frame_alloc();
-        ok = seek_snapshot(pfc, pcc, pf, stnb);
+        ok = seek_snapshot(input_context->format_context, input_context->codec_context, pf, input_context->stream_index);
         if (ok != 0) {
             ok = 1;
             goto close_frame;
@@ -86,7 +71,7 @@ int main (int argc, char ** argv) {
 
         char filename[4096] = "";
         snprintf(filename, sizeof(filename), OUTPUT_FILENAME, counter);
-        ok = save_snapshot(filename, pcc, pf);
+        ok = save_snapshot(filename, input_context->codec_context, pf);
         if (ok != 0) {
             ok = 1;
             goto close_frame;
@@ -101,15 +86,78 @@ next_time:
         counter += 1;
     }
 
-    ok = 0;
-    avcodec_close(pcc);
+    ok = EXIT_SUCCESS;
+    close_input_video(&input_context);
+failed:
+    printf("result %d\n", ok);
+    return ok;
+}
+
+
+InputContext * open_input_video (const char * filename) {
+    int ok = 0;
+
+    // open file
+    AVFormatContext * pfc = NULL;
+    ok = avformat_open_input(&pfc, filename, NULL, NULL);
+    if (ok != 0) {
+        goto failed;
+    }
+
+    // find stream
+    int stnb = av_find_best_stream(pfc, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+    AVStream * pst = pfc->streams[stnb];
+    AVRational * ptb = &pst->time_base;
+    int64_t duration = av_rescale(pst->duration, ptb->num, ptb->den);
+
+    // find codec
+    AVCodec * pc = avcodec_find_decoder(pst->codecpar->codec_id);
+    if (!pc) {
+        goto close_demuxer;
+    }
+    AVCodecContext * pcc = avcodec_alloc_context3(pc);
+    if (!pcc) {
+        goto close_demuxer;
+    }
+    ok = avcodec_parameters_to_context(pcc, pst->codecpar);
+    if (ok < 0) {
+        goto close_decoder;
+    }
+    ok = avcodec_open2(pcc, pc, NULL);
+    if (ok != 0) {
+        goto close_decoder;
+    }
+
+    InputContext * context = malloc(sizeof(InputContext));
+    context->format_context = pfc;
+    context->stream = pst;
+    context->codec = pc;
+    context->codec_context = pcc;
+    context->stream_index = stnb;
+    context->time_base = ptb;
+    context->duration = duration;
+
+    return context;
+
 close_decoder:
     avcodec_free_context(&pcc);
 close_demuxer:
     avformat_close_input(&pfc);
 failed:
-    printf("result %d\n", ok);
-    return ok;
+    return NULL;
+}
+
+
+void close_input_video (InputContext ** input_context) {
+    if (!input_context || !*input_context) {
+        return;
+    }
+    InputContext * context = *input_context;
+    avcodec_close(context->codec_context);
+    avcodec_free_context(&context->codec_context);
+    avformat_close_input(&context->format_context);
+    free(context);
+    *input_context = NULL;
 }
 
 
