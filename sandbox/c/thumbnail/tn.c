@@ -33,9 +33,8 @@ typedef struct {
 InputContext * input_context_new (const char * filename);
 void input_context_delete (InputContext ** input_context);
 
-OutputContext * output_context_new (const char * filename);
+OutputContext * output_context_new (const char * filename, const AVFrame * input_frame);
 void output_context_delete (OutputContext ** output_context);
-int output_context_setup(OutputContext * self, const AVFrame * input_frame);
 
 int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi);
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
@@ -174,7 +173,7 @@ void input_context_delete (InputContext ** input_context) {
 }
 
 
-OutputContext* output_context_new (const char * filename) {
+OutputContext* output_context_new (const char * filename, const AVFrame * input_frame) {
     int ok = 0;
 
     // prepare muxer
@@ -207,6 +206,8 @@ OutputContext* output_context_new (const char * filename) {
     pcc->codec_type = pc->type;
     pcc->time_base.num = 1;
     pcc->time_base.den = 1;
+    pcc->width = input_frame->width;
+    pcc->height = input_frame->height;
     ok = avcodec_open2(pcc, pc, NULL);
     if (ok != 0) {
         goto free_encoder;
@@ -247,15 +248,6 @@ void output_context_delete (OutputContext ** self) {
 }
 
 
-int output_context_setup (OutputContext * self, const AVFrame * input_frame) {
-    AVCodecContext * pcc = self->codec_context;
-    pcc->width = input_frame->width;
-    pcc->height = input_frame->height;
-    // pcc->bit_rate = input->codec_context->bit_rate;
-    return 0;
-}
-
-
 int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi) {
     int ok = 0;
 
@@ -275,13 +267,11 @@ int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, 
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif) {
     int ok = 0;
 
-    OutputContext * output_context = output_context_new(filename);
+    OutputContext * output_context = output_context_new(filename, pif);
     if (!output_context) {
         ok = -1;
         goto failed;
     }
-
-    ok = output_context_setup(output_context, pif);
 
     // write file header
     ok = avformat_write_header(output_context->format_context, NULL);
