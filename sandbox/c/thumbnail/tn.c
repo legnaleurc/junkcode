@@ -22,8 +22,21 @@ typedef struct {
 } InputContext;
 
 
+typedef struct {
+    AVFormatContext * format_context;
+    AVStream * stream;
+    AVCodec * codec;
+    AVCodecContext * codec_context;
+} OutputContext;
+
+
 InputContext * open_input_video (const char * filename);
-void close_input_video(InputContext ** input_context);
+void close_input_video (InputContext ** input_context);
+
+OutputContext * open_output_video (const char * filename);
+void close_output_video (OutputContext ** output_context);
+int output_context_setup(OutputContext * self, InputContext * input);
+
 int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi);
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
 AVPacket * read_raw_video_frame (AVFormatContext * pifc, int vi);
@@ -161,6 +174,75 @@ void close_input_video (InputContext ** input_context) {
 }
 
 
+OutputContext* open_output_video (const char * filename) {
+    int ok = 0;
+
+    // prepare muxer
+    AVFormatContext * pfc = NULL;
+    avformat_alloc_output_context2(&pfc, NULL, NULL, filename);
+    if (!pfc) {
+        goto failed;
+    }
+
+    // prepare encoding stream
+    AVStream * pst = avformat_new_stream(pfc, NULL);
+    if (!pst) {
+        goto close_muxer;
+    }
+
+    // find encoder
+    enum AVCodecID codec_id = av_guess_codec(pfc->oformat, NULL, filename, NULL, AVMEDIA_TYPE_VIDEO);
+    if (codec_id == AV_CODEC_ID_NONE) {
+        goto close_muxer;
+    }
+    AVCodec * pc = avcodec_find_encoder(codec_id);
+    if (!pc) {
+        goto close_muxer;
+    }
+
+    // prepare encoder
+    AVCodecContext * pcc = avcodec_alloc_context3(pc);
+    pcc->pix_fmt = pc->pix_fmts[0];
+    pcc->codec_id = pc->id;
+    pcc->codec_type = pc->type;
+    pcc->time_base.num = 1;
+    pcc->time_base.den = 1;
+    ok = avcodec_open2(pcc, pc, NULL);
+    if (ok != 0) {
+        goto free_encoder;
+    }
+
+    ok = avcodec_parameters_from_context(pst->codecpar, pcc);
+    if (ok < 0) {
+        goto free_encoder;
+    }
+
+    OutputContext * context = malloc(sizeof(OutputContext));
+    context->format_context = pfc;
+    context->stream = pst;
+    context->codec = pc;
+    context->codec_context = pcc;
+
+    return context;
+
+free_encoder:
+    avcodec_free_context(&pcc);
+close_muxer:
+    avformat_free_context(pfc);
+failed:
+    return NULL;
+}
+
+
+int output_context_setup (OutputContext * self, InputContext * input) {
+    AVCodecContext * pcc = self->codec_context;
+    pcc->width = input->codec_context->width;
+    pcc->height = input->codec_context->height;
+    pcc->bit_rate = input->codec_context->bit_rate;
+    return 0;
+}
+
+
 int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi) {
     int ok = 0;
 
@@ -180,54 +262,16 @@ int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, 
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif) {
     int ok = 0;
 
-    // prepare muxer
-    AVFormatContext * pfc = NULL;
-    avformat_alloc_output_context2(&pfc, NULL, NULL, filename);
-    if (!pfc) {
-        ok = 1;
+    OutputContext * output_context = open_output_video(filename);
+    if (!output_context) {
+        ok = -1;
         goto failed;
     }
 
-    // prepare encoding stream
-    AVStream * pst = avformat_new_stream(pfc, NULL);
-    if (!pst) {
-        ok = 1;
-        goto close_muxer;
-    }
+    ok = output_context_setup(output_context, input_context);
 
-    // find encoder
-    enum AVCodecID codec_id = av_guess_codec(pfc->oformat, NULL, filename, NULL, AVMEDIA_TYPE_VIDEO);
-    if (codec_id == AV_CODEC_ID_NONE) {
-        ok = 1;
-        goto close_muxer;
-    }
-    AVCodec * pc = avcodec_find_encoder(codec_id);
-    if (!pc) {
-        ok = 1;
-        goto close_muxer;
-    }
-
-    // prepare encoder
-    AVCodecContext * pcc = avcodec_alloc_context3(pc);
-    pcc->width = picc->width;
-    pcc->height = picc->height;
-    pcc->pix_fmt = pc->pix_fmts[0];
-    pcc->bit_rate = picc->bit_rate;
-    pcc->codec_id = pc->id;
-    pcc->codec_type = pc->type;
-    pcc->time_base.num = 1;
-    pcc->time_base.den = 1;
-    ok = avcodec_open2(pcc, pc, NULL);
-    if (ok != 0) {
-        ok = 1;
-        goto free_encoder;
-    }
-
-    ok = avcodec_parameters_from_context(pst->codecpar, pcc);
-    if (ok < 0) {
-        ok = 1;
-        goto free_encoder;
-    }
+    pif->width;
+    pif->bit_rate;
 
     // write file header
     ok = avformat_write_header(pfc, NULL);
@@ -303,11 +347,8 @@ close_sws:
     sws_freeContext(psc);
 close_encoder:
     avcodec_close(pcc);
-free_encoder:
-    avcodec_free_context(&pcc);
-close_muxer:
-    avformat_free_context(pfc);
 failed:
+    close_output_video(&output_context);
     return ok;
 }
 
