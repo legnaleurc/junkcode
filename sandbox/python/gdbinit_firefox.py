@@ -34,7 +34,7 @@ class DereferenceCommand(gdb.Command):
 
         try:
             print(value.dereference())
-            return gdb.Value(111)
+            return
         except Exception:
             pass
 
@@ -202,6 +202,6 @@ class StyleSheetHandleMember(gdb.xmethod.XMethodWorker):
         return tmp.dereference()
 
 
-DereferenceCommand()
+#DereferenceCommand()
 gdb.xmethod.register_xmethod_matcher(None, NetscapePointerMatcher())
 gdb.xmethod.register_xmethod_matcher(None, StyleSheetHandleMatcher())
