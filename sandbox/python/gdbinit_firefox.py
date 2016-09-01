@@ -3,6 +3,13 @@
 import gdb
 
 
+def nested_get(value, property_list, default=None):
+    try:
+        return reduce(gdb.Value.__getitem__, property_list, value)
+    except Exception:
+        return default
+
+
 class DereferenceCommand(gdb.Command):
 
     '''
@@ -16,23 +23,7 @@ class DereferenceCommand(gdb.Command):
         args = gdb.string_to_argv(argument)
         name = args[0]
 
-        symbol, is_member = gdb.lookup_symbol(name)
-        if not symbol:
-            print('`{0}` not found'.format(name))
-            return
-
-        if not symbol.is_valid():
-            print('`{0}` is invalid'.format(name))
-            return
-
-        if symbol.is_function:
-            print('`{0}` is a function'.format(name))
-            return
-
-        if symbol.needs_frame:
-            value = symbol.value(gdb.selected_frame())
-        else:
-            value = symbol.value()
+        value = gdb.parse_and_eval(name)
 
         if value.is_optimized_out:
             print('`{0}` has been optimized out'.format(name))
@@ -50,8 +41,33 @@ class DereferenceCommand(gdb.Command):
         except Exception:
             pass
 
-        print('no matching pointer, print raw')
-        print(value)
+        try:
+            print(value['mRawPtr'].dereference())
+            return
+        except Exception:
+            pass
+
+        if value.type.name == 'mozilla::StyleSheetHandle::RefPtr':
+            tmp = nested_get(value, ['mHandle', 'mPtr', 'mValue'])
+            if tmp:
+                tmp = long(tmp)
+                if tmp & 0x1:
+                    tmp = tmp - 1
+                    type_ = 'mozilla::ServoStyleSheet'
+                else:
+                    type_ = 'mozilla::CSSStyleSheet'
+
+                tmp = gdb.Value(tmp)
+                type_ = gdb.lookup_type(type_)
+                tmp = tmp.cast(type_.pointer())
+
+                print(tmp.dereference())
+            else:
+                print('(mozilla::StyleSheet *) 0x0')
+
+            return
+
+        print('no matching pointer')
 
 
 DereferenceCommand()
