@@ -6,24 +6,22 @@ use self::libc::c_int;
 use self::libc::c_char;
 
 
-struct RustQApplication;
-struct RustQWidget;
-struct RustQLabel;
+struct QtHandle;
 
 
 #[link(name="qt5rust")]
 extern {
-    fn qapplication_new(argc: c_int, argv: *mut *mut c_char) -> *mut RustQApplication;
-    fn qapplication_exec(this: *mut RustQApplication) -> c_int;
+    fn qapplication_new(argc: c_int, argv: *mut *mut c_char) -> *mut QtHandle;
+    fn qapplication_exec(this: *mut QtHandle) -> c_int;
 
-    fn qlabel_new(parent: *mut RustQWidget) -> *mut RustQLabel;
-    fn qlabel_resize(this: *mut RustQLabel, width: c_int, height: c_int) -> ();
-    fn qlabel_show(this: *mut RustQLabel) -> ();
+    fn qlabel_new(parent: *mut QtHandle) -> *mut QtHandle;
+    fn qlabel_resize(this: *mut QtHandle, width: c_int, height: c_int) -> ();
+    fn qlabel_show(this: *mut QtHandle) -> ();
 }
 
 
 pub struct QApplication {
-    this: *mut RustQApplication,
+    this: *mut QtHandle,
 }
 
 
@@ -50,7 +48,7 @@ impl QApplication {
 
 
 pub struct QLabel {
-    this: *mut RustQLabel,
+    this: *mut QtHandle,
 }
 
 
