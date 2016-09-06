@@ -12,11 +12,12 @@
     "16": "icons/icon-16.png"
   },
 
-  "content_scripts": [
-    {
-      "matches": ["*://*.mozilla.org/*"],
-      "js": ["borderify.js"]
-    }
-  ]
+  "permissions": [
+    "contextMenus"
+  ],
+
+  "background": {
+    "scripts": ["lib/main.js"]
+  }
 
 }

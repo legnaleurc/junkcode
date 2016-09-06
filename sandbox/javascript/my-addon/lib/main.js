@@ -1,27 +1,12 @@
-const {Cc, Ci} = require('chrome');
-var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
+chrome.contextMenus.create({
+  id: 'send-to-transmission',
+  title: 'Send To Transmission',
+  contexts: ['link'],
+});
 
-ww.registerNotification({
-  observe: function (aSubject, aTopic, aData) {
-    if (aTopic === 'domwindowopened') {
-      aSubject.addEventListener("load", function (event) {
-        var w = event.currentTarget;
-        if (w.location.toString() !== 'chrome://greasemonkey/content/install.xul') {
-          return;
-        }
-        var xul = w.document.documentElement;
-        var install = xul.getButton('accept');
-        if (!install) {
-          return;
-        }
-        var i = w.setInterval(function () {
-          if (install.disabled) {
-            return;
-          }
-          w.clearInterval(i);
-          install.click();
-        }, 500);
-      });
-    }
-  },
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+  if (info.menuItemId === 'send-to-transmission') {
+    var url = btoa(info.linkUrl);
+    console.info(url);
+  }
 });
