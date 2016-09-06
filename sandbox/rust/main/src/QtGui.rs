@@ -6,7 +6,7 @@ use self::libc::c_int;
 use self::libc::c_char;
 
 
-struct QtHandle;
+enum QtHandle {}
 
 
 #[link(name="qt5rust")]
