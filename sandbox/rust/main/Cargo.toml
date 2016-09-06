@@ -1,0 +1,6 @@
+[project]
+name = "qt5rust"
+version = "0.1.0"
+
+[dependencies]
+libc = "0.2.0"
