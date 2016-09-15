@@ -1,10 +1,10 @@
-mod QtGui;
+mod qt_gui;
 
 
 fn main () -> () {
-    let app = QtGui::QApplication::new();
+    let app = qt_gui::QApplication::new();
 
-    let label = QtGui::QLabel::new();
+    let label = qt_gui::QLabel::new();
     label.resize(640, 480);
     label.show();
 
