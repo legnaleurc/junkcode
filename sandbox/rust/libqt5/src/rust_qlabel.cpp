@@ -32,3 +32,8 @@ void qlabel_resize(qlabel * self, int width, int height) {
 void qlabel_show(qlabel * self) {
     return self->p->show();
 }
+
+
+void qlabel_set_text(qlabel * self, const wchar_t * string, size_t length) {
+    self->p->setText(QString::fromWCharArray(string, length));
+}

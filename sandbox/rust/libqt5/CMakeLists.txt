@@ -12,4 +12,3 @@ add_library(qt5rust SHARED
     "src/rust_qapplication.cpp"
     "src/rust_qlabel.cpp")
 target_link_libraries(qt5rust Qt5::Widgets)
-# target_compile_features()
