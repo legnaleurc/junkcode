@@ -3,29 +3,30 @@
 #include "rust_qapplication.h"
 
 
-struct RustQApplication_ {
+struct qapplication {
     QApplication * p;
 };
 
 
-RustQApplication qapplication_new(int argc, char ** argv) {
-    RustQApplication self = new RustQApplication_;
+qapplication * qapplication_new(int argc, char ** argv) {
+    qapplication * self = new qapplication;
     self->p = new QApplication(argc, argv);
     return self;
 }
 
 
-void qapplication_delete(RustQApplication * self) {
-    if (self) {
-        if (*self) {
-            (*self)->p->deleteLater();
-            delete *self;
-        }
-        *self = nullptr;
+void qapplication_delete(qapplication * * self) {
+    if (!self) {
+        return;
     }
+    if (*self) {
+        (*self)->p->deleteLater();
+        delete *self;
+    }
+    *self = nullptr;
 }
 
 
-int qapplication_exec(RustQApplication self) {
+int qapplication_exec(qapplication * self) {
     return self->p->exec();
 }

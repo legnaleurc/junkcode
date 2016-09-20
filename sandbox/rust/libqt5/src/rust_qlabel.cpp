@@ -1,37 +1,39 @@
+#include "rust_qlabel.h"
+
 #include <QtGui/QLabel>
 
-#include "rust_qlabel.h"
 #include "rust_internal.h"
 
 
-struct RustQLabel_ {
+struct qlabel {
     QLabel * p;
 };
 
 
-RustQLabel qlabel_new(RustQWidget parent) {
-    RustQLabel self = new RustQLabel_;
-    self->p = new QLabel(rust_to_qwidget(parent));
+qlabel * qlabel_new(qwidget * parent) {
+    qlabel * self = new qlabel;
+    self->p = new QLabel(unwrap(parent));
     return self;
 }
 
 
-void qlabel_delete(RustQLabel * self) {
-    if (self) {
-        if (*self) {
-            (*self)->p->deleteLater();
-            delete *self;
-        }
-        *self = nullptr;
+void qlabel_delete(qlabel * * self) {
+    if (!self) {
+        return;
     }
+    if (*self) {
+        (*self)->p->deleteLater();
+        delete *self;
+    }
+    *self = nullptr;
 }
 
 
-void qlabel_resize(RustQLabel self, int width, int height) {
+void qlabel_resize(qlabel * self, int width, int height) {
     self->p->resize(width, height);
 }
 
 
-void qlabel_show(RustQLabel self) {
+void qlabel_show(qlabel * self) {
     return self->p->show();
 }
