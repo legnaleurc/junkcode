@@ -1,19 +1,20 @@
 #ifndef RUST_INTERNAL_H
 #define RUST_INTERNAL_H
 
-// #include <QtGui/QWidget>
 
-// #include "rust_qobject.h"
+class QWidget;
+class QLabel;
 
-// QWidget * rust_to_qwidget(RustQWidget object);
 
-// template<typename T, typename U>
-// T * unwrap(U * wrapped_object) {
-//     if (wrapped_object && wrapped_object->p) {
-//         return wrapped_object->p;
-//     }
-//     return nullptr;
-// }
+struct qwidget {
+    QWidget * p;
+};
+
+
+struct qlabel {
+    QLabel * p;
+};
+
 
 template<typename T>
 auto unwrap(T * wrapped_object) -> decltype(wrapped_object->p) {

@@ -5,11 +5,6 @@
 #include "rust_internal.h"
 
 
-struct qlabel {
-    QLabel * p;
-};
-
-
 qlabel * qlabel_new(qwidget * parent) {
     qlabel * self = new qlabel;
     self->p = new QLabel(unwrap(parent));
