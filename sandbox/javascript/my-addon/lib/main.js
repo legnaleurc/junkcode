@@ -1,4 +1,4 @@
-chrome.contextMenus.create({
+schrome.contextMenus.create({
   id: 'send-to-transmission',
   title: 'Send To Transmission',
   contexts: ['link'],
