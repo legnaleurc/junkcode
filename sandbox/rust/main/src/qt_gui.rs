@@ -4,6 +4,7 @@ use std;
 use std::ffi::CString;
 use self::libc::c_int;
 use self::libc::c_char;
+use self::libc::c_uint;
 
 
 enum QtHandle {}
@@ -17,6 +18,7 @@ extern {
     fn qlabel_new(parent: *mut QtHandle) -> *mut QtHandle;
     fn qlabel_resize(this: *mut QtHandle, width: c_int, height: c_int) -> ();
     fn qlabel_show(this: *mut QtHandle) -> ();
+    fn qlabel_set_text(this: *mut QtHandle, utf8: *const c_char, length: c_uint) -> ();
 }
 
 
@@ -71,6 +73,13 @@ impl QLabel {
     pub fn show(&self) -> () {
         unsafe {
             return qlabel_show(self.this);
+        }
+    }
+
+    pub fn set_text(&self, string: &str) -> () {
+        let cs = CString::new(string).unwrap();
+        unsafe {
+            return qlabel_set_text(self.this, cs.as_ptr(), string.len() as u32);
         }
     }
 

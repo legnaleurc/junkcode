@@ -34,6 +34,6 @@ void qlabel_show(qlabel * self) {
 }
 
 
-void qlabel_set_text(qlabel * self, const wchar_t * string, size_t length) {
-    self->p->setText(QString::fromWCharArray(string, length));
+void qlabel_set_text(qlabel * self, const char * utf8, size_t length) {
+    self->p->setText(QString::fromUtf8(utf8, length));
 }
