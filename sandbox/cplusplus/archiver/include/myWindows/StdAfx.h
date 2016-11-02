@@ -19,12 +19,12 @@
 #include "Common/MyTypes.h"
 #include "Common/MyString.h" // FIXME
 
-#include <windows.h>
+//#include <windows.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <tchar.h>
+//#include <tchar.h>
 #include <wchar.h>
 #include <stddef.h>
 #include <ctype.h>

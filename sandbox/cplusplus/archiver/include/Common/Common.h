@@ -3,7 +3,7 @@
 #ifndef __COMMON_COMMON_H
 #define __COMMON_COMMON_H
 
-#include "../../C/Compiler.h"
+#include "../C/Compiler.h"
 
 #include "MyWindows.h"
 #include "NewHandler.h"
