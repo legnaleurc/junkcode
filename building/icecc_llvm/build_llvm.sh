@@ -5,7 +5,7 @@ set -e -x
 BUILD_DIR='/tmp/llvm-clang'
 INSTALL_DIR='~/local/opt/llvm-clang'
 LLVM_VERSION='3.9.0'
-DARWIN_VERSION='16.1.0'
+DARWIN_VERSION='16.3.0'
 
 
 prepare_source () {
@@ -23,6 +23,9 @@ prepare_source () {
   libcxxabi_dir="libcxxabi-$version.src"
   libcxxabi_tarball="$libcxxabi_dir.tar.xz"
   libcxxabi_url="http://llvm.org/releases/$version/$libcxxabi_tarball"
+  lldb_dir="lldb-$version.src"
+  lldb_tarball="$lldb_dir.tar.xz"
+  lldb_url="http://llvm.org/releases/$version/$lldb_tarball"
   cwd="$(pwd)"
 
   cd "$build_dir"
@@ -43,6 +46,11 @@ prepare_source () {
   curl -O "$libcxxabi_url"
   tar -xvf "$libcxxabi_tarball"
   mv "$libcxxabi_dir" "$llvm_dir/projects/libcxxabi"
+
+  # Get the same release of lldb
+  curl -O "$lldb_url"
+  tar -xvf "$lldb_tarball"
+  mv "$lldb_dir" "$llvm_dir/tools/lldb"
 
   cd "$cwd"
 }
@@ -69,7 +77,7 @@ build_source () {
     -DCMAKE_BUILD_TYPE=Release \
     "$build_dir/$llvm_dir"
 
-  make -j9
+  make -j4
   make install
 
   cd "$cwd"
