@@ -1,0 +1,34 @@
+#! /usr/bin/env python
+
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import calendar
+import datetime as dt
+import sqlite3
+import sys
+
+
+DATABASE_PATH = '/var/lib/quassel/quassel-storage.sqlite'
+DAYS = 90
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    d = dt.timedelta(days=DAYS)
+    t = dt.datetime.now()
+    t = t - d
+    t = t.timetuple()
+    t = calendar.timegm(t)
+    with sqlite3.connect(DATABASE_PATH) as db, db.cursor() as query:
+        query.execute('DELETE FROM `backlog` WHERE `time` < ?;', t)
+        print(query.rowcount)
+
+    return 0
+
+
+if __name__ == '__main__':
+    exit_code = main()
+    sys.exit(exit_code)
