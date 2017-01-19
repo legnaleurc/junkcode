@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import calendar
+import contextlib as cl
 import datetime as dt
 import sqlite3
 import sys
@@ -22,7 +23,8 @@ def main(args=None):
     t = t - d
     t = t.timetuple()
     t = calendar.timegm(t)
-    with sqlite3.connect(DATABASE_PATH) as db, db.cursor() as query:
+    with (cl.closing(sqlite3.connect(DATABASE_PATH)) as db,
+          cl.closing(db.cursor()) as query):
         query.execute('DELETE FROM `backlog` WHERE `time` < ?;', t)
         print(query.rowcount)
 
