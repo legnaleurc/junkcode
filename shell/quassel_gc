@@ -23,8 +23,7 @@ def main(args=None):
     t = t - d
     t = t.timetuple()
     t = calendar.timegm(t)
-    with (cl.closing(sqlite3.connect(DATABASE_PATH)) as db,
-          cl.closing(db.cursor()) as query):
+    with cl.closing(sqlite3.connect(DATABASE_PATH)) as db, cl.closing(db.cursor()) as query:
         query.execute('DELETE FROM `backlog` WHERE `time` < ?;', t)
         print(query.rowcount)
 
