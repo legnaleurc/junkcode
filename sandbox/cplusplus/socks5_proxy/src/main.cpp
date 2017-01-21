@@ -69,7 +69,7 @@ private:
     void onInnerConnected(const ErrorCode & ec, Resolver::iterator it) {
         if (ec) {
             std::cerr << "onInnerConnected failed " << ec.message() << std::endl;
-
+            this->inner_socket_.close();
             it = std::next(it);
             this->doInnerConnect(it);
             return;
