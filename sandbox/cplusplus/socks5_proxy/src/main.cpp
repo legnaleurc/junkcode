@@ -1,5 +1,7 @@
 #include <boost/asio.hpp>
+#include <boost/endian/conversion.hpp>
 
+#include <cassert>
 #include <csignal>
 #include <iostream>
 
@@ -42,7 +44,7 @@ private:
             self->onResolved(ec, it);
         };
 
-        Resolver::query q("localhost", "7000");
+        Resolver::query q("localhost", "1080");
 
         this->resolver_.async_resolve(q, fn);
     }
@@ -77,6 +79,168 @@ private:
             it = std::next(it);
             this->doInnerConnect(it);
             return;
+        }
+
+        this->doInnerPhase1();
+
+        // this->doOuterRead();
+        // this->doInnerRead();
+    }
+
+    void doInnerPhase1() {
+        auto & buffer = this->incoming_buffer_;
+        // VER
+        buffer[0] = 0x05;
+        // NMETHODS
+        buffer[1] = 0x01;
+        // METHODS
+        buffer[2] = 0x00;
+
+        this->doInnerPhase1Write(0, 3);
+    }
+
+    void doInnerPhase1Write(std::size_t offset, std::size_t length) {
+        auto self = this->shared_from_this();
+        auto buffer = boost::asio::buffer(&this->incoming_buffer_[offset], length);
+        auto fn = [self, offset, length](const ErrorCode & ec, std::size_t wrote_length) -> void {
+            self->onInnerPhase1Wrote(ec, offset, length, wrote_length);
+        };
+        this->inner_socket_.async_write_some(buffer, fn);
+    }
+
+    void onInnerPhase1Wrote(const ErrorCode & ec, std::size_t offset, std::size_t total_length, std::size_t wrote_length) {
+        auto self = this->shared_from_this();
+
+        // TODO handle error
+        if (!ec) {
+            if (wrote_length < total_length) {
+                this->doInnerPhase1Write(offset + wrote_length, total_length - wrote_length);
+            } else {
+                this->doInnerPhase2();
+            }
+        }
+    }
+
+    void doInnerPhase2() {
+        auto self = this->shared_from_this();
+        auto buffer = boost::asio::buffer(this->outgoing_buffer_);
+        auto fn = [self](const ErrorCode & ec, std::size_t length) -> void {
+            self->onInnerPhase2Read(ec, length);
+        };
+        this->inner_socket_.async_read_some(buffer, fn);
+    }
+
+    void onInnerPhase2Read(const ErrorCode & ec, std::size_t length) {
+        if (ec) {
+            assert(!"onInnerPhase2Read failed");
+        }
+
+        if (length < 2) {
+            assert(!"reread");
+        }
+
+        if (this->outgoing_buffer_[1] != 0x00) {
+            assert(!"i dont support the authentication method");
+        }
+
+        this->doInnerPhase3();
+    }
+
+    void doInnerPhase3() {
+        auto & buffer = this->incoming_buffer_;
+        // VER
+        buffer[0] = 0x05;
+        // CMD
+        buffer[1] = 0x01;
+        // RSV
+        buffer[2] = 0x00;
+
+        auto ep = this->inner_socket_.remote_endpoint();
+        auto address = ep.address();
+        std::size_t total_length = 0;
+        if (address.is_v4()) {
+            // ATYP
+            buffer[3] = 0x01;
+
+            auto bytes = address.to_v4().to_bytes();
+
+            // DST.ADDR
+            std::copy_n(std::begin(bytes), bytes.size(), std::next(std::begin(buffer), 4));
+
+            // DST.PORT
+            uint16_t * port = reinterpret_cast<uint16_t *>(&buffer[8]);
+            *port = boost::endian::native_to_big(ep.port());
+
+            total_length = 10;
+        } else {
+            // ATYP
+            buffer[3] = 0x04;
+
+            auto bytes = address.to_v6().to_bytes();
+
+            // DST.ADDR
+            std::copy_n(std::begin(bytes), bytes.size(), std::next(std::begin(buffer), 4));
+
+            // DST.PORT
+            uint16_t * port = reinterpret_cast<uint16_t *>(&buffer[20]);
+            *port = boost::endian::native_to_big(ep.port());
+
+            total_length = 22;
+        }
+
+        this->doInnerPhase3Write(0, total_length);
+    }
+
+    void doInnerPhase3Write(std::size_t offset, std::size_t length) {
+        auto self = this->shared_from_this();
+        auto buffer = boost::asio::buffer(&this->incoming_buffer_[offset], length);
+        auto fn = [self, offset, length](const ErrorCode & ec, std::size_t wrote_length) -> void {
+            self->onInnerPhase3Wrote(ec, offset, length, wrote_length);
+        };
+        this->inner_socket_.async_write_some(buffer, fn);
+    }
+
+    void onInnerPhase3Wrote(const ErrorCode & ec, std::size_t offset, std::size_t total_length, std::size_t wrote_length) {
+        auto self = this->shared_from_this();
+
+        // TODO handle error
+        if (!ec) {
+            if (wrote_length < total_length) {
+                this->doInnerPhase3Write(offset + wrote_length, total_length - wrote_length);
+            } else {
+                this->doInnerPhase4();
+            }
+        }
+    }
+
+    void doInnerPhase4() {
+        auto self = this->shared_from_this();
+        auto buffer = boost::asio::buffer(this->outgoing_buffer_);
+        auto fn = [self](const ErrorCode & ec, std::size_t length) -> void {
+            self->onInnerPhase4Read(ec, length);
+        };
+        this->inner_socket_.async_read_some(buffer, fn);
+    }
+
+    void onInnerPhase4Read(const ErrorCode & ec, std::size_t length) {
+        if (ec) {
+            std::cerr << ec.message() << std::endl;
+            assert(!"onInnerPhase4Read failed");
+        }
+
+        if (this->outgoing_buffer_[1] != 0x00) {
+            assert(!"server error");
+        }
+
+        switch (this->outgoing_buffer_[3]) {
+        case 0x01:
+            break;
+        case 0x03:
+            break;
+        case 0x04:
+            break;
+        default:
+            assert(!"unknown address type");
         }
 
         this->doOuterRead();
