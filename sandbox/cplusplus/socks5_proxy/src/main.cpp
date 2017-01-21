@@ -23,6 +23,8 @@ public:
     Session(Socket socket)
         : outer_socket_(std::move(socket))
         , inner_socket_(outer_socket_.get_io_service())
+        , incoming_buffer_(createChunk())
+        , outgoing_buffer_(createChunk())
         , resolver_(outer_socket_.get_io_service())
     {
     }
@@ -83,30 +85,29 @@ private:
 
     void doOuterRead() {
         auto self = this->shared_from_this();
-        Chunk chunk = createChunk();
-        auto buffer = boost::asio::buffer(chunk);
-        auto fn = [self, &chunk](const ErrorCode & ec, std::size_t length) -> void {
-            self->doInnerWrite(chunk, 0, length);
+        auto buffer = boost::asio::buffer(this->incoming_buffer_);
+        auto fn = [self](const ErrorCode & ec, std::size_t length) -> void {
+            self->doInnerWrite(0, length);
         };
         this->outer_socket_.async_read_some(buffer, fn);
     }
 
-    void doInnerWrite(const Chunk & chunk, std::size_t offset, std::size_t length) {
+    void doInnerWrite(std::size_t offset, std::size_t length) {
         auto self = this->shared_from_this();
-        auto buffer = boost::asio::buffer(&chunk[offset], length);
-        auto fn = [self, &chunk, offset, length](const ErrorCode & ec, std::size_t wrote_length) -> void {
-            self->onInnerWrote(ec, chunk, offset, length, wrote_length);
+        auto buffer = boost::asio::buffer(&this->incoming_buffer_[offset], length);
+        auto fn = [self, offset, length](const ErrorCode & ec, std::size_t wrote_length) -> void {
+            self->onInnerWrote(ec, offset, length, wrote_length);
         };
         this->inner_socket_.async_write_some(buffer, fn);
     }
 
-    void onInnerWrote(const ErrorCode & ec, const Chunk & chunk, std::size_t offset, std::size_t total_length, std::size_t wrote_length) {
+    void onInnerWrote(const ErrorCode & ec, std::size_t offset, std::size_t total_length, std::size_t wrote_length) {
         auto self = this->shared_from_this();
 
         // TODO handle error
         if (!ec) {
             if (wrote_length < total_length) {
-                this->doInnerWrite(chunk, offset + wrote_length, total_length - wrote_length);
+                this->doInnerWrite(offset + wrote_length, total_length - wrote_length);
             } else {
                 this->doOuterRead();
             }
@@ -115,30 +116,29 @@ private:
 
     void doInnerRead() {
         auto self = this->shared_from_this();
-        Chunk chunk = createChunk();
-        auto buffer = boost::asio::buffer(chunk);
-        auto fn = [self, &chunk](const ErrorCode & ec, std::size_t length) -> void {
-            self->doOuterWrite(chunk, 0, length);
+        auto buffer = boost::asio::buffer(this->outgoing_buffer_);
+        auto fn = [self](const ErrorCode & ec, std::size_t length) -> void {
+            self->doOuterWrite(0, length);
         };
         this->inner_socket_.async_read_some(buffer, fn);
     }
 
-    void doOuterWrite(const Chunk & chunk, std::size_t offset, std::size_t length) {
+    void doOuterWrite(std::size_t offset, std::size_t length) {
         auto self = this->shared_from_this();
-        auto buffer = boost::asio::buffer(&chunk[offset], length);
-        auto fn = [self, &chunk, offset, length](const ErrorCode & ec, std::size_t wrote_length) -> void {
-            self->onOuterWrote(ec, chunk, offset, length, wrote_length);
+        auto buffer = boost::asio::buffer(&this->outgoing_buffer_[offset], length);
+        auto fn = [self, offset, length](const ErrorCode & ec, std::size_t wrote_length) -> void {
+            self->onOuterWrote(ec, offset, length, wrote_length);
         };
         this->outer_socket_.async_write_some(buffer, fn);
     }
 
-    void onOuterWrote(const ErrorCode & ec, const Chunk & chunk, std::size_t offset, std::size_t total_length, std::size_t wrote_length) {
+    void onOuterWrote(const ErrorCode & ec, std::size_t offset, std::size_t total_length, std::size_t wrote_length) {
         auto self = this->shared_from_this();
 
         // TODO handle error
         if (!ec) {
             if (wrote_length < total_length) {
-                this->doOuterWrite(chunk, offset + wrote_length, total_length - wrote_length);
+                this->doOuterWrite(offset + wrote_length, total_length - wrote_length);
             } else {
                 this->doInnerRead();
             }
@@ -147,6 +147,8 @@ private:
 
     Socket outer_socket_;
     Socket inner_socket_;
+    Chunk incoming_buffer_;
+    Chunk outgoing_buffer_;
     Resolver resolver_;
 };
 
