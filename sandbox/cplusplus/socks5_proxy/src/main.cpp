@@ -79,8 +79,6 @@ private:
             return;
         }
 
-        auto self = this->shared_from_this();
-
         this->doOuterRead();
         this->doInnerRead();
     }
