@@ -4,19 +4,19 @@
 #include <iostream>
 
 
+const static std::size_t CHUNK_SIZE = 8192;
+
+
 typedef boost::asio::ip::tcp::acceptor Acceptor;
 typedef boost::asio::ip::tcp::endpoint EndPoint;
 typedef boost::asio::ip::tcp::resolver Resolver;
 typedef boost::asio::ip::tcp::socket Socket;
 typedef boost::system::error_code ErrorCode;
-typedef std::vector<uint8_t> Chunk;
-
-
-const static std::size_t CHUNK_SIZE = 8192;
+typedef std::array<uint8_t, CHUNK_SIZE> Chunk;
 
 
 Chunk createChunk() {
-    return Chunk(CHUNK_SIZE);
+    return std::move(Chunk());
 }
 
 
