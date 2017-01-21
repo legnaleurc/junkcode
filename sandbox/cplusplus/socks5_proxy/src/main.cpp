@@ -158,27 +158,40 @@ private:
 class Server {
 public:
     Server(boost::asio::io_service & loop, unsigned short port)
-        : acceptor_(loop, EndPoint(boost::asio::ip::tcp::v4(), port))
+        : v4_acceptor_(loop, EndPoint(boost::asio::ip::tcp::v4(), port))
+        , v6_acceptor_(loop, EndPoint(boost::asio::ip::tcp::v6(), port))
         , socket_(loop)
     {
     }
 
     void start() {
-        this->doAccept();
+        this->doV4Accept();
+        this->doV6Accept();
     }
 
 private:
-    void doAccept() {
-        this->acceptor_.async_accept(this->socket_, [this](const ErrorCode & ec) -> void {
+    void doV4Accept() {
+        this->v4_acceptor_.async_accept(this->socket_, [this](const ErrorCode & ec) -> void {
             if (!ec) {
                 std::make_shared<Session>(std::move(this->socket_))->start();
             }
 
-            this->doAccept();
+            this->doV4Accept();
         });
     }
 
-    Acceptor acceptor_;
+    void doV6Accept() {
+        this->v6_acceptor_.async_accept(this->socket_, [this](const ErrorCode & ec) -> void {
+            if (!ec) {
+                std::make_shared<Session>(std::move(this->socket_))->start();
+            }
+
+            this->doV6Accept();
+        });
+    }
+
+    Acceptor v4_acceptor_;
+    Acceptor v6_acceptor_;
     Socket socket_;
 };
 
