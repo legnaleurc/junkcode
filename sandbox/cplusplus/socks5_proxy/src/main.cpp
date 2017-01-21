@@ -4,8 +4,10 @@
 #include <iostream>
 
 
-typedef boost::asio::ip::tcp::socket Socket;
+typedef boost::asio::ip::tcp::acceptor Acceptor;
+typedef boost::asio::ip::tcp::endpoint EndPoint;
 typedef boost::asio::ip::tcp::resolver Resolver;
+typedef boost::asio::ip::tcp::socket Socket;
 typedef boost::system::error_code ErrorCode;
 typedef std::vector<uint8_t> Chunk;
 
@@ -39,7 +41,7 @@ private:
         auto fn = [self](const ErrorCode & ec, Resolver::iterator it) -> void {
             self->onResolved(ec, it);
         };
-        
+
         Resolver::query q("localhost", "7000");
 
         this->resolver_.async_resolve(q, fn);
@@ -78,7 +80,7 @@ private:
         }
 
         auto self = this->shared_from_this();
-        
+
         this->doOuterRead();
         this->doInnerRead();
     }
@@ -156,7 +158,7 @@ private:
 class Server {
 public:
     Server(boost::asio::io_service & loop, unsigned short port)
-        : acceptor_(loop, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+        : acceptor_(loop, EndPoint(boost::asio::ip::tcp::v4(), port))
         , socket_(loop)
     {
     }
@@ -167,7 +169,7 @@ public:
 
 private:
     void doAccept() {
-        this->acceptor_.async_accept(this->socket_, [this](boost::system::error_code ec) -> void {
+        this->acceptor_.async_accept(this->socket_, [this](const ErrorCode & ec) -> void {
             if (!ec) {
                 std::make_shared<Session>(std::move(this->socket_))->start();
             }
@@ -176,8 +178,8 @@ private:
         });
     }
 
-    boost::asio::ip::tcp::acceptor acceptor_;
-    boost::asio::ip::tcp::socket socket_;
+    Acceptor acceptor_;
+    Socket socket_;
 };
 
 
@@ -201,4 +203,3 @@ int main(int argc, char * argv[]) {
 
     return 0;
 }
-
