@@ -56,19 +56,20 @@ private:
     void doInnerConnect(Resolver::iterator it) {
         auto self = this->shared_from_this();
         auto fn = [self, it](const ErrorCode & ec) -> void {
-            self->onInnerConnected(ec, std::next(it));
+            self->onInnerConnected(ec, it);
         };
 
-        this->inner_socket_.async_connect(*it++, fn);
+        this->inner_socket_.async_connect(*it, fn);
     }
 
     void onInnerConnected(const ErrorCode & ec, Resolver::iterator it) {
         if (ec) {
+            std::cerr << "onInnerConnected failed " << ec.message() << std::endl;
             if (Resolver::iterator() == it) {
-                std::cerr << "onInnerConnected error" << ec << std::endl;
                 return;
             }
 
+            it = std::next(it);
             this->doInnerConnect(it);
             return;
         }
