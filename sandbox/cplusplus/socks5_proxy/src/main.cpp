@@ -45,7 +45,7 @@ private:
 
     void onResolved(const ErrorCode & ec, Resolver::iterator it) {
         // TODO handle error
-        if (ec || Resolver::iterator() == it) {
+        if (ec) {
             std::cerr << "onResolved failed" << ec << std::endl;
             return;
         }
@@ -54,6 +54,10 @@ private:
     }
 
     void doInnerConnect(Resolver::iterator it) {
+        if (Resolver::iterator() == it) {
+            return;
+        }
+
         auto self = this->shared_from_this();
         auto fn = [self, it](const ErrorCode & ec) -> void {
             self->onInnerConnected(ec, it);
@@ -65,9 +69,6 @@ private:
     void onInnerConnected(const ErrorCode & ec, Resolver::iterator it) {
         if (ec) {
             std::cerr << "onInnerConnected failed " << ec.message() << std::endl;
-            if (Resolver::iterator() == it) {
-                return;
-            }
 
             it = std::next(it);
             this->doInnerConnect(it);
