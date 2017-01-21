@@ -184,7 +184,17 @@ private:
 int main(int argc, char * argv[]) {
     boost::asio::io_service loop;
 
+    boost::asio::signal_set signals(loop, SIGINT);
+
     Server server(loop, 8000);
+
+    signals.async_wait([&loop](const ErrorCode & ec, int signal_number) -> void {
+        if (ec) {
+            // TODO handle error
+        }
+        loop.stop();
+    });
+
     server.start();
 
     loop.run();
