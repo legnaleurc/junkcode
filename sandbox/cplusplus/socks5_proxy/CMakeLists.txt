@@ -5,7 +5,11 @@ project(socks5_proxy)
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Threads REQUIRED)
 
-set(SOURCES "src/main.cpp")
+set(SOURCES
+    "src/main.cpp"
+    "src/global.cpp"
+    "src/server.cpp"
+    "src/session.cpp")
 
 add_executable(socks5_proxy ${SOURCES})
 target_compile_features(socks5_proxy PRIVATE cxx_auto_type)
