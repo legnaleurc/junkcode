@@ -1,9 +1,14 @@
 #include <boost/asio.hpp>
-#include <boost/endian/conversion.hpp>
 
 #include <cassert>
 #include <csignal>
 #include <iostream>
+
+#if !defined(__APPLE__) && !defined(_WIN32)
+#include <endian.h>
+#else
+#include <boost/endian/conversion.hpp>
+#endif
 
 
 const static std::size_t CHUNK_SIZE = 8192;
@@ -19,6 +24,15 @@ typedef std::array<uint8_t, CHUNK_SIZE> Chunk;
 
 Chunk createChunk() {
     return std::move(Chunk());
+}
+
+void putBigEndian(uint8_t * dst, uint16_t native) {
+    uint16_t * view = reinterpret_cast<uint16_t *>(dst);
+#if !defined(__APPLE__) && !defined(_WIN32)
+    *view = htobe16(native);
+#else
+    *view = boost::endian::native_to_big(native);
+#endif
 }
 
 
@@ -155,6 +169,21 @@ private:
         // RSV
         buffer[2] = 0x00;
 
+        // TODO parse real header
+
+        // ATYP
+        buffer[3] = 0x03;
+
+        // DST.ADDR
+        std::string hostname = "acddl.loc.al";
+        buffer[4] = hostname.size();
+        std::copy(std::begin(hostname), std::end(hostname), std::next(std::begin(buffer), 5));
+
+        // DST.PORT
+        putBigEndian(&buffer[4 + 1 + hostname.size()], 80);
+
+        std::size_t total_length = 4 + 1 + hostname.size() + 2;
+#if 0
         auto ep = this->inner_socket_.remote_endpoint();
         auto address = ep.address();
         std::size_t total_length = 0;
@@ -187,6 +216,7 @@ private:
 
             total_length = 22;
         }
+#endif
 
         this->doInnerPhase3Write(0, total_length);
     }
