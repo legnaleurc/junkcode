@@ -8,4 +8,4 @@ set(SOURCES "src/main.cpp")
 
 add_executable(socks5_proxy ${SOURCES})
 target_compile_features(socks5_proxy PRIVATE cxx_auto_type)
-target_link_libraries(socks5_proxy Boost::system)
+target_link_libraries(socks5_proxy Boost::dynamic_linking Boost::disable_autolinking Boost::system)
