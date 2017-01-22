@@ -11,7 +11,7 @@ int main(int argc, char * argv[]) {
 
     boost::asio::signal_set signals(loop, SIGINT);
 
-    s5p::Server server(loop, 8000);
+    s5p::Server server(loop, 1080);
 
     signals.async_wait([&loop](const s5p::ErrorCode & ec, int signal_number) -> void {
         if (ec) {

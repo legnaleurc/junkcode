@@ -38,7 +38,7 @@ void Session::Private::doInnerResolve() {
         self->_->onResolved(ec, it);
     };
 
-    Resolver::query q("localhost", "1080");
+    Resolver::query q("localhost", "3128");
 
     this->resolver.async_resolve(q, fn);
 }
