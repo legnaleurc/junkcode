@@ -11,10 +11,10 @@ using s5p::Session;
 Session::Session(Socket socket)
     : _(std::make_shared<Session::Private>(std::move(socket)))
 {
-    _->self = this->shared_from_this();
 }
 
 void Session::start() {
+    _->self = this->shared_from_this();
     _->doInnerResolve();
 }
 
