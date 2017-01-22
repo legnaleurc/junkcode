@@ -126,12 +126,15 @@ private:
         auto self = this->shared_from_this();
 
         // TODO handle error
-        if (!ec) {
-            if (wrote_length < total_length) {
-                this->doInnerPhase1Write(offset + wrote_length, total_length - wrote_length);
-            } else {
-                this->doInnerPhase2();
-            }
+        if (ec) {
+            std::cerr << "onInnerPhase1Wrote " << ec.message() << std::endl;
+            return;
+        }
+
+        if (wrote_length < total_length) {
+            this->doInnerPhase1Write(offset + wrote_length, total_length - wrote_length);
+        } else {
+            this->doInnerPhase2();
         }
     }
 
@@ -146,15 +149,18 @@ private:
 
     void onInnerPhase2Read(const ErrorCode & ec, std::size_t length) {
         if (ec) {
-            assert(!"onInnerPhase2Read failed");
+            std::cerr << "onInnerPhase2Read " << ec.message() << std::endl;
+            return;
         }
 
         if (length < 2) {
-            assert(!"reread");
+            std::cerr << "onInnerPhase2Read wrong auth header length" << std::endl;
+            return;
         }
 
         if (this->outgoing_buffer_[1] != 0x00) {
-            assert(!"i dont support the authentication method");
+            std::cerr << "onInnerPhase2Read provided auth not supported" << std::endl;
+            return;
         }
 
         this->doInnerPhase3();
@@ -176,7 +182,7 @@ private:
 
         // DST.ADDR
         std::string hostname = "acddl.loc.al";
-        buffer[4] = hostname.size();
+        buffer[4] = static_cast<uint8_t>(hostname.size());
         std::copy(std::begin(hostname), std::end(hostname), std::next(std::begin(buffer), 5));
 
         // DST.PORT
@@ -234,12 +240,15 @@ private:
         auto self = this->shared_from_this();
 
         // TODO handle error
-        if (!ec) {
-            if (wrote_length < total_length) {
-                this->doInnerPhase3Write(offset + wrote_length, total_length - wrote_length);
-            } else {
-                this->doInnerPhase4();
-            }
+        if (ec) {
+            std::cerr << "onInnerPhase3Wrote " << ec.message() << std::endl;
+            return;
+        }
+
+        if (wrote_length < total_length) {
+            this->doInnerPhase3Write(offset + wrote_length, total_length - wrote_length);
+        } else {
+            this->doInnerPhase4();
         }
     }
 
@@ -254,12 +263,13 @@ private:
 
     void onInnerPhase4Read(const ErrorCode & ec, std::size_t length) {
         if (ec) {
-            std::cerr << ec.message() << std::endl;
-            assert(!"onInnerPhase4Read failed");
+            std::cerr << "onInnerPhase4Read " << ec.message() << std::endl;
+            return;
         }
 
         if (this->outgoing_buffer_[1] != 0x00) {
-            assert(!"server error");
+            std::cerr << "onInnerPhase4Read server replied error" << std::endl;
+            return;
         }
 
         switch (this->outgoing_buffer_[3]) {
@@ -270,7 +280,8 @@ private:
         case 0x04:
             break;
         default:
-            assert(!"unknown address type");
+            std::cerr << "onInnerPhase4Read unknown address type" << std::endl;
+            return;
         }
 
         this->doOuterRead();
@@ -299,12 +310,15 @@ private:
         auto self = this->shared_from_this();
 
         // TODO handle error
-        if (!ec) {
-            if (wrote_length < total_length) {
-                this->doInnerWrite(offset + wrote_length, total_length - wrote_length);
-            } else {
-                this->doOuterRead();
-            }
+        if (ec) {
+            std::cerr << "onInnerWrote " << ec.message() << std::endl;
+            return;
+        }
+
+        if (wrote_length < total_length) {
+            this->doInnerWrite(offset + wrote_length, total_length - wrote_length);
+        } else {
+            this->doOuterRead();
         }
     }
 
@@ -330,12 +344,15 @@ private:
         auto self = this->shared_from_this();
 
         // TODO handle error
-        if (!ec) {
-            if (wrote_length < total_length) {
-                this->doOuterWrite(offset + wrote_length, total_length - wrote_length);
-            } else {
-                this->doInnerRead();
-            }
+        if (ec) {
+            std::cerr << "onOuterWrote " << ec.message() << std::endl;
+            return;
+        }
+
+        if (wrote_length < total_length) {
+            this->doOuterWrite(offset + wrote_length, total_length - wrote_length);
+        } else {
+            this->doInnerRead();
         }
     }
 
