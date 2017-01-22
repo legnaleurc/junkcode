@@ -383,19 +383,30 @@ private:
 
 class Server {
 public:
-    Server(boost::asio::io_service & loop, unsigned short port)
-        : v4_acceptor_(loop, EndPoint(boost::asio::ip::tcp::v4(), port))
-        , v6_acceptor_(loop, EndPoint(boost::asio::ip::tcp::v6(), port))
+    Server(boost::asio::io_service & loop, uint16_t port)
+        : port_(port)
+        , v4_acceptor_(loop)
+        , v6_acceptor_(loop)
         , socket_(loop)
     {
     }
 
     void start() {
+        this->doV4Listen();
         this->doV4Accept();
+        this->doV6Listen();
         this->doV6Accept();
     }
 
 private:
+    void doV4Listen() {
+        EndPoint ep(boost::asio::ip::tcp::v4(), this->port_);
+        this->v4_acceptor_.open(ep.protocol());
+        this->v4_acceptor_.set_option(Acceptor::reuse_address(true));
+        this->v4_acceptor_.bind(ep);
+        this->v4_acceptor_.listen();
+    }
+
     void doV4Accept() {
         this->v4_acceptor_.async_accept(this->socket_, [this](const ErrorCode & ec) -> void {
             if (!ec) {
@@ -404,6 +415,15 @@ private:
 
             this->doV4Accept();
         });
+    }
+
+    void doV6Listen() {
+        EndPoint ep(boost::asio::ip::tcp::v6(), this->port_);
+        this->v6_acceptor_.open(ep.protocol());
+        this->v6_acceptor_.set_option(Acceptor::reuse_address(true));
+        this->v6_acceptor_.set_option(boost::asio::ip::v6_only(true));
+        this->v6_acceptor_.bind(ep);
+        this->v6_acceptor_.listen();
     }
 
     void doV6Accept() {
@@ -416,6 +436,7 @@ private:
         });
     }
 
+    uint16_t port_;
     Acceptor v4_acceptor_;
     Acceptor v6_acceptor_;
     Socket socket_;
