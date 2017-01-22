@@ -177,6 +177,7 @@ private:
 
         // TODO parse real header
 
+#if 0
         // ATYP
         buffer[3] = 0x03;
 
@@ -189,6 +190,22 @@ private:
         putBigEndian(&buffer[4 + 1 + hostname.size()], 80);
 
         std::size_t total_length = 4 + 1 + hostname.size() + 2;
+#endif
+
+        // ATYP
+        buffer[3] = 0x01;
+
+        // DST.ADDR
+        buffer[4] = 127;
+        buffer[5] = 0;
+        buffer[6] = 0;
+        buffer[7] = 1;
+
+        // DST.PORT
+        putBigEndian(&buffer[8], 1234);
+
+        std::size_t total_length = 10;
+
 #if 0
         auto ep = this->inner_socket_.remote_endpoint();
         auto address = ep.address();
