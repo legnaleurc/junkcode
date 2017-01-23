@@ -19,7 +19,6 @@ public:
 
     Options createOptions();
     OptionMap parseOptions(const Options & options) const;
-
     void onSystemSignal(const ErrorCode & ec, int signal_number);
     void setPort(uint16_t port);
     void setSocks5Host(const std::string & host);
@@ -35,6 +34,7 @@ public:
     uint16_t socks5_port;
     std::string http_host;
     uint16_t http_port;
+    AddressType http_host_type;
 };
 
 }

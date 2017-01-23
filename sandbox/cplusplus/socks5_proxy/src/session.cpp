@@ -2,6 +2,8 @@
 
 #include "global.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 #include <iostream>
 
 
@@ -41,9 +43,11 @@ void Session::Private::doInnerResolve() {
         self->_->onResolved(ec, it);
     };
 
-    Resolver::query q("localhost", "1080");
-
-    this->resolver.async_resolve(q, fn);
+    auto port = boost::lexical_cast<std::string>(Application::instance().socks5Port());
+    this->resolver.async_resolve({
+        Application::instance().socks5Host(),
+        port,
+    }, fn);
 }
 
 void Session::Private::onResolved(const ErrorCode & ec, Resolver::iterator it) {

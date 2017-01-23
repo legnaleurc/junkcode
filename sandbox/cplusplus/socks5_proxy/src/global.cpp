@@ -12,11 +12,19 @@
 #endif
 
 
+namespace s5p {
+
+typedef boost::asio::signal_set SignalHandler;
+typedef boost::asio::ip::address Address;
+
+}
+
 using s5p::Application;
 using s5p::IOLoop;
 using s5p::Options;
 using s5p::OptionMap;
 using s5p::ErrorCode;
+using s5p::AddressType;
 
 
 static Application * singleton = nullptr;
@@ -65,6 +73,9 @@ int Application::prepare() {
     if (this->httpPort() == 0) {
         sout << "missing <http_port>" << std::endl;
     }
+    if (this->httpHostType() == AddressType::UNKNOWN) {
+        sout << "unknown <http_host> type" << std::endl;
+    }
     auto errorString = sout.str();
     if (!errorString.empty()) {
         std::cerr << errorString << std::endl;
@@ -98,6 +109,10 @@ uint16_t Application::httpPort() const {
     return _->http_port;
 }
 
+AddressType Application::httpHostType() const {
+    return _->http_host_type;
+}
+
 int Application::exec() {
     namespace ph = std::placeholders;
 
@@ -117,6 +132,7 @@ Application::Private::Private(int argc, char ** argv)
     , socks5_port(0)
     , http_host()
     , http_port(0)
+    , http_host_type(AddressType::UNKNOWN)
 {
 }
 
@@ -127,7 +143,7 @@ Options Application::Private::createOptions() {
     Options od("SOCKS5 proxy");
     od.add_options()
         ("help,h", "show this message")
-        ("port,l", po::value<uint16_t>()
+        ("port,p", po::value<uint16_t>()
             ->value_name("<port>")
             ->notifier(std::bind(&Application::Private::setPort, this, ph::_1)),
             "listen to the port")
@@ -185,6 +201,18 @@ void Application::Private::setSocks5Port(uint16_t socks5_port) {
 
 void Application::Private::setHttpHost(const std::string & http_host) {
     this->http_host = http_host;
+
+    ErrorCode ec;
+    auto address = Address::from_string(http_host, ec);
+    if (ec) {
+        this->http_host_type = AddressType::FQDN;
+    } else if (address.is_v4()) {
+        this->http_host_type = AddressType::IPV4;
+    } else if (address.is_v6()) {
+        this->http_host_type = AddressType::IPV6;
+    } else {
+        this->http_host_type = AddressType::UNKNOWN;
+    }
 }
 
 void Application::Private::setHttpPort(uint16_t http_port) {
