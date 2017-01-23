@@ -14,8 +14,8 @@ int main(int argc, char * argv[]) {
     od.add_options()
         ("help,h", "show this message")
         ("listen,l", po::value<uint16_t>(), "listen to the port")
-        ("socks5-host", po::value<std::string>(), "forward to this host")
-        ("socks5-port", po::value<uint16_t>(), "forward to this port")
+        ("socks5-host", po::value<std::string>(), "SOCKS5 host")
+        ("socks5-port", po::value<uint16_t>(), "SOCKS5 port")
         ("http-host", po::value<std::string>(), "forward to this host")
         ("http-port", po::value<uint16_t>(), "forward to this port")
     ;
