@@ -14,8 +14,10 @@ int main(int argc, char * argv[]) {
     od.add_options()
         ("help,h", "show this message")
         ("listen,l", po::value<uint16_t>(), "listen to the port")
-        ("host,H", po::value<std::string>(), "forward to this host")
-        ("port,p", po::value<uint16_t>(), "forward to this port")
+        ("socks5-host", po::value<std::string>(), "forward to this host")
+        ("socks5-port", po::value<uint16_t>(), "forward to this port")
+        ("http-host", po::value<std::string>(), "forward to this host")
+        ("http-port", po::value<uint16_t>(), "forward to this port")
     ;
 
     po::variables_map vm;
@@ -28,7 +30,7 @@ int main(int argc, char * argv[]) {
     }
     po::notify(vm);
 
-    if (vm.count("help")) {
+    if (vm.empty() || vm.count("help") >= 1) {
         std::cout << od << std::endl;
         return 0;
     }
