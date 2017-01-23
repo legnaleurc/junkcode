@@ -1,7 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include <boost/asio.hpp>
+#include "global.hpp"
 
 #include <memory>
 
@@ -10,7 +10,7 @@ namespace s5p {
 
 class Server {
 public:
-    Server(boost::asio::io_service & loop, uint16_t port);
+    Server(IOLoop & loop, uint16_t port);
 
     void start();
 

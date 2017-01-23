@@ -7,6 +7,8 @@
 namespace s5p {
 
 typedef std::array<uint8_t, 8192> Chunk;
+typedef boost::asio::io_service IOLoop;
+typedef boost::asio::signal_set SignalHandler;
 typedef boost::asio::ip::tcp::acceptor Acceptor;
 typedef boost::asio::ip::tcp::endpoint EndPoint;
 typedef boost::asio::ip::tcp::resolver Resolver;

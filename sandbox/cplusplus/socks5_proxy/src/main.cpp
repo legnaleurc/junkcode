@@ -1,15 +1,13 @@
 #include "server.hpp"
 #include "global.hpp"
 
-#include <boost/asio.hpp>
-
 #include <csignal>
 
 
 int main(int argc, char * argv[]) {
-    boost::asio::io_service loop;
+    s5p::IOLoop loop;
 
-    boost::asio::signal_set signals(loop, SIGINT);
+    s5p::SignalHandler signals(loop, SIGINT);
 
     s5p::Server server(loop, 1080);
 
