@@ -25,6 +25,11 @@ public:
     int prepare();
 
     IOLoop & ioloop() const;
+    uint16_t port() const;
+    const std::string & socks5Host() const;
+    uint16_t socks5Port() const;
+    const std::string & httpHost() const;
+    uint16_t httpPort() const;
 
     int exec();
 

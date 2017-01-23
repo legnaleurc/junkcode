@@ -14,8 +14,8 @@ int main(int argc, char * argv[]) {
 
     s5p::Server server(app.ioloop());
 
-    server.listenV4(2080);
-    server.listenV6(2080);
+    server.listenV4(app.port());
+    server.listenV6(app.port());
 
     return app.exec();
 }

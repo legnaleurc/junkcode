@@ -1,6 +1,7 @@
 #include "global_p.hpp"
 
 #include <iostream>
+#include <cassert>
 
 #if !defined(__APPLE__) && !defined(_WIN32)
 #include <endian.h>
@@ -27,6 +28,7 @@ Application & Application::instance() {
 Application::Application(int argc, char ** argv)
     : _(std::make_shared<Private>(argc, argv))
 {
+    assert(!singleton || !"do not create Application again");
     singleton = this;
 }
 
@@ -52,6 +54,26 @@ IOLoop & Application::ioloop() const {
     return _->loop;
 }
 
+uint16_t Application::port() const {
+    return _->port;
+}
+
+const std::string & Application::socks5Host() const {
+    return _->socks5_host;
+}
+
+uint16_t Application::socks5Port() const {
+    return _->socks5_port;
+}
+
+const std::string & Application::httpHost() const {
+    return _->http_host;
+}
+
+uint16_t Application::httpPort() const {
+    return _->http_port;
+}
+
 int Application::exec() {
     namespace ph = std::placeholders;
 
@@ -66,6 +88,11 @@ Application::Private::Private(int argc, char ** argv)
     : loop()
     , argc(argc)
     , argv(argv)
+    , port(0)
+    , socks5_host()
+    , socks5_port(0)
+    , http_host()
+    , http_port(0)
 {
 }
 
@@ -76,7 +103,7 @@ Options Application::Private::createOptions() {
     Options od("SOCKS5 proxy");
     od.add_options()
         ("help,h", "show this message")
-        ("listen,l", po::value<uint16_t>()
+        ("port,l", po::value<uint16_t>()
             ->value_name("<port>")
             ->notifier(std::bind(&Application::Private::setPort, this, ph::_1)),
             "listen to the port")
