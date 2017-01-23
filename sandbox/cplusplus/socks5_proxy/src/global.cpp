@@ -1,7 +1,9 @@
 #include "global_p.hpp"
 
 #include <iostream>
+#include <sstream>
 #include <cassert>
+#include <csignal>
 
 #if !defined(__APPLE__) && !defined(_WIN32)
 #include <endian.h>
@@ -45,6 +47,28 @@ int Application::prepare() {
     if (args.empty() || args.count("help") >= 1) {
         std::cout << options << std::endl;
         return -1;
+    }
+
+    std::ostringstream sout;
+    if (this->port() == 0) {
+        sout << "missing <port>" << std::endl;
+    }
+    if (this->socks5Host().empty()) {
+        sout << "missing <socks5_host>" << std::endl;
+    }
+    if (this->socks5Port() == 0) {
+        sout << "missing <socks5_port>" << std::endl;
+    }
+    if (this->httpHost().empty()) {
+        sout << "missing <http_host>" << std::endl;
+    }
+    if (this->httpPort() == 0) {
+        sout << "missing <http_port>" << std::endl;
+    }
+    auto errorString = sout.str();
+    if (!errorString.empty()) {
+        std::cerr << errorString << std::endl;
+        return 1;
     }
 
     return 0;
