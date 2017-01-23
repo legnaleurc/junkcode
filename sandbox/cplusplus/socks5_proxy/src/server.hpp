@@ -10,9 +10,10 @@ namespace s5p {
 
 class Server {
 public:
-    Server(IOLoop & loop, uint16_t port);
+    explicit Server(IOLoop & loop);
 
-    void start();
+    void listenV4(uint16_t port);
+    void listenV6(uint16_t port);
 
 private:
     Server(const Server &);

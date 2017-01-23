@@ -10,7 +10,7 @@ int main(int argc, char * argv[]) {
 
     s5p::SignalHandler signals(loop, SIGINT);
 
-    s5p::Server server(loop, 2080);
+    s5p::Server server(loop);
 
     signals.async_wait([&loop](const s5p::ErrorCode & ec, int signal_number) -> void {
         if (ec) {
@@ -20,7 +20,8 @@ int main(int argc, char * argv[]) {
         loop.stop();
     });
 
-    server.start();
+    server.listenV4(2080);
+    server.listenV6(2080);
 
     loop.run();
 

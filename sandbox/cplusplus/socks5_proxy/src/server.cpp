@@ -8,28 +8,30 @@
 using s5p::Server;
 
 
-Server::Server(boost::asio::io_service & loop, uint16_t port)
-    : _(std::make_shared<Server::Private>(loop, port))
+Server::Server(boost::asio::io_service & loop)
+    : _(std::make_shared<Server::Private>(loop))
 {
 }
 
-void Server::start() {
-    _->doV4Listen();
+void Server::listenV4(uint16_t port) {
+    _->doV4Listen(port);
     _->doV4Accept();
-    _->doV6Listen();
+}
+
+void Server::listenV6(uint16_t port) {
+    _->doV6Listen(port);
     _->doV6Accept();
 }
 
-Server::Private::Private(boost::asio::io_service & loop, uint16_t port)
-    : port(port)
-    , v4_acceptor(loop)
+Server::Private::Private(boost::asio::io_service & loop)
+    : v4_acceptor(loop)
     , v6_acceptor(loop)
     , socket(loop)
 {
 }
 
-void Server::Private::doV4Listen() {
-    EndPoint ep(boost::asio::ip::tcp::v4(), this->port);
+void Server::Private::doV4Listen(uint16_t port) {
+    EndPoint ep(boost::asio::ip::tcp::v4(), port);
     this->v4_acceptor.open(ep.protocol());
     this->v4_acceptor.set_option(Acceptor::reuse_address(true));
     this->v4_acceptor.bind(ep);
@@ -48,8 +50,8 @@ void Server::Private::doV4Accept() {
     });
 }
 
-void Server::Private::doV6Listen() {
-    EndPoint ep(boost::asio::ip::tcp::v6(), this->port);
+void Server::Private::doV6Listen(uint16_t port) {
+    EndPoint ep(boost::asio::ip::tcp::v6(), port);
     this->v6_acceptor.open(ep.protocol());
     this->v6_acceptor.set_option(Acceptor::reuse_address(true));
     this->v6_acceptor.set_option(boost::asio::ip::v6_only(true));
