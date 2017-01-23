@@ -22,6 +22,8 @@ public:
 
     Application(int argc, char ** argv);
 
+    int prepare();
+
     IOLoop & ioloop() const;
 
     int exec();

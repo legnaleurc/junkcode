@@ -29,13 +29,7 @@ Application::Application(int argc, char ** argv)
     singleton = this;
 }
 
-IOLoop & Application::ioloop() const {
-    return _->loop;
-}
-
-int Application::exec() {
-    namespace ph = std::placeholders;
-
+int Application::prepare() {
     auto options = _->createOptions();
     OptionMap args;
     try {
@@ -47,8 +41,18 @@ int Application::exec() {
 
     if (args.empty() || args.count("help") >= 1) {
         std::cout << options << std::endl;
-        return 0;
+        return -1;
     }
+
+    return 0;
+}
+
+IOLoop & Application::ioloop() const {
+    return _->loop;
+}
+
+int Application::exec() {
+    namespace ph = std::placeholders;
 
     s5p::SignalHandler signals(_->loop, SIGINT, SIGTERM);
     signals.async_wait(std::bind(&Application::Private::onSystemSignal, _, ph::_1, ph::_2));
