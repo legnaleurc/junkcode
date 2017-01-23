@@ -75,11 +75,11 @@ Options Application::Private::createOptions() const {
     Options od("SOCKS5 proxy");
     od.add_options()
         ("help,h", "show this message")
-        ("listen,l", po::value<uint16_t>(), "listen to the port")
-        ("socks5-host", po::value<std::string>(), "SOCKS5 host")
-        ("socks5-port", po::value<uint16_t>(), "SOCKS5 port")
-        ("http-host", po::value<std::string>(), "forward to this host")
-        ("http-port", po::value<uint16_t>(), "forward to this port")
+        ("listen,l", po::value<uint16_t>()->value_name("<port>"), "listen to the port")
+        ("socks5-host", po::value<std::string>()->value_name("<socks5_host>"), "SOCKS5 host")
+        ("socks5-port", po::value<uint16_t>()->value_name("<socks5_port>"), "SOCKS5 port")
+        ("http-host", po::value<std::string>()->value_name("<http_host>"), "forward to this host")
+        ("http-port", po::value<uint16_t>()->value_name("<http_port>"), "forward to this port")
     ;
     return std::move(od);
 }
@@ -92,7 +92,7 @@ OptionMap Application::Private::parseOptions(const Options & options) const {
     po::store(rv, vm);
     po::notify(vm);
 
-    return vm;
+    return std::move(vm);
 }
 
 void Application::Private::onSystemSignal(const ErrorCode & ec, int signal_number) {
