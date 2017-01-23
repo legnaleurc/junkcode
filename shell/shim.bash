@@ -12,12 +12,16 @@ ne () {
 }
 
 
-firefox_run_wait () {
-    MOZ_DEBUG_CHILD_PROCESS=1 ./mach run "$@"
-}
-
 firefox_build_static () {
     MOZCONFIG=.mozconfig_static ./mach build "$@"
+}
+
+firefox_build_llvm () {
+    PATH="$HOME/local/opt/shim:$PATH" ./mach build "$@"
+}
+
+firefox_run_wait () {
+    MOZ_DEBUG_CHILD_PROCESS=1 ./mach run "$@"
 }
 
 
