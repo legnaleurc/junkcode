@@ -38,7 +38,7 @@ void Session::Private::doInnerResolve() {
         self->_->onResolved(ec, it);
     };
 
-    Resolver::query q("localhost", "3128");
+    Resolver::query q("localhost", "1080");
 
     this->resolver.async_resolve(q, fn);
 }
@@ -152,12 +152,12 @@ void Session::Private::doInnerPhase3() {
 
     // TODO parse real header
 
-#if 0
+// #if 0
     // ATYP
     buffer[3] = 0x03;
 
     // DST.ADDR
-    std::string hostname = "acddl.loc.al";
+    std::string hostname = "www.example.org";
     buffer[4] = static_cast<uint8_t>(hostname.size());
     std::copy(std::begin(hostname), std::end(hostname), std::next(std::begin(buffer), 5));
 
@@ -165,8 +165,9 @@ void Session::Private::doInnerPhase3() {
     putBigEndian(&buffer[4 + 1 + hostname.size()], 80);
 
     std::size_t total_length = 4 + 1 + hostname.size() + 2;
-#endif
+// #endif
 
+#if 0
     // ATYP
     buffer[3] = 0x01;
 
@@ -180,6 +181,7 @@ void Session::Private::doInnerPhase3() {
     putBigEndian(&buffer[8], 1234);
 
     std::size_t total_length = 10;
+#endif
 
 #if 0
     auto ep = this->inner_socket_.remote_endpoint();
