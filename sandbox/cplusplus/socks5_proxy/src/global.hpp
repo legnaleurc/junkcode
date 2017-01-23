@@ -8,6 +8,8 @@ namespace s5p {
 
 typedef std::array<uint8_t, 8192> Chunk;
 typedef boost::asio::io_service IOLoop;
+typedef boost::asio::ip::address_v4 AddressV4;
+typedef boost::asio::ip::address_v6 AddressV6;
 typedef boost::asio::ip::tcp::acceptor Acceptor;
 typedef boost::asio::ip::tcp::endpoint EndPoint;
 typedef boost::asio::ip::tcp::resolver Resolver;
@@ -35,7 +37,9 @@ public:
     uint16_t port() const;
     const std::string & socks5Host() const;
     uint16_t socks5Port() const;
-    const std::string & httpHost() const;
+    const AddressV4 & httpHostAsIpv4() const;
+    const AddressV6 & httpHostAsIpv6() const;
+    const std::string & httpHostAsFqdn() const;
     uint16_t httpPort() const;
     AddressType httpHostType() const;
 

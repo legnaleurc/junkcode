@@ -32,9 +32,11 @@ public:
     uint16_t port;
     std::string socks5_host;
     uint16_t socks5_port;
-    std::string http_host;
     uint16_t http_port;
     AddressType http_host_type;
+    AddressV4 http_host_ipv4;
+    AddressV6 http_host_ipv6;
+    std::string http_host_fqdn;
 };
 
 }

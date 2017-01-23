@@ -34,6 +34,9 @@ public:
     void doInnerRead();
     void doOuterWrite(std::size_t offset, std::size_t length);
     void onOuterWrote(const ErrorCode & ec, std::size_t offset, std::size_t total_length, std::size_t wrote_length);
+    std::size_t fillIpv4(Chunk & buffer, std::size_t offset);
+    std::size_t fillIpv6(Chunk & buffer, std::size_t offset);
+    std::size_t fillFqdn(Chunk & buffer, std::size_t offset);
 
     std::weak_ptr<Session> self;
     Socket outer_socket;

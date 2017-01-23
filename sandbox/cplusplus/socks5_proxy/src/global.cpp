@@ -25,6 +25,8 @@ using s5p::Options;
 using s5p::OptionMap;
 using s5p::ErrorCode;
 using s5p::AddressType;
+using s5p::AddressV4;
+using s5p::AddressV6;
 
 
 static Application * singleton = nullptr;
@@ -67,14 +69,11 @@ int Application::prepare() {
     if (this->socks5Port() == 0) {
         sout << "missing <socks5_port>" << std::endl;
     }
-    if (this->httpHost().empty()) {
-        sout << "missing <http_host>" << std::endl;
-    }
     if (this->httpPort() == 0) {
         sout << "missing <http_port>" << std::endl;
     }
     if (this->httpHostType() == AddressType::UNKNOWN) {
-        sout << "unknown <http_host> type" << std::endl;
+        sout << "invalid <http_host>" << std::endl;
     }
     auto errorString = sout.str();
     if (!errorString.empty()) {
@@ -101,16 +100,24 @@ uint16_t Application::socks5Port() const {
     return _->socks5_port;
 }
 
-const std::string & Application::httpHost() const {
-    return _->http_host;
-}
-
 uint16_t Application::httpPort() const {
     return _->http_port;
 }
 
 AddressType Application::httpHostType() const {
     return _->http_host_type;
+}
+
+const AddressV4 & Application::httpHostAsIpv4() const {
+    return _->http_host_ipv4;
+}
+
+const AddressV6 & Application::httpHostAsIpv6() const {
+    return _->http_host_ipv6;
+}
+
+const std::string & Application::httpHostAsFqdn() const {
+    return _->http_host_fqdn;
 }
 
 int Application::exec() {
@@ -130,9 +137,9 @@ Application::Private::Private(int argc, char ** argv)
     , port(0)
     , socks5_host()
     , socks5_port(0)
-    , http_host()
     , http_port(0)
     , http_host_type(AddressType::UNKNOWN)
+    , http_host_fqdn()
 {
 }
 
@@ -200,16 +207,17 @@ void Application::Private::setSocks5Port(uint16_t socks5_port) {
 }
 
 void Application::Private::setHttpHost(const std::string & http_host) {
-    this->http_host = http_host;
-
     ErrorCode ec;
     auto address = Address::from_string(http_host, ec);
     if (ec) {
         this->http_host_type = AddressType::FQDN;
+        this->http_host_fqdn = http_host;
     } else if (address.is_v4()) {
         this->http_host_type = AddressType::IPV4;
+        this->http_host_ipv4 = address.to_v4();
     } else if (address.is_v6()) {
         this->http_host_type = AddressType::IPV6;
+        this->http_host_ipv6 = address.to_v6();
     } else {
         this->http_host_type = AddressType::UNKNOWN;
     }

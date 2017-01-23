@@ -11,6 +11,7 @@ using s5p::Session;
 using s5p::Socket;
 using s5p::Resolver;
 using s5p::ErrorCode;
+using s5p::Chunk;
 
 
 Session::Session(Socket socket)
@@ -157,74 +158,26 @@ void Session::Private::doInnerPhase3() {
     // RSV
     buffer[2] = 0x00;
 
-    // TODO parse real header
-
-// #if 0
-    // ATYP
-    buffer[3] = 0x03;
-
-    // DST.ADDR
-    std::string hostname = "www.example.org";
-    buffer[4] = static_cast<uint8_t>(hostname.size());
-    std::copy(std::begin(hostname), std::end(hostname), std::next(std::begin(buffer), 5));
-
-    // DST.PORT
-    putBigEndian(&buffer[4 + 1 + hostname.size()], 80);
-
-    std::size_t total_length = 4 + 1 + hostname.size() + 2;
-// #endif
-
-#if 0
-    // ATYP
-    buffer[3] = 0x01;
-
-    // DST.ADDR
-    buffer[4] = 127;
-    buffer[5] = 0;
-    buffer[6] = 0;
-    buffer[7] = 1;
-
-    // DST.PORT
-    putBigEndian(&buffer[8], 1234);
-
-    std::size_t total_length = 10;
-#endif
-
-#if 0
-    auto ep = this->inner_socket_.remote_endpoint();
-    auto address = ep.address();
-    std::size_t total_length = 0;
-    if (address.is_v4()) {
-        // ATYP
-        buffer[3] = 0x01;
-
-        auto bytes = address.to_v4().to_bytes();
-
-        // DST.ADDR
-        std::copy_n(std::begin(bytes), bytes.size(), std::next(std::begin(buffer), 4));
-
-        // DST.PORT
-        uint16_t * port = reinterpret_cast<uint16_t *>(&buffer[8]);
-        *port = boost::endian::native_to_big(ep.port());
-
-        total_length = 10;
-    } else {
-        // ATYP
-        buffer[3] = 0x04;
-
-        auto bytes = address.to_v6().to_bytes();
-
-        // DST.ADDR
-        std::copy_n(std::begin(bytes), bytes.size(), std::next(std::begin(buffer), 4));
-
-        // DST.PORT
-        uint16_t * port = reinterpret_cast<uint16_t *>(&buffer[20]);
-        *port = boost::endian::native_to_big(ep.port());
-
-        total_length = 22;
+    std::size_t used_byte = 0;
+    switch (Application::instance().httpHostType()) {
+    case AddressType::IPV4:
+        used_byte = this->fillIpv4(buffer, 3);
+        break;
+    case AddressType::IPV6:
+        used_byte = this->fillIpv6(buffer, 3);
+        break;
+    case AddressType::FQDN:
+        used_byte = this->fillFqdn(buffer, 3);
+        break;
+    default:
+        std::cerr << "unknown target http address" << std::endl;
+        return;
     }
-#endif
 
+    // DST.PORT
+    putBigEndian(&buffer[3 + used_byte], Application::instance().httpPort());
+
+    std::size_t total_length = 3 + used_byte + 2;
     this->doInnerPhase3Write(0, total_length);
 }
 
@@ -349,4 +302,38 @@ void Session::Private::onOuterWrote(const ErrorCode & ec, std::size_t offset, st
     } else {
         this->doInnerRead();
     }
+}
+
+std::size_t Session::Private::fillIpv4(Chunk & buffer, std::size_t offset) {
+    // ATYP
+    buffer[offset++] = 0x01;
+
+    // DST.ADDR
+    auto bytes = Application::instance().httpHostAsIpv4().to_bytes();
+    std::copy_n(std::begin(bytes), bytes.size(), std::next(std::begin(buffer), offset));
+
+    return 1 + bytes.size();
+}
+
+std::size_t Session::Private::fillIpv6(Chunk & buffer, std::size_t offset) {
+    // ATYP
+    buffer[offset++] = 0x04;
+
+    // DST.ADDR
+    auto bytes = Application::instance().httpHostAsIpv6().to_bytes();
+    std::copy_n(std::begin(bytes), bytes.size(), std::next(std::begin(buffer), offset));
+
+    return 1 + bytes.size();
+}
+
+std::size_t Session::Private::fillFqdn(Chunk & buffer, std::size_t offset) {
+    // ATYP
+    buffer[offset++] = 0x03;
+
+    // DST.ADDR
+    const std::string & hostname = Application::instance().httpHostAsFqdn();
+    buffer[offset++] = static_cast<uint8_t>(hostname.size());
+    std::copy(std::begin(hostname), std::end(hostname), std::next(std::begin(buffer), offset));
+
+    return 1 + 1 + hostname.size();
 }
