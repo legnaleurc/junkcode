@@ -16,6 +16,27 @@ typedef boost::asio::ip::tcp::socket Socket;
 typedef boost::system::error_code ErrorCode;
 
 
+class Application {
+public:
+    static Application & instance();
+
+    Application(int argc, char ** argv);
+
+    IOLoop & ioloop() const;
+
+    int exec();
+
+private:
+    Application(const Application &);
+    Application & operator = (const Application &);
+    Application(Application &&);
+    Application & operator = (Application &&);
+
+    class Private;
+    std::shared_ptr<Private> _;
+};
+
+
 Chunk createChunk();
 void putBigEndian(uint8_t * dst, uint16_t native);
 
