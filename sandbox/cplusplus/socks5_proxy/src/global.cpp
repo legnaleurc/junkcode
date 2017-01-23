@@ -69,17 +69,33 @@ Application::Private::Private(int argc, char ** argv)
 {
 }
 
-Options Application::Private::createOptions() const {
+Options Application::Private::createOptions() {
+    namespace ph = std::placeholders;
     namespace po = boost::program_options;
 
     Options od("SOCKS5 proxy");
     od.add_options()
         ("help,h", "show this message")
-        ("listen,l", po::value<uint16_t>()->value_name("<port>"), "listen to the port")
-        ("socks5-host", po::value<std::string>()->value_name("<socks5_host>"), "SOCKS5 host")
-        ("socks5-port", po::value<uint16_t>()->value_name("<socks5_port>"), "SOCKS5 port")
-        ("http-host", po::value<std::string>()->value_name("<http_host>"), "forward to this host")
-        ("http-port", po::value<uint16_t>()->value_name("<http_port>"), "forward to this port")
+        ("listen,l", po::value<uint16_t>()
+            ->value_name("<port>")
+            ->notifier(std::bind(&Application::Private::setPort, this, ph::_1)),
+            "listen to the port")
+        ("socks5-host", po::value<std::string>()
+            ->value_name("<socks5_host>")
+            ->notifier(std::bind(&Application::Private::setSocks5Host, this, ph::_1))
+            , "SOCKS5 host")
+        ("socks5-port", po::value<uint16_t>()
+            ->value_name("<socks5_port>")
+            ->notifier(std::bind(&Application::Private::setSocks5Port, this, ph::_1))
+            , "SOCKS5 port")
+        ("http-host", po::value<std::string>()
+            ->value_name("<http_host>")
+            ->notifier(std::bind(&Application::Private::setHttpHost, this, ph::_1))
+            , "forward to this host")
+        ("http-port", po::value<uint16_t>()
+            ->value_name("<http_port>")
+            ->notifier(std::bind(&Application::Private::setHttpPort, this, ph::_1))
+            , "forward to this port")
     ;
     return std::move(od);
 }
@@ -102,6 +118,26 @@ void Application::Private::onSystemSignal(const ErrorCode & ec, int signal_numbe
     }
     std::cout << "received " << signal_number << std::endl;
     this->loop.stop();
+}
+
+void Application::Private::setPort(uint16_t port) {
+    this->port = port;
+}
+
+void Application::Private::setSocks5Host(const std::string & socks5_host) {
+    this->socks5_host = socks5_host;
+}
+
+void Application::Private::setSocks5Port(uint16_t socks5_port) {
+    this->socks5_port = socks5_port;
+}
+
+void Application::Private::setHttpHost(const std::string & http_host) {
+    this->http_host = http_host;
+}
+
+void Application::Private::setHttpPort(uint16_t http_port) {
+    this->http_port = http_port;
 }
 
 
