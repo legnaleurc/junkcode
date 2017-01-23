@@ -13,6 +13,7 @@ using s5p::Application;
 using s5p::IOLoop;
 using s5p::Options;
 using s5p::OptionMap;
+using s5p::ErrorCode;
 
 
 static Application * singleton = nullptr;

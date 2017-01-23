@@ -6,6 +6,9 @@
 
 
 using s5p::Session;
+using s5p::Socket;
+using s5p::Resolver;
+using s5p::ErrorCode;
 
 
 Session::Session(Socket socket)
