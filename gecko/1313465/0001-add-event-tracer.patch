@@ -1,0 +1,370 @@
+From 1bb7886e1bd3d7aa31f5c86e4ab5b74dcd1229e9 Mon Sep 17 00:00:00 2001
+From: Wei-Cheng Pan <wpan@mozilla.com>
+Date: Tue, 24 Jan 2017 17:47:35 +0800
+Subject: [PATCH 1/2] add event tracer
+
+---
+ build/moz.configure/old.configure               |  1 +
+ dom/events/EventDispatcher.cpp                  |  8 ++++
+ dom/events/EventStateManager.cpp                |  3 ++
+ dom/events/MouseEvent.cpp                       |  4 ++
+ dom/events/UIEvent.cpp                          |  3 ++
+ dom/events/UIEvent.h                            |  7 ++++
+ old-configure.in                                | 12 ++++++
+ tools/profiler/eventtracer/GeckoEventTracer.cpp | 56 +++++++++++++++++++++++++
+ tools/profiler/eventtracer/GeckoEventTracer.h   | 32 ++++++++++++++
+ tools/profiler/moz.build                        | 12 +++++-
+ widget/BasicEvents.h                            | 20 +++++++++
+ widget/nsGUIEventIPC.h                          | 10 ++++-
+ 12 files changed, 165 insertions(+), 3 deletions(-)
+ create mode 100644 tools/profiler/eventtracer/GeckoEventTracer.cpp
+ create mode 100644 tools/profiler/eventtracer/GeckoEventTracer.h
+
+diff --git a/build/moz.configure/old.configure b/build/moz.configure/old.configure
+index cd6c37cf4c7c..6b1b4caf4e60 100644
+--- a/build/moz.configure/old.configure
++++ b/build/moz.configure/old.configure
+@@ -229,6 +229,7 @@ def old_configure_options(*options):
+     '--enable-system-pixman',
+     '--enable-system-sqlite',
+     '--enable-tasktracer',
++    '--enable-eventtracer',
+     '--enable-thread-sanitizer',
+     '--enable-trace-logging',
+     '--enable-ui-locale',
+diff --git a/dom/events/EventDispatcher.cpp b/dom/events/EventDispatcher.cpp
+index 35d7db3e3500..4a468681be84 100644
+--- a/dom/events/EventDispatcher.cpp
++++ b/dom/events/EventDispatcher.cpp
+@@ -67,6 +67,10 @@
+ using namespace mozilla::tasktracer;
+ #endif
+ 
++#ifdef MOZ_EVENT_TRACER
++#include "GeckoEventTracer.h"
++#endif
++
+ namespace mozilla {
+ 
+ using namespace dom;
+@@ -626,6 +630,10 @@ EventDispatcher::Dispatch(nsISupports* aTarget,
+   }
+ #endif
+ 
++#ifdef MOZ_EVENT_TRACER
++    mozilla::eventtracer::LogEvent(*aEvent);
++#endif
++
+   nsCOMPtr<EventTarget> target = do_QueryInterface(aTarget);
+ 
+   bool retargeted = false;
+diff --git a/dom/events/EventStateManager.cpp b/dom/events/EventStateManager.cpp
+index 0c42568696c5..9adda780a9f5 100644
+--- a/dom/events/EventStateManager.cpp
++++ b/dom/events/EventStateManager.cpp
+@@ -4641,6 +4641,9 @@ EventStateManager::InitAndDispatchClickEvent(WidgetMouseEvent* aEvent,
+   event.button = aEvent->button;
+   event.pointerId = aEvent->pointerId;
+   event.inputSource = aEvent->inputSource;
++#ifdef MOZ_EVENT_TRACER
++  event.mEventTracerId = event.mEventTracerId;
++#endif
+ 
+   return aPresShell->HandleEventWithTarget(&event, aCurrentTarget,
+                                            aMouseTarget, aStatus);
+diff --git a/dom/events/MouseEvent.cpp b/dom/events/MouseEvent.cpp
+index 0a2871daf9d4..23e738963836 100644
+--- a/dom/events/MouseEvent.cpp
++++ b/dom/events/MouseEvent.cpp
+@@ -41,6 +41,10 @@ MouseEvent::MouseEvent(EventTarget* aOwner,
+                "Don't dispatch DOM events from synthesized mouse events");
+     mDetail = mouseEvent->mClickCount;
+   }
++
++#ifdef MOZ_EVENT_TRACER
++  mEventTracerId = mouseEvent->mEventTracerId;
++#endif
+ }
+ 
+ NS_IMPL_ADDREF_INHERITED(MouseEvent, UIEvent)
+diff --git a/dom/events/UIEvent.cpp b/dom/events/UIEvent.cpp
+index 561bf4a264d2..0807fd432bae 100644
+--- a/dom/events/UIEvent.cpp
++++ b/dom/events/UIEvent.cpp
+@@ -36,6 +36,9 @@ UIEvent::UIEvent(EventTarget* aOwner,
+   , mMovementPoint(0, 0)
+   , mIsPointerLocked(EventStateManager::sIsPointerLocked)
+   , mLastClientPoint(EventStateManager::sLastClientPoint)
++#ifdef MOZ_EVENT_TRACER
++  , mEventTracerId(mozilla::eventtracer::InvalidID())
++#endif
+ {
+   if (aEvent) {
+     mEventIsInternal = false;
+diff --git a/dom/events/UIEvent.h b/dom/events/UIEvent.h
+index 3ec960109db5..7731b92938d0 100644
+--- a/dom/events/UIEvent.h
++++ b/dom/events/UIEvent.h
+@@ -15,6 +15,10 @@
+ #include "nsLayoutUtils.h"
+ #include "nsPresContext.h"
+ 
++#ifdef MOZ_EVENT_TRACER
++#include "GeckoEventTracer.h"
++#endif
++
+ class nsINode;
+ 
+ namespace mozilla {
+@@ -111,6 +115,9 @@ protected:
+   nsIntPoint mMovementPoint;
+   bool mIsPointerLocked;
+   CSSIntPoint mLastClientPoint;
++#ifdef MOZ_EVENT_TRACER
++  mozilla::eventtracer::EventID mEventTracerId;
++#endif
+ 
+   static Modifiers ComputeModifierState(const nsAString& aModifiersList);
+   bool GetModifierStateInternal(const nsAString& aKey);
+diff --git a/old-configure.in b/old-configure.in
+index e09ae8630ac4..a8de58d71450 100644
+--- a/old-configure.in
++++ b/old-configure.in
+@@ -4448,6 +4448,18 @@ if test -n "$MOZ_TASK_TRACER"; then
+ fi
+ 
+ dnl ========================================================
++dnl = Enable EventTracer
++dnl ========================================================
++MOZ_ARG_ENABLE_BOOL(eventtracer,
++[  --enable-eventtracer       Set compile flags necessary for using EventTracer],
++    MOZ_EVENT_TRACER=1,
++    MOZ_EVENT_TRACER= )
++if test -n "$MOZ_EVENT_TRACER"; then
++    AC_DEFINE(MOZ_EVENT_TRACER)
++    AC_SUBST(MOZ_EVENT_TRACER)
++fi
++
++dnl ========================================================
+ dnl Turn on reflow counting
+ dnl ========================================================
+ MOZ_ARG_ENABLE_BOOL(reflow-perf,
+diff --git a/tools/profiler/eventtracer/GeckoEventTracer.cpp b/tools/profiler/eventtracer/GeckoEventTracer.cpp
+new file mode 100644
+index 000000000000..981dc5669fd1
+--- /dev/null
++++ b/tools/profiler/eventtracer/GeckoEventTracer.cpp
+@@ -0,0 +1,56 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* vim:set ts=2 sw=2 sts=2 et cindent: */
++/* This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
++
++#include "GeckoEventTracer.h"
++#include "mozilla/BasicEvents.h"
++
++#include <unistd.h>
++
++namespace mozilla {
++namespace eventtracer {
++
++class GeckoEventTracer {
++  GeckoEventTracer()
++  {
++    ;
++  }
++};
++
++
++static EventID sInternalUniqueID = 0;
++
++
++EventID NextUniqueID()
++{
++  uint64_t pid = static_cast<uint64_t>(getpid());
++  return (pid << 32) | sInternalUniqueID++;
++}
++
++EventID InvalidID()
++{
++  return 0x5a5a5a5a5a5a5a5aUL;
++}
++
++void LogEvent(const WidgetEvent& aEvent)
++{
++  const auto inputEvent = aEvent.AsInputEvent();
++  if (!inputEvent) {
++    return;
++  }
++  if (!inputEvent->mTimeStamp) {
++    return;
++  }
++
++  int pid = getpid();
++  EventID eid = inputEvent->mEventTracerId;
++  auto ec = inputEvent->mClass;
++  auto now = mozilla::TimeStamp::Now();
++  auto d = now - inputEvent->mTimeStamp;
++  printf("pid: %d, eid: %016lx, type: %02x, time_to_dispatch: %lf\n", pid, eid, ec, d.ToMicroseconds());
++}
++
++} // eventtracer
++} // mozilla
+diff --git a/tools/profiler/eventtracer/GeckoEventTracer.h b/tools/profiler/eventtracer/GeckoEventTracer.h
+new file mode 100644
+index 000000000000..3c0ae02f79be
+--- /dev/null
++++ b/tools/profiler/eventtracer/GeckoEventTracer.h
+@@ -0,0 +1,32 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* vim:set ts=2 sw=2 sts=2 et cindent: */
++/* This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
++
++#ifndef GECKO_EVENT_TRACER_H
++#define GECKO_EVENT_TRACER_H
++
++
++namespace mozilla {
++
++class WidgetInputEvent;
++
++namespace eventtracer {
++
++
++typedef uint64_t EventID;
++
++void InitializeEventTracer();
++void ShutdownEventTracer();
++
++EventID NextUniqueID();
++EventID InvalidID();
++
++void LogEvent(const WidgetEvent& aEvent);
++
++} // namespace eventtracer
++} // namespace mozilla
++
++
++#endif
+diff --git a/tools/profiler/moz.build b/tools/profiler/moz.build
+index 4c04d374d047..e783bf73230a 100644
+--- a/tools/profiler/moz.build
++++ b/tools/profiler/moz.build
+@@ -138,6 +138,14 @@ if CONFIG['MOZ_TASK_TRACER']:
+         'tasktracer/TracedTaskCommon.cpp',
+     ]
+ 
++if CONFIG['MOZ_EVENT_TRACER']:
++    EXPORTS += [
++        'eventtracer/GeckoEventTracer.h',
++    ]
++    UNIFIED_SOURCES += [
++        'eventtracer/GeckoEventTracer.cpp',
++    ]
++
+ XPCSHELL_TESTS_MANIFESTS += ['tests/xpcshell.ini']
+ 
+ if CONFIG['GNU_CXX']:
+@@ -146,5 +154,5 @@ if CONFIG['GNU_CXX']:
+         '-Wno-ignored-qualifiers', # due to use of breakpad headers
+     ]
+ 
+-with Files('**'):
+-    BUG_COMPONENT = ('Core', 'Gecko Profiler')
++with Files('**'):
++    BUG_COMPONENT = ('Core', 'Gecko Profiler')
+diff --git a/widget/BasicEvents.h b/widget/BasicEvents.h
+index 7007ff04092a..921200829906 100644
+--- a/widget/BasicEvents.h
++++ b/widget/BasicEvents.h
+@@ -18,6 +18,10 @@
+ #include "nsString.h"
+ #include "Units.h"
+ 
++#ifdef MOZ_EVENT_TRACER
++#include "GeckoEventTracer.h"
++#endif
++
+ namespace IPC {
+ template<typename T>
+ struct ParamTraits;
+@@ -980,11 +984,17 @@ protected:
+                    EventClassID aEventClassID)
+     : WidgetGUIEvent(aIsTrusted, aMessage, aWidget, aEventClassID)
+     , mModifiers(0)
++#ifdef MOZ_EVENT_TRACER
++    , mEventTracerId(mozilla::eventtracer::NextUniqueID())
++#endif
+   {
+   }
+ 
+   WidgetInputEvent()
+     : mModifiers(0)
++#ifdef MOZ_EVENT_TRACER
++    , mEventTracerId(mozilla::eventtracer::NextUniqueID())
++#endif
+   {
+   }
+ 
+@@ -994,6 +1004,9 @@ public:
+   WidgetInputEvent(bool aIsTrusted, EventMessage aMessage, nsIWidget* aWidget)
+     : WidgetGUIEvent(aIsTrusted, aMessage, aWidget, eInputEventClass)
+     , mModifiers(0)
++#ifdef MOZ_EVENT_TRACER
++    , mEventTracerId(mozilla::eventtracer::NextUniqueID())
++#endif
+   {
+   }
+ 
+@@ -1122,11 +1135,18 @@ public:
+ 
+   Modifiers mModifiers;
+ 
++#ifdef MOZ_EVENT_TRACER
++  mozilla::eventtracer::EventID mEventTracerId;
++#endif
++
+   void AssignInputEventData(const WidgetInputEvent& aEvent, bool aCopyTargets)
+   {
+     AssignGUIEventData(aEvent, aCopyTargets);
+ 
+     mModifiers = aEvent.mModifiers;
++#ifdef MOZ_EVENT_TRACER
++    mEventTracerId = aEvent.mEventTracerId;
++#endif
+   }
+ };
+ 
+diff --git a/widget/nsGUIEventIPC.h b/widget/nsGUIEventIPC.h
+index c4d3fd5f3f02..55b483ff555e 100644
+--- a/widget/nsGUIEventIPC.h
++++ b/widget/nsGUIEventIPC.h
+@@ -127,13 +127,21 @@ struct ParamTraits<mozilla::WidgetInputEvent>
+   {
+     WriteParam(aMsg, static_cast<mozilla::WidgetGUIEvent>(aParam));
+     WriteParam(aMsg, aParam.mModifiers);
++#ifdef MOZ_EVENT_TRACER
++    WriteParam(aMsg, aParam.mEventTracerId);
++#endif
+   }
+ 
+   static bool Read(const Message* aMsg, PickleIterator* aIter, paramType* aResult)
+   {
+     return ReadParam(aMsg, aIter,
+                      static_cast<mozilla::WidgetGUIEvent*>(aResult)) &&
+-           ReadParam(aMsg, aIter, &aResult->mModifiers);
++           ReadParam(aMsg, aIter, &aResult->mModifiers)
++#ifdef MOZ_EVENT_TRACER
++           &&
++           ReadParam(aMsg, aIter, &aResult->mEventTracerId)
++#endif
++           ;
+   }
+ };
+ 
+-- 
+2.11.0
+

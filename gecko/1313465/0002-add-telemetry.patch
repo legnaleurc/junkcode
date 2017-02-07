@@ -1,0 +1,52 @@
+From 3c0e528a2bc8aba9044d97cebca9488de9a7eeb2 Mon Sep 17 00:00:00 2001
+From: Wei-Cheng Pan <wpan@mozilla.com>
+Date: Tue, 7 Feb 2017 11:27:28 +0800
+Subject: [PATCH 2/2] add telemetry
+
+---
+ toolkit/components/telemetry/Histograms.json    | 9 +++++++++
+ tools/profiler/eventtracer/GeckoEventTracer.cpp | 2 ++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/toolkit/components/telemetry/Histograms.json b/toolkit/components/telemetry/Histograms.json
+index e9af4a6c887f..88c9f42f3dd3 100644
+--- a/toolkit/components/telemetry/Histograms.json
++++ b/toolkit/components/telemetry/Histograms.json
+@@ -10756,5 +10756,14 @@
+     "bug_numbers": [1307689],
+     "description": "Records a value each time a tab that is showing the loading throbber is interrupted. Desktop only.",
+     "labels": ["stop", "back", "forward", "historyNavigation", "reload", "tabClosed", "newURI"]
++  },
++  "INPUT_EVENT_RESPONSE_MS": {
++    "alert_emails": ["wpan@mozilla.com"],
++    "expires_in_version": "never",
++    "kind": "exponential",
++    "high": 10000,
++    "n_buckets": 100,
++    "bug_numbers": [1313465],
++    "description": "Input event latency."
+   }
+ }
+diff --git a/tools/profiler/eventtracer/GeckoEventTracer.cpp b/tools/profiler/eventtracer/GeckoEventTracer.cpp
+index 981dc5669fd1..88fd4790f23b 100644
+--- a/tools/profiler/eventtracer/GeckoEventTracer.cpp
++++ b/tools/profiler/eventtracer/GeckoEventTracer.cpp
+@@ -6,6 +6,7 @@
+ 
+ #include "GeckoEventTracer.h"
+ #include "mozilla/BasicEvents.h"
++#include "mozilla/Telemetry.h"
+ 
+ #include <unistd.h>
+ 
+@@ -50,6 +51,7 @@ void LogEvent(const WidgetEvent& aEvent)
+   auto now = mozilla::TimeStamp::Now();
+   auto d = now - inputEvent->mTimeStamp;
+   printf("pid: %d, eid: %016lx, type: %02x, time_to_dispatch: %lf\n", pid, eid, ec, d.ToMicroseconds());
++  mozilla::Telemetry::AccumulateTimeDelta(mozilla::Telemetry::INPUT_EVENT_RESPONSE_MS, inputEvent->mTimeStamp);
+ }
+ 
+ } // eventtracer
+-- 
+2.11.0
+
