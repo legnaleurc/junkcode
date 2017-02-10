@@ -5,10 +5,10 @@ all: release
 release: pycpp.so
 
 pycpp.so: pycpp.o Base.o Derived.o
-	$(CXX) -shared -lboost_python -o $@ $+
+	$(CXX) -shared $$(python3-config --libs) -lboost_python-py35 -o $@ $+
 
 pycpp.o: pycpp.cpp
-	$(CXX) `pkg-config --cflags python-2.7` -fPIC -pipe -O3 -c $+ -o $@
+	$(CXX) $$(python3-config --includes) -fPIC -pipe -O3 -c $+ -o $@
 
 Base.o: Base.cpp
 	$(CXX) -fPIC -pipe -O3 -c $+ -o $@
