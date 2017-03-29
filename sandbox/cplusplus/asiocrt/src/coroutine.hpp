@@ -8,18 +8,36 @@
 namespace crt {
 
 struct YieldContext {
-    typedef boost::coroutines2::coroutine<void>::push_type CalleeType;
-    typedef boost::coroutines2::coroutine<void>::pull_type CallerType;
+    typedef boost::coroutines2::coroutine<boost::asio::ip::tcp::resolver::iterator>::push_type CalleeType;
+    typedef boost::coroutines2::coroutine<boost::asio::ip::tcp::resolver::iterator>::pull_type CallerType;
+
+    YieldContext() {}
+
+    std::shared_ptr<CalleeType> callee;
+    std::shared_ptr<CallerType> caller;
 };
 
 void spawn(boost::asio::io_service & loop, std::function<void (YieldContext)> fn);
 
-template<typename T>
+template<typename ReturnType>
 class CoroutineHandler {
 public:
-    explicit CoroutineHandler (crt::YieldContext &);
+    explicit CoroutineHandler (crt::YieldContext & yield)
+        : yield(yield)
+    {}
 
-    void operator () (boost::system::error_code, boost::asio::ip::tcp::resolver::iterator);
+    void operator () (boost::system::error_code ec, ReturnType rv) {
+        auto & callee = *yield.callee;
+        callee(rv);
+    }
+
+    ReturnType get() const {
+        auto & caller = *yield.caller;
+        return caller().get();
+    }
+
+private:
+    crt::YieldContext & yield;
 };
 
 }
@@ -37,9 +55,16 @@ class async_result<crt::CoroutineHandler<ReturnType>> {
 public:
     typedef ReturnType type;
 
-    async_result(crt::CoroutineHandler<ReturnType> & handler);
+    async_result(crt::CoroutineHandler<ReturnType> & handler)
+        : h_(handler)
+    {}
 
-    type get();
+    type get() {
+        return h_.get();
+    }
+
+private:
+    crt::CoroutineHandler<ReturnType> & h_;
 };
 
 }
