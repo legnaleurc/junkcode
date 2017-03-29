@@ -3,10 +3,14 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/coroutine2/coroutine.hpp>
 
 namespace crt {
 
-class YieldContext {};
+struct YieldContext {
+    typedef boost::coroutines2::coroutine<void>::push_type CalleeType;
+    typedef boost::coroutines2::coroutine<void>::pull_type CallerType;
+};
 
 void spawn(boost::asio::io_service & loop, std::function<void (YieldContext)> fn);
 
