@@ -6,10 +6,9 @@
 
 namespace crt {
 
-template<typename Function>
-void spawn(boost::asio::io_service & loop, Function fn);
-
 class YieldContext {};
+
+void spawn(boost::asio::io_service & loop, std::function<void (YieldContext)> fn);
 
 template<typename T>
 class CoroutineHandler {
