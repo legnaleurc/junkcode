@@ -10,7 +10,7 @@ int main(int argc, char * argv[]) {
         boost::asio::ip::tcp::resolver resolver(loop);
         auto it = resolver.async_resolve({
             "www.google.com",
-            80,
+            "80",
         }, yield);
     });
 
