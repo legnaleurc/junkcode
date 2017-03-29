@@ -5,7 +5,7 @@ project(asiocrt)
 find_package(Boost REQUIRED COMPONENTS system coroutine)
 find_package(Threads REQUIRED)
 
-set(SOURCES "src/main.cpp")
+set(SOURCES "src/main.cpp" "src/coroutine.cpp")
 
 add_executable(asiocrt ${SOURCES})
 target_compile_features(asiocrt PRIVATE cxx_auto_type)
