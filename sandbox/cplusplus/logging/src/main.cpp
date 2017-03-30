@@ -1,5 +1,7 @@
 #include <boost/log/core.hpp>
 #include <boost/log/sinks.hpp>
+#include <boost/log/sources/logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
 #include <boost/make_shared.hpp>
 
 #include <fstream>
@@ -18,6 +20,15 @@ int main (int argc, char * argv[]) {
   auto sink = boost::make_shared<SinkType>(backend);
 
   core->add_sink(sink);
+
+  bl::sources::logger l;
+  auto r = l.open_record();
+  if (r) {
+    bl::record_ostream s(r);
+    s << "asdfsadf";
+    s.flush();
+    l.push_record(boost::move(r));
+  }
 
   return 0;
 }
