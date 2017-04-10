@@ -103,7 +103,7 @@
 
         const headSubList = list[0];
         for (const item of headSubList) {
-            const tailLists = list.slice(1, list.length);
+            const tailLists = list.slice(1);
             for (const items of cartesianProductOf(tailLists)) {
                 yield [item].concat(items);
             }
