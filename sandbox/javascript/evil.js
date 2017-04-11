@@ -95,16 +95,16 @@
         return subcoro(g);
     };
 
-    exports.cartesianProductOf = function * cartesianProductOf (list) {
-        if (list.length < 1) {
+    exports.cartesianProductOf = function * cartesianProductOf (...args) {
+        if (args.length < 1) {
             yield [];
             return;
         }
 
-        const headSubList = list[0];
+        const headSubList = args[0];
         for (const item of headSubList) {
-            const tailLists = list.slice(1, list.length);
-            for (const items of cartesianProductOf(tailLists)) {
+            const tailLists = args.slice(1);
+            for (const items of cartesianProductOf(...tailLists)) {
                 yield [item].concat(items);
             }
         }
