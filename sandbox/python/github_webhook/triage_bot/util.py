@@ -35,6 +35,7 @@ def main(args=None):
 
 
 def triage(payload):
+    # TODO extract repository name
     if payload['repository']['full_name'] != 'legnaleurc/junkcode':
         return
 
