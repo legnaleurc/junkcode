@@ -38,6 +38,8 @@ def triage(payload):
     if payload['repository']['full_name'] != 'legnaleurc/junkcode':
         return
 
+    # ignored: closed, labeled, reopened, edited, unlabeled
+    # if you need to handle labeled/unlabeled, watch out loop triggering
     if payload['action'] == 'opened':
         pass
 
