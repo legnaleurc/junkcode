@@ -1,5 +1,5 @@
 from tornado import web as tw
-from wcpan.listen import DEBUG
+from wcpan.logger import DEBUG
 
 
 class IndexHandler(tw.RequestHandler):
