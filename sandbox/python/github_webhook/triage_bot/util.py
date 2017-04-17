@@ -3,6 +3,7 @@ import sys
 from tornado import ioloop as ti, web as tw, httpserver as ths
 import wcpan.listen as wls
 import wcpan.logger as wlg
+from wcpan.logger import DEBUG
 
 from . import api
 
@@ -31,3 +32,17 @@ def main(args=None):
         loop.close()
 
     return 0
+
+
+def triage(payload):
+    if payload['repository']['full_name'] != 'legnaleurc/junkcode':
+        return
+
+    if payload['action'] == 'opened':
+        pass
+
+    issue_number = payload['issue']['number']
+    issue_title = payload['issue']['title']
+    issue_body = payload['issue']['body']
+
+    DEBUG('triage_bot') << json.dumps(payload, indent=2)
