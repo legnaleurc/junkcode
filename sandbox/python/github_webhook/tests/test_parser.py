@@ -7,4 +7,4 @@ class TestParser(ut.TestCase):
 
     def testExtractURLs(self):
         url = tbp.extractURLs('www.google.com')
-        self.assertEquals(url, 'www.google.com')
+        self.assertEqual(url, ['www.google.com'])
