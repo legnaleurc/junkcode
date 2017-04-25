@@ -1,0 +1,2 @@
+def extractURLs(text):
+    return ''
