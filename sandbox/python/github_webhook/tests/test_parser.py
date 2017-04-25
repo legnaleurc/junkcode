@@ -15,3 +15,16 @@ class TestParser(ut.TestCase):
             'www.google.com',
             'www.mozilla.org',
         ])
+
+    def testExtractURLs_WholeURL(self):
+        url = tbp.extractURLs('https://example.org/example#id=www')
+        self.assertEqual(url, [
+            'example.org',
+        ])
+
+    def testExtractURLs_CompositedURL(self):
+        url = tbp.extractURLs('https://example.org/to?url=https://example.com/')
+        self.assertEqual(url, [
+            'example.org',
+            'example.com',
+        ])
