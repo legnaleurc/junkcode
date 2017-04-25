@@ -11,3 +11,4 @@ clean:
 
 test:
 	python -m compileall triage_bot
+	python -m unittest
