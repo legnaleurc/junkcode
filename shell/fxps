@@ -1,0 +1,41 @@
+#! /usr/bin/env python
+
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import os
+import os.path as op
+import sys
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    pids = filter(lambda _: _.isdigit(), os.listdir('/proc'))
+    pids = map(lambda _: (_, get_command_line_by_pid(_)), pids)
+    pids = filter(lambda _: _[1][0].find('dist/bin/firefox') > 0, pids)
+
+    for pid, cmd in pids:
+        try:
+            child_id_key = cmd.index('-childID')
+            msg = '{0}: child {1}'.format(pid, cmd[child_id_key + 1])
+        except ValueError:
+            msg = '{0}: parent'.format(pid)
+        print(msg)
+
+    return 0
+
+
+def get_command_line_by_pid(pid):
+    path = op.join('/proc', pid, 'cmdline')
+    with open(path, 'rb') as fin:
+        b_cmd = fin.read()
+        b_cmd_list = b_cmd.split(b'\x00')
+        cmd_list = map(lambda _: _.decode('utf-8', 'replace'), b_cmd_list)
+        return cmd_list
+
+
+if __name__ == '__main__':
+    exit_code = main()
+    sys.exit(exit_code)
