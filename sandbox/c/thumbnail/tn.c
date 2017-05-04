@@ -32,6 +32,8 @@ typedef struct {
 
 InputContext * input_context_new (const char * filename);
 void input_context_delete (InputContext ** input_context);
+int input_context_seek_frame(InputContext * input_context, int64_t timestamp,
+                             AVFrame ** target_frame);
 
 OutputContext * output_context_new (const char * filename, const AVFrame * input_frame);
 void output_context_delete (OutputContext ** output_context);
@@ -65,17 +67,8 @@ int main (int argc, char ** argv) {
     int64_t sts = START_SECOND;
     int counter = 0;
     while (sts < input_context->duration) {
-        // seek keyframe
-        int64_t ffts = av_rescale(sts, input_context->time_base->den, input_context->time_base->num);
-        ok = av_seek_frame(input_context->format_context, input_context->stream_index, ffts, AVSEEK_FLAG_BACKWARD);
-        if (ok < 0) {
-            printf("seek failed\n");
-            goto next_time;
-        }
-        avcodec_flush_buffers(input_context->codec_context);
-
-        AVFrame * pf = av_frame_alloc();
-        ok = seek_snapshot(input_context->format_context, input_context->codec_context, pf, input_context->stream_index);
+        AVFrame * frame = NULL;
+        ok = input_context_seek_frame(input_context, sts, &frame);
         if (ok != 0) {
             ok = 1;
             goto close_frame;
@@ -83,7 +76,7 @@ int main (int argc, char ** argv) {
 
         char filename[4096] = "";
         snprintf(filename, sizeof(filename), OUTPUT_FILENAME, counter);
-        ok = save_snapshot(filename, input_context->codec_context, pf);
+        ok = save_snapshot(filename, input_context->codec_context, frame);
         if (ok != 0) {
             ok = 1;
             goto close_frame;
@@ -92,8 +85,9 @@ int main (int argc, char ** argv) {
         printf("take %d\n", counter);
 
 close_frame:
-        av_frame_free(&pf);
-next_time:
+        if (frame) {
+            av_frame_free(&frame);
+        }
         sts += INTERVAL_SECOND;
         counter += 1;
     }
@@ -170,6 +164,40 @@ void input_context_delete (InputContext ** input_context) {
     avformat_close_input(&context->format_context);
     free(context);
     *input_context = NULL;
+}
+
+
+int input_context_seek_frame(InputContext * input_context, int64_t timestamp,
+                             AVFrame ** target_frame) {
+    if (!target_frame || *target_frame) {
+        return -1;
+    }
+
+    int64_t native_timestamp = av_rescale(timestamp,
+                                          input_context->time_base->den,
+                                          input_context->time_base->num);
+    int rv = av_seek_frame(input_context->format_context,
+                           input_context->stream_index, native_timestamp,
+                           AVSEEK_FLAG_BACKWARD);
+    if (rv < 0) {
+        printf("seek failed\n");
+        return -1;
+    }
+
+    avcodec_flush_buffers(input_context->codec_context);
+
+    *target_frame = av_frame_alloc();
+    if (!*target_frame) {
+        return -1;
+    }
+    rv = seek_snapshot(input_context->format_context,
+                       input_context->codec_context,
+                       *target_frame, input_context->stream_index);
+    if (rv != 0) {
+        return -1;
+    }
+
+    return 0;
 }
 
 
