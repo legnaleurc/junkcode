@@ -38,7 +38,6 @@ int input_context_seek_frame(InputContext * input_context, int64_t timestamp,
 OutputContext * output_context_new (const char * filename, const AVFrame * input_frame);
 void output_context_delete (OutputContext ** output_context);
 
-int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi);
 int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
 AVPacket * read_raw_video_frame (AVFormatContext * pifc, int vi);
 void delete_raw_video_frame (AVPacket ** pkt);
@@ -186,13 +185,20 @@ int input_context_seek_frame(InputContext * input_context, int64_t timestamp,
 
     avcodec_flush_buffers(input_context->codec_context);
 
+    AVPacket * packet = read_raw_video_frame(input_context->format_context,
+                                             input_context->stream_index);
+    if (!packet) {
+        return -1;
+    }
+
     *target_frame = av_frame_alloc();
     if (!*target_frame) {
         return -1;
     }
-    rv = seek_snapshot(input_context->format_context,
-                       input_context->codec_context,
-                       *target_frame, input_context->stream_index);
+
+    rv = decode_video_frame(input_context->codec_context, packet, *target_frame);
+    delete_raw_video_frame(&packet);
+
     if (rv != 0) {
         return -1;
     }
@@ -273,22 +279,6 @@ void output_context_delete (OutputContext ** self) {
     avformat_free_context(context->format_context);
     free(context);
     *self = NULL;
-}
-
-
-int seek_snapshot (AVFormatContext * pifc, AVCodecContext * picc, AVFrame * pf, int vi) {
-    int ok = 0;
-
-    AVPacket * pkt = read_raw_video_frame(pifc, vi);
-    if (!pkt) {
-        return -1;
-    }
-
-    ok = decode_video_frame(picc, pkt, pf);
-
-    delete_raw_video_frame(&pkt);
-
-    return ok;
 }
 
 
