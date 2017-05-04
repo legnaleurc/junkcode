@@ -83,8 +83,7 @@ int main (int argc, char ** argv) {
         snprintf(filename, sizeof(filename), OUTPUT_FILENAME, counter);
         OutputContext * output_context =
             output_context_new(filename,
-                               input_context->codec_context->width,
-                               input_context->codec_context->height);
+                               input_frame->width, input_frame->height);
         if (!output_context) {
             ok = 1;
             goto close_input_frame;
