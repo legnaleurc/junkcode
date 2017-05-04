@@ -32,13 +32,19 @@ typedef struct {
 
 InputContext * input_context_new (const char * filename);
 void input_context_delete (InputContext ** input_context);
-int input_context_seek_frame(InputContext * input_context, int64_t timestamp,
-                             AVFrame ** target_frame);
+int input_context_seek_frame (InputContext * input_context, int64_t timestamp,
+                              AVFrame ** target_frame);
 
-OutputContext * output_context_new (const char * filename, const AVFrame * input_frame);
+OutputContext * output_context_new (const char * filename,
+                                    int width, int height);
 void output_context_delete (OutputContext ** output_context);
+int output_context_write_frame (OutputContext * output_context,
+                               const AVFrame * frame);
 
-int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif);
+int convert_frame (const InputContext * input_context,
+                   const OutputContext * output_context,
+                   const AVFrame * input_frame, AVFrame ** output_frame);
+
 AVPacket * read_raw_video_frame (AVFormatContext * pifc, int vi);
 void delete_raw_video_frame (AVPacket ** pkt);
 int decode_video_frame (AVCodecContext * picc, const AVPacket * pkt, AVFrame * pf);
@@ -66,26 +72,52 @@ int main (int argc, char ** argv) {
     int64_t sts = START_SECOND;
     int counter = 0;
     while (sts < input_context->duration) {
-        AVFrame * frame = NULL;
-        ok = input_context_seek_frame(input_context, sts, &frame);
+        AVFrame * input_frame = NULL;
+        ok = input_context_seek_frame(input_context, sts, &input_frame);
         if (ok != 0) {
             ok = 1;
-            goto close_frame;
+            goto close_input_frame;
         }
 
         char filename[4096] = "";
         snprintf(filename, sizeof(filename), OUTPUT_FILENAME, counter);
-        ok = save_snapshot(filename, input_context->codec_context, frame);
+        OutputContext * output_context =
+            output_context_new(filename,
+                               input_context->codec_context->width,
+                               input_context->codec_context->height);
+        if (!output_context) {
+            ok = 1;
+            goto close_input_frame;
+        }
+
+        AVFrame * output_frame = NULL;
+        ok = convert_frame(input_context, output_context,
+                           input_frame, &output_frame);
         if (ok != 0) {
             ok = 1;
-            goto close_frame;
+            goto close_output_frame;
+        }
+
+        ok = output_context_write_frame(output_context, output_frame);
+        if (ok != 0) {
+            ok = 1;
+            goto close_output_context;
         }
 
         printf("take %d\n", counter);
 
-close_frame:
-        if (frame) {
-            av_frame_free(&frame);
+close_output_context:
+        output_context_delete(&output_context);
+close_output_frame:
+        if (output_frame) {
+            if (output_frame->data[0]) {
+                av_freep(&output_frame->data[0]);
+            }
+            av_frame_free(&output_frame);
+        }
+close_input_frame:
+        if (input_frame) {
+            av_frame_free(&input_frame);
         }
         sts += INTERVAL_SECOND;
         counter += 1;
@@ -207,7 +239,8 @@ int input_context_seek_frame(InputContext * input_context, int64_t timestamp,
 }
 
 
-OutputContext* output_context_new (const char * filename, const AVFrame * input_frame) {
+OutputContext* output_context_new (const char * filename,
+                                   int width, int height) {
     int ok = 0;
 
     // prepare muxer
@@ -240,8 +273,8 @@ OutputContext* output_context_new (const char * filename, const AVFrame * input_
     pcc->codec_type = pc->type;
     pcc->time_base.num = 1;
     pcc->time_base.den = 1;
-    pcc->width = input_frame->width;
-    pcc->height = input_frame->height;
+    pcc->width = width;
+    pcc->height = height;
     ok = avcodec_open2(pcc, pc, NULL);
     if (ok != 0) {
         goto free_encoder;
@@ -282,91 +315,112 @@ void output_context_delete (OutputContext ** self) {
 }
 
 
-int save_snapshot (const char * filename, const AVCodecContext * picc, const AVFrame * pif) {
-    int ok = 0;
-
-    OutputContext * output_context = output_context_new(filename, pif);
-    if (!output_context) {
-        ok = -1;
-        goto failed;
+int convert_frame (const InputContext * input_context,
+                   const OutputContext * output_context,
+                   const AVFrame * input_frame, AVFrame ** output_frame) {
+    if (!input_context || !output_context || !input_frame) {
+        return -1;
+    }
+    if (!output_frame || *output_frame) {
+        return -1;
     }
 
-    // write file header
-    ok = avformat_write_header(output_context->format_context, NULL);
-    if (ok != 0) {
-        ok = 1;
-        goto failed;
-    }
+    int rv = 0;
 
     // prepare pixel convertion
-    AVCodecContext * pcc = output_context->codec_context;
-    struct SwsContext * psc = sws_getCachedContext(NULL, picc->width, picc->height, picc->pix_fmt, pcc->width, pcc->height, pcc->pix_fmt, SWS_BILINEAR, NULL, NULL, NULL);
-    if (!psc) {
-        ok = 1;
+    AVCodecContext * input_codec_context = input_context->codec_context;
+    AVCodecContext * output_codec_context = output_context->codec_context;
+    struct SwsContext * scale_context =
+        sws_getCachedContext(NULL,
+                             input_codec_context->width,
+                             input_codec_context->height,
+                             input_codec_context->pix_fmt,
+                             output_codec_context->width,
+                             output_codec_context->height,
+                             output_codec_context->pix_fmt,
+                             SWS_BILINEAR, NULL, NULL, NULL);
+    if (!scale_context) {
+        rv = 1;
         goto failed;
     }
 
     // prepare converted picture
-    AVFrame * pf = av_frame_alloc();
-    if (!pf) {
-        ok = 1;
+    AVFrame * frame = av_frame_alloc();
+    if (!frame) {
+        rv = 1;
         goto close_sws;
     }
-    pf->width = pcc->width;
-    pf->height = pcc->height;
-    pf->format = pcc->pix_fmt;
-    ok = av_image_alloc(pf->data, pf->linesize, pcc->width, pcc->height, pcc->pix_fmt, 1);
-    if (ok < 0) {
-        ok = AVUNERROR(ok);
-        goto close_frame;
+    frame->width = output_codec_context->width;
+    frame->height = output_codec_context->height;
+    frame->format = output_codec_context->pix_fmt;
+    rv = av_image_alloc(frame->data, frame->linesize,
+                        output_codec_context->width,
+                        output_codec_context->height,
+                        output_codec_context->pix_fmt, 1);
+    if (rv < 0) {
+        rv = AVUNERROR(rv);
+        goto close_sws;
     }
     // convert pixel format
-    ok = sws_scale(psc, (const uint8_t * const *)pif->data, pif->linesize, 0, picc->height, pf->data, pf->linesize);
-    if (ok <= 0) {
-        ok = 1;
-        goto close_picture;
+    rv = sws_scale(scale_context, (const uint8_t * const *)input_frame->data,
+                   input_frame->linesize, 0, input_codec_context->height,
+                   frame->data, frame->linesize);
+    if (rv <= 0) {
+        rv = 1;
+        goto close_sws;
+    }
+
+    rv = 0;
+close_sws:
+    sws_freeContext(scale_context);
+failed:
+    return rv;
+}
+
+
+int output_context_write_frame (OutputContext * output_context,
+                                const AVFrame * frame) {
+    int rv = 0;
+    // write file header
+    rv = avformat_write_header(output_context->format_context, NULL);
+    if (rv != 0) {
+        rv = 1;
+        goto failed;
     }
 
     // encode frame
-    AVPacket pkt;
-    av_init_packet(&pkt);
-    pkt.data = NULL;
-    pkt.size = 0;
-    ok = avcodec_send_frame(pcc, pf);
-    if (ok != 0) {
-        ok = AVUNERROR(ok);
+    AVPacket packet;
+    av_init_packet(&packet);
+    packet.data = NULL;
+    packet.size = 0;
+    rv = avcodec_send_frame(output_context->codec_context, frame);
+    if (rv != 0) {
+        rv = AVUNERROR(rv);
         goto close_packet;
     }
-    ok = avcodec_receive_packet(pcc, &pkt);
-    if (ok != 0) {
-        ok = AVUNERROR(ok);
+    rv = avcodec_receive_packet(output_context->codec_context, &packet);
+    if (rv != 0) {
+        rv = AVUNERROR(rv);
         goto close_packet;
     }
     // NOTE does not matter in image
-    pkt.pts = 0;
-    pkt.dts = 0;
+    packet.pts = 0;
+    packet.dts = 0;
 
     // write encoded frame
-    ok = av_interleaved_write_frame(output_context->format_context, &pkt);
-    if (ok != 0) {
-        ok = 1;
+    rv = av_interleaved_write_frame(output_context->format_context, &packet);
+    if (rv != 0) {
+        rv = 1;
         goto close_file;
     }
 
-    ok = 0;
+    rv = 0;
 close_file:
     av_write_trailer(output_context->format_context);
 close_packet:
-    av_packet_unref(&pkt);
-close_picture:
-    av_freep(&pf->data[0]);
-close_frame:
-    av_frame_free(&pf);
-close_sws:
-    sws_freeContext(psc);
+    av_packet_unref(&packet);
 failed:
-    output_context_delete(&output_context);
-    return ok;
+    return rv;
 }
 
 
