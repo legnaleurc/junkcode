@@ -30,20 +30,28 @@ typedef struct {
 } OutputContext;
 
 
+typedef struct {
+    InputContext * input_context;
+    OutputContext * output_context;
+    AVFrame * input_frame;
+    AVFrame * output_frame;
+} FrameContext;
+
+
 InputContext * input_context_new (const char * filename);
 void input_context_delete (InputContext ** input_context);
 int input_context_seek_frame (InputContext * input_context, int64_t timestamp,
-                              AVFrame ** target_frame);
+                              FrameContext ** frame_context);
 
 OutputContext * output_context_new (const char * filename,
                                     int width, int height);
 void output_context_delete (OutputContext ** output_context);
 int output_context_write_frame (OutputContext * output_context,
-                               const AVFrame * frame);
+                                const AVFrame * frame);
 
-int convert_frame (const InputContext * input_context,
-                   const OutputContext * output_context,
-                   const AVFrame * input_frame, AVFrame ** output_frame);
+FrameContext * frame_context_new (InputContext * input_context);
+void frame_context_delete (FrameContext ** frame_context);
+int frame_context_convert (FrameContext * frame_context);
 
 AVPacket * read_raw_video_frame (AVFormatContext * pifc, int vi);
 void delete_raw_video_frame (AVPacket ** pkt);
@@ -72,32 +80,33 @@ int main (int argc, char ** argv) {
     int64_t sts = START_SECOND;
     int counter = 0;
     while (sts < input_context->duration) {
-        AVFrame * input_frame = NULL;
-        ok = input_context_seek_frame(input_context, sts, &input_frame);
+        FrameContext * frame_context = NULL;
+        ok = input_context_seek_frame(input_context, sts, &frame_context);
         if (ok != 0) {
             ok = 1;
-            goto close_input_frame;
+            goto close_frame_context;
         }
 
         char filename[4096] = "";
         snprintf(filename, sizeof(filename), OUTPUT_FILENAME, counter);
         OutputContext * output_context =
             output_context_new(filename,
-                               input_frame->width, input_frame->height);
+                               frame_context->input_frame->width,
+                               frame_context->input_frame->height);
         if (!output_context) {
             ok = 1;
-            goto close_input_frame;
+            goto close_frame_context;
         }
+        frame_context->output_context = output_context;
 
-        AVFrame * output_frame = NULL;
-        ok = convert_frame(input_context, output_context,
-                           input_frame, &output_frame);
+        ok = frame_context_convert(frame_context);
         if (ok != 0) {
             ok = 1;
-            goto close_output_frame;
+            goto close_frame_context;
         }
 
-        ok = output_context_write_frame(output_context, output_frame);
+        ok = output_context_write_frame(output_context,
+                                        frame_context->output_frame);
         if (ok != 0) {
             ok = 1;
             goto close_output_context;
@@ -107,17 +116,9 @@ int main (int argc, char ** argv) {
 
 close_output_context:
         output_context_delete(&output_context);
-close_output_frame:
-        if (output_frame) {
-            if (output_frame->data[0]) {
-                av_freep(&output_frame->data[0]);
-            }
-            av_frame_free(&output_frame);
-        }
-close_input_frame:
-        if (input_frame) {
-            av_frame_free(&input_frame);
-        }
+close_frame_context:
+        frame_context_delete(&frame_context);
+
         sts += INTERVAL_SECOND;
         counter += 1;
     }
@@ -198,8 +199,8 @@ void input_context_delete (InputContext ** input_context) {
 
 
 int input_context_seek_frame(InputContext * input_context, int64_t timestamp,
-                             AVFrame ** target_frame) {
-    if (!target_frame || *target_frame) {
+                             FrameContext ** frame_context) {
+    if (!frame_context || *frame_context) {
         return -1;
     }
 
@@ -222,12 +223,13 @@ int input_context_seek_frame(InputContext * input_context, int64_t timestamp,
         return -1;
     }
 
-    *target_frame = av_frame_alloc();
-    if (!*target_frame) {
+    *frame_context = frame_context_new(input_context);
+    if (!*frame_context) {
         return -1;
     }
 
-    rv = decode_video_frame(input_context->codec_context, packet, *target_frame);
+    rv = decode_video_frame(input_context->codec_context, packet,
+                            (*frame_context)->input_frame);
     delete_raw_video_frame(&packet);
 
     if (rv != 0) {
@@ -314,13 +316,15 @@ void output_context_delete (OutputContext ** self) {
 }
 
 
-int convert_frame (const InputContext * input_context,
-                   const OutputContext * output_context,
-                   const AVFrame * input_frame, AVFrame ** output_frame) {
+int frame_context_convert (FrameContext * frame_context) {
+    const InputContext * input_context = frame_context->input_context;
+    const OutputContext * output_context = frame_context->output_context;
+    const AVFrame * input_frame = frame_context->input_frame;
+    AVFrame * output_frame = frame_context->output_frame;
     if (!input_context || !output_context || !input_frame) {
         return -1;
     }
-    if (!output_frame || *output_frame) {
+    if (output_frame) {
         return -1;
     }
 
@@ -344,15 +348,15 @@ int convert_frame (const InputContext * input_context,
     }
 
     // prepare converted picture
-    AVFrame * frame = av_frame_alloc();
-    if (!frame) {
+    output_frame = av_frame_alloc();
+    if (!output_frame) {
         rv = 1;
         goto close_sws;
     }
-    frame->width = output_codec_context->width;
-    frame->height = output_codec_context->height;
-    frame->format = output_codec_context->pix_fmt;
-    rv = av_image_alloc(frame->data, frame->linesize,
+    output_frame->width = output_codec_context->width;
+    output_frame->height = output_codec_context->height;
+    output_frame->format = output_codec_context->pix_fmt;
+    rv = av_image_alloc(output_frame->data, output_frame->linesize,
                         output_codec_context->width,
                         output_codec_context->height,
                         output_codec_context->pix_fmt, 1);
@@ -363,7 +367,7 @@ int convert_frame (const InputContext * input_context,
     // convert pixel format
     rv = sws_scale(scale_context, (const uint8_t * const *)input_frame->data,
                    input_frame->linesize, 0, input_codec_context->height,
-                   frame->data, frame->linesize);
+                   output_frame->data, output_frame->linesize);
     if (rv <= 0) {
         rv = 1;
         goto close_sws;
@@ -373,6 +377,7 @@ int convert_frame (const InputContext * input_context,
 close_sws:
     sws_freeContext(scale_context);
 failed:
+    frame_context->output_frame = output_frame;
     return rv;
 }
 
@@ -420,6 +425,46 @@ close_packet:
     av_packet_unref(&packet);
 failed:
     return rv;
+}
+
+
+FrameContext * frame_context_new (InputContext * input_context) {
+    FrameContext * frame_context = malloc(sizeof(FrameContext));
+    if (!frame_context) {
+        goto succeed;
+    }
+    memset(frame_context, 0, sizeof(*frame_context));
+
+    frame_context->input_context = input_context;
+    frame_context->input_frame = av_frame_alloc();
+    if (!frame_context->input_frame) {
+        goto failed;
+    }
+
+failed:
+    free(frame_context);
+    frame_context = NULL;
+succeed:
+    return frame_context;
+}
+
+
+void frame_context_delete (FrameContext ** frame_context) {
+    if (!frame_context || !*frame_context) {
+        return;
+    }
+    FrameContext * context = *frame_context;
+    if (context->output_frame) {
+        if (context->output_frame->data[0]) {
+            av_freep(&context->output_frame->data[0]);
+        }
+        av_frame_free(&context->output_frame);
+    }
+    if (context->input_frame) {
+        av_frame_free(&context->input_frame);
+    }
+    free(context);
+    *frame_context = NULL;
 }
 
 
