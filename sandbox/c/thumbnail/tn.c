@@ -378,11 +378,12 @@ FrameContext * frame_context_new (InputContext * input_context) {
         goto failed;
     }
 
-failed:
-    free(frame_context);
-    frame_context = NULL;
 succeed:
     return frame_context;
+
+failed:
+    free(frame_context);
+    return NULL;
 }
 
 
