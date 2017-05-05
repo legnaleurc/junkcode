@@ -69,14 +69,15 @@ int main (int argc, char ** argv) {
     int ok = 0;
     av_register_all();
 
+    // open input file
     printf("%s\n", INPUT_FILENAME);
-
     InputContext * input_context = input_context_new(INPUT_FILENAME);
     if (!input_context) {
         ok = EXIT_FAILURE;
         goto failed;
     }
 
+    // seek and make snapshot
     int64_t sts = START_SECOND;
     int counter = 0;
     while (sts < input_context->duration) {
@@ -87,6 +88,7 @@ int main (int argc, char ** argv) {
             goto close_frame_context;
         }
 
+        // open the output file
         char filename[4096] = "";
         snprintf(filename, sizeof(filename), OUTPUT_FILENAME, counter);
         OutputContext * output_context =
@@ -99,12 +101,14 @@ int main (int argc, char ** argv) {
         }
         frame_context->output_context = output_context;
 
+        // convert snapshot to output format
         ok = frame_context_convert(frame_context);
         if (ok != 0) {
             ok = 1;
             goto close_frame_context;
         }
 
+        // write the snapshot
         ok = output_context_write_frame(output_context,
                                         frame_context->output_frame);
         if (ok != 0) {
