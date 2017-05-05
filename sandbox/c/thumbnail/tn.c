@@ -140,12 +140,15 @@ InputContext * input_context_new (const char * filename) {
     if (ok != 0) {
         goto failed;
     }
+    if (pfc->duration == AV_NOPTS_VALUE) {
+        goto close_demuxer;
+    }
+    int64_t duration = av_rescale(pfc->duration, 1, AV_TIME_BASE);
 
     // find stream
     int stnb = av_find_best_stream(pfc, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
     AVStream * pst = pfc->streams[stnb];
     AVRational * ptb = &pst->time_base;
-    int64_t duration = av_rescale(pst->duration, ptb->num, ptb->den);
 
     // find codec
     AVCodec * pc = avcodec_find_decoder(pst->codecpar->codec_id);
