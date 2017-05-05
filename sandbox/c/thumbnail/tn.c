@@ -316,72 +316,6 @@ void output_context_delete (OutputContext ** self) {
 }
 
 
-int frame_context_convert (FrameContext * frame_context) {
-    const InputContext * input_context = frame_context->input_context;
-    const OutputContext * output_context = frame_context->output_context;
-    const AVFrame * input_frame = frame_context->input_frame;
-    AVFrame * output_frame = frame_context->output_frame;
-    if (!input_context || !output_context || !input_frame) {
-        return -1;
-    }
-    if (output_frame) {
-        return -1;
-    }
-
-    int rv = 0;
-
-    // prepare pixel convertion
-    AVCodecContext * input_codec_context = input_context->codec_context;
-    AVCodecContext * output_codec_context = output_context->codec_context;
-    struct SwsContext * scale_context =
-        sws_getCachedContext(NULL,
-                             input_codec_context->width,
-                             input_codec_context->height,
-                             input_codec_context->pix_fmt,
-                             output_codec_context->width,
-                             output_codec_context->height,
-                             output_codec_context->pix_fmt,
-                             SWS_BILINEAR, NULL, NULL, NULL);
-    if (!scale_context) {
-        rv = 1;
-        goto failed;
-    }
-
-    // prepare converted picture
-    output_frame = av_frame_alloc();
-    if (!output_frame) {
-        rv = 1;
-        goto close_sws;
-    }
-    output_frame->width = output_codec_context->width;
-    output_frame->height = output_codec_context->height;
-    output_frame->format = output_codec_context->pix_fmt;
-    rv = av_image_alloc(output_frame->data, output_frame->linesize,
-                        output_codec_context->width,
-                        output_codec_context->height,
-                        output_codec_context->pix_fmt, 1);
-    if (rv < 0) {
-        rv = AVUNERROR(rv);
-        goto close_sws;
-    }
-    // convert pixel format
-    rv = sws_scale(scale_context, (const uint8_t * const *)input_frame->data,
-                   input_frame->linesize, 0, input_codec_context->height,
-                   output_frame->data, output_frame->linesize);
-    if (rv <= 0) {
-        rv = 1;
-        goto close_sws;
-    }
-
-    rv = 0;
-close_sws:
-    sws_freeContext(scale_context);
-failed:
-    frame_context->output_frame = output_frame;
-    return rv;
-}
-
-
 int output_context_write_frame (OutputContext * output_context,
                                 const AVFrame * frame) {
     int rv = 0;
@@ -465,6 +399,72 @@ void frame_context_delete (FrameContext ** frame_context) {
     }
     free(context);
     *frame_context = NULL;
+}
+
+
+int frame_context_convert (FrameContext * frame_context) {
+    const InputContext * input_context = frame_context->input_context;
+    const OutputContext * output_context = frame_context->output_context;
+    const AVFrame * input_frame = frame_context->input_frame;
+    AVFrame * output_frame = frame_context->output_frame;
+    if (!input_context || !output_context || !input_frame) {
+        return -1;
+    }
+    if (output_frame) {
+        return -1;
+    }
+
+    int rv = 0;
+
+    // prepare pixel convertion
+    AVCodecContext * input_codec_context = input_context->codec_context;
+    AVCodecContext * output_codec_context = output_context->codec_context;
+    struct SwsContext * scale_context =
+        sws_getCachedContext(NULL,
+                             input_codec_context->width,
+                             input_codec_context->height,
+                             input_codec_context->pix_fmt,
+                             output_codec_context->width,
+                             output_codec_context->height,
+                             output_codec_context->pix_fmt,
+                             SWS_BILINEAR, NULL, NULL, NULL);
+    if (!scale_context) {
+        rv = 1;
+        goto failed;
+    }
+
+    // prepare converted picture
+    output_frame = av_frame_alloc();
+    if (!output_frame) {
+        rv = 1;
+        goto close_sws;
+    }
+    output_frame->width = output_codec_context->width;
+    output_frame->height = output_codec_context->height;
+    output_frame->format = output_codec_context->pix_fmt;
+    rv = av_image_alloc(output_frame->data, output_frame->linesize,
+                        output_codec_context->width,
+                        output_codec_context->height,
+                        output_codec_context->pix_fmt, 1);
+    if (rv < 0) {
+        rv = AVUNERROR(rv);
+        goto close_sws;
+    }
+    // convert pixel format
+    rv = sws_scale(scale_context, (const uint8_t * const *)input_frame->data,
+                   input_frame->linesize, 0, input_codec_context->height,
+                   output_frame->data, output_frame->linesize);
+    if (rv <= 0) {
+        rv = 1;
+        goto close_sws;
+    }
+
+    rv = 0;
+close_sws:
+    sws_freeContext(scale_context);
+failed:
+    frame_context->output_frame = output_frame;
+    return rv;
 }
 
 
