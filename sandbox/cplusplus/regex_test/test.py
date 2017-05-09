@@ -22,9 +22,9 @@ def main():
     b = timeit.timeit(lambda: grep(pattern, ls, wrapper), number=1000)
     c = timeit.timeit(lambda: grep(pattern, ls, native), number=1000)
 
-    print(a)
-    print(b)
-    print(c)
+    print('cpython', a)
+    print('ctypes', b)
+    print('import', c)
 
 
 def grep(pattern, rows, fn):
