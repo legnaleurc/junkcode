@@ -11,6 +11,11 @@ ne () {
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 }
 
+# chromium
+ge () {
+    export PATH="$HOME/local/opt/depot_tools:$PATH"
+}
+
 
 firefox_build_static () {
     MOZCONFIG=.mozconfig_static ./mach build "$@"
