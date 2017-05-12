@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+
+  "name": "GBF raid finder",
+  "description": "GBF raid finder",
+  "version": "1.0",
+
+  "permissions": [
+    "identity"
+  ],
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  }
+}
