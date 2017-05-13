@@ -3,7 +3,7 @@
 // @namespace   sandbox
 // @include     https://exhentai.org/g/*
 // @include     https://e-hentai.org/g/*
-// @version     1
+// @version     2
 // @grant       GM_xmlhttpRequest
 // @grant       GM_addStyle
 // ==/UserScript==
