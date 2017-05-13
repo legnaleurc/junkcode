@@ -11,6 +11,9 @@
 'use strict';
 
 
+searchCache();
+
+
 async function searchCache () {
   let title = document.querySelector('#gj');
   if (!title) {
