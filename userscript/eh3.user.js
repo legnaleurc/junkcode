@@ -34,7 +34,7 @@ async function searchCache () {
 
   try {
     let data = await get('http://acddl.loc.al/api/v1/nodes', {
-      pattern: t,
+      pattern: title,
     });
     data = JSON.parse(data);
     data.forEach((v) => {
