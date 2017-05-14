@@ -132,6 +132,11 @@ function makeHintArea () {
   displayArea.appendChild(box);
 
   box = document.createElement('div');
+  box.id = 'blk-torrent';
+  box.classList.add('gm');
+  displayArea.appendChild(box);
+
+  box = document.createElement('div');
   box.id = 'blk-search';
   box.classList.add('gm');
   displayArea.appendChild(box);
@@ -191,7 +196,7 @@ function addTextToSearchHint (message) {
 
 
 async function inlineArchiveDownload () {
-  // get url
+  // get URL
   let element = document.querySelector('.g2.gsp > a');
   let url = element.getAttribute('onclick');
   url = url.match(/'([^']+)'/);
@@ -212,6 +217,23 @@ async function inlineArchiveDownload () {
 
 
 async function inlineTorrentDownload () {
+  // get URL
+  let element = document.querySelector('#gd5');
+  element = element.children[2];
+  element = element.querySelector('a');
+  let url = element.getAttribute('onclick');
+  url = url.match(/'([^']+)'/);
+  url = url[1];
+
+  // get page information
+  let html = await get(url);
+  let parser = new DOMParser();
+  html = parser.parseFromString(html, 'text/html');
+  let block = html.querySelector('form');
+  block = document.importNode(block, true);
+
+  // make UI
+  makeDownloadTorrentLink(block);
 }
 
 
@@ -226,6 +248,12 @@ function makeDownloadArchiveLink (url, size, price) {
     });
   });
   let element = document.querySelector('#blk-archive');
+  element.appendChild(block);
+}
+
+
+function makeDownloadTorrentLink (block) {
+  let element = document.querySelector('#blk-torrent');
   element.appendChild(block);
 }
 
