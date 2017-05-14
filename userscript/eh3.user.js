@@ -12,6 +12,7 @@
 
 
 searchCache();
+inlineDownload();
 
 
 async function searchCache () {
@@ -44,6 +45,58 @@ async function searchCache () {
   } catch (e) {
     console.error(e);
     markError();
+  }
+}
+
+
+async function inlineDownload () {
+  try {
+    // get url
+    let element = document.querySelector('.g2.gsp > a');
+    let url = element.getAttribute('onclick');
+    url = url.match(/'([^']+)'/);
+    url = url[1];
+
+    // get page information
+    let html = await get(url);
+    let parser = new DOMParser();
+    html = parser.parseFromString(html, 'text/html');
+    let form = html.querySelector('#hathdl_form');
+    let block = form.nextElementSibling.firstElementChild.firstElementChild.lastElementChild;
+    let size = block.children[1].textContent;
+    let price = block.children[2].textContent;
+    // let button = html.querySelector('#hathdl_xres');
+    // button.value = 'org';
+    // block = html.createElement('input');
+    // block.type = 'submit';
+    // block.value = `${size} / ${price}`;
+    // form.appendChild(block);
+
+    // let frame = document.createElement('iframe');
+    // frame.srcdoc = form.outerHTML;
+    // frame.sandbox.add('allow-forms');
+    // frame.style.width = '50%';
+    // frame.style.height = '50px';
+    // frame.style.borderWidth = '0px';
+    // frame = element.parentElement.insertAdjacentElement('afterend', frame);
+
+    form = form.action;
+    block = document.createElement('div');
+    block.textContent = `${size} / ${price}`;
+    block.addEventListener('click', (event) => {
+      post(form, {
+        hathdl_xres: 'org',
+      }, {
+        Referer: form,
+      }).then((r) => {
+        console.info('response', r);
+      }).catch((e) => {
+        console.warn(e);
+      });
+    });
+    element.insertAdjacentElement('afterend', block);
+  } catch(e) {
+    console.warn(e);
   }
 }
 
@@ -160,10 +213,12 @@ function addHint (message) {
 
 
 function get (url, args) {
-  const query = new URLSearchParams();
-  Object.keys(args).forEach((k) => {
-    query.set(k, args[k]);
-  });
+  url = new URL(url);
+  if (args) {
+    Object.keys(args).forEach((k) => {
+      url.searchParams.set(k, args[k]);
+    });
+  }
   return new Promise((resolve, reject) => {
     GM_xmlhttpRequest({
       header: {
@@ -176,7 +231,38 @@ function get (url, args) {
       onerror: (error) => {
         reject(error);
       },
-      url: url + '?' + query.toString(),
+      url: url.toString(),
+    });
+  });
+}
+
+
+function post (url, args, header) {
+  const data = new URLSearchParams();
+  if (args) {
+    Object.keys(args).forEach((k) => {
+      data.set(k, args[k]);
+    });
+  }
+  let headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+  if (header) {
+    headers = Object.assign(headers, header);
+  }
+
+  return new Promise((resolve, reject) => {
+    GM_xmlhttpRequest({
+      header: headers,
+      method: 'POST',
+      data: data.toString(),
+      onload: (response) => {
+        resolve(response.responseText);
+      },
+      onerror: (error) => {
+        reject(error);
+      },
+      url: url.toString(),
     });
   });
 }
