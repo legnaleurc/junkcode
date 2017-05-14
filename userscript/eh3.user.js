@@ -229,11 +229,9 @@ async function inlineTorrentDownload () {
   let html = await get(url);
   let parser = new DOMParser();
   html = parser.parseFromString(html, 'text/html');
-  let block = html.querySelector('form');
-  block = document.importNode(block, true);
 
   // make UI
-  makeDownloadTorrentLink(block);
+  makeDownloadTorrentLink(html);
 }
 
 
@@ -252,9 +250,15 @@ function makeDownloadArchiveLink (url, size, price) {
 }
 
 
-function makeDownloadTorrentLink (block) {
+function makeDownloadTorrentLink (html) {
+  let blocks = html.querySelectorAll('#torrentinfo > div:nth-child(1) > form');
+  let box = document.createDocumentFragment();
+  blocks.forEach((block) => {
+    block = document.importNode(block, true);
+    box.appendChild(block);
+  });
   let element = document.querySelector('#blk-torrent');
-  element.appendChild(block);
+  element.appendChild(box);
 }
 
 
