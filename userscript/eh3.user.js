@@ -11,8 +11,12 @@
 'use strict';
 
 
-searchCache();
-inlineDownload();
+Promise.all([
+  searchCache(),
+  inlineDownload(),
+]).catch((e) => {
+  console.error(e);
+});
 
 
 async function searchCache () {
