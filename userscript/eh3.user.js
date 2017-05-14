@@ -124,11 +124,19 @@ function searchReal (title) {
 
 function makeHintArea () {
   const infoBlock = document.querySelector('.gm');
+  const displayArea = document.createDocumentFragment();
 
-  const displayArea = document.createElement('div');
-  displayArea.id = 'blk-search';
-  displayArea.classList.add('gm');
-  infoBlock.insertAdjacentElement('afterend', displayArea);
+  let box = document.createElement('div');
+  box.id = 'blk-archive';
+  box.classList.add('gm');
+  displayArea.appendChild(box);
+
+  box = document.createElement('div');
+  box.id = 'blk-search';
+  box.classList.add('gm');
+  displayArea.appendChild(box);
+
+  infoBlock.parentElement.insertBefore(displayArea, infoBlock.nextElementSibling);
 
   GM_addStyle(`
     #blk-search {
@@ -199,10 +207,16 @@ async function inlineArchiveDownload () {
   let price = block.children[2].textContent;
 
   // make UI
-  url = form.action;
-  block = document.createElement('div');
-  block.style.marginLeft = '14px';
-  block.style.marginTop = '7px';
+  makeDownloadArchiveLink(form.action, size, price);
+}
+
+
+async function inlineTorrentDownload () {
+}
+
+
+function makeDownloadArchiveLink (url, size, price) {
+  let block = document.createElement('div');
   block.style.cursor = 'pointer';
   block.textContent = `${size} / ${price}`;
   block.id = 'btn-dl-archive';
@@ -211,12 +225,8 @@ async function inlineArchiveDownload () {
       console.warn(e);
     });
   });
-  element.insertAdjacentElement('afterend', block);
-}
-
-
-async function inlineTorrentDownload () {
-  ;
+  let element = document.querySelector('#blk-archive');
+  element.appendChild(block);
 }
 
 
