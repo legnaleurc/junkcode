@@ -273,7 +273,7 @@ async function downloadArchive (url) {
   if (html.indexOf(msg) >= 0) {
     btn.style.backgroundColor = 'green';
   } else {
-    btn.style.backgroundColor = 'green';
+    btn.style.backgroundColor = 'red';
   }
   await wait(5000);
   btn.style.backgroundColor = '';
