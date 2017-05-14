@@ -11,12 +11,18 @@
 'use strict';
 
 
-Promise.all([
-  searchCache(),
-  inlineDownload(),
-]).catch((e) => {
+main().catch((e) => {
   console.error(e);
 });
+
+
+async function main () {
+  makeHintArea();
+  await Promise.all([
+    searchCache(),
+    inlineDownload(),
+  ]);
+}
 
 
 async function searchCache () {
@@ -25,17 +31,15 @@ async function searchCache () {
     return;
   }
 
-  makeHintArea();
-
   title = searchKeyword(title.textContent);
   if (!title) {
-    markError();
-    addHint('no match');
+    markSearchError();
+    addTextToSearchHint('no match');
     return;
   }
 
-  markLoading();
-  addHint(title);
+  markSearchLoading();
+  addTextToSearchHint(title);
 
   try {
     let data = await get('http://acddl.loc.al/api/v1/nodes', {
@@ -43,12 +47,12 @@ async function searchCache () {
     });
     data = JSON.parse(data);
     data.forEach((v) => {
-      addHint(v.name);
+      addTextToSearchHint(v.name);
     });
-    markNormal();
+    markSearchNormal();
   } catch (e) {
     console.error(e);
-    markError();
+    markSearchError();
   }
 }
 
@@ -119,12 +123,17 @@ function searchReal (title) {
 
 
 function makeHintArea () {
-  const tagBlock = document.querySelector('#taglist');
-  const displayArea = document.createElement('p');
+  const infoBlock = document.querySelector('.gm');
+  const displayArea = document.createElement('div');
   displayArea.id = 'fake-hint';
-  tagBlock.appendChild(displayArea);
+  displayArea.classList.add('gm');
+  infoBlock.insertAdjacentElement('afterend', displayArea);
 
   GM_addStyle(`
+    #fake-hint {
+      text-align: left;
+    }
+
     #fake-hint > pre {
       margin-top: 0.5em;
       margin-bottom: 0.5em;
@@ -142,29 +151,29 @@ function makeHintArea () {
 }
 
 
-function markNormal () {
+function markSearchNormal () {
   const p = document.querySelector('#fake-hint');
   p.classList.remove('loading', 'error');
 }
 
 
-function markLoading () {
-  markNormal();
+function markSearchLoading () {
+  markSearchNormal();
 
   const p = document.querySelector('#fake-hint');
   p.classList.add('loading');
 }
 
 
-function markError () {
-  markNormal();
+function markSearchError () {
+  markSearchNormal();
 
   const p = document.querySelector('#fake-hint');
   p.classList.add('error');
 }
 
 
-function addHint (message) {
+function addTextToSearchHint (message) {
   const p = document.querySelector('#fake-hint');
   const c = document.createElement('pre');
   c.textContent = message;
