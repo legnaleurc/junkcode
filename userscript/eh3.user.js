@@ -129,6 +129,10 @@ function makeHintArea () {
   let box = document.createElement('div');
   box.id = 'blk-archive';
   box.classList.add('gm');
+  box.addEventListener('transitionend', (event) => {
+    let e = event.target;
+    e.classList.remove('success', 'error');
+  });
   displayArea.appendChild(box);
 
   box = document.createElement('div');
@@ -160,6 +164,22 @@ function makeHintArea () {
     #blk-search.error {
       background-color: red;
       color: black;
+    }
+
+    #blk-archive {
+      transition: background-color 2s;
+    }
+
+    #blk-archive.success {
+      background-color: green;
+    }
+
+    #blk-archive.error {
+      background-color: red;
+    }
+
+    #btn-dl-archive {
+      cursor: pointer;
     }
   `);
 }
@@ -237,7 +257,6 @@ async function inlineTorrentDownload () {
 
 function makeDownloadArchiveLink (url, size, price) {
   let block = document.createElement('div');
-  block.style.cursor = 'pointer';
   block.textContent = `${size} / ${price}`;
   block.id = 'btn-dl-archive';
   block.addEventListener('click', (event) => {
@@ -269,14 +288,12 @@ async function downloadArchive (url) {
     Referer: url,
   });
   let msg = 'Downloads should start processing within a couple of minutes.';
-  let btn = document.querySelector('#btn-dl-archive');
+  let block = document.querySelector('#blk-archive');
   if (html.indexOf(msg) >= 0) {
-    btn.style.backgroundColor = 'green';
+    block.classList.add('success');
   } else {
-    btn.style.backgroundColor = 'red';
+    block.classList.add('error');
   }
-  await wait(5000);
-  btn.style.backgroundColor = '';
 }
 
 
