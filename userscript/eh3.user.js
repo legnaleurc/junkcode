@@ -124,26 +124,27 @@ function searchReal (title) {
 
 function makeHintArea () {
   const infoBlock = document.querySelector('.gm');
+
   const displayArea = document.createElement('div');
-  displayArea.id = 'fake-hint';
+  displayArea.id = 'blk-search';
   displayArea.classList.add('gm');
   infoBlock.insertAdjacentElement('afterend', displayArea);
 
   GM_addStyle(`
-    #fake-hint {
+    #blk-search {
       text-align: left;
     }
 
-    #fake-hint > pre {
+    #blk-search > pre {
       margin-top: 0.5em;
       margin-bottom: 0.5em;
     }
 
-    #fake-hint.loading {
+    #blk-search.loading {
       background-color: grey;
     }
 
-    #fake-hint.error {
+    #blk-search.error {
       background-color: red;
       color: black;
     }
@@ -152,7 +153,7 @@ function makeHintArea () {
 
 
 function markSearchNormal () {
-  const p = document.querySelector('#fake-hint');
+  const p = document.querySelector('#blk-search');
   p.classList.remove('loading', 'error');
 }
 
@@ -160,7 +161,7 @@ function markSearchNormal () {
 function markSearchLoading () {
   markSearchNormal();
 
-  const p = document.querySelector('#fake-hint');
+  const p = document.querySelector('#blk-search');
   p.classList.add('loading');
 }
 
@@ -168,13 +169,13 @@ function markSearchLoading () {
 function markSearchError () {
   markSearchNormal();
 
-  const p = document.querySelector('#fake-hint');
+  const p = document.querySelector('#blk-search');
   p.classList.add('error');
 }
 
 
 function addTextToSearchHint (message) {
-  const p = document.querySelector('#fake-hint');
+  const p = document.querySelector('#blk-search');
   const c = document.createElement('pre');
   c.textContent = message;
   p.appendChild(c);
