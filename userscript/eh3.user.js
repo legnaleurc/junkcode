@@ -65,32 +65,16 @@ async function inlineDownload () {
     let block = form.nextElementSibling.firstElementChild.firstElementChild.lastElementChild;
     let size = block.children[1].textContent;
     let price = block.children[2].textContent;
-    // let button = html.querySelector('#hathdl_xres');
-    // button.value = 'org';
-    // block = html.createElement('input');
-    // block.type = 'submit';
-    // block.value = `${size} / ${price}`;
-    // form.appendChild(block);
 
-    // let frame = document.createElement('iframe');
-    // frame.srcdoc = form.outerHTML;
-    // frame.sandbox.add('allow-forms');
-    // frame.style.width = '50%';
-    // frame.style.height = '50px';
-    // frame.style.borderWidth = '0px';
-    // frame = element.parentElement.insertAdjacentElement('afterend', frame);
-
-    form = form.action;
+    url = form.action;
     block = document.createElement('div');
+    block.style.marginLeft = '14px';
+    block.style.marginTop = '7px';
+    block.style.cursor = 'pointer';
     block.textContent = `${size} / ${price}`;
+    block.id = 'btn-dl-archive';
     block.addEventListener('click', (event) => {
-      post(form, {
-        hathdl_xres: 'org',
-      }, {
-        Referer: form,
-      }).then((r) => {
-        console.info('response', r);
-      }).catch((e) => {
+      downloadArchive(url).catch((e) => {
         console.warn(e);
       });
     });
@@ -212,6 +196,24 @@ function addHint (message) {
 }
 
 
+async function downloadArchive (url) {
+  let html = await post(url, {
+    hathdl_xres: 'org',
+  }, {
+    Referer: url,
+  });
+  let msg = 'Downloads should start processing within a couple of minutes.';
+  let btn = document.querySelector('#btn-dl-archive');
+  if (html.indexOf(msg) >= 0) {
+    btn.style.backgroundColor = 'green';
+  } else {
+    btn.style.backgroundColor = 'green';
+  }
+  await wait(5000);
+  btn.style.backgroundColor = '';
+}
+
+
 function get (url, args) {
   url = new URL(url);
   if (args) {
@@ -253,7 +255,7 @@ function post (url, args, header) {
 
   return new Promise((resolve, reject) => {
     GM_xmlhttpRequest({
-      header: headers,
+      headers: headers,
       method: 'POST',
       data: data.toString(),
       onload: (response) => {
@@ -264,5 +266,12 @@ function post (url, args, header) {
       },
       url: url.toString(),
     });
+  });
+}
+
+
+function wait (msDelay) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, msDelay);
   });
 }
