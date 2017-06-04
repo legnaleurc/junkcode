@@ -11,10 +11,10 @@ class Network(object):
         self._access_token = access_token
         self._http = thc.AsyncHTTPClient()
         self._headers = {
-            'Authorization': 'Bearer '.format(self._access_token),
+            'Authorization': 'Bearer {0}'.format(self._access_token),
         }
 
-    async def get(self, path, headers=None, args=None):
+    async def get(self, path, args=None, headers=None):
         while True:
             rv = await self._do_request('GET', path, headers, args)
             if rv.status[0] == '2':
@@ -36,8 +36,9 @@ class Network(object):
             'method': method,
             'headers': headers,
         }
+        request = thc.HTTPRequest(**args)
 
-        rv = await self._http.fetch(**args)
+        rv = await self._http.fetch(request)
         return Response(rv)
 
     def _prepare_headers(self, headers):

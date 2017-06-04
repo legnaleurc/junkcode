@@ -1,5 +1,7 @@
 import os.path as op
 
+from tornado import ioloop as ti
+
 from .drive import Drive
 
 
@@ -20,12 +22,22 @@ def print_node(name, level):
     level = ' ' * level
     print(level + name)
 
-path = op.expanduser('~/.cache/wcpan/gd')
-drive = Drive(path)
-drive.initialize()
-drive.sync()
 
-node = drive.get_node_by_path('/Amazon Drive Downloads/iPhone/AMZN_2015-12-11_20_49_30.jpeg')
-drive.download_by_id(node.id_, '/tmp')
+async def main(args=None):
+    path = op.expanduser('~/.cache/wcpan/gd')
+    drive = Drive(path)
+    drive.initialize()
+    drive.sync()
 
-drive.close()
+    node = drive.get_node_by_path('/Amazon Drive Downloads/iPhone/AMZN_2015-12-11_20_49_30.jpeg')
+    await drive.download_by_id(node.id_, '/tmp')
+
+    drive.close()
+
+    return 0
+
+
+main_loop = ti.IOLoop.instance()
+main_loop.run_sync(main)
+main_loop.close()
+
