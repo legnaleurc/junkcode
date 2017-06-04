@@ -2,15 +2,21 @@ import json
 import time
 import urllib.parse as up
 
+from tornado import httpclient as thc
+
 
 class Network(object):
 
-    def __init__(self, http):
-        self._http = http
+    def __init__(self, access_token):
+        self._access_token = access_token
+        self._http = thc.AsyncHTTPClient()
+        self._headers = {
+            'Authorization': 'Bearer '.format(self._access_token),
+        }
 
-    def get(self, path, args=None):
+    async def get(self, path, headers=None, args=None):
         while True:
-            rv = self._get(path, args)
+            rv = await self._do_request('GET', path, headers, args)
             if rv.status[0] == '2':
                 return rv
             if rv.status == '403':
@@ -19,26 +25,39 @@ class Network(object):
                 continue
             raise Exception('request error')
 
-    def _get(self, path, args):
+    async def _do_request(self, method, path, headers, args):
+        headers = self._prepare_headers(headers)
         if args is not None:
             args = up.urlencode(args)
             path = '{0}?{1}'.format(path, args)
-        response, content = self._http.request(path, 'GET')
-        return Response(response, content)
+
+        args = {
+            'url': path,
+            'method': method,
+            'headers': headers,
+        }
+
+        rv = await self._http.fetch(**args)
+        return Response(rv)
+
+    def _prepare_headers(self, headers):
+        h = dict(self._headers)
+        if headers is not None:
+            h.update(headers)
+        return h
 
 
 class Response(object):
 
-    def __init__(self, response, content):
+    def __init__(self, response):
         self._response = response
-        self._content = content
 
     @property
     def status(self):
-        return self._response['status']
+        return str(self._response.code)
 
     @property
     def json_(self):
-        decoded = self._content.decode('utf-8')
+        decoded = self._response.body.decode('utf-8')
         rv = json.loads(decoded)
         return rv

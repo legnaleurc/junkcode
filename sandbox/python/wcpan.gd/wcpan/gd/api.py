@@ -31,8 +31,8 @@ class Client(object):
         # HACK undocumented behavior
         self._oauth.settings.update(args)
         self._oauth.CommandLineAuth()
-        http = self._oauth.Get_Http_Object()
-        self._network = Network(http)
+        # HACK undocumented behavior
+        self._network = Network(self._oauth.credentials.access_token)
         self._api = {
             'changes': Changes(self._network),
             'files': Files(self._network),
