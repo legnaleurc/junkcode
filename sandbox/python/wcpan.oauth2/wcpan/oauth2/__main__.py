@@ -6,18 +6,19 @@ from tornado import ioloop as ti, httpclient as thc
 
 class GoogleOAuth2(object):
 
-    def __init__(self, auth_uri, token_uri, client_id, client_secret, scope):
+    def __init__(self, auth_uri, token_uri, client_id, client_secret, scope, redirect_uri):
         self._auth_uri = auth_uri
         self._token_uri = token_uri
         self._client_id = client_id
         self._client_secret = client_secret
         self._scope = scope
+        self._redirect_uri = redirect_uri
         self._http = thc.AsyncHTTPClient()
 
-    def get_auth_url(self, redirect_uri):
+    def get_auth_url(self, ):
         args = {
             'client_id': self._client_id,
-            'redirect_uri': redirect_uri,
+            'redirect_uri': self._redirect_uri,
             'scope': self._scope,
             'access_type': 'offline',
             'response_type': 'code',
@@ -32,6 +33,7 @@ class GoogleOAuth2(object):
             'scope': self._scope,
             'client_secret': self._client_secret,
             'grant_type': 'authorization_code',
+            'redirect_uri': self._redirect_uri,
         }
         body = up.urlencode(body)
         args = {
@@ -54,16 +56,17 @@ async def main(args=None):
         rv = json.load(fin)
 
     installed = rv['installed']
+    redirect_uri = installed['redirect_uris'][0]
     args = {
         'auth_uri': installed['auth_uri'],
         'token_uri': installed['token_uri'],
         'client_id': installed['client_id'],
         'client_secret': installed['client_secret'],
         'scope': 'https://www.googleapis.com/auth/drive',
+        'redirect_uri': redirect_uri,
     }
     auth = GoogleOAuth2(**args)
-    redirect_uri = installed['redirect_uris'][0]
-    url = auth.get_auth_url(redirect_uri)
+    url = auth.get_auth_url()
     print(url)
     code = input('code: ')
     await auth.exchange(code)
