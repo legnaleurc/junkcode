@@ -14,9 +14,10 @@ class Network(object):
             'Authorization': 'Bearer {0}'.format(self._access_token),
         }
 
-    async def get(self, path, args=None, headers=None):
+    async def get(self, path, args=None, headers=None, streaming_callback=None):
         while True:
-            rv = await self._do_request('GET', path, headers, args)
+            rv = await self._do_request('GET', path, headers, args,
+                                        streaming_callback)
             if rv.status[0] == '2':
                 return rv
             if rv.status == '403':
@@ -25,7 +26,8 @@ class Network(object):
                 continue
             raise Exception('request error')
 
-    async def _do_request(self, method, path, headers, args):
+    async def _do_request(self, method, path, headers, args,
+                          streaming_callback):
         headers = self._prepare_headers(headers)
         if args is not None:
             args = up.urlencode(args)
@@ -35,6 +37,7 @@ class Network(object):
             'url': path,
             'method': method,
             'headers': headers,
+            'streaming_callback': streaming_callback,
         }
         request = thc.HTTPRequest(**args)
 

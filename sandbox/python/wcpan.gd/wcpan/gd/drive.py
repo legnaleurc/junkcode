@@ -1,3 +1,5 @@
+import os.path as op
+
 from .api import Client
 from .database import Database, Node
 from .util import Settings
@@ -72,9 +74,27 @@ class Drive(object):
 
     async def download_by_id(self, node_id, path):
         node = self.get_node_by_id(node_id)
+
+        # sanity check
         if not node:
             return False
         if node.is_folder:
             return False
-        rv = await self._client.files.get(fileId=node_id, alt='media')
-        print(rv._content)
+        if not op.exists(path):
+            return False
+
+        # resume download
+        tmp_path = op.join(path, node.name + '.__tmp__')
+        if op.exists(tmp_path):
+            offset = op.getsize(tmp_path)
+        else:
+            offset = 0
+        range_ = (offset, node.size, node.size)
+
+        with open(tmp_path, 'ab') as fout:
+            def writer(chunk):
+                print(len(chunk))
+                fout.write(chunk)
+            api = self._client.files
+            rv = await api.download(fileId=node_id, range_=range_,
+                                    streamingCallback=writer)

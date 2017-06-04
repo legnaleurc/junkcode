@@ -90,16 +90,30 @@ class Files(object):
         self._network = network
         self._root = API_ROOT + '/files'
 
-    async def get(self, fileId, acknowledgeAbuse=False,
-                  supportsTeamDrives=False, fields=None, alt=None):
+    # only for metadata
+    async def get(self, fileId, supportsTeamDrives=False, fields=None):
         args = {
             'fileId': fileId,
-            'acknowledgeAbuse': acknowledgeAbuse,
             'supportsTeamDrives': supportsTeamDrives,
         }
         if fields:
             args['fields'] = fields
-        if alt:
-            args['alt'] = alt
         rv = await self._network.get(self._root + '/' + fileId, args)
+        return rv
+
+    # download to file
+    async def download(self, fileId, range_, streamingCallback,
+                       acknowledgeAbuse=False, supportsTeamDrives=False):
+        args = {
+            'fileId': fileId,
+            'acknowledgeAbuse': acknowledgeAbuse,
+            'supportsTeamDrives': supportsTeamDrives,
+            'alt': 'media',
+        }
+        headers = {
+            'Content-Range': 'bytes {0}-{1}/{2}'.format(*range_),
+        }
+        rv = await self._network.get(self._root + '/' + fileId, args,
+                                     headers=headers,
+                                     streaming_callback=streamingCallback)
         return rv
