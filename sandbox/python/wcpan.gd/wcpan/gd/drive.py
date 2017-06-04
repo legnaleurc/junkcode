@@ -17,7 +17,7 @@ class Drive(object):
         self._client.initialize()
         self._db.initialize()
 
-    def sync(self):
+    async def sync(self):
         assert self._client.authorized
 
         try:
@@ -27,7 +27,7 @@ class Drive(object):
 
         # first time, get root node
         if check_point == '1':
-            rv = self._client.files.get('root', fields='id,name,mimeType,trashed,parents,createdTime,modifiedTime')
+            rv = await self._client.files.get('root', fields='id,name,mimeType,trashed,parents,createdTime,modifiedTime')
             rv = rv.json_
             rv['name'] = None
             rv['parents'] = []
@@ -43,7 +43,7 @@ class Drive(object):
         }
 
         while new_start_page_token is None:
-            rv = self._client.changes.list_(**changes_list_args)
+            rv = await self._client.changes.list_(**changes_list_args)
             rv = rv.json_
             next_page_token = rv.get('nextPageToken', None)
             new_start_page_token = rv.get('newStartPageToken', None)
@@ -70,11 +70,11 @@ class Drive(object):
     def get_children_by_id(self, node_id):
         return self._db.get_children_by_id(node_id)
 
-    def download_by_id(self, node_id, path):
+    async def download_by_id(self, node_id, path):
         node = self.get_node_by_id(node_id)
         if not node:
             return False
         if node.is_folder:
             return False
-        rv = self._client.files.get(fileId=node_id, alt='media')
+        rv = await self._client.files.get(fileId=node_id, alt='media')
         print(rv._content)
