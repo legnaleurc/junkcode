@@ -81,7 +81,7 @@ class Changes(object):
         if fields:
             args['fields'] = fields
         rv = self._network.get(self._root, args)
-        return rv.json_
+        return rv
 
 
 class Files(object):
@@ -91,7 +91,7 @@ class Files(object):
         self._root = API_ROOT + '/files'
 
     def get(self, fileId, acknowledgeAbuse=False, supportsTeamDrives=False,
-            fields=None):
+            fields=None, alt=None):
         args = {
             'fileId': fileId,
             'acknowledgeAbuse': acknowledgeAbuse,
@@ -99,5 +99,7 @@ class Files(object):
         }
         if fields:
             args['fields'] = fields
+        if alt:
+            args['alt'] = alt
         rv = self._network.get(self._root + '/' + fileId, args)
-        return rv.json_
+        return rv

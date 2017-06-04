@@ -25,4 +25,7 @@ drive = Drive(path)
 drive.initialize()
 drive.sync()
 
+node = drive.get_node_by_path('/Amazon Drive Downloads/iPhone/AMZN_2015-12-11_20_49_30.jpeg')
+drive.download_by_id(node.id_, '/tmp')
+
 drive.close()
