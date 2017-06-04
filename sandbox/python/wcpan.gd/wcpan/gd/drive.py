@@ -47,7 +47,6 @@ class Drive(object):
             new_start_page_token = rv.get('newStartPageToken', None)
             changes = rv['changes']
 
-            print('next_page_token: {0}, new_start_page_token: {1}, changes: {2}'.format(next_page_token, new_start_page_token, len(changes)))
             check_point = next_page_token if next_page_token is not None else new_start_page_token
 
             self._db.apply_changes(changes, check_point)

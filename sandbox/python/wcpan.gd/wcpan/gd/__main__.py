@@ -25,8 +25,4 @@ drive = Drive(path)
 drive.initialize()
 drive.sync()
 
-rv = drive.get_node_by_path('/Amazon Drive Downloads')
-rv = drive.get_path_by_id(rv.id_)
-print(rv)
-
 drive.close()
