@@ -20,9 +20,10 @@ def main(args=None):
     with sql.connect(dbf) as db:
         for node_id, in get_files(db):
             rv = get_orphan_ancestor(db, node_id)
-            if rv:
-                data = move_to_orphan(db, client, rv)
-                print(data)
+            if not rv:
+                continue
+            rv = move_to_orphan(db, client, rv)
+            print(rv)
 
     return 0
 
@@ -34,7 +35,7 @@ def get_files(db):
             FROM `files`
             LEFT JOIN `nodes`
                 ON `nodes`.`id` = `files`.`id`
-            WHERE `status` = 'AVAILABLE'
+            WHERE `status` = 'TRASH'
         ;''')
         while True:
             rv = query.fetchone()
@@ -66,7 +67,10 @@ def move_to_orphan(db, client, node_id_list):
             else:
                 break
 
-    rv = client.move_to_trash(last_node_id)
+    # rv = last_node_id
+    # rv = client.move_to_trash(last_node_id)
+    parent_id, = get_parent(db, last_node_id)
+    rv = client.remove_child(parent_id, last_node_id)
     return rv
 
 
@@ -75,7 +79,6 @@ def get_parent(db, node_id):
         query.execute('SELECT `parent` FROM `parentage` WHERE `child` = ?;', (node_id, ))
         rv = query.fetchone()
         return rv
-
 
 
 if __name__ == '__main__':
