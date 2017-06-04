@@ -89,7 +89,7 @@ class Drive(object):
             offset = op.getsize(tmp_path)
         else:
             offset = 0
-        range_ = (offset, node.size, node.size)
+        range_ = (offset, node.size)
 
         with open(tmp_path, 'ab') as fout:
             def writer(chunk):

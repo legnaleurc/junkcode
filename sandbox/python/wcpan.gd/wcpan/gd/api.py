@@ -111,7 +111,7 @@ class Files(object):
             'alt': 'media',
         }
         headers = {
-            'Content-Range': 'bytes {0}-{1}/{2}'.format(*range_),
+            'Range': 'bytes={0}-{1}'.format(*range_),
         }
         rv = await self._network.get(self._root + '/' + fileId, args,
                                      headers=headers,
