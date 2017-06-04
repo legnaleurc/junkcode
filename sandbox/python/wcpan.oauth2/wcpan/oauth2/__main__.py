@@ -47,8 +47,9 @@ class GoogleOAuth2(object):
         r = thc.HTTPRequest(**args)
         rv = await self._http.fetch(r)
         body = rv.body
-        body.decode('utf-8')
-        print(body)
+        body = body.decode('utf-8')
+        body = json.loads(body)
+        return body
 
 
 async def main(args=None):
@@ -69,7 +70,8 @@ async def main(args=None):
     url = auth.get_auth_url()
     print(url)
     code = input('code: ')
-    await auth.exchange(code)
+    oauth_token = await auth.exchange(code)
+    print(oauth_token)
 
 
 main_loop = ti.IOLoop.instance()
