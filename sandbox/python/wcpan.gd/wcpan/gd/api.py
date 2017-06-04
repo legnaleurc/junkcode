@@ -57,14 +57,14 @@ class Changes(object):
         self._network = network
         self._root = API_ROOT + '/changes'
 
-    def getStartPageToken(self):
-        rv = self._network.get(self._root + '/startPageToken')
+    async def getStartPageToken(self):
+        rv = await self._network.get(self._root + '/startPageToken')
         return rv.json_
 
-    def list_(self, pageToken, includeCorpusRemovals=False,
-              includeRemoved=True, includeTeamDriveItems=False, pageSize=100,
-              restrictToMyDrive=False, spaces=None, supportsTeamDrives=False,
-              teamDriveId=None, fields=None):
+    async def list_(self, pageToken, includeCorpusRemovals=False,
+                    includeRemoved=True, includeTeamDriveItems=False,
+                    pageSize=100, restrictToMyDrive=False, spaces=None,
+                    supportsTeamDrives=False, teamDriveId=None, fields=None):
         args = {
             'pageToken': pageToken,
             'includeCorpusRemovals': includeCorpusRemovals,
@@ -80,7 +80,7 @@ class Changes(object):
             args['includeTeamDriveItems'] = includeTeamDriveItems
         if fields:
             args['fields'] = fields
-        rv = self._network.get(self._root, args)
+        rv = await self._network.get(self._root, args)
         return rv
 
 
@@ -90,8 +90,8 @@ class Files(object):
         self._network = network
         self._root = API_ROOT + '/files'
 
-    def get(self, fileId, acknowledgeAbuse=False, supportsTeamDrives=False,
-            fields=None, alt=None):
+    async def get(self, fileId, acknowledgeAbuse=False,
+                  supportsTeamDrives=False, fields=None, alt=None):
         args = {
             'fileId': fileId,
             'acknowledgeAbuse': acknowledgeAbuse,
@@ -101,5 +101,5 @@ class Files(object):
             args['fields'] = fields
         if alt:
             args['alt'] = alt
-        rv = self._network.get(self._root + '/' + fileId, args)
+        rv = await self._network.get(self._root + '/' + fileId, args)
         return rv
