@@ -30,7 +30,7 @@ async def main(args=None):
     await drive.sync()
 
     node = drive.get_node_by_path('/')
-    rv = drive.upload_file('/tmp/license.txt', node)
+    rv = await drive.upload_file('/tmp/license.txt', node)
     print(rv)
 
     drive.close()

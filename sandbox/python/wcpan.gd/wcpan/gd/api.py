@@ -131,7 +131,7 @@ class Files(object):
             'uploadType': 'resumable',
         }
         headers = {
-            'X-Upload-Content-Length': fileSize,
+            'X-Upload-Content-Length': totalFileSize,
             'Content-Type': 'application/json; charset=UTF-8',
             'Content-Length': len(metadata),
         }
