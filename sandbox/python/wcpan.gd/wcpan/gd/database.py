@@ -372,7 +372,7 @@ def inner_insert_node(query, node):
     # add parentage
     for parent in node.parents:
         query.execute('''
-            INSERT INTO parentage
+            INSERT OR REPLACE INTO parentage
             (parent, child)
             VALUES
             (?, ?)
