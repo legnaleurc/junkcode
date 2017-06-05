@@ -2,7 +2,7 @@ import json
 import time
 import urllib.parse as up
 
-from tornado import httpclient as thc
+from tornado import httpclient as thc, httputil as thu
 
 
 class Network(object):
@@ -14,34 +14,43 @@ class Network(object):
             'Authorization': 'Bearer {0}'.format(self._access_token),
         }
 
-    async def get(self, path, args=None, headers=None, streaming_callback=None):
+    async def get(self, path, args=None, headers=None, streaming_callback=None,
+                  body=None, body_producer=None):
         while True:
-            rv = await self._do_request('GET', path, headers, args,
-                                        streaming_callback)
-            if rv.status[0] == '2':
+            rv = await self._do_request('GET', path, args, headers,
+                                        streaming_callback, body, body_producer)
+            rv = self._maybe_backoff(rv)
+            if rv:
                 return rv
-            if rv.status == '403':
-                # FIXME blocking thread, backoff strategy
-                time.sleep(5)
-                continue
-            raise Exception('request error')
 
-    async def _do_request(self, method, path, headers, args,
-                          streaming_callback):
+    async def post(self, path, args=None, headers=None, streaming_callback=None,
+                   body=None, body_producer=None):
+        while True:
+            rv = await self._do_request('POST', path, args, headers,
+                                        streaming_callback, body, body_producer)
+            rv = self._maybe_backoff(rv)
+            if rv:
+                return rv
+
+    async def _do_request(self, method, path, args, headers,
+                          streaming_callback, body, body_producer):
+        # TODO wait for backoff timeout
+
         headers = self._prepare_headers(headers)
         if args is not None:
-            args = up.urlencode(args)
-            path = '{0}?{1}'.format(path, args)
+            path = thu.url_concat(path, args)
 
         args = {
             'url': path,
             'method': method,
             'headers': headers,
+            'body': body,
+            'body_producer': body_producer,
             'streaming_callback': streaming_callback,
         }
         request = thc.HTTPRequest(**args)
 
-        rv = await self._http.fetch(request)
+        rv = await self._http.fetch(request, raise_error=False)
         return Response(rv)
 
     def _prepare_headers(self, headers):
@@ -50,18 +59,34 @@ class Network(object):
             h.update(headers)
         return h
 
+    def _maybe_backoff(self, response):
+        if response.status != '403':
+            return rv
+        msg = response.json_
+        domain = msg['error']['errors'][0]['domain']
+        if domain != 'usageLimits':
+            return rv
+        # TODO implement backoff strategy
+        raise Exception('API rate limit')
+
 
 class Response(object):
 
     def __init__(self, response):
         self._response = response
+        self._status = str(self._response.code)
+        self._parsed_json = False
+        self._json = None
 
     @property
     def status(self):
-        return str(self._response.code)
+        return self._status
 
     @property
     def json_(self):
-        decoded = self._response.body.decode('utf-8')
-        rv = json.loads(decoded)
-        return rv
+        if not self._parsed_json:
+            rv = self._response.body.decode('utf-8')
+            rv = json.loads(rv)
+            self._json = rv
+            self._parsed_json = True
+        return self._json
