@@ -189,8 +189,12 @@ class Database(object):
     def apply_changes(self, changes, check_point):
         with ReadWrite(self._db) as query:
             for change in changes:
-                node = Node.from_api(change['file'])
-                inner_insert_node(query, node)
+                is_removed = change['removed']
+                if is_removed:
+                    inner_delete_node_by_id(query, change['fileId'])
+                else:
+                    node = Node.from_api(change['file'])
+                    inner_insert_node(query, node)
 
             self.metadata['check_point'] = check_point
 
@@ -350,7 +354,7 @@ class ReadWrite(object):
 def inner_insert_node(query, node):
     # add this node
     query.execute('''
-        INSERT INTO nodes
+        INSERT OR REPLACE INTO nodes
         (id, name, status, created, modified)
         VALUES
         (?, ?, ?, ?, ?)
@@ -359,7 +363,7 @@ def inner_insert_node(query, node):
     # add file information
     if not node.is_folder:
         query.execute('''
-            INSERT INTO files
+            INSERT OR REPLACE INTO files
             (id, md5, size)
             VALUES
             (?, ?, ?)
@@ -373,6 +377,26 @@ def inner_insert_node(query, node):
             VALUES
             (?, ?)
         ;''', (parent, node.id_))
+
+
+def inner_delete_node_by_id(query, node_id):
+    # disconnect parents
+    query.execute('''
+        DELETE FROM parentage
+        WHERE child=?
+    ;''', (node_id,))
+
+    # remove from files
+    query.execute('''
+        DELETE FROM files
+        WHERE id=?
+    ;''', (node_id,))
+
+    # remove from nodes
+    query.execute('''
+        DELETE FROM nodes
+        WHERE id=?
+    ;''', (node_id,))
 
 
 def initialize():

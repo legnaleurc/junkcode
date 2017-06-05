@@ -29,9 +29,6 @@ async def main(args=None):
     drive.initialize()
     await drive.sync()
 
-    node = drive.get_node_by_path('/Amazon Drive Downloads/iPhone/AMZN_2015-12-11_20_49_30.jpeg')
-    await drive.download_by_id(node.id_, '/tmp')
-
     drive.close()
 
     return 0

@@ -41,7 +41,7 @@ class Drive(object):
             'pageToken': check_point,
             'pageSize': 1000,
             'restrictToMyDrive': True,
-            'fields': 'nextPageToken,newStartPageToken,changes(file(id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size))',
+            'fields': 'nextPageToken,newStartPageToken,changes(fileId,removed,file(id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size))',
         }
 
         while new_start_page_token is None:
