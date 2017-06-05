@@ -122,6 +122,9 @@ class Drive(object):
                                                totalFileSize=total_file_size,
                                                mimeType=mt)
         # TODO handle errors, assuming 200
+        if rv.status != '200':
+            print('first', rv.json_)
+            raise Exception('test')
         url = rv.get_header('Location')
 
         with open(file_path, 'rb') as fin:
@@ -131,6 +134,9 @@ class Drive(object):
 
             rv = await files_api.upload(url, bodyProducer=reader, offset=0,
                                         bodySize=total_file_size, mimeType=mt)
+            if rv.status != '200':
+                print('second', rv.json_)
+                raise Exception('test')
             # TODO handle errors, assuming 200
 
         rv = rv.json_

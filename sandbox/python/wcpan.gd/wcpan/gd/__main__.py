@@ -29,7 +29,7 @@ async def main(args=None):
     await drive.sync()
 
     node = drive.get_node_by_path('/')
-    rv = await drive.upload_file('/tmp/license.txt', node)
+    rv = await drive.upload_file('/tmp/a.txt', node)
     print(rv)
 
     drive.close()
@@ -40,4 +40,3 @@ async def main(args=None):
 main_loop = ti.IOLoop.instance()
 main_loop.run_sync(main)
 main_loop.close()
-

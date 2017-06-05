@@ -3,6 +3,7 @@ import json
 from pydrive.auth import GoogleAuth
 
 from .network import Network
+from . import util as u
 
 
 API_ROOT = 'https://www.googleapis.com/drive/v3'
@@ -63,25 +64,22 @@ class Changes(object):
         rv = await self._network.get(self._root + '/startPageToken')
         return rv.json_
 
-    async def list_(self, pageToken, includeCorpusRemovals=False,
-                    includeRemoved=True, includeTeamDriveItems=False,
-                    pageSize=100, restrictToMyDrive=False, spaces=None,
-                    supportsTeamDrives=False, teamDriveId=None, fields=None):
+    @u.optional(
+        'includeCorpusRemovals',
+        'includeRemoved',
+        'includeTeamDriveItems',
+        'pageSize',
+        'restrictToMyDrive',
+        'spaces',
+        'supportsTeamDrives',
+        'teamDriveId',
+        'fields',
+    )
+    async def list_(self, pageToken, **kwargs):
         args = {
             'pageToken': pageToken,
-            'includeCorpusRemovals': includeCorpusRemovals,
-            'includeRemoved': includeRemoved,
-            'pageSize': pageSize,
-            'restrictToMyDrive': restrictToMyDrive,
-            'supportsTeamDrives': supportsTeamDrives,
         }
-        if spaces:
-            args['spaces'] = spaces
-        if teamDriveId:
-            args['teamDriveId'] = teamDriveId
-            args['includeTeamDriveItems'] = includeTeamDriveItems
-        if fields:
-            args['fields'] = fields
+        args.update(kwargs)
         rv = await self._network.get(self._root, args)
         return rv
 
@@ -94,25 +92,42 @@ class Files(object):
         self._upload_uri = 'https://www.googleapis.com/upload/drive/v3/files'
 
     # only for metadata
-    async def get(self, fileId, supportsTeamDrives=False, fields=None):
-        args = {
-            'fileId': fileId,
-            'supportsTeamDrives': supportsTeamDrives,
-        }
-        if fields:
-            args['fields'] = fields
+    @u.optional(
+        'supportsTeamDrives',
+        'fields',
+    )
+    async def get(self, fileId, **kwargs):
+        args = kwargs
         rv = await self._network.get(self._root + '/' + fileId, args)
         return rv
 
-    # download to file
-    async def download(self, fileId, range_, streamingCallback,
-                       acknowledgeAbuse=False, supportsTeamDrives=False):
+    @u.optional(
+        'corpora',
+        'corpus',
+        'includeTeamDriveItems',
+        'orderBy',
+        'pageSize',
+        'pageToken',
+        'q',
+        'spaces',
+        'supportsTeamDrives',
+        'teamDriveId',
+    )
+    async def list_(self, **kwargs):
+        args = kwargs
+        rv = await self._network.get(self._root, args)
+        return rv
+
+    # download and send to streamingCallback
+    @u.optional(
+        'acknowledgeAbuse',
+        'supportsTeamDrives',
+    )
+    async def download(self, fileId, range_, streamingCallback, **kwargs):
         args = {
-            'fileId': fileId,
-            'acknowledgeAbuse': acknowledgeAbuse,
-            'supportsTeamDrives': supportsTeamDrives,
             'alt': 'media',
         }
+        args.update(**kwargs)
         headers = {
             'Range': 'bytes={0}-{1}'.format(*range_),
         }
@@ -121,7 +136,8 @@ class Files(object):
                                      streaming_callback=streamingCallback)
         return rv
 
-    async def initiateUploading(self, fileName, totalFileSize, mimeType=None):
+    @u.optional('mimeType')
+    async def initiateUploading(self, fileName, totalFileSize, *kwargs):
         metadata = {
             'name': fileName,
         }
@@ -135,20 +151,23 @@ class Files(object):
             'Content-Type': 'application/json; charset=UTF-8',
             'Content-Length': len(metadata),
         }
-        if mimeType is not None:
-            headers['X-Upload-Content-Type'] = mimeType
+        mime_type = kwargs.get('mimeType', None)
+        if mime_type is not None:
+            headers['X-Upload-Content-Type'] = mime_type
         rv = await self._network.post(self._upload_uri, args, headers=headers,
                                       body=metadata)
         return rv
 
-    async def upload(self, uri, bodyProducer, offset, bodySize, mimeType=None):
+    @u.optional('mimeType')
+    async def upload(self, uri, bodyProducer, offset, bodySize):
         headers = {
             'Content-Length': bodySize - offset,
             'Content-Range': 'bytes {0}-{1}/{2}'.format(offset, bodySize - 1,
                                                         bodySize),
         }
-        if mimeType is not None:
-            headers['Content-Type'] = mimeType
+        mime_type = kwargs.get('mimeType', None)
+        if mime_type is not None:
+            headers['Content-Type'] = mime_type
         rv = await self._network.put(uri, headers=headers,
                                      body_producer=bodyProducer)
         return rv
