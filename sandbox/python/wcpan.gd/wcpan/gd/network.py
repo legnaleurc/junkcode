@@ -70,11 +70,11 @@ class Network(object):
 
     def _maybe_backoff(self, response):
         if response.status != '403':
-            return rv
+            return response
         msg = response.json_
         domain = msg['error']['errors'][0]['domain']
         if domain != 'usageLimits':
-            return rv
+            return response
         # TODO implement backoff strategy
         raise Exception('API rate limit')
 
