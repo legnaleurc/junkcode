@@ -127,12 +127,11 @@ class Drive(object):
 
         total_file_size = op.getsize(file_path)
         mt, e = mimetypes.guess_type(file_path)
-        rv = await files_api.initiateUploading(fileName=file_name,
-                                               totalFileSize=total_file_size,
-                                               mimeType=mt)
+        rv = await files_api.initiate_uploading(file_name=file_name,
+                                                total_file_size=total_file_size,
+                                                mime_type=mt)
         # TODO handle errors, assuming 200
         if rv.status != '200':
-            print('first', rv.json_)
             raise Exception('test')
         url = rv.get_header('Location')
 
@@ -141,10 +140,10 @@ class Drive(object):
                 chunk = fin.read(65536)
                 await write(chunk)
 
-            rv = await files_api.upload(url, bodyProducer=reader, offset=0,
-                                        bodySize=total_file_size, mimeType=mt)
+            rv = await files_api.upload(url, body=reader, offset=0,
+                                        total_file_size=total_file_size,
+                                        mime_type=mt)
             if rv.status != '200':
-                print('second', rv.json_)
                 raise Exception('test')
             # TODO handle errors, assuming 200
 
