@@ -31,7 +31,8 @@ class Drive(object):
 
         # first time, get root node
         if check_point == '1':
-            rv = await self._client.files.get('root', fields='id,name,mimeType,trashed,parents,createdTime,modifiedTime')
+            fields = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime'
+            rv = await self._client.files.get('root', fields=fields)
             rv = rv.json_
             rv['name'] = None
             rv['parents'] = []
@@ -39,11 +40,12 @@ class Drive(object):
             self._db.insert_node(node)
 
         new_start_page_token = None
+        fields = 'nextPageToken,newStartPageToken,changes(fileId,removed,file(id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size))'
         changes_list_args = {
-            'pageToken': check_point,
-            'pageSize': 1000,
-            'restrictToMyDrive': True,
-            'fields': 'nextPageToken,newStartPageToken,changes(fileId,removed,file(id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size))',
+            'page_token': check_point,
+            'page_size': 1000,
+            'restrict_to_my_drive': True,
+            'fields': fields,
         }
 
         while new_start_page_token is None:
@@ -56,7 +58,7 @@ class Drive(object):
             check_point = next_page_token if next_page_token is not None else new_start_page_token
 
             self._db.apply_changes(changes, check_point)
-            changes_list_args['pageToken'] = check_point
+            changes_list_args['page_token'] = check_point
 
     @property
     def root_node(self):
@@ -101,8 +103,8 @@ class Drive(object):
                 fout.write(chunk)
 
             api = self._client.files
-            rv = await api.download(fileId=node_id, range_=range_,
-                                    streamingCallback=writer)
+            rv = await api.download(file_id=node_id, range_=range_,
+                                    consumer=writer)
 
         # TODO rename it back if completed
 

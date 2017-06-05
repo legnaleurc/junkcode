@@ -1,13 +1,17 @@
 import json
+from typing import Awaitable, Callable, Dict, Tuple
 
 from pydrive.auth import GoogleAuth
 
-from .network import Network
-from . import util as u
+from .network import Network, Request
 
 
 API_ROOT = 'https://www.googleapis.com/drive/v3'
 EMPTY_STRING = ''
+
+Consumer = Callable[[bytes], None]
+Producer = Callable[[Callable[[bytes], Awaitable[None]]], Awaitable[None]]
+# producer consumer
 
 
 class Client(object):
@@ -56,126 +60,165 @@ class Client(object):
 
 class Changes(object):
 
-    def __init__(self, network):
+    def __init__(self, network: Network) -> None:
         self._network = network
         self._root = API_ROOT + '/changes'
 
-    async def getStartPageToken(self):
-        rv = await self._network.get(self._root + '/startPageToken')
-        return rv.json_
+    async def get_start_page_token(self, supports_team_drives: bool = None,
+                                   team_drive_id: str = None) -> Request:
+        args = {}
+        if supports_team_drives is not None:
+            args['supportsTeamDrives'] = supports_team_drives
+        if team_drive_id is not None:
+            args['teamDriveId'] = team_drive_id
 
-    @u.optional(
-        'includeCorpusRemovals',
-        'includeRemoved',
-        'includeTeamDriveItems',
-        'pageSize',
-        'restrictToMyDrive',
-        'spaces',
-        'supportsTeamDrives',
-        'teamDriveId',
-        'fields',
-    )
-    async def list_(self, pageToken, **kwargs):
+        rv = await self._network.get(self._root + '/startPageToken', args)
+        return rv
+
+    async def list_(self, page_token: str, include_corpus_removals: bool = None,
+                    include_removed: bool = None,
+                    include_team_drive_items: bool = None,
+                    page_size: int = None, restrict_to_my_drive: bool = None,
+                    spaces: str = None, supports_team_drives: bool = None,
+                    team_drive_id: str = None, fields: str = None) -> Request:
         args = {
-            'pageToken': pageToken,
+            'pageToken': page_token,
         }
-        args.update(kwargs)
+        if include_corpus_removals is not None:
+            args['includeCorpusRemovals'] = include_corpus_removals
+        if include_removed is not None:
+            args['includeRemoved'] = include_removed
+        if include_team_drive_items is not None:
+            args['includeTeamDriveItems'] = include_team_drive_items
+        if page_size is not None:
+            args['pageSize'] = page_size
+        if restrict_to_my_drive is not None:
+            args['restrictToMyDrive'] = restrict_to_my_drive
+        if spaces is not None:
+            args['spaces'] = spaces
+        if supports_team_drives is not None:
+            args['supportsTeamDrives'] = supports_team_drives
+        if team_drive_id is not None:
+            args['teamDriveId'] = team_drive_id
+        if fields is not None:
+            args['fields'] = fields
+
         rv = await self._network.get(self._root, args)
         return rv
 
 
 class Files(object):
 
-    def __init__(self, network):
+    def __init__(self, network: Network) -> None:
         self._network = network
         self._root = API_ROOT + '/files'
         self._upload_uri = 'https://www.googleapis.com/upload/drive/v3/files'
 
     # only for metadata
-    @u.optional(
-        'supportsTeamDrives',
-        'fields',
-    )
-    async def get(self, fileId, **kwargs):
-        args = kwargs
-        rv = await self._network.get(self._root + '/' + fileId, args)
+    async def get(self, file_id: str, supports_team_drives: bool = None,
+                  fields: str = None) -> Request:
+        args = {}
+        if supports_team_drives is not None:
+            args['supportsTeamDrives'] = supports_team_drives
+        if fields is not None:
+            args['fields'] = fields
+
+        rv = await self._network.get(self._root + '/' + file_id, args)
         return rv
 
-    @u.optional(
-        'corpora',
-        'corpus',
-        'includeTeamDriveItems',
-        'orderBy',
-        'pageSize',
-        'pageToken',
-        'q',
-        'spaces',
-        'supportsTeamDrives',
-        'teamDriveId',
-    )
-    async def list_(self, **kwargs):
-        args = kwargs
+    async def list_(self, corpora: str = None, corpus: str = None,
+                    include_team_drive_items: bool = None, order_by: str = None,
+                    page_size: int = None, page_token: str = None,
+                    q: str = None, spaces: str = None,
+                    supports_team_drives: bool = None,
+                    team_drive_id: str = None) -> Request:
+        args = {}
+        if corpora is not None:
+            args['corpora'] = corpora
+        if corpus is not None:
+            args['corpus'] = corpus
+        if include_team_drive_items is not None:
+            args['includeTeamDriveItems'] = include_team_drive_items
+        if order_by is not None:
+            args['orderBy'] = order_by
+        if page_size is not None:
+            args['pageSize'] = page_size
+        if page_token is not None:
+            args['pageToken'] = page_token
+        if q is not None:
+            args['q'] = q
+        if spaces is not None:
+            args['spaces'] = spaces
+        if supports_team_drives is not None:
+            args['supportsTeamDrives'] = supports_team_drives
+        if team_drive_id is not None:
+            args['teamDriveId'] = team_drive_id
+
         rv = await self._network.get(self._root, args)
         return rv
 
-    # download and send to streamingCallback
-    @u.optional(
-        'acknowledgeAbuse',
-        'supportsTeamDrives',
-    )
-    async def download(self, fileId, range_, streamingCallback, **kwargs):
+    # download and send to streaming_callback
+    async def download(self, file_id: str, range_: Tuple[int, int],
+                       consumer: Consumer, acknowledge_abuse: bool = None,
+                       supports_team_drives: bool = None) -> Request:
         args = {
             'alt': 'media',
         }
-        args.update(**kwargs)
+        if acknowledge_abuse is not None:
+            args['acknowledgeAbuse'] = acknowledge_abuse
+        if supports_team_drives is not None:
+            args['supportsTeamDrives'] = supports_team_drives
+
         headers = {
             'Range': 'bytes={0}-{1}'.format(*range_),
         }
-        rv = await self._network.get(self._root + '/' + fileId, args,
-                                     headers=headers,
-                                     streaming_callback=streamingCallback)
+
+        rv = await self._network.get(self._root + '/' + file_id, args,
+                                     headers=headers, consumer=consumer)
         return rv
 
-    @u.optional('mimeType')
-    async def initiateUploading(self, fileName, totalFileSize, *kwargs):
+    async def initiate_uploading(self, file_name: str, total_file_size: int,
+                                 mime_type: str = None) -> Request:
         metadata = {
-            'name': fileName,
+            'name': file_name,
         }
         metadata = json.dumps(metadata)
         metadata = metadata.encode('utf-8')
-        args = {
-            'uploadType': 'resumable',
-        }
         headers = {
-            'X-Upload-Content-Length': totalFileSize,
+            'X-Upload-Content-Length': total_file_size,
             'Content-Type': 'application/json; charset=UTF-8',
             'Content-Length': len(metadata),
         }
-        mime_type = kwargs.get('mimeType', None)
         if mime_type is not None:
             headers['X-Upload-Content-Type'] = mime_type
+
+        args = {
+            'uploadType': 'resumable',
+        }
+
         rv = await self._network.post(self._upload_uri, args, headers=headers,
                                       body=metadata)
         return rv
 
-    @u.optional('mimeType')
-    async def upload(self, uri, bodyProducer, offset, bodySize):
+    async def upload(self, uri: str, producer: Producer, offset: int,
+                     total_file_size: int, mime_type: str = None) -> Request:
+        last_position = total_file_size - 1
         headers = {
-            'Content-Length': bodySize - offset,
-            'Content-Range': 'bytes {0}-{1}/{2}'.format(offset, bodySize - 1,
-                                                        bodySize),
+            'Content-Length': total_file_size - offset,
+            'Content-Range': 'bytes {0}-{1}/{2}'.format(offset, last_position,
+                                                        total_file_size),
         }
-        mime_type = kwargs.get('mimeType', None)
         if mime_type is not None:
             headers['Content-Type'] = mime_type
-        rv = await self._network.put(uri, headers=headers,
-                                     body_producer=bodyProducer)
+
+        rv = await self._network.put(uri, headers=headers, body=producer)
         return rv
 
-    async def getUploadStatus(self, uri, totalFileSize):
+    async def get_upload_status(self, uri: str,
+                                total_file_size: int) -> Request:
         headers = {
             'Content-Length': 0,
-            'Content-Range': 'bytes */{0}'.format(totalFileSize),
+            'Content-Range': 'bytes */{0}'.format(total_file_size),
         }
         rv = await self._network.put(uri, headers=headers)
         return rv

@@ -14,35 +14,34 @@ class Network(object):
             'Authorization': 'Bearer {0}'.format(self._access_token),
         }
 
-    async def get(self, path, args=None, headers=None, streaming_callback=None,
-                  body=None, body_producer=None):
+    async def get(self, path, args=None, headers=None, body=None,
+                  consumer=None):
         while True:
-            rv = await self._do_request('GET', path, args, headers,
-                                        streaming_callback, body, body_producer)
+            rv = await self._do_request('GET', path, args, headers, body,
+                                        consumer)
             rv = self._maybe_backoff(rv)
             if rv:
                 return rv
 
-    async def post(self, path, args=None, headers=None, streaming_callback=None,
-                   body=None, body_producer=None):
+    async def post(self, path, args=None, headers=None, body=None,
+                   consumer=None):
         while True:
-            rv = await self._do_request('POST', path, args, headers,
-                                        streaming_callback, body, body_producer)
+            rv = await self._do_request('POST', path, args, headers, body,
+                                        consumer)
             rv = self._maybe_backoff(rv)
             if rv:
                 return rv
 
-    async def put(self, path, args=None, headers=None, streaming_callback=None,
-                   body=None, body_producer=None):
+    async def put(self, path, args=None, headers=None, body=None,
+                  consumer=None):
         while True:
-            rv = await self._do_request('PUT', path, args, headers,
-                                        streaming_callback, body, body_producer)
+            rv = await self._do_request('PUT', path, args, headers, body,
+                                        consumer)
             rv = self._maybe_backoff(rv)
             if rv:
                 return rv
 
-    async def _do_request(self, method, path, args, headers,
-                          streaming_callback, body, body_producer):
+    async def _do_request(self, method, path, args, headers, body, consumer):
         # TODO wait for backoff timeout
 
         headers = self._prepare_headers(headers)
@@ -55,8 +54,13 @@ class Network(object):
             'headers': headers,
             'body': body,
             'body_producer': body_producer,
-            'streaming_callback': streaming_callback,
+            'streaming_callback': consumer,
         }
+        if body is not None:
+            if callable(body):
+                args['body_producer'] = body
+            else:
+                args['body'] = body
         request = thc.HTTPRequest(**args)
 
         rv = await self._http.fetch(request, raise_error=False)

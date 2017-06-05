@@ -50,23 +50,6 @@ class Settings(object):
         return self._data[key]
 
 
-class optional(object):
-
-    def __init__(self, *args):
-        self._optional = set(args)
-
-    def __call__(self, fn):
-        @ft.wraps(fn)
-        def new_fn(o, *args, **kwargs):
-            given = set(kwargs.keys())
-            given = given - self._optional
-            if given:
-                msg = '{0}() does not accept argument(s): {1}'.format(fn.__qualname__, ', '.join(given))
-                raise TypeError(msg)
-            return fn(o, *args, **kwargs)
-        return new_fn
-
-
 def from_isoformat(iso_datetime):
     rv = re.match(ISO_PATTERN, iso_datetime)
     if not rv:
