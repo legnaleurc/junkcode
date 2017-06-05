@@ -1,4 +1,5 @@
 import os.path as op
+import mimetypes
 
 from .api import Client
 from .database import Database, Node
@@ -97,17 +98,41 @@ class Drive(object):
             def writer(chunk):
                 print(len(chunk))
                 fout.write(chunk)
+
             api = self._client.files
             rv = await api.download(fileId=node_id, range_=range_,
                                     streamingCallback=writer)
 
         # TODO rename it back if completed
 
-    async def upload_file(self, path, node):
+    async def upload_file(self, file_path, node):
         # sanity check
         if not node:
-            return False
+            return None
         if not node.is_folder:
-            return False
-        if not op.exists(path):
-            return False
+            return None
+        if not op.isfile(file_path):
+            return None
+
+        files_api = self._client.files
+        file_name = op.basename(file_path)
+        total_file_size = op.getsize(file_path)
+        mt, e = mimetypes.guess_type(file_path)
+        rv = await files_api.initiateUploading(fileName=file_name,
+                                               totalFileSize=total_file_size,
+                                               mimeType=mt)
+        # TODO handle errors, assuming 200
+        url = rv.get_header('Location')
+        print('uploading to ', url)
+
+        with open(file_path, 'rb') as fin:
+            async def reader(write):
+                chunk = fin.read(65536)
+                await write(chunk)
+
+            rv = await files_api.upload(url, bodyProducer=reader, offset=0
+                                        bodySize=total_file_size, mimeType=mt)
+            # TODO handle errors, assuming 200
+
+        rv = rv.json_
+        return rv

@@ -99,3 +99,7 @@ class Response(object):
             self._json = rv
             self._parsed_json = True
         return self._json
+
+    def get_header(self, key):
+        h = self._response.headers.get_list(key)
+        return None if not h else h[0]
