@@ -32,6 +32,15 @@ class Network(object):
             if rv:
                 return rv
 
+    async def put(self, path, args=None, headers=None, streaming_callback=None,
+                   body=None, body_producer=None):
+        while True:
+            rv = await self._do_request('PUT', path, args, headers,
+                                        streaming_callback, body, body_producer)
+            rv = self._maybe_backoff(rv)
+            if rv:
+                return rv
+
     async def _do_request(self, method, path, args, headers,
                           streaming_callback, body, body_producer):
         # TODO wait for backoff timeout
