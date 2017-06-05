@@ -17,7 +17,6 @@ def traverse_node(drive, node, level):
             traverse_node(drive, child, level + 1)
 
 
-
 def print_node(name, level):
     level = ' ' * level
     print(level + name)
