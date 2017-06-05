@@ -72,9 +72,11 @@ class Drive(object):
     def get_children_by_id(self, node_id):
         return self._db.get_children_by_id(node_id)
 
-    async def download_by_id(self, node_id, path):
+    async def download_file_by_id(self, node_id, path):
         node = self.get_node_by_id(node_id)
+        return await self.download(node, path)
 
+    async def download_file(self, node, path):
         # sanity check
         if not node:
             return False
@@ -100,3 +102,12 @@ class Drive(object):
                                     streamingCallback=writer)
 
         # TODO rename it back if completed
+
+    async def upload_file(self, path, node):
+        # sanity check
+        if not node:
+            return False
+        if not node.is_folder:
+            return False
+        if not op.exists(path):
+            return False

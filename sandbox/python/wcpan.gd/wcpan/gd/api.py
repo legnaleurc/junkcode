@@ -1,3 +1,5 @@
+import json
+
 from pydrive.auth import GoogleAuth
 
 from .network import Network
@@ -89,6 +91,7 @@ class Files(object):
     def __init__(self, network):
         self._network = network
         self._root = API_ROOT + '/files'
+        self._upload_uri = 'https://www.googleapis.com/upload/drive/v3/files'
 
     # only for metadata
     async def get(self, fileId, supportsTeamDrives=False, fields=None):
@@ -116,4 +119,44 @@ class Files(object):
         rv = await self._network.get(self._root + '/' + fileId, args,
                                      headers=headers,
                                      streaming_callback=streamingCallback)
+        return rv
+
+    async def initiateUploading(self, fileName, totalFileSize, mimeType=None):
+        metadata = {
+            'name': fileName,
+        }
+        metadata = json.dumps(metadata)
+        metadata = metadata.encode('utf-8')
+        args = {
+            'uploadType': 'resumable',
+        }
+        headers = {
+            'X-Upload-Content-Length': fileSize,
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Content-Length': len(metadata),
+        }
+        if mimeType is not None:
+            headers['X-Upload-Content-Type'] = mimeType
+        rv = await self._network.post(self._upload_uri, args, headers=headers,
+                                      body=metadata)
+        return rv
+
+    async def upload(self, uri, bodyProducer, offset, bodySize, mimeType=None):
+        headers = {
+            'Content-Length': bodySize - offset,
+            'Content-Range': 'bytes {0}-{1}/{2}'.format(offset, bodySize - 1,
+                                                        bodySize),
+        }
+        if mimeType is not None:
+            headers['Content-Type'] = mimeType
+        rv = await self._network.put(uri, headers=headers,
+                                     body_producer=bodyProducer)
+        return rv
+
+    async def getUploadStatus(self, uri, totalFileSize):
+        headers = {
+            'Content-Length': 0,
+            'Content-Range': 'bytes */{0}'.format(totalFileSize),
+        }
+        rv = await self._network.put(uri, headers=headers)
         return rv
