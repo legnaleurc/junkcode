@@ -1,5 +1,6 @@
 import os.path as op
 import mimetypes
+import re
 
 from .api import Client
 from .database import Database, Node
@@ -116,6 +117,12 @@ class Drive(object):
 
         files_api = self._client.files
         file_name = op.basename(file_path)
+
+        # do not upload if remote exists a same file
+        if await self._exists_in(file_name, node):
+            print('exists')
+            return None
+
         total_file_size = op.getsize(file_path)
         mt, e = mimetypes.guess_type(file_path)
         rv = await files_api.initiateUploading(fileName=file_name,
@@ -141,3 +148,12 @@ class Drive(object):
 
         rv = rv.json_
         return rv
+
+    async def _exists_in(self, file_name, node):
+        safe_file_name = re.sub(r"[\\']", r"\\\g<0>", file_name)
+        query = "'{0}' in parents and name = '{1}'".format(node.id_, file_name)
+        rv = await self._client.files.list_(q=query)
+        if rv.status != '200':
+            raise Exception('list failed')
+        rv = rv.json_
+        return len(rv['files']) > 0
