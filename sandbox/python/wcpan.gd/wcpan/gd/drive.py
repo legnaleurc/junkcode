@@ -123,7 +123,6 @@ class Drive(object):
                                                mimeType=mt)
         # TODO handle errors, assuming 200
         url = rv.get_header('Location')
-        print('uploading to ', url)
 
         with open(file_path, 'rb') as fin:
             async def reader(write):

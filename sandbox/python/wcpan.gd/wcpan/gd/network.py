@@ -66,6 +66,8 @@ class Network(object):
         h = dict(self._headers)
         if headers is not None:
             h.update(headers)
+        h = {k: v if isinstance(v, (bytes, str)) or v is None else str(v)
+             for k, v in h.items()}
         return h
 
     def _maybe_backoff(self, response):
