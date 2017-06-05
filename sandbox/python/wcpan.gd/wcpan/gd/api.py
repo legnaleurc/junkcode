@@ -131,7 +131,7 @@ class Files(object):
                     page_size: int = None, page_token: str = None,
                     q: str = None, spaces: str = None,
                     supports_team_drives: bool = None,
-                    team_drive_id: str = None) -> Response:
+                    team_drive_id: str = None, fields: str = None) -> Response:
         args = {}
         if corpora is not None:
             args['corpora'] = corpora
@@ -153,6 +153,8 @@ class Files(object):
             args['supportsTeamDrives'] = supports_team_drives
         if team_drive_id is not None:
             args['teamDriveId'] = team_drive_id
+        if fields is not None:
+            args['fields'] = fields
 
         rv = await self._network.get(self._root, args)
         return rv
@@ -201,7 +203,8 @@ class Files(object):
         return rv
 
     async def upload(self, uri: str, producer: Producer, offset: int,
-                     total_file_size: int, mime_type: str = None) -> Response:
+                     total_file_size: int, mime_type: str = None,
+                     fields: str = None) -> Response:
         last_position = total_file_size - 1
         headers = {
             'Content-Length': total_file_size - offset,
@@ -211,7 +214,11 @@ class Files(object):
         if mime_type is not None:
             headers['Content-Type'] = mime_type
 
-        rv = await self._network.put(uri, headers=headers, body=producer)
+        args = {}
+        if fields is not None:
+            args['fields'] = fields
+
+        rv = await self._network.put(uri, args, headers=headers, body=producer)
         return rv
 
     async def get_upload_status(self, uri: str,

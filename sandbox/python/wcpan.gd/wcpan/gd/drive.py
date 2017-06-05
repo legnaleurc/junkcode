@@ -7,6 +7,9 @@ from .database import Database, Node
 from .util import Settings
 
 
+FILE_FIELDS = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime'
+
+
 class Drive(object):
 
     def __init__(self, settings_path=None):
@@ -31,8 +34,7 @@ class Drive(object):
 
         # first time, get root node
         if check_point == '1':
-            fields = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime'
-            rv = await self._client.files.get('root', fields=fields)
+            rv = await self._client.files.get('root', fields=FILE_FIELDS)
             rv = rv.json_
             rv['name'] = None
             rv['parents'] = []
@@ -108,11 +110,11 @@ class Drive(object):
 
         # TODO rename it back if completed
 
-    async def upload_file(self, file_path, node):
+    async def upload_file(self, file_path, parent_node):
         # sanity check
-        if not node:
+        if not parent_node:
             return None
-        if not node.is_folder:
+        if not parent_node.is_folder:
             return None
         if not op.isfile(file_path):
             return None
@@ -121,8 +123,9 @@ class Drive(object):
         file_name = op.basename(file_path)
 
         # do not upload if remote exists a same file
-        if await self._exists_in(file_name, node):
-            return None
+        node = await self.fetch_node_by_name(parent_node, file_name)
+        if node:
+            return node
 
         total_file_size = op.getsize(file_path)
         mt, e = mimetypes.guess_type(file_path)
@@ -141,19 +144,29 @@ class Drive(object):
 
             rv = await files_api.upload(url, producer=reader, offset=0,
                                         total_file_size=total_file_size,
-                                        mime_type=mt)
+                                        mime_type=mt, fields=FILE_FIELDS)
             if rv.status != '200':
                 raise Exception('test')
             # TODO handle errors, assuming 200
 
-        rv = rv.json_
-        return rv
+        node = Node.from_api(rv.json_)
+        self._db.insert_node(node)
+        return node
 
-    async def _exists_in(self, file_name, node):
+    async def fetch_node_by_name(self, parent_node, file_name):
         safe_file_name = re.sub(r"[\\']", r"\\\g<0>", file_name)
-        query = "'{0}' in parents and name = '{1}'".format(node.id_, file_name)
-        rv = await self._client.files.list_(q=query)
+        query = "'{0}' in parents and name = '{1}'".format(parent_node.id_,
+                                                           file_name)
+        fields = 'files({0})'.format(FILE_FIELDS)
+        rv = await self._client.files.list_(q=query, fields=fields)
         if rv.status != '200':
             raise Exception('list failed')
+
         rv = rv.json_
-        return len(rv['files']) > 0
+        files = rv['files']
+        if not files:
+            return None
+
+        node = Node.from_api(files[0])
+        self._db.insert_node(node)
+        return node
