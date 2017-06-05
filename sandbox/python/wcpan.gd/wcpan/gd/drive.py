@@ -122,7 +122,6 @@ class Drive(object):
 
         # do not upload if remote exists a same file
         if await self._exists_in(file_name, node):
-            print('exists')
             return None
 
         total_file_size = op.getsize(file_path)
@@ -140,7 +139,7 @@ class Drive(object):
                 chunk = fin.read(65536)
                 await write(chunk)
 
-            rv = await files_api.upload(url, body=reader, offset=0,
+            rv = await files_api.upload(url, producer=reader, offset=0,
                                         total_file_size=total_file_size,
                                         mime_type=mt)
             if rv.status != '200':

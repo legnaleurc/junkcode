@@ -3,7 +3,7 @@ from typing import Awaitable, Callable, Dict, Tuple
 
 from pydrive.auth import GoogleAuth
 
-from .network import Network, Request
+from .network import Network, Response
 
 
 API_ROOT = 'https://www.googleapis.com/drive/v3'
@@ -65,7 +65,7 @@ class Changes(object):
         self._root = API_ROOT + '/changes'
 
     async def get_start_page_token(self, supports_team_drives: bool = None,
-                                   team_drive_id: str = None) -> Request:
+                                   team_drive_id: str = None) -> Response:
         args = {}
         if supports_team_drives is not None:
             args['supportsTeamDrives'] = supports_team_drives
@@ -80,7 +80,7 @@ class Changes(object):
                     include_team_drive_items: bool = None,
                     page_size: int = None, restrict_to_my_drive: bool = None,
                     spaces: str = None, supports_team_drives: bool = None,
-                    team_drive_id: str = None, fields: str = None) -> Request:
+                    team_drive_id: str = None, fields: str = None) -> Response:
         args = {
             'pageToken': page_token,
         }
@@ -116,7 +116,7 @@ class Files(object):
 
     # only for metadata
     async def get(self, file_id: str, supports_team_drives: bool = None,
-                  fields: str = None) -> Request:
+                  fields: str = None) -> Response:
         args = {}
         if supports_team_drives is not None:
             args['supportsTeamDrives'] = supports_team_drives
@@ -131,7 +131,7 @@ class Files(object):
                     page_size: int = None, page_token: str = None,
                     q: str = None, spaces: str = None,
                     supports_team_drives: bool = None,
-                    team_drive_id: str = None) -> Request:
+                    team_drive_id: str = None) -> Response:
         args = {}
         if corpora is not None:
             args['corpora'] = corpora
@@ -160,7 +160,7 @@ class Files(object):
     # download and send to streaming_callback
     async def download(self, file_id: str, range_: Tuple[int, int],
                        consumer: Consumer, acknowledge_abuse: bool = None,
-                       supports_team_drives: bool = None) -> Request:
+                       supports_team_drives: bool = None) -> Response:
         args = {
             'alt': 'media',
         }
@@ -178,7 +178,7 @@ class Files(object):
         return rv
 
     async def initiate_uploading(self, file_name: str, total_file_size: int,
-                                 mime_type: str = None) -> Request:
+                                 mime_type: str = None) -> Response:
         metadata = {
             'name': file_name,
         }
@@ -201,7 +201,7 @@ class Files(object):
         return rv
 
     async def upload(self, uri: str, producer: Producer, offset: int,
-                     total_file_size: int, mime_type: str = None) -> Request:
+                     total_file_size: int, mime_type: str = None) -> Response:
         last_position = total_file_size - 1
         headers = {
             'Content-Length': total_file_size - offset,
@@ -215,7 +215,7 @@ class Files(object):
         return rv
 
     async def get_upload_status(self, uri: str,
-                                total_file_size: int) -> Request:
+                                total_file_size: int) -> Response:
         headers = {
             'Content-Length': 0,
             'Content-Range': 'bytes */{0}'.format(total_file_size),

@@ -52,8 +52,6 @@ class Network(object):
             'url': path,
             'method': method,
             'headers': headers,
-            'body': body,
-            'body_producer': body_producer,
             'streaming_callback': consumer,
         }
         if body is not None:
