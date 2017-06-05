@@ -130,7 +130,7 @@ class Drive(object):
                 chunk = fin.read(65536)
                 await write(chunk)
 
-            rv = await files_api.upload(url, bodyProducer=reader, offset=0
+            rv = await files_api.upload(url, bodyProducer=reader, offset=0,
                                         bodySize=total_file_size, mimeType=mt)
             # TODO handle errors, assuming 200
 
