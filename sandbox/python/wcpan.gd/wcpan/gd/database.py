@@ -265,6 +265,10 @@ class Node(object):
         return self._name
 
     @property
+    def status(self):
+        return self._status
+
+    @property
     def available(self):
         return self._status == 'AVAILABLE'
 
