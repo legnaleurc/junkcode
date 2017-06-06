@@ -29,8 +29,8 @@ async def main(args=None):
     await drive.sync()
 
     node = drive.get_node_by_path('/')
-    rv = await drive.upload_file('/tmp/a.txt', node)
-    print(rv)
+    node = await drive.upload_file('/tmp/a.txt', node)
+    print(node.name, node.md5)
 
     drive.close()
 

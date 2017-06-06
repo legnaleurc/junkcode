@@ -9,7 +9,7 @@ from .network import NetworkError
 from .util import Settings
 
 
-FILE_FIELDS = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime'
+FILE_FIELDS = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size'
 
 
 class Drive(object):
@@ -44,7 +44,7 @@ class Drive(object):
             self._db.insert_node(node)
 
         new_start_page_token = None
-        fields = 'nextPageToken,newStartPageToken,changes(fileId,removed,file(id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size))'
+        fields = 'nextPageToken,newStartPageToken,changes(fileId,removed,file({0}))'.format(FILE_FIELDS)
         changes_list_args = {
             'page_token': check_point,
             'page_size': 1000,
@@ -150,7 +150,7 @@ class Drive(object):
                 offset = rv
 
         rv = rv.json_
-        node = self.fetch_node_by_id(rv['id']):
+        node = await self.fetch_node_by_id(rv['id'])
         return node
 
     async def fetch_node_by_name(self, parent_node, file_name):
