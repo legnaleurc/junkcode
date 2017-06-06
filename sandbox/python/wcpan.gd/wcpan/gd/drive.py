@@ -5,6 +5,7 @@ import re
 
 from .api import Client
 from .database import Database, Node
+from .network import NetworkError
 from .util import Settings
 
 
@@ -102,7 +103,6 @@ class Drive(object):
 
         with open(tmp_path, 'ab') as fout:
             def writer(chunk):
-                print(len(chunk))
                 fout.write(chunk)
 
             api = self._client.files
@@ -133,22 +133,21 @@ class Drive(object):
         rv = await files_api.initiate_uploading(file_name=file_name,
                                                 total_file_size=total_file_size,
                                                 mime_type=mt)
-        if rv.status != '200':
-            raise Exception('cannot initiate uploading for ' + file_name)
 
         url = rv.get_header('Location')
 
         with open(file_path, 'rb') as fin:
             reader = ft.partial(file_producer, fin)
             offset = 0
+            uploader = ft.partial(self._inner_try_upload_file,
+                                  url=url, producer=reader,
+                                  total_file_size=total_file_size, mime_type=mt)
 
             while True:
-            rv = await files_api.upload(url, producer=reader, offset=offset,
-                                        total_file_size=total_file_size,
-                                        mime_type=mt)
-            if rv.status != '200':
-                raise Exception('test')
-            # TODO handle errors, assuming 200
+                ok, rv = await uploader(offset=offset)
+                if ok:
+                    break
+                offset = rv
 
         rv = rv.json_
         node = self.fetch_node_by_id(rv['id']):
@@ -179,19 +178,40 @@ class Drive(object):
         self._db.insert_node(node)
         return node
 
-    async def _inner_retry_upload_file(self):
+    async def _inner_try_upload_file(self, url, producer, offset,
+                                     total_file_size, mime_type):
         api = self._client.files
 
-        rv = await api.upload(url, producer=reader, offset=offset,
-                              total_file_size=total_file_size,
-                              mime_type=mime_type)
-        if rv.status in ('200', '201'):
-            return rv.json_
+        try:
+            rv = await api.upload(url, producer=producer, offset=offset,
+                                  total_file_size=total_file_size,
+                                  mime_type=mime_type)
+            return True, rv
+        except NetworkError as e:
+            if e.status == '404':
+                raise UploadError('the upload session has been expired')
+            if e.fatal:
+                raise
 
-        if rv.status == '404':
-            raise Exception('the upload session has been expired')
+        while True:
+            try:
+                rv = await api.get_upload_status(url, total_file_size)
+                break
+            except NetworkError as e:
+                if e.fatal:
+                    raise
 
-        raise Exception('unknown error: ' + rv.status)
+        if rv.status != '308':
+            raise UploadError('invalid upload status')
+        rv = rv.get_header('Range')
+        if not rv:
+            raise UploadError('invalid upload status')
+        rv = re.match(r'bytes=(\d+)-(\d+)', rv)
+        if not rv:
+            raise UploadError('invalid upload status')
+        rv = int(rv.group(2))
+
+        return False, rv
 
 
 async def file_producer(fin, write):

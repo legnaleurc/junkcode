@@ -105,6 +105,10 @@ class Response(object):
         return self._status
 
     @property
+    def reason(self):
+        return self._response.reason
+
+    @property
     def json_(self):
         if not self._parsed_json:
             rv = self._response.body.decode('utf-8')
@@ -125,3 +129,11 @@ class NetworkError(GoogleDriveError):
 
     def __str__(self):
         return 'connection error: ' + self._response.reason
+
+    @property
+    def status(self):
+        return self._response.status
+
+    @property
+    def fatal(self):
+        return self._response.status not in ('403', '500', '502', '503', '504')
