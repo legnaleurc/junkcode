@@ -149,8 +149,8 @@ class Drive(object):
                 raise Exception('test')
             # TODO handle errors, assuming 200
 
-        node = Node.from_api(rv.json_)
-        self._db.insert_node(node)
+        rv = rv.json_
+        node = self.fetch_node_by_id(rv['id']):
         return node
 
     async def fetch_node_by_name(self, parent_node, file_name):
@@ -168,5 +168,12 @@ class Drive(object):
             return None
 
         node = Node.from_api(files[0])
+        self._db.insert_node(node)
+        return node
+
+    async def fetch_node_by_id(self, node_id):
+        rv = await self._client.files.get(node_id, fields=FILE_FIELDS)
+        rv = rv.json_
+        node = Node.from_api(rv)
         self._db.insert_node(node)
         return node
