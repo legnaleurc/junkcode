@@ -138,6 +138,7 @@ class Drive(object):
         mt, e = mimetypes.guess_type(file_path)
         rv = await files_api.initiate_uploading(file_name=file_name,
                                                 total_file_size=total_file_size,
+                                                parent_id=parent_node.id_,
                                                 mime_type=mt)
 
         url = rv.get_header('Location')

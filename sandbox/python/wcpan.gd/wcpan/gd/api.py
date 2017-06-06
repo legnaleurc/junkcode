@@ -180,6 +180,7 @@ class Files(object):
         return rv
 
     async def initiate_uploading(self, file_name: str, total_file_size: int,
+                                 parent_id: str = None,
                                  mime_type: str = None) -> Response:
         metadata = {
             'name': file_name,
@@ -197,6 +198,8 @@ class Files(object):
         args = {
             'uploadType': 'resumable',
         }
+        if parent_id is not None:
+            args['addParents'] = parent_id
 
         rv = await self._network.post(self._upload_uri, args, headers=headers,
                                       body=metadata)
