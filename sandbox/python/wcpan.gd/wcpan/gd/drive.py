@@ -83,6 +83,9 @@ class Drive(object):
     def get_children_by_id(self, node_id):
         return self._db.get_children_by_id(node_id)
 
+    def find_duplicate_nodes(self):
+        return self._db.find_duplicate_nodes()
+
     async def download_file_by_id(self, node_id, path):
         node = self.get_node_by_id(node_id)
         return await self.download(node, path)

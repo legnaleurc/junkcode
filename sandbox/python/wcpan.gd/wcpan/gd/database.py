@@ -221,6 +221,20 @@ class Database(object):
         if not node.name:
             self.metadata['root_id'] = node.id_
 
+    def find_duplicate_nodes(self):
+        with ReadOnly(self._db) as query:
+            query.execute('''
+                SELECT nodes.id
+                FROM nodes
+                    INNER JOIN parentage ON parentage.child=nodes.id
+                GROUP BY parentage.parent, nodes.name
+                HAVING COUNT(nodes.name) > 1
+            ;''')
+            rv = query.fetchall()
+
+            nodes = [self.get_node_by_id(_['id']) for _ in rv]
+        return nodes
+
     def _try_create(self):
         with ReadWrite(self._db) as query:
             query.executescript(SQL_CREATE)

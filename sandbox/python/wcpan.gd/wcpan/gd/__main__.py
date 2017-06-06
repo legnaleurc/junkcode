@@ -89,9 +89,9 @@ async def main(args=None):
     drive.initialize()
     await drive.sync()
 
-    local_path = pl.Path('/mnt/Amazon Drive Downloads/tmp')
-    remote_node = drive.get_node_by_path('/Backup/L/Game')
-    await verify_upload(drive, local_path, remote_node)
+    rv = drive.find_duplicate_nodes()
+    for a in rv:
+        print(a.id_, a.name)
 
     return 0
 
