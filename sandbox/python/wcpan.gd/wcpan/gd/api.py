@@ -185,6 +185,8 @@ class Files(object):
         metadata = {
             'name': file_name,
         }
+        if parent_id is not None:
+            metadata['parents'] = [parent_id]
         metadata = json.dumps(metadata)
         metadata = metadata.encode('utf-8')
         headers = {
@@ -198,8 +200,6 @@ class Files(object):
         args = {
             'uploadType': 'resumable',
         }
-        if parent_id is not None:
-            args['addParents'] = parent_id
 
         rv = await self._network.post(self._upload_uri, args, headers=headers,
                                       body=metadata)

@@ -89,9 +89,9 @@ async def main(args=None):
     drive.initialize()
     await drive.sync()
 
-    rv = drive.find_duplicate_nodes()
-    for a in rv:
-        print(a.id_, a.md5, a.name)
+    node = drive.get_node_by_path('/Amazon Drive Downloads')
+    rv = await drive.upload_file('/tmp/a.py', node)
+    print(node.name, node.parent_id, node.md5)
 
     return 0
 
