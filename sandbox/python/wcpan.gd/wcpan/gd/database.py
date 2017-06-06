@@ -265,8 +265,12 @@ class Node(object):
         return self._name
 
     @property
-    def status(self):
-        return self._status
+    def available(self):
+        return self._status == 'AVAILABLE'
+
+    @property
+    def trashed(self):
+        return self._status == 'TRASH'
 
     @property
     def created(self):
