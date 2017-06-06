@@ -1,6 +1,7 @@
 import contextlib as cl
 import datetime as dt
 import pathlib as pl
+import re
 import sqlite3
 
 from . import util as u
@@ -53,9 +54,12 @@ class Database(object):
 
     def __init__(self, settings):
         self._settings = settings
+
         path = settings['nodes_database_file']
         self._db = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES)
         self._db.row_factory = sqlite3.Row
+        self._db.create_function('REGEXP', 2, sqlite3_regexp)
+
         self._metadata = Metadata(self._db)
 
     def close(self):
@@ -447,6 +451,13 @@ def inner_delete_node_by_id(query, node_id):
         DELETE FROM nodes
         WHERE id=?
     ;''', (node_id,))
+
+
+def sqlite3_regexp(pattern, cell):
+    if cell is None:
+        # root node
+        return False
+    return re.search(pattern, cell) is not None
 
 
 def initialize():
