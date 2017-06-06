@@ -224,16 +224,28 @@ class Database(object):
     def find_duplicate_nodes(self):
         with ReadOnly(self._db) as query:
             query.execute('''
-                SELECT nodes.id
+                SELECT nodes.name AS name, parentage.parent as parent_id
                 FROM nodes
                     INNER JOIN parentage ON parentage.child=nodes.id
                 GROUP BY parentage.parent, nodes.name
-                HAVING COUNT(nodes.name) > 1
+                HAVING COUNT(*) > 1
             ;''')
-            rv = query.fetchall()
+            name_parent_pair = query.fetchall()
 
-            nodes = [self.get_node_by_id(_['id']) for _ in rv]
-        return nodes
+            node_id_list = []
+            for pair in name_parent_pair:
+                query.execute('''
+                    SELECT nodes.id AS id
+                    FROM nodes
+                        INNER JOIN parentage ON parentage.child=nodes.id
+                    WHERE parentage.parent=? AND nodes.name=?
+                ;''', (pair['parent_id'], pair['name']))
+                rv = query.fetchall()
+                rv = (_['id'] for _ in rv)
+                node_id_list.extend(rv)
+
+            rv = [self.get_node_by_id(_) for _ in node_id_list]
+        return rv
 
     def _try_create(self):
         with ReadWrite(self._db) as query:

@@ -91,7 +91,7 @@ async def main(args=None):
 
     rv = drive.find_duplicate_nodes()
     for a in rv:
-        print(a.id_, a.name)
+        print(a.id_, a.md5, a.name)
 
     return 0
 
