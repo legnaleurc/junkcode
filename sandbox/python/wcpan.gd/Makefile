@@ -11,4 +11,4 @@ clean:
 
 test:
 	python -m compileall wcpan
-	python -m wcpan.gd
+	python -u -m wcpan.gd

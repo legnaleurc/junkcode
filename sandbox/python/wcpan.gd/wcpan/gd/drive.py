@@ -77,6 +77,9 @@ class Drive(object):
     def get_path_by_id(self, node_id):
         return self._db.get_path_by_id(node_id)
 
+    def get_child_by_id(self, node_id, name):
+        return self._db.get_child_by_id(node_id, name)
+
     def get_children_by_id(self, node_id):
         return self._db.get_children_by_id(node_id)
 
@@ -124,7 +127,7 @@ class Drive(object):
         file_name = op.basename(file_path)
 
         # do not upload if remote exists a same file
-        node = await self.fetch_node_by_name(parent_node, file_name)
+        node = await self.fetch_child_by_id(parent_node.id_, file_name)
         if node:
             return node
 
@@ -153,10 +156,10 @@ class Drive(object):
         node = await self.fetch_node_by_id(rv['id'])
         return node
 
-    async def fetch_node_by_name(self, parent_node, file_name):
-        safe_file_name = re.sub(r"[\\']", r"\\\g<0>", file_name)
-        query = "'{0}' in parents and name = '{1}'".format(parent_node.id_,
-                                                           file_name)
+    async def fetch_child_by_id(self, node_id, name):
+        safe_name = re.sub(r"[\\']", r"\\\g<0>", name)
+        query = "'{0}' in parents and name = '{1}'".format(node_id,
+                                                           name)
         fields = 'files({0})'.format(FILE_FIELDS)
         rv = await self._client.files.list_(q=query, fields=fields)
         if rv.status != '200':

@@ -174,6 +174,22 @@ class Database(object):
         path = pl.Path(*parts)
         return str(path)
 
+    def get_child_by_id(self, node_id, name):
+        with ReadOnly(self._db) as query:
+            query.execute('''
+                SELECT nodes.id AS id
+                FROM nodes
+                    INNER JOIN parentage ON parentage.child=nodes.id
+                WHERE parentage.parent=? AND nodes.name=?
+            ;''', (node_id, name))
+            rv = query.fetchone()
+
+        if not rv:
+            return None
+
+        node = self.get_node_by_id(rv['id'])
+        return node
+
     def get_children_by_id(self, node_id):
         with ReadOnly(self._db) as query:
             query.execute('''
