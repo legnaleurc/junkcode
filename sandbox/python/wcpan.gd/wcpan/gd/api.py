@@ -203,8 +203,7 @@ class Files(object):
         return rv
 
     async def upload(self, uri: str, producer: Producer, offset: int,
-                     total_file_size: int, mime_type: str = None,
-                     fields: str = None) -> Response:
+                     total_file_size: int, mime_type: str = None) -> Response:
         last_position = total_file_size - 1
         headers = {
             'Content-Length': total_file_size - offset,
@@ -214,11 +213,7 @@ class Files(object):
         if mime_type is not None:
             headers['Content-Type'] = mime_type
 
-        args = {}
-        if fields is not None:
-            args['fields'] = fields
-
-        rv = await self._network.put(uri, args, headers=headers, body=producer)
+        rv = await self._network.put(uri, headers=headers, body=producer)
         return rv
 
     async def get_upload_status(self, uri: str,

@@ -1,5 +1,6 @@
-import os.path as op
+import functools as ft
 import mimetypes
+import os.path as op
 import re
 
 from .api import Client
@@ -132,19 +133,19 @@ class Drive(object):
         rv = await files_api.initiate_uploading(file_name=file_name,
                                                 total_file_size=total_file_size,
                                                 mime_type=mt)
-        # TODO handle errors, assuming 200
         if rv.status != '200':
-            raise Exception('test')
+            raise Exception('cannot initiate uploading for ' + file_name)
+
         url = rv.get_header('Location')
 
         with open(file_path, 'rb') as fin:
-            async def reader(write):
-                chunk = fin.read(65536)
-                await write(chunk)
+            reader = ft.partial(file_producer, fin)
+            offset = 0
 
-            rv = await files_api.upload(url, producer=reader, offset=0,
+            while True:
+            rv = await files_api.upload(url, producer=reader, offset=offset,
                                         total_file_size=total_file_size,
-                                        mime_type=mt, fields=FILE_FIELDS)
+                                        mime_type=mt)
             if rv.status != '200':
                 raise Exception('test')
             # TODO handle errors, assuming 200
@@ -177,3 +178,22 @@ class Drive(object):
         node = Node.from_api(rv)
         self._db.insert_node(node)
         return node
+
+    async def _inner_retry_upload_file(self):
+        api = self._client.files
+
+        rv = await api.upload(url, producer=reader, offset=offset,
+                              total_file_size=total_file_size,
+                              mime_type=mime_type)
+        if rv.status in ('200', '201'):
+            return rv.json_
+
+        if rv.status == '404':
+            raise Exception('the upload session has been expired')
+
+        raise Exception('unknown error: ' + rv.status)
+
+
+async def file_producer(fin, write):
+    chunk = fin.read(65536)
+    await write(chunk)

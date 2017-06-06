@@ -4,6 +4,8 @@ import urllib.parse as up
 
 from tornado import httpclient as thc, httputil as thu
 
+from .util import GoogleDriveError
+
 
 class Network(object):
 
@@ -19,27 +21,21 @@ class Network(object):
         while True:
             rv = await self._do_request('GET', path, args, headers, body,
                                         consumer)
-            rv = self._maybe_backoff(rv)
-            if rv:
-                return rv
+            return self._handle_status(rv)
 
     async def post(self, path, args=None, headers=None, body=None,
                    consumer=None):
         while True:
             rv = await self._do_request('POST', path, args, headers, body,
                                         consumer)
-            rv = self._maybe_backoff(rv)
-            if rv:
-                return rv
+            return self._handle_status(rv)
 
     async def put(self, path, args=None, headers=None, body=None,
                   consumer=None):
         while True:
             rv = await self._do_request('PUT', path, args, headers, body,
                                         consumer)
-            rv = self._maybe_backoff(rv)
-            if rv:
-                return rv
+            return self._handle_status(rv)
 
     async def _do_request(self, method, path, args, headers, body, consumer):
         # TODO wait for backoff timeout
@@ -72,15 +68,28 @@ class Network(object):
              for k, v in h.items()}
         return h
 
-    def _maybe_backoff(self, response):
-        if response.status != '403':
+    def _handle_status(self, response):
+        # normal response
+        if response.status[0] in ('1', '2', '3'):
             return response
-        msg = response.json_
-        domain = msg['error']['errors'][0]['domain']
-        if domain != 'usageLimits':
-            return response
+
+        # could be handled immediately
+        if response.status not in ('403', '500', '502', '503', '504'):
+            raise NetworkError(response)
+
+        # if it is not a rate limit error, it could be handled immediately
+        if response.status == '403':
+            msg = response.json_
+            domain = msg['error']['errors'][0]['domain']
+            if domain != 'usageLimits':
+                raise NetworkError(response)
+
+        self._increase_backoff_level()
+        raise NetworkError(response)
+
+    def _increase_backoff_level(self):
         # TODO implement backoff strategy
-        raise Exception('API rate limit')
+        pass
 
 
 class Response(object):
@@ -107,3 +116,12 @@ class Response(object):
     def get_header(self, key):
         h = self._response.headers.get_list(key)
         return None if not h else h[0]
+
+
+class NetworkError(GoogleDriveError):
+
+    def __init__(self, response):
+        self._response = response
+
+    def __str__(self):
+        return 'connection error: ' + self._response.reason

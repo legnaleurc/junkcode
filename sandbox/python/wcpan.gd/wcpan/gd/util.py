@@ -10,6 +10,19 @@ import yaml
 ISO_PATTERN = r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{3,6}))?(Z|(([+\-])(\d{2}):(\d{2})))$'
 
 
+class GoogleDriveError(Exception):
+    pass
+
+
+class InvalidDateTimeError(GoogleDriveError):
+
+    def __init__(self, iso):
+        self._iso = iso
+
+    def __str__(self):
+        return 'invalid ISO date: ' + self._iso
+
+
 class Settings(object):
 
     def __init__(self, path):
@@ -53,8 +66,7 @@ class Settings(object):
 def from_isoformat(iso_datetime):
     rv = re.match(ISO_PATTERN, iso_datetime)
     if not rv:
-        print(iso_datetime)
-        raise Exception('invalid ISO date')
+        raise InvalidDateTimeError(iso_datetime)
 
     year = int(rv.group(1), 10)
     month = int(rv.group(2), 10)
