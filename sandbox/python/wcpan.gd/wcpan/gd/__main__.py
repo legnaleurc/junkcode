@@ -81,7 +81,7 @@ async def main(args=None):
     await drive.sync()
 
     node = drive.get_node_by_path('/Amazon Drive Downloads')
-    rv = await drive.upload_file('/tmp/a.py', node)
+    node = await drive.upload_file('/tmp/a.py', node)
     print(node.name, node.parent_id, node.md5)
 
     return 0
