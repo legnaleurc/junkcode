@@ -94,5 +94,6 @@ async def main(args=None):
 
 
 main_loop = ti.IOLoop.instance()
-main_loop.run_sync(main)
+exit_code = main_loop.run_sync(main)
 main_loop.close()
+sys.exit(exit_code)
