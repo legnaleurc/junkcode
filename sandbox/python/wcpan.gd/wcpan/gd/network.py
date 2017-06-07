@@ -111,8 +111,10 @@ class Response(object):
     @property
     def json_(self):
         if not self._parsed_json:
-            rv = self._response.body.decode('utf-8')
-            rv = json.loads(rv)
+            rv = self._response.body
+            if rv:
+                rv = rv.decode('utf-8')
+                rv = json.loads(rv)
             self._json = rv
             self._parsed_json = True
         return self._json

@@ -8,7 +8,7 @@ import re
 from .api import Client
 from .database import Database, Node
 from .network import NetworkError
-from .util import Settings, GoogleDriveError, stream_md5sum, FOLDER_MIME_TYPE
+from .util import Settings, GoogleDriveError, stream_md5sum, FOLDER_MIME_TYPE, CHUNK_SIZE
 
 
 FILE_FIELDS = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size'
@@ -281,6 +281,9 @@ class UploadError(GoogleDriveError):
 
 
 async def file_producer(fin, hasher, write):
-    chunk = fin.read(65536)
-    hasher.update(chunk)
-    await write(chunk)
+    while True:
+        chunk = fin.read(CHUNK_SIZE)
+        if not chunk:
+            break
+        hasher.update(chunk)
+        await write(chunk)

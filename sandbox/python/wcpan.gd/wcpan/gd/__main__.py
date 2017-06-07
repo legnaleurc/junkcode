@@ -92,7 +92,9 @@ async def main(args=None):
     try:
         await drive.upload(local_path, node)
     except NetworkError as e:
-        print(e.json_)
+        r = e._response._response
+        rr = e._response._response.request
+        print(r, rr.headers)
 
     return 0
 
