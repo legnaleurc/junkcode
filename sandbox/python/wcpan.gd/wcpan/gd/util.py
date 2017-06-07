@@ -1,5 +1,6 @@
 import datetime as dt
 import functools as ft
+import hashlib
 import os
 import os.path as op
 import re
@@ -8,6 +9,7 @@ import yaml
 
 
 ISO_PATTERN = r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{3,6}))?(Z|(([+\-])(\d{2}):(\d{2})))$'
+CHUNK_SIZE = 64 * 1024
 
 
 class GoogleDriveError(Exception):
@@ -93,3 +95,13 @@ def from_isoformat(iso_datetime):
 
     rv = dt.datetime(year, month, day, hour, minute, second, microsecond, tz)
     return rv
+
+
+def stream_md5sum(input_stream):
+    hasher = hashlib.md5()
+    while True:
+        chunk = input_stream.read(CHUNK_SIZE)
+        if not chunk:
+            break
+        hasher.update(chunk)
+    return hasher.hexdigest()
