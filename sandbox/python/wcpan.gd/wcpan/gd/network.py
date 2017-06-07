@@ -137,3 +137,7 @@ class NetworkError(GoogleDriveError):
     @property
     def fatal(self):
         return self._response.status not in ('403', '500', '502', '503', '504')
+
+    @property
+    def json_(self):
+        return self._response.json_

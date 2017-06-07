@@ -8,6 +8,7 @@ from tornado import ioloop as ti
 
 from .drive import Drive
 from .util import stream_md5sum
+from .network import NetworkError
 
 
 def traverse_node(drive, node, level):
@@ -77,7 +78,7 @@ async def verify_upload_file(drive, local_path, remote_node):
 
 async def main(args=None):
     if args is None:
-        args = sys.args
+        args = sys.argv
 
     path = op.expanduser('~/.cache/wcpan/gd')
     drive = Drive(path)
@@ -88,7 +89,10 @@ async def main(args=None):
     remote_path = args[2]
 
     node = drive.get_node_by_path(remote_path)
-    await drive.upload(local_path, node)
+    try:
+        await drive.upload(local_path, node)
+    except NetworkError as e:
+        print(e.json_)
 
     return 0
 

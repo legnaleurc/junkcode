@@ -4,6 +4,7 @@ from typing import Awaitable, Callable, Dict, Tuple
 from pydrive.auth import GoogleAuth
 
 from .network import Network, Response
+from .util import FOLDER_MIME_TYPE
 
 
 API_ROOT = 'https://www.googleapis.com/drive/v3'
@@ -228,5 +229,21 @@ class Files(object):
         rv = await self._network.put(uri, headers=headers)
         return rv
 
-    async def create_folder(self):
-        pass
+    async def create_folder(self, folder_name: str,
+                            parent_id: str = None) -> Response:
+        metadata = {
+            'name': folder_name,
+            'mimeType': FOLDER_MIME_TYPE,
+        }
+        if parent_id is not None:
+            metadata['parents'] = [parent_id]
+        metadata = json.dumps(metadata)
+        metadata = metadata.encode('utf-8')
+        headers = {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Content-Length': len(metadata),
+        }
+
+        rv = await self._network.post(self._root, headers=headers,
+                                      body=metadata)
+        return rv

@@ -122,6 +122,9 @@ class Drive(object):
     async def upload(self, local_path, parent_node):
         if op.isdir(local_path):
             rv = await self.create_folder(local_path, parent_node)
+            for child_path in os.listdir(local_path):
+                child_path = op.join(local_path, child_path)
+                await self.upload(child_path, rv)
         else:
             rv = await self.upload_file(local_path, parent_node)
         return rv
@@ -143,10 +146,10 @@ class Drive(object):
         if node:
             return node
 
-        rv = await api.create_directory(folder_name=folder_name,
-                                        parent_id=parent_node.id_)
+        rv = await api.create_folder(folder_name=folder_name,
+                                     parent_id=parent_node.id_)
         rv = rv.json_
-        node = self.fetch_node_by_id(rv['id'])
+        node = await self.fetch_node_by_id(rv['id'])
 
         return node
 
