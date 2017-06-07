@@ -1,5 +1,7 @@
 import functools as ft
+import hashlib as hl
 import mimetypes
+import os
 import os.path as op
 import re
 
@@ -144,20 +146,34 @@ class Drive(object):
         url = rv.get_header('Location')
 
         with open(file_path, 'rb') as fin:
-            reader = ft.partial(file_producer, fin)
+            hasher = hl.md5()
+            reader = ft.partial(file_producer, fin, hasher)
             offset = 0
             uploader = ft.partial(self._inner_try_upload_file,
                                   url=url, producer=reader,
                                   total_file_size=total_file_size, mime_type=mt)
+            retried = False
 
             while True:
                 ok, rv = await uploader(offset=offset)
                 if ok:
                     break
                 offset = rv
+                fin.seek(offset, os.SEEK_SET)
+                retried = True
+
+            if retried:
+                fin.seek(0, os.SEEK_SET)
+                local_md5 = stream_md5sum(fin)
+            else:
+                local_md5 = hasher.hexdigest()
 
         rv = rv.json_
         node = await self.fetch_node_by_id(rv['id'])
+
+        if node.md5 != local_md5:
+            raise UploadError('md5 mismatch')
+
         return node
 
     async def fetch_child_by_id(self, node_id, name):
@@ -230,6 +246,17 @@ class UploadError(GoogleDriveError):
         return self._message
 
 
-async def file_producer(fin, write):
+async def file_producer(fin, hasher, write):
     chunk = fin.read(65536)
+    hasher.update(chunk)
     await write(chunk)
+
+
+def stream_md5sum(fin):
+    hasher = hl.md5()
+    while True:
+        chunk = fin.read(65536)
+        if not chunk:
+            break
+        hasher.update(chunk)
+    return hasher.hexdigest()
