@@ -2,6 +2,7 @@ import hashlib
 import os
 import os.path as op
 import pathlib as pl
+import sys
 
 from tornado import ioloop as ti
 
@@ -75,14 +76,19 @@ async def verify_upload_file(drive, local_path, remote_node):
 
 
 async def main(args=None):
+    if args is None:
+        args = sys.args
+
     path = op.expanduser('~/.cache/wcpan/gd')
     drive = Drive(path)
     drive.initialize()
     await drive.sync()
 
-    node = drive.get_node_by_path('/Amazon Drive Downloads')
-    node = await drive.upload_file('/tmp/a.py', node)
-    print(node.name, node.parent_id, node.md5)
+    local_path = args[1]
+    remote_path = args[2]
+
+    node = drive.get_node_by_path(remote_path)
+    await drive.upload(local_path, node)
 
     return 0
 
