@@ -10,6 +10,7 @@ import yaml
 
 ISO_PATTERN = r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{3,6}))?(Z|(([+\-])(\d{2}):(\d{2})))$'
 CHUNK_SIZE = 64 * 1024
+FOLDER_MIME_TYPE = 'application/vnd.google-apps.folder'
 
 
 class GoogleDriveError(Exception):

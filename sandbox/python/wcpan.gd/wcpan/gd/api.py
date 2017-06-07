@@ -227,3 +227,6 @@ class Files(object):
         }
         rv = await self._network.put(uri, headers=headers)
         return rv
+
+    async def create_folder(self):
+        pass

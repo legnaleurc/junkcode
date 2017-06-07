@@ -8,7 +8,7 @@ import re
 from .api import Client
 from .database import Database, Node
 from .network import NetworkError
-from .util import Settings, GoogleDriveError, stream_md5sum
+from .util import Settings, GoogleDriveError, stream_md5sum, FOLDER_MIME_TYPE
 
 
 FILE_FIELDS = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size'
@@ -119,14 +119,45 @@ class Drive(object):
 
         # TODO rename it back if completed
 
+    async def upload(self, local_path, parent_node):
+        if op.isdir(local_path):
+            rv = await self.create_folder(local_path, parent_node)
+        else:
+            rv = await self.upload_file(local_path, parent_node)
+        return rv
+
+    async def create_folder(self, folder_path, parent_node):
+        # sanity check
+        if not parent_node:
+            raise UploadError('invalid parent node')
+        if not parent_node.is_folder:
+            raise UploadError('invalid parent node')
+        if not op.isdir(folder_path):
+            raise UploadError('invalid folder path')
+
+        api = self._client.files
+        folder_name = op.basename(folder_path)
+
+        # do not create again if there is a same file
+        node = await self.fetch_child_by_id(parent_node.id_, folder_name)
+        if node:
+            return node
+
+        rv = await api.create_directory(folder_name=folder_name,
+                                        parent_id=parent_node.id_)
+        rv = rv.json_
+        node = self.fetch_node_by_id(rv['id'])
+
+        return node
+
     async def upload_file(self, file_path, parent_node):
         # sanity check
         if not parent_node:
-            return None
+            raise UploadError('invalid parent node')
         if not parent_node.is_folder:
-            return None
+            raise UploadError('invalid parent node')
         if not op.isfile(file_path):
-            return None
+            raise UploadError('invalid file path')
 
         files_api = self._client.files
         file_name = op.basename(file_path)

@@ -353,7 +353,7 @@ class Node(object):
         self._modified = u.from_isoformat(data['modifiedTime'])
         self._parents = data['parents']
 
-        self._is_folder = data['mimeType'] == 'application/vnd.google-apps.folder'
+        self._is_folder = data['mimeType'] == u.FOLDER_MIME_TYPE
         self._md5 = data.get('md5Checksum', None)
         self._size = data.get('size', None)
 
