@@ -6,6 +6,7 @@ import pathlib as pl
 from tornado import ioloop as ti
 
 from .drive import Drive
+from .util import stream_md5sum
 
 
 def traverse_node(drive, node, level):
@@ -64,23 +65,13 @@ async def verify_upload_file(drive, local_path, remote_node):
         print('E trashed : {0}'.format(local_path))
         return
 
-    local_md5 = md5sum(local_path)
+    with open(local_path, 'rb') as fin:
+        local_md5 = stream_md5sum(local_path)
     if local_md5 != child_node.md5:
         print('E md5 mismatch : {0}'.format(local_path))
         return
 
     print('ok : {0}'.format(local_path))
-
-
-def md5sum(local_path):
-    hasher = hashlib.md5()
-    with open(local_path, 'rb') as fin:
-        while True:
-            chunk = fin.read(65536)
-            if not chunk:
-                break
-            hasher.update(chunk)
-    return hasher.hexdigest()
 
 
 async def main(args=None):
