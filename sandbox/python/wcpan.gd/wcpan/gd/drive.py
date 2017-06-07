@@ -6,7 +6,7 @@ import re
 from .api import Client
 from .database import Database, Node
 from .network import NetworkError
-from .util import Settings
+from .util import Settings, GoogleDriveError
 
 
 FILE_FIELDS = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size'
@@ -219,6 +219,15 @@ class Drive(object):
         rv = int(rv.group(2))
 
         return False, rv
+
+
+class UploadError(GoogleDriveError):
+
+    def __init__(self, message):
+        self._message = message
+
+    def __str__(self):
+        return self._message
 
 
 async def file_producer(fin, write):
