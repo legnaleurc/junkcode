@@ -2,8 +2,9 @@ import json
 from typing import Awaitable, Callable, Dict, Tuple
 
 from pydrive.auth import GoogleAuth
+from wcpan.logger import EXCEPTION, DEBUG
 
-from .network import Network, Response
+from .network import Network, Response, NetworkError
 from .util import FOLDER_MIME_TYPE
 
 
@@ -31,6 +32,7 @@ class Client(object):
         args = {
             'client_config_backend': s['client_config_backend'],
             'client_config_file': s['client_config_file'],
+            'get_refresh_token': s['get_refresh_token'],
             'save_credentials': s['save_credentials'],
             'save_credentials_backend': s['save_credentials_backend'],
             'save_credentials_file': s['save_credentials_file'],
@@ -42,8 +44,8 @@ class Client(object):
         # HACK undocumented behavior
         self._network = Network(self._oauth.credentials.access_token)
         self._api = {
-            'changes': Changes(self._network),
-            'files': Files(self._network),
+            'changes': Changes(self),
+            'files': Files(self),
         }
 
     @property
@@ -58,11 +60,50 @@ class Client(object):
     def files(self):
         return self._api['files']
 
+    def _refresh_token(self):
+        self._oauth.Refresh()
+
+    async def _get(self, *args, **kwargs):
+        while True:
+            try:
+                rv = await self._network.get(*args, **kwargs)
+                break
+            except NetworkError as e:
+                if e.status != '401':
+                    raise
+            DEBUG('wcpan.gd') << 'refresh token'
+            self._refresh_token()
+        return rv
+
+    async def _post(self, *args, **kwargs):
+        while True:
+            try:
+                rv = await self._network.post(*args, **kwargs)
+                break
+            except NetworkError as e:
+                if e.status != '401':
+                    raise
+            DEBUG('wcpan.gd') << 'refresh token'
+            self._refresh_token()
+        return rv
+
+    async def _put(self, *args, **kwargs):
+        while True:
+            try:
+                rv = await self._network.put(*args, **kwargs)
+                break
+            except NetworkError as e:
+                if e.status != '401':
+                    raise
+            DEBUG('wcpan.gd') << 'refresh token'
+            self._refresh_token()
+        return rv
+
 
 class Changes(object):
 
-    def __init__(self, network: Network) -> None:
-        self._network = network
+    def __init__(self, client: Client) -> None:
+        self._client = client
         self._root = API_ROOT + '/changes'
 
     async def get_start_page_token(self, supports_team_drives: bool = None,
@@ -73,7 +114,7 @@ class Changes(object):
         if team_drive_id is not None:
             args['teamDriveId'] = team_drive_id
 
-        rv = await self._network.get(self._root + '/startPageToken', args)
+        rv = await self._client._get(self._root + '/startPageToken', args)
         return rv
 
     async def list_(self, page_token: str, include_corpus_removals: bool = None,
@@ -104,14 +145,14 @@ class Changes(object):
         if fields is not None:
             args['fields'] = fields
 
-        rv = await self._network.get(self._root, args)
+        rv = await self._client._get(self._root, args)
         return rv
 
 
 class Files(object):
 
-    def __init__(self, network: Network) -> None:
-        self._network = network
+    def __init__(self, client: Client) -> None:
+        self._client = client
         self._root = API_ROOT + '/files'
         self._upload_uri = 'https://www.googleapis.com/upload/drive/v3/files'
 
@@ -124,7 +165,7 @@ class Files(object):
         if fields is not None:
             args['fields'] = fields
 
-        rv = await self._network.get(self._root + '/' + file_id, args)
+        rv = await self._client._get(self._root + '/' + file_id, args)
         return rv
 
     async def list_(self, corpora: str = None, corpus: str = None,
@@ -157,7 +198,7 @@ class Files(object):
         if fields is not None:
             args['fields'] = fields
 
-        rv = await self._network.get(self._root, args)
+        rv = await self._client._get(self._root, args)
         return rv
 
     # download and send to streaming_callback
@@ -176,7 +217,7 @@ class Files(object):
             'Range': 'bytes={0}-{1}'.format(*range_),
         }
 
-        rv = await self._network.get(self._root + '/' + file_id, args,
+        rv = await self._client._get(self._root + '/' + file_id, args,
                                      headers=headers, consumer=consumer)
         return rv
 
@@ -202,7 +243,7 @@ class Files(object):
             'uploadType': 'resumable',
         }
 
-        rv = await self._network.post(self._upload_uri, args, headers=headers,
+        rv = await self._client._post(self._upload_uri, args, headers=headers,
                                       body=metadata)
         return rv
 
@@ -218,7 +259,7 @@ class Files(object):
             headers['Content-Type'] = mime_type
 
         # upload usually need more time to complete
-        rv = await self._network.put(uri, headers=headers, body=producer,
+        rv = await self._client._put(uri, headers=headers, body=producer,
                                      timeout=3600.0)
         return rv
 
@@ -228,7 +269,7 @@ class Files(object):
             'Content-Length': 0,
             'Content-Range': 'bytes */{0}'.format(total_file_size),
         }
-        rv = await self._network.put(uri, headers=headers)
+        rv = await self._client._put(uri, headers=headers)
         return rv
 
     async def create_folder(self, folder_name: str,
@@ -246,6 +287,6 @@ class Files(object):
             'Content-Length': len(metadata),
         }
 
-        rv = await self._network.post(self._root, headers=headers,
+        rv = await self._client._post(self._root, headers=headers,
                                       body=metadata)
         return rv

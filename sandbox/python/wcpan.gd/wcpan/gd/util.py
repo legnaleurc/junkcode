@@ -46,6 +46,7 @@ class Settings(object):
         self._data['version'] = 1
         self._data['client_config_backend'] = 'file'
         self._data['client_config_file'] = op.join(self._path, 'client_secret.json')
+        self._data['get_refresh_token'] = True
         self._data['save_credentials'] = True
         self._data['save_credentials_backend'] = 'file'
         self._data['save_credentials_file'] = op.join(self._path, 'oauth_token.json')
