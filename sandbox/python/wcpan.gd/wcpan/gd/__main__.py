@@ -98,7 +98,7 @@ class UploadQueue(object):
     async def _do_push(self, runnable):
         async with self._lock:
             with self._upload_counter():
-                wl.DEBUG << 'tasks' << self._counter
+                wl.DEBUG('wcpan.gd') << 'tasks' << self._counter
                 await runnable()
 
     @cl.contextmanager
