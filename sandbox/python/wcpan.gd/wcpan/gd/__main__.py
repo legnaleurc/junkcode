@@ -126,7 +126,6 @@ class RunnableRecycler(object):
 
 
 async def upload(queue_, drive, local_path, parent_node):
-    wl.INFO('wcpan.gd') << 'uploading' << local_path
     if op.isdir(local_path):
         rv = await retry_create_folder(queue_, drive, local_path, parent_node)
     else:
@@ -134,22 +133,8 @@ async def upload(queue_, drive, local_path, parent_node):
     return rv
 
 
-'''
-def generate_upload_tasks(drive, local_path, parent_node):
-    INFO('wcpan.gd') << 'uploading' << local_path
-    if op.isdir(local_path):
-        rv = await drive.create_folder(local_path, parent_node)
-        for child_path in os.listdir(local_path):
-            child_path = op.join(local_path, child_path)
-            fn = ft.partial(upload, queue_, drive, child_path, rv)
-            queue_.push(fn)
-    else:
-        fn = ft.partial(drive.upload_file, local_path, parent_node)
-        yield fn
-'''
-
-
 async def retry_upload_file(drive, local_path, parent_node):
+    wl.INFO('wcpan.gd') << 'begin' << local_path
     while True:
         try:
             rv = await drive.upload_file(local_path, parent_node)
@@ -158,6 +143,7 @@ async def retry_upload_file(drive, local_path, parent_node):
             wl.EXCEPTION('wcpan.gd', e)
             if e.fatal or e.status != '401':
                 raise
+    wl.INFO('wcpan.gd') << 'end' << local_path
     return rv
 
 
@@ -185,6 +171,9 @@ async def main(args=None):
         args = sys.argv
 
     wl.setup((
+        'tornado.access',
+        'tornado.application',
+        'tornado.general',
         'wcpan.gd',
     ), '/tmp/wcpan.gd.log')
 
