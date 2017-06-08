@@ -63,34 +63,10 @@ class Client(object):
     def _refresh_token(self):
         self._oauth.Refresh()
 
-    async def _get(self, *args, **kwargs):
+    async def _do_request(self, *args, **kwargs):
         while True:
             try:
-                rv = await self._network.get(*args, **kwargs)
-                break
-            except NetworkError as e:
-                if e.status != '401':
-                    raise
-            DEBUG('wcpan.gd') << 'refresh token'
-            self._refresh_token()
-        return rv
-
-    async def _post(self, *args, **kwargs):
-        while True:
-            try:
-                rv = await self._network.post(*args, **kwargs)
-                break
-            except NetworkError as e:
-                if e.status != '401':
-                    raise
-            DEBUG('wcpan.gd') << 'refresh token'
-            self._refresh_token()
-        return rv
-
-    async def _put(self, *args, **kwargs):
-        while True:
-            try:
-                rv = await self._network.put(*args, **kwargs)
+                rv = await self._network.fetch(*args, **kwargs)
                 break
             except NetworkError as e:
                 if e.status != '401':
@@ -114,7 +90,8 @@ class Changes(object):
         if team_drive_id is not None:
             args['teamDriveId'] = team_drive_id
 
-        rv = await self._client._get(self._root + '/startPageToken', args)
+        uri = self._root + '/startPageToken'
+        rv = await self._client._do_request('GET', uri, args)
         return rv
 
     async def list_(self, page_token: str, include_corpus_removals: bool = None,
@@ -145,7 +122,7 @@ class Changes(object):
         if fields is not None:
             args['fields'] = fields
 
-        rv = await self._client._get(self._root, args)
+        rv = await self._client._do_request('GET', self._root, args)
         return rv
 
 
@@ -165,7 +142,8 @@ class Files(object):
         if fields is not None:
             args['fields'] = fields
 
-        rv = await self._client._get(self._root + '/' + file_id, args)
+        uri = self._root + '/' + file_id
+        rv = await self._client._do_request('GET', uri, args)
         return rv
 
     async def list_(self, corpora: str = None, corpus: str = None,
@@ -198,7 +176,7 @@ class Files(object):
         if fields is not None:
             args['fields'] = fields
 
-        rv = await self._client._get(self._root, args)
+        rv = await self._client._do_request('GET', self._root, args)
         return rv
 
     # download and send to streaming_callback
@@ -217,8 +195,9 @@ class Files(object):
             'Range': 'bytes={0}-{1}'.format(*range_),
         }
 
-        rv = await self._client._get(self._root + '/' + file_id, args,
-                                     headers=headers, consumer=consumer)
+        uri = self._root + '/' + file_id
+        rv = await self._client._do_request('GET', uri, args, headers=headers,
+                                            consumer=consumer)
         return rv
 
     async def initiate_uploading(self, file_name: str, total_file_size: int,
@@ -243,8 +222,8 @@ class Files(object):
             'uploadType': 'resumable',
         }
 
-        rv = await self._client._post(self._upload_uri, args, headers=headers,
-                                      body=metadata)
+        rv = await self._client._do_request('POST', self._upload_uri, args,
+                                            headers=headers, body=metadata)
         return rv
 
     async def upload(self, uri: str, producer: Producer, offset: int,
@@ -259,8 +238,8 @@ class Files(object):
             headers['Content-Type'] = mime_type
 
         # upload usually need more time to complete
-        rv = await self._client._put(uri, headers=headers, body=producer,
-                                     timeout=3600.0)
+        rv = await self._client._do_request('PUT', uri, headers=headers,
+                                            body=producer, timeout=3600.0)
         return rv
 
     async def get_upload_status(self, uri: str,
@@ -269,7 +248,7 @@ class Files(object):
             'Content-Length': 0,
             'Content-Range': 'bytes */{0}'.format(total_file_size),
         }
-        rv = await self._client._put(uri, headers=headers)
+        rv = await self._client._do_request('PUT', uri, headers=headers)
         return rv
 
     async def create_folder(self, folder_name: str,
@@ -287,6 +266,6 @@ class Files(object):
             'Content-Length': len(metadata),
         }
 
-        rv = await self._client._post(self._root, headers=headers,
-                                      body=metadata)
+        rv = await self._client._do_request('POST', self._root, headers=headers,
+                                            body=metadata)
         return rv

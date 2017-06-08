@@ -23,25 +23,14 @@ class Network(object):
         }
         self._backoff_level = 0
 
-    async def get(self, path, args=None, headers=None, body=None,
-                  consumer=None, timeout=None):
-        return await self._do_request('GET', path, args, headers, body,
-                                      consumer, timeout)
-
-    async def post(self, path, args=None, headers=None, body=None,
-                   consumer=None, timeout=None):
-        return await self._do_request('POST', path, args, headers, body,
-                                      consumer, timeout)
-
-    async def put(self, path, args=None, headers=None, body=None,
-                  consumer=None, timeout=None):
-        return await self._do_request('PUT', path, args, headers, body,
+    async def do_request(self, method, path, args=None, headers=None, body=None,
+                         consumer=None, timeout=None):
+        await self._maybe_backoff()
+        return await self._do_request(method, path, args, headers, body,
                                       consumer, timeout)
 
     async def _do_request(self, method, path, args, headers, body, consumer,
                           timeout):
-        await self._maybe_backoff()
-
         headers = self._prepare_headers(headers)
         if args is not None:
             path = thu.url_concat(path, args)
