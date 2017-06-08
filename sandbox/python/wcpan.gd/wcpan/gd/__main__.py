@@ -5,7 +5,7 @@ import os.path as op
 import pathlib as pl
 import sys
 
-from tornado import ioloop as ti, locks as tl
+from tornado import ioloop as ti, locks as tl, gen as tg
 import wcpan.logger as wl
 
 from .drive import Drive
@@ -198,6 +198,8 @@ async def main(args=None):
     node = drive.get_node_by_path(remote_path)
     fn = ft.partial(upload, queue_, drive, local_path, node)
     queue_.push(fn)
+    await tg.sleep(1)
+    await queue_.wait_for_complete()
 
     return 0
 
