@@ -22,8 +22,7 @@ class Network(object):
         }
         self._backoff_level = 0
 
-    @property.setter
-    def access_token(self, token):
+    def set_access_token(self, token):
         self._access_token = token
 
     async def fetch(self, method, path, args=None, headers=None, body=None,
