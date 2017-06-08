@@ -42,7 +42,8 @@ class Client(object):
         self._oauth.settings.update(args)
         self._oauth.CommandLineAuth()
         # HACK undocumented behavior
-        self._network = Network(self._oauth.credentials.access_token)
+        self._network = Network()
+        self._network.access_token = self._oauth.credentials.access_token
         self._api = {
             'changes': Changes(self),
             'files': Files(self),
@@ -61,7 +62,9 @@ class Client(object):
         return self._api['files']
 
     def _refresh_token(self):
+        DEBUG('wcpan.gd') << 'refresh token'
         self._oauth.Refresh()
+        self._network.access_token = self._oauth.credentials.access_token
 
     async def _do_request(self, *args, **kwargs):
         while True:
@@ -71,7 +74,6 @@ class Client(object):
             except NetworkError as e:
                 if e.status != '401':
                     raise
-            DEBUG('wcpan.gd') << 'refresh token'
             self._refresh_token()
         return rv
 
