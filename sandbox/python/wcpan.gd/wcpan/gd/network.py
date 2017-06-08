@@ -23,8 +23,8 @@ class Network(object):
         }
         self._backoff_level = 0
 
-    async def do_request(self, method, path, args=None, headers=None, body=None,
-                         consumer=None, timeout=None):
+    async def fetch(self, method, path, args=None, headers=None, body=None,
+                    consumer=None, timeout=None):
         await self._maybe_backoff()
         return await self._do_request(method, path, args, headers, body,
                                       consumer, timeout)
