@@ -223,6 +223,7 @@ class Drive(object):
         while True:
             try:
                 rv = await self._client.files.list_(q=query, fields=fields)
+                break
             except NetworkError as e:
                 if e.status == '400':
                     DEBUG('wcpan.gd') << 'failed query:' << query
