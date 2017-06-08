@@ -5,6 +5,7 @@ import pathlib as pl
 import sys
 
 from tornado import ioloop as ti
+import wcpan.logger as wl
 
 from .drive import Drive
 from .util import stream_md5sum
@@ -79,6 +80,10 @@ async def verify_upload_file(drive, local_path, remote_node):
 async def main(args=None):
     if args is None:
         args = sys.argv
+
+    wl.setup_logger((
+        'wcpan.gd',
+    ), '/tmp/wcpan.gd.log')
 
     path = op.expanduser('~/.cache/wcpan/gd')
     drive = Drive(path)
