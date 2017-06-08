@@ -218,7 +218,7 @@ class Drive(object):
     async def fetch_child_by_id(self, node_id, name):
         safe_name = re.sub(r"[\\']", r"\\\g<0>", name)
         query = "'{0}' in parents and name = '{1}'".format(node_id,
-                                                           name)
+                                                           safe_name)
         fields = 'files({0})'.format(FILE_FIELDS)
         while True:
             try:
