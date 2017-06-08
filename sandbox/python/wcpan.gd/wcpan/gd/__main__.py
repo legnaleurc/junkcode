@@ -1,10 +1,11 @@
+import functools as ft
 import hashlib
 import os
 import os.path as op
 import pathlib as pl
 import sys
 
-from tornado import ioloop as ti
+from tornado import ioloop as ti, locks as tl
 import wcpan.logger as wl
 
 from .drive import Drive
@@ -75,6 +76,50 @@ async def verify_upload_file(drive, local_path, remote_node):
         return
 
     print('ok : {0}'.format(local_path))
+
+
+class UploadQueue(object):
+
+    def __init__(self):
+        self._busy = 0
+        self._max = 8
+        self._lock = tl.Condition()
+
+    def stop(self):
+        pass
+
+    def push(self, runnable):
+        loop = ti.IOLoop.current()
+        fn = ft.partial(self._do_push, runnable)
+        loop.add_callback(fn)
+
+    async def _do_push(self, runnable):
+        async with RunnableRecycler(self):
+            await runnable()
+
+    async def _wait_for_idle(self):
+        while True:
+            if self._busy < self._max:
+                self._busy = self._busy + 1
+                return
+
+            await self._lock.wait()
+
+    def _done(self):
+        self._busy = self._busy - 1
+        self._lock.notify()
+
+
+class RunnableRecycler(object):
+
+    def __init__(self, queue_):
+        self._queue = queue_
+
+    async def __aenter__(self):
+        await self._queue._wait_for_idle()
+
+    async def __aexit__(self, *args, **kwargs):
+        self._queue._done()
 
 
 async def main(args=None):
