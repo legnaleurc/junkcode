@@ -5,6 +5,8 @@ import os
 import os.path as op
 import re
 
+from wcpan.logger import DEBUG, INFO
+
 from .api import Client
 from .database import Database, Node
 from .network import NetworkError
@@ -120,6 +122,7 @@ class Drive(object):
         # TODO rename it back if completed
 
     async def upload(self, local_path, parent_node):
+        INFO('wcpan.gd') << 'uploading' << local_path
         if op.isdir(local_path):
             rv = await self.create_folder(local_path, parent_node)
             for child_path in os.listdir(local_path):
@@ -144,6 +147,7 @@ class Drive(object):
         # do not create again if there is a same file
         node = await self.fetch_child_by_id(parent_node.id_, folder_name)
         if node:
+            INFO('wcpan.gd') << 'skipped (existing)' << folder_path
             return node
 
         rv = await api.create_folder(folder_name=folder_name,
@@ -168,6 +172,7 @@ class Drive(object):
         # do not upload if remote exists a same file
         node = await self.fetch_child_by_id(parent_node.id_, file_name)
         if node:
+            INFO('wcpan.gd') << 'skipped (existing)' << file_path
             return node
 
         total_file_size = op.getsize(file_path)
@@ -245,6 +250,7 @@ class Drive(object):
                                   mime_type=mime_type)
             return True, rv
         except NetworkError as e:
+            WARNING('wcpan.gd') << 'error: ' << e.status
             if e.status == '404':
                 raise UploadError('the upload session has been expired')
             if e.fatal:
