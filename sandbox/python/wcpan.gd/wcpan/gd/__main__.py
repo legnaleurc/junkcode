@@ -126,8 +126,11 @@ async def retry_upload_file(drive, local_path, parent_node):
             break
         except NetworkError as e:
             wl.EXCEPTION('wcpan.gd', e)
-            if e.fatal or e.status != '401':
-                raise
+            if e.status in ('401', '599'):
+                pass
+            if not e.fatal:
+                pass
+            raise
     wl.INFO('wcpan.gd') << 'end' << local_path
     return rv
 
@@ -139,13 +142,16 @@ async def retry_create_folder(queue_, drive, local_path, parent_node):
             break
         except NetworkError as e:
             wl.EXCEPTION('wcpan.gd', e)
-            if e.fatal or e.status != '401':
-                raise
+            if e.status in ('401', '599'):
+                pass
+            if not e.fatal:
+                pass
+            raise
 
     for child_path in os.listdir(local_path):
         child_path = op.join(local_path, child_path)
         fn = ft.partial(upload, queue_, drive, child_path, rv)
-        wl.DEBUG('queue') << child_path << rv.name
+        wl.DEBUG('wcpan.gd') << child_path << rv.name
         queue_.push(fn)
 
     return rv
