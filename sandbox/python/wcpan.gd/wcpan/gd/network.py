@@ -143,7 +143,7 @@ class NetworkError(GoogleDriveError):
         self._response = response
 
     def __str__(self):
-        return 'connection error: ' + self._response.reason
+        return '{0} {1}'.format(self.status, self._response.reason)
 
     @property
     def status(self):

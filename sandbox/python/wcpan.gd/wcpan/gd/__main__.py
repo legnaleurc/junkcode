@@ -1,3 +1,4 @@
+import contextlib as cl
 import functools as ft
 import hashlib
 import os
@@ -81,48 +82,32 @@ async def verify_upload_file(drive, local_path, remote_node):
 class UploadQueue(object):
 
     def __init__(self):
-        self._busy = 0
-        self._max = 8
-        self._lock = tl.Condition()
+        self._lock = tl.Semaphore(value=8)
         self._final = tl.Condition()
+        self._counter = 0
 
     def push(self, runnable):
         loop = ti.IOLoop.current()
         fn = ft.partial(self._do_push, runnable)
         loop.add_callback(fn)
+        self._counter = self._counter + 1
 
     async def wait_for_complete(self):
         await self._final.wait()
 
     async def _do_push(self, runnable):
-        async with RunnableRecycler(self):
-            await runnable()
+        async with self._lock:
+            with self._upload_counter():
+                wl.DEBUG << 'tasks' << self._counter
+                await runnable()
 
-    async def _wait_for_idle(self):
-        while True:
-            if self._busy < self._max:
-                self._busy = self._busy + 1
-                return
-
-            await self._lock.wait()
-
-    def _done(self):
-        self._busy = self._busy - 1
-        self._lock.notify()
-        if self._busy <= 0:
+    @cl.contextmanager
+    def _upload_counter(self):
+        try:
+            yield
+        finally:
+            self._counter = self._counter - 1
             self._final.notify()
-
-
-class RunnableRecycler(object):
-
-    def __init__(self, queue_):
-        self._queue = queue_
-
-    async def __aenter__(self):
-        await self._queue._wait_for_idle()
-
-    async def __aexit__(self, *args, **kwargs):
-        self._queue._done()
 
 
 async def upload(queue_, drive, local_path, parent_node):
