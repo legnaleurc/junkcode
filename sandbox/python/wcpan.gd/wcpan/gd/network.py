@@ -1,10 +1,16 @@
 import json
-import time
+import math
+import random
 import urllib.parse as up
 
-from tornado import httpclient as thc, httputil as thu
+from tornado import httpclient as thc, httputil as thu, gen as tg
+from wcpan.logger import DEBUG
 
 from .util import GoogleDriveError
+
+
+BACKOFF_FACTOR = 2
+BACKOFF_STATUSES = ('403', '500', '502', '503', '504')
 
 
 class Network(object):
@@ -15,28 +21,26 @@ class Network(object):
         self._headers = {
             'Authorization': 'Bearer {0}'.format(self._access_token),
         }
+        self._backoff_level = 0
 
     async def get(self, path, args=None, headers=None, body=None,
                   consumer=None, timeout=None):
-        rv = await self._do_request('GET', path, args, headers, body,
-                                    consumer, timeout)
-        return self._handle_status(rv)
+        return await self._do_request('GET', path, args, headers, body,
+                                      consumer, timeout)
 
     async def post(self, path, args=None, headers=None, body=None,
                    consumer=None, timeout=None):
-        rv = await self._do_request('POST', path, args, headers, body,
-                                    consumer, timeout)
-        return self._handle_status(rv)
+        return await self._do_request('POST', path, args, headers, body,
+                                      consumer, timeout)
 
     async def put(self, path, args=None, headers=None, body=None,
                   consumer=None, timeout=None):
-        rv = await self._do_request('PUT', path, args, headers, body,
-                                    consumer, timeout)
-        return self._handle_status(rv)
+        return await self._do_request('PUT', path, args, headers, body,
+                                      consumer, timeout)
 
     async def _do_request(self, method, path, args, headers, body, consumer,
                           timeout):
-        # TODO wait for backoff timeout
+        await self._maybe_backoff()
 
         headers = self._prepare_headers(headers)
         if args is not None:
@@ -59,7 +63,9 @@ class Network(object):
 
         request = thc.HTTPRequest(**args)
         rv = await self._http.fetch(request, raise_error=False)
-        return Response(rv)
+        rv = Response(rv)
+        rv = self._handle_status(rv)
+        return rv
 
     def _prepare_headers(self, headers):
         h = dict(self._headers)
@@ -70,27 +76,36 @@ class Network(object):
         return h
 
     def _handle_status(self, response):
+        if backoff_needed(response):
+            self._increase_backoff_level()
+            # could be handled immediately
+            raise NetworkError(response)
+
+        # no longer backoff
+        self._reset_backoff_level()
+
         # normal response
         if response.status[0] in ('1', '2', '3'):
             return response
 
-        # could be handled immediately
-        if response.status not in ('403', '500', '502', '503', '504'):
-            raise NetworkError(response)
-
-        # if it is not a rate limit error, it could be handled immediately
-        if response.status == '403':
-            msg = response.json_
-            domain = msg['error']['errors'][0]['domain']
-            if domain != 'usageLimits':
-                raise NetworkError(response)
-
-        self._increase_backoff_level()
+        # treat others as error
         raise NetworkError(response)
 
     def _increase_backoff_level(self):
-        # TODO implement backoff strategy
-        pass
+        self._backoff_level = self._backoff_level + 1
+
+    def _reset_backoff_level(self):
+        self._backoff_level = 0
+
+    async def _maybe_backoff(self):
+        if self._backoff_level <= 0:
+            return
+        seed = random.random()
+        power = 2 ** self._backoff_level
+        s_delay = math.floor(seed * power * BACKOFF_FACTOR)
+        s_delay = min(100, s_delay)
+        DEBUG('wcpan.gd') << 'backoff for' << s_delay
+        await tg.sleep(s_delay)
 
 
 class Response(object):
@@ -139,8 +154,22 @@ class NetworkError(GoogleDriveError):
 
     @property
     def fatal(self):
-        return self._response.status not in ('403', '500', '502', '503', '504')
+        return not backoff_needed(self._response)
 
     @property
     def json_(self):
         return self._response.json_
+
+
+def backoff_needed(response):
+    if response.status not in BACKOFF_STATUSES:
+        return False
+
+    # if it is not a rate limit error, it could be handled immediately
+    if response.status == '403':
+        msg = response.json_
+        domain = msg['error']['errors'][0]['domain']
+        if domain != 'usageLimits':
+            return False
+
+    return True
