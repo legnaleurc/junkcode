@@ -107,7 +107,8 @@ class UploadQueue(object):
             yield
         finally:
             self._counter = self._counter - 1
-            self._final.notify()
+            if self._counter <= 0:
+                self._final.notify()
 
 
 async def upload(queue_, drive, local_path, parent_node):
@@ -151,7 +152,6 @@ async def retry_create_folder(queue_, drive, local_path, parent_node):
     for child_path in os.listdir(local_path):
         child_path = op.join(local_path, child_path)
         fn = ft.partial(upload, queue_, drive, child_path, rv)
-        wl.DEBUG('wcpan.gd') << child_path << rv.name
         queue_.push(fn)
 
     return rv
