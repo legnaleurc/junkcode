@@ -15,13 +15,16 @@ BACKOFF_STATUSES = ('403', '500', '502', '503', '504')
 
 class Network(object):
 
-    def __init__(self, access_token):
-        self._access_token = access_token
+    def __init__(self):
+        self._access_token = None
         self._http = thc.AsyncHTTPClient()
         self._headers = {
-            'Authorization': 'Bearer {0}'.format(self._access_token),
         }
         self._backoff_level = 0
+
+    @property.setter
+    def access_token(self, token):
+        self._access_token = token
 
     async def fetch(self, method, path, args=None, headers=None, body=None,
                     consumer=None, timeout=None):
@@ -57,7 +60,9 @@ class Network(object):
         return rv
 
     def _prepare_headers(self, headers):
-        h = dict(self._headers)
+        h = {
+            'Authorization': 'Bearer {0}'.format(self._access_token),
+        }
         if headers is not None:
             h.update(headers)
         h = {k: v if isinstance(v, (bytes, str)) or v is None else str(v)
