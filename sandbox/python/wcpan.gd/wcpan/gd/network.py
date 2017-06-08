@@ -105,10 +105,29 @@ class Network(object):
         await tg.sleep(s_delay)
 
 
+class Request(object):
+
+    def __init__(self, request):
+        self._request = request
+
+    @property
+    def uri(self):
+        return self._request.url
+
+    @property
+    def method(self):
+        return self._request.method
+
+    @property
+    def headers(self):
+        return self._request.headers
+
+
 class Response(object):
 
     def __init__(self, response):
         self._response = response
+        self._request = Request(response.request)
         self._status = str(self._response.code)
         self._parsed_json = False
         self._json = None
@@ -132,6 +151,10 @@ class Response(object):
             self._parsed_json = True
         return self._json
 
+    @property
+    def request(self):
+        return self._request
+
     def get_header(self, key):
         h = self._response.headers.get_list(key)
         return None if not h else h[0]
@@ -143,7 +166,8 @@ class NetworkError(GoogleDriveError):
         self._response = response
 
     def __str__(self):
-        return '{0} {1}'.format(self.status, self._response.reason)
+        return '{0} {1} - {2}'.format(self.status, self._response.reason,
+                                      self.json_)
 
     @property
     def status(self):
