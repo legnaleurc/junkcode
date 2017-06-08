@@ -81,7 +81,7 @@ async def main(args=None):
     if args is None:
         args = sys.argv
 
-    wl.setup_logger((
+    wl.setup((
         'wcpan.gd',
     ), '/tmp/wcpan.gd.log')
 

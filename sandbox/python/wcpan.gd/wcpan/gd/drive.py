@@ -5,7 +5,7 @@ import os
 import os.path as op
 import re
 
-from wcpan.logger import DEBUG, INFO
+from wcpan.logger import INFO, WARNING
 
 from .api import Client
 from .database import Database, Node

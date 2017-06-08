@@ -217,7 +217,9 @@ class Files(object):
         if mime_type is not None:
             headers['Content-Type'] = mime_type
 
-        rv = await self._network.put(uri, headers=headers, body=producer)
+        # upload usually need more time to complete
+        rv = await self._network.put(uri, headers=headers, body=producer,
+                                     timeout=3600.0)
         return rv
 
     async def get_upload_status(self, uri: str,

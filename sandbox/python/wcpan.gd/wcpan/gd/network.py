@@ -17,27 +17,25 @@ class Network(object):
         }
 
     async def get(self, path, args=None, headers=None, body=None,
-                  consumer=None):
-        while True:
-            rv = await self._do_request('GET', path, args, headers, body,
-                                        consumer)
-            return self._handle_status(rv)
+                  consumer=None, timeout=None):
+        rv = await self._do_request('GET', path, args, headers, body,
+                                    consumer, timeout)
+        return self._handle_status(rv)
 
     async def post(self, path, args=None, headers=None, body=None,
-                   consumer=None):
-        while True:
-            rv = await self._do_request('POST', path, args, headers, body,
-                                        consumer)
-            return self._handle_status(rv)
+                   consumer=None, timeout=None):
+        rv = await self._do_request('POST', path, args, headers, body,
+                                    consumer, timeout)
+        return self._handle_status(rv)
 
     async def put(self, path, args=None, headers=None, body=None,
-                  consumer=None):
-        while True:
-            rv = await self._do_request('PUT', path, args, headers, body,
-                                        consumer)
-            return self._handle_status(rv)
+                  consumer=None, timeout=None):
+        rv = await self._do_request('PUT', path, args, headers, body,
+                                    consumer, timeout)
+        return self._handle_status(rv)
 
-    async def _do_request(self, method, path, args, headers, body, consumer):
+    async def _do_request(self, method, path, args, headers, body, consumer,
+                          timeout):
         # TODO wait for backoff timeout
 
         headers = self._prepare_headers(headers)
@@ -48,15 +46,18 @@ class Network(object):
             'url': path,
             'method': method,
             'headers': headers,
-            'streaming_callback': consumer,
         }
         if body is not None:
             if callable(body):
                 args['body_producer'] = body
             else:
                 args['body'] = body
-        request = thc.HTTPRequest(**args)
+        if consumer is not None:
+            args['streaming_callback'] = consumer
+        if timeout is not None:
+            args['request_timeout'] = timeout
 
+        request = thc.HTTPRequest(**args)
         rv = await self._http.fetch(request, raise_error=False)
         return Response(rv)
 
