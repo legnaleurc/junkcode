@@ -84,14 +84,15 @@ class UploadQueue(object):
         self._busy = 0
         self._max = 8
         self._lock = tl.Condition()
-
-    def stop(self):
-        pass
+        self._final = tl.Condition()
 
     def push(self, runnable):
         loop = ti.IOLoop.current()
         fn = ft.partial(self._do_push, runnable)
         loop.add_callback(fn)
+
+    async def wait_for_complete(self):
+        await self._final.wait()
 
     async def _do_push(self, runnable):
         async with RunnableRecycler(self):
@@ -108,6 +109,8 @@ class UploadQueue(object):
     def _done(self):
         self._busy = self._busy - 1
         self._lock.notify()
+        if self._busy <= 0:
+            self._final.notify()
 
 
 class RunnableRecycler(object):
@@ -120,6 +123,58 @@ class RunnableRecycler(object):
 
     async def __aexit__(self, *args, **kwargs):
         self._queue._done()
+
+
+async def upload(queue_, drive, local_path, parent_node):
+    INFO('wcpan.gd') << 'uploading' << local_path
+    if op.isdir(local_path):
+        rv = await retry_create_folder(queue_, drive, local_path, parent_node)
+    else:
+        rv = await retry_upload_file(drive, local_path, parent_node)
+    return rv
+
+
+'''
+def generate_upload_tasks(drive, local_path, parent_node):
+    INFO('wcpan.gd') << 'uploading' << local_path
+    if op.isdir(local_path):
+        rv = await drive.create_folder(local_path, parent_node)
+        for child_path in os.listdir(local_path):
+            child_path = op.join(local_path, child_path)
+            fn = ft.partial(upload, queue_, drive, child_path, rv)
+            queue_.push(fn)
+    else:
+        fn = ft.partial(drive.upload_file, local_path, parent_node)
+        yield fn
+'''
+
+
+async def retry_upload_file(drive, local_path, parent_node):
+    while True:
+        try:
+            rv = await drive.upload_file(local_path, parent_node)
+        except NetworkError as e:
+            wl.EXCEPTION('wcpan.gd', e)
+            if e.fatal or e.status != '401':
+                raise
+    return rv
+
+
+async def retry_create_folder(queue_, drive, local_path, parent_node):
+    while True:
+        try:
+            rv = await drive.create_folder(local_path, parent_node)
+        except NetworkError as e:
+            wl.EXCEPTION('wcpan.gd', e)
+            if e.fatal or e.status != '401':
+                raise
+
+    for child_path in os.listdir(local_path):
+        child_path = op.join(local_path, child_path)
+        fn = ft.partial(upload, queue_, drive, child_path, rv)
+        queue_.push(fn)
+
+    return rv
 
 
 async def main(args=None):
@@ -138,13 +193,11 @@ async def main(args=None):
     local_path = args[1]
     remote_path = args[2]
 
+    queue_ = UploadQueue()
+
     node = drive.get_node_by_path(remote_path)
-    try:
-        await drive.upload(local_path, node)
-    except NetworkError as e:
-        r = e._response._response
-        rr = e._response._response.request
-        print(r, rr.headers)
+    fn = ft.partial(upload, queue_, drive, local_path, node)
+    queue_.push(fn)
 
     return 0
 
