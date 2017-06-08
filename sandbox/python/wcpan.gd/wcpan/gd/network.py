@@ -78,17 +78,14 @@ class Network(object):
     def _handle_status(self, response):
         if backoff_needed(response):
             self._increase_backoff_level()
-            # could be handled immediately
-            raise NetworkError(response)
-
-        # no longer backoff
-        self._reset_backoff_level()
+        else:
+            self._reset_backoff_level()
 
         # normal response
         if response.status[0] in ('1', '2', '3'):
             return response
 
-        # treat others as error
+        # otherwise it is an error
         raise NetworkError(response)
 
     def _increase_backoff_level(self):
