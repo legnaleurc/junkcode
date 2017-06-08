@@ -126,7 +126,7 @@ class RunnableRecycler(object):
 
 
 async def upload(queue_, drive, local_path, parent_node):
-    INFO('wcpan.gd') << 'uploading' << local_path
+    wl.INFO('wcpan.gd') << 'uploading' << local_path
     if op.isdir(local_path):
         rv = await retry_create_folder(queue_, drive, local_path, parent_node)
     else:
@@ -153,6 +153,7 @@ async def retry_upload_file(drive, local_path, parent_node):
     while True:
         try:
             rv = await drive.upload_file(local_path, parent_node)
+            break
         except NetworkError as e:
             wl.EXCEPTION('wcpan.gd', e)
             if e.fatal or e.status != '401':
@@ -164,6 +165,7 @@ async def retry_create_folder(queue_, drive, local_path, parent_node):
     while True:
         try:
             rv = await drive.create_folder(local_path, parent_node)
+            break
         except NetworkError as e:
             wl.EXCEPTION('wcpan.gd', e)
             if e.fatal or e.status != '401':
@@ -172,6 +174,7 @@ async def retry_create_folder(queue_, drive, local_path, parent_node):
     for child_path in os.listdir(local_path):
         child_path = op.join(local_path, child_path)
         fn = ft.partial(upload, queue_, drive, child_path, rv)
+        wl.DEBUG('queue') << child_path << rv.name
         queue_.push(fn)
 
     return rv
