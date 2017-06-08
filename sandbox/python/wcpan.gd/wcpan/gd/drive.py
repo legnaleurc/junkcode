@@ -5,7 +5,7 @@ import os
 import os.path as op
 import re
 
-from wcpan.logger import INFO, WARNING
+from wcpan.logger import INFO, WARNING, DEBUG
 
 from .api import Client
 from .database import Database, Node
@@ -220,9 +220,14 @@ class Drive(object):
         query = "'{0}' in parents and name = '{1}'".format(node_id,
                                                            name)
         fields = 'files({0})'.format(FILE_FIELDS)
-        rv = await self._client.files.list_(q=query, fields=fields)
-        if rv.status != '200':
-            raise Exception('list failed')
+        while True:
+            try:
+                rv = await self._client.files.list_(q=query, fields=fields)
+            except NetworkError as e:
+                if e.status == '400':
+                    DEBUG('wcpan.gd') << 'failed query:' << query
+                if e.fatal:
+                    raise
 
         rv = rv.json_
         files = rv['files']
@@ -250,7 +255,6 @@ class Drive(object):
                                   mime_type=mime_type)
             return True, rv
         except NetworkError as e:
-            WARNING('wcpan.gd') << 'error: ' << e.status
             if e.status == '404':
                 raise UploadError('the upload session has been expired')
             if e.fatal:
