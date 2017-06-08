@@ -157,10 +157,12 @@ class NetworkError(GoogleDriveError):
 
     def __init__(self, response):
         self._response = response
+        self._message = '{0} {1} - {2}'.format(self.status,
+                                               self._response.reason,
+                                               self.json_)
 
     def __str__(self):
-        return '{0} {1} - {2}'.format(self.status, self._response.reason,
-                                      self.json_)
+        return self._message
 
     @property
     def status(self):
