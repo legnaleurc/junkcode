@@ -290,3 +290,28 @@ class Files(object):
         rv = await self._client._do_request('POST', self._root, headers=headers,
                                             body=metadata)
         return rv
+
+    async def create_empty_file(self, file_name: str,
+                                parent_id: str = None,
+                                mime_type: str = None) -> Response:
+        if not file_name:
+            raise ValueError('file name is empty')
+
+        metadata = {
+            'name': file_name,
+            'mimeType': FOLDER_MIME_TYPE,
+        }
+        if parent_id is not None:
+            metadata['parents'] = [parent_id]
+        if mime_type is not None:
+            metadata['mimeType'] = mime_type
+        metadata = json.dumps(metadata)
+        metadata = metadata.encode('utf-8')
+        headers = {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Content-Length': len(metadata),
+        }
+
+        rv = await self._client._do_request('POST', self._root, headers=headers,
+                                            body=metadata)
+        return rv
