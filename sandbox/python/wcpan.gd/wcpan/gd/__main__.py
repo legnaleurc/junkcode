@@ -85,6 +85,7 @@ class UploadQueue(object):
         self._lock = tl.Semaphore(value=8)
         self._final = tl.Condition()
         self._counter = 0
+        self._failed = []
 
     def push(self, runnable):
         loop = ti.IOLoop.current()
@@ -92,8 +93,15 @@ class UploadQueue(object):
         loop.add_callback(fn)
         self._counter = self._counter + 1
 
+    def add_failed(self, local_path):
+        self._failed.append(local_path)
+
     async def wait_for_complete(self):
         await self._final.wait()
+
+    @property
+    def failed(self):
+        return self._failed
 
     async def _do_push(self, runnable):
         async with self._lock:
@@ -115,11 +123,11 @@ async def upload(queue_, drive, local_path, parent_node):
     if op.isdir(local_path):
         rv = await retry_create_folder(queue_, drive, local_path, parent_node)
     else:
-        rv = await retry_upload_file(drive, local_path, parent_node)
+        rv = await retry_upload_file(queue_, drive, local_path, parent_node)
     return rv
 
 
-async def retry_upload_file(drive, local_path, parent_node):
+async def retry_upload_file(queue_, drive, local_path, parent_node):
     wl.INFO('wcpan.gd') << 'begin' << local_path
     while True:
         try:
@@ -127,7 +135,8 @@ async def retry_upload_file(drive, local_path, parent_node):
             break
         except NetworkError as e:
             wl.EXCEPTION('wcpan.gd', e)
-            if e.status not in ('400', '401', '599') and e.fatal:
+            if e.status not in ('599',) and e.fatal:
+                queue_.add_failed(local_path)
                 raise
     wl.INFO('wcpan.gd') << 'end' << local_path
     return rv
@@ -140,7 +149,8 @@ async def retry_create_folder(queue_, drive, local_path, parent_node):
             break
         except NetworkError as e:
             wl.EXCEPTION('wcpan.gd', e)
-            if e.status not in ('400', '401', '599') and e.fatal:
+            if e.status not in ('599',) and e.fatal:
+                queue_.add_failed(local_path)
                 raise
 
     for child_path in os.listdir(local_path):
