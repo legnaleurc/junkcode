@@ -128,7 +128,6 @@ async def upload(queue_, drive, local_path, parent_node):
 
 
 async def retry_upload_file(queue_, drive, local_path, parent_node):
-    wl.INFO('wcpan.gd') << 'begin' << local_path
     while True:
         try:
             rv = await drive.upload_file(local_path, parent_node)
@@ -138,7 +137,6 @@ async def retry_upload_file(queue_, drive, local_path, parent_node):
             if e.status not in ('599',) and e.fatal:
                 queue_.add_failed(local_path)
                 raise
-    wl.INFO('wcpan.gd') << 'end' << local_path
     return rv
 
 
@@ -190,7 +188,7 @@ async def main(args=None):
 
     local_path = args[1]
     remote_path = args[2]
-    await upload_local_to_remote(drive, local_path, remote_path)
+    await verify_upload(drive, local_path, remote_path)
 
     return 0
 
