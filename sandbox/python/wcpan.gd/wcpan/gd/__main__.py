@@ -161,6 +161,17 @@ async def retry_create_folder(queue_, drive, local_path, parent_node):
     return rv
 
 
+async def upload_local_to_remote(drive, local_path, remote_path):
+    queue_ = UploadQueue()
+
+    node = drive.get_node_by_path(remote_path)
+    fn = ft.partial(upload, queue_, drive, local_path, node)
+    queue_.push(fn)
+    await tg.sleep(1)
+    await queue_.wait_for_complete()
+    print(queue_.failed)
+
+
 async def main(args=None):
     if args is None:
         args = sys.argv
@@ -179,15 +190,7 @@ async def main(args=None):
 
     local_path = args[1]
     remote_path = args[2]
-
-    queue_ = UploadQueue()
-
-    node = drive.get_node_by_path(remote_path)
-    fn = ft.partial(upload, queue_, drive, local_path, node)
-    queue_.push(fn)
-    await tg.sleep(1)
-    await queue_.wait_for_complete()
-    print(queue_.failed)
+    await upload_local_to_remote(drive, local_path, remote_path)
 
     return 0
 
