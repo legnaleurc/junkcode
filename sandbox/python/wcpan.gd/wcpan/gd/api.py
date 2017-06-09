@@ -208,7 +208,7 @@ class Files(object):
         if not file_name:
             raise ValueError('file name is empty')
         if total_file_size <= 0:
-            raise ValueError('empty file, please use create_empty_file()')
+            raise ValueError('please use create_empty_file() to create an empty file')
 
         metadata = {
             'name': file_name,
@@ -235,6 +235,15 @@ class Files(object):
 
     async def upload(self, uri: str, producer: Producer, offset: int,
                      total_file_size: int, mime_type: str = None) -> Response:
+        if not uri:
+            raise ValueError('invalid session URI')
+        if not producer:
+            raise ValueError('invalid body producer')
+        if total_file_size <= 0:
+            raise ValueError('please use create_empty_file() to create an empty file')
+        if offset < 0 or offset >= total_file_size:
+            raise ValueError('offset is out of range')
+
         last_position = total_file_size - 1
         headers = {
             'Content-Length': total_file_size - offset,
@@ -251,6 +260,11 @@ class Files(object):
 
     async def get_upload_status(self, uri: str,
                                 total_file_size: int) -> Response:
+        if not uri:
+            raise ValueError('invalid session URI')
+        if total_file_size <= 0:
+            raise ValueError('please use create_empty_file() to create an empty file')
+
         headers = {
             'Content-Length': 0,
             'Content-Range': 'bytes */{0}'.format(total_file_size),
