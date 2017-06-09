@@ -14,6 +14,7 @@ from .util import Settings, GoogleDriveError, stream_md5sum, FOLDER_MIME_TYPE, C
 
 
 FILE_FIELDS = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size'
+EMPTY_MD5SUM = 'd41d8cd98f00b204e9800998ecf8427e'
 
 
 class Drive(object):
@@ -177,35 +178,20 @@ class Drive(object):
 
         total_file_size = op.getsize(file_path)
         mt, e = mimetypes.guess_type(file_path)
-        rv = await api.initiate_uploading(file_name=file_name,
-                                          total_file_size=total_file_size,
-                                          parent_id=parent_node.id_,
-                                          mime_type=mt)
-
-        url = rv.get_header('Location')
-
-        with open(file_path, 'rb') as fin:
-            hasher = hl.md5()
-            reader = ft.partial(file_producer, fin, hasher)
-            offset = 0
-            uploader = ft.partial(self._inner_try_upload_file,
-                                  url=url, producer=reader,
-                                  total_file_size=total_file_size, mime_type=mt)
-            retried = False
-
-            while True:
-                ok, rv = await uploader(offset=offset)
-                if ok:
-                    break
-                offset = rv
-                fin.seek(offset, os.SEEK_SET)
-                retried = True
-
-            if retried:
-                fin.seek(0, os.SEEK_SET)
-                local_md5 = stream_md5sum(fin)
-            else:
-                local_md5 = hasher.hexdigest()
+        if total_file_size <= 0:
+            rv = await api.create_empty_file(file_name=file_name,
+                                             parent_id=parent_node.id_,
+                                             mime_type=mt)
+            local_md5 = EMPTY_MD5SUM
+        else:
+            args = {
+                'file_path': file_path,
+                'file_name': file_name,
+                'total_file_size': total_file_size,
+                'parent_id': parent_node.id_,
+                'mime_type': mt,
+            }
+            local_md5, rv = await self._inner_upload_file(**args)
 
         rv = rv.json_
         node = await self.fetch_node_by_id(rv['id'])
@@ -245,6 +231,42 @@ class Drive(object):
         node = Node.from_api(rv)
         self._db.insert_node(node)
         return node
+
+    async def _inner_upload_file(self, file_path, file_name, total_file_size,
+                                 parent_id, mime_type):
+        api = self._client.files
+
+        rv = await api.initiate_uploading(file_name=file_name,
+                                          total_file_size=total_file_size,
+                                          parent_id=parent_id,
+                                          mime_type=mime_type)
+
+        url = rv.get_header('Location')
+
+        with open(file_path, 'rb') as fin:
+            hasher = hl.md5()
+            reader = ft.partial(file_producer, fin, hasher)
+            uploader = ft.partial(self._inner_try_upload_file,
+                                  url=url, producer=reader,
+                                  total_file_size=total_file_size, mime_type=mt)
+
+            retried = False
+            offset = 0
+            while True:
+                ok, rv = await uploader(offset=offset)
+                if ok:
+                    break
+                offset = rv
+                fin.seek(offset, os.SEEK_SET)
+                retried = True
+
+            if retried:
+                fin.seek(0, os.SEEK_SET)
+                local_md5 = stream_md5sum(fin)
+            else:
+                local_md5 = hasher.hexdigest()
+
+        return rv, local_md5
 
     async def _inner_try_upload_file(self, url, producer, offset,
                                      total_file_size, mime_type):
