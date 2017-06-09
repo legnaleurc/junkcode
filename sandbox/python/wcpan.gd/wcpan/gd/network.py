@@ -139,7 +139,11 @@ class Response(object):
             rv = self._response.body
             if rv:
                 rv = rv.decode('utf-8')
-                rv = json.loads(rv)
+                try:
+                    rv = json.loads(rv)
+                except ValueError as e:
+                    EXCEPTION('wcpan.gd') << rv
+                    rv = None
             self._json = rv
             self._parsed_json = True
         return self._json
