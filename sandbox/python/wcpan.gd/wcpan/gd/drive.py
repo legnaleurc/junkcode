@@ -166,7 +166,7 @@ class Drive(object):
         if not op.isfile(file_path):
             raise UploadError('invalid file path')
 
-        files_api = self._client.files
+        api = self._client.files
         file_name = op.basename(file_path)
 
         # do not upload if remote exists a same file
@@ -177,10 +177,10 @@ class Drive(object):
 
         total_file_size = op.getsize(file_path)
         mt, e = mimetypes.guess_type(file_path)
-        rv = await files_api.initiate_uploading(file_name=file_name,
-                                                total_file_size=total_file_size,
-                                                parent_id=parent_node.id_,
-                                                mime_type=mt)
+        rv = await api.initiate_uploading(file_name=file_name,
+                                          total_file_size=total_file_size,
+                                          parent_id=parent_node.id_,
+                                          mime_type=mt)
 
         url = rv.get_header('Location')
 

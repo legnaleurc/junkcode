@@ -205,6 +205,11 @@ class Files(object):
     async def initiate_uploading(self, file_name: str, total_file_size: int,
                                  parent_id: str = None,
                                  mime_type: str = None) -> Response:
+        if not file_name:
+            raise ValueError('file name is empty')
+        if total_file_size <= 0:
+            raise ValueError('empty file, please use create_empty_file()')
+
         metadata = {
             'name': file_name,
         }
