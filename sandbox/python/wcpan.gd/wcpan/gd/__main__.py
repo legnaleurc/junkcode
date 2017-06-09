@@ -187,6 +187,7 @@ async def main(args=None):
     queue_.push(fn)
     await tg.sleep(1)
     await queue_.wait_for_complete()
+    print(queue_.failed)
 
     return 0
 
