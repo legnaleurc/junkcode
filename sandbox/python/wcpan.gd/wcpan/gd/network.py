@@ -152,6 +152,10 @@ class Response(object):
     def request(self):
         return self._request
 
+    @property
+    def error(self):
+        return self._response.error
+
     def get_header(self, key):
         h = self._response.headers.get_list(key)
         return None if not h else h[0]
@@ -179,6 +183,10 @@ class NetworkError(GoogleDriveError):
     @property
     def json_(self):
         return self._response.json_
+
+    @property
+    def error(self):
+        return self._response.error
 
 
 def backoff_needed(response):

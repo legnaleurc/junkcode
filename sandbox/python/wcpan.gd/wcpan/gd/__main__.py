@@ -135,7 +135,7 @@ async def retry_upload_file(queue_, drive, local_path, parent_node):
             rv = await drive.upload_file(local_path, parent_node)
             break
         except NetworkError as e:
-            wl.EXCEPTION('wcpan.gd', e)
+            wl.EXCEPTION('wcpan.gd', e) << e.error
             if e.status not in ('599',) and e.fatal:
                 queue_.add_failed(local_path)
                 raise
@@ -148,7 +148,7 @@ async def retry_create_folder(queue_, drive, local_path, parent_node):
             rv = await drive.create_folder(local_path, parent_node)
             break
         except NetworkError as e:
-            wl.EXCEPTION('wcpan.gd', e)
+            wl.EXCEPTION('wcpan.gd', e) << e.error
             if e.status not in ('599',) and e.fatal:
                 queue_.add_failed(local_path)
                 raise
