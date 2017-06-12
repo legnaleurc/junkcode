@@ -47,6 +47,9 @@ class Network(object):
                 args['body_producer'] = body
             else:
                 args['body'] = body
+        elif method == 'PUT':
+            # for resume uploads
+            args['allow_nonstandard_methods'] = True
         if consumer is not None:
             args['streaming_callback'] = consumer
         if timeout is not None:

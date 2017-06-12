@@ -191,7 +191,7 @@ class Drive(object):
                 'parent_id': parent_node.id_,
                 'mime_type': mt,
             }
-            local_md5, rv = await self._inner_upload_file(**args)
+            rv, local_md5 = await self._inner_upload_file(**args)
 
         rv = rv.json_
         node = await self.fetch_node_by_id(rv['id'])
@@ -248,7 +248,7 @@ class Drive(object):
             reader = ft.partial(file_producer, fin, hasher)
             uploader = ft.partial(self._inner_try_upload_file,
                                   url=url, producer=reader,
-                                  total_file_size=total_file_size, mime_type=mt)
+                                  total_file_size=total_file_size, mime_type=mime_type)
 
             retried = False
             offset = 0

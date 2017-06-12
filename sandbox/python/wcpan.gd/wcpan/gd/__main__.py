@@ -181,7 +181,7 @@ async def main(args=None):
         'tornado.application',
         'tornado.general',
         'wcpan.gd',
-    ))
+    ), '/tmp/wcpan.gd.log')
 
     path = op.expanduser('~/.cache/wcpan/gd')
     drive = Drive(path)
@@ -191,9 +191,9 @@ async def main(args=None):
     local_path = args[1]
     remote_path = args[2]
 
-    await upload_local_to_remote(drive, local_path, remote_path)
+    #await upload_local_to_remote(drive, local_path, remote_path)
 
-    return 0
+    #return 0
 
     local_path = pl.Path(local_path)
     remote_path = drive.get_node_by_path(remote_path)
