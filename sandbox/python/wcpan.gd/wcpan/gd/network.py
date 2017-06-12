@@ -82,6 +82,7 @@ class Network(object):
             return response
 
         # otherwise it is an error
+        DEBUG('wcpan.gd') << response.error
         raise NetworkError(response)
 
     def _increase_backoff_level(self):
