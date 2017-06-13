@@ -4,6 +4,8 @@ import pathlib as pl
 import re
 import sqlite3
 
+from wcpan.logger import DEBUG
+
 from . import util as u
 
 
@@ -355,7 +357,7 @@ class Node(object):
         self._status = 'TRASH' if data['trashed'] else 'AVAILABLE'
         self._created = u.from_isoformat(data['createdTime'])
         self._modified = u.from_isoformat(data['modifiedTime'])
-        self._parents = data['parents']
+        self._parents = data.get('parents', None)
 
         self._is_folder = data['mimeType'] == u.FOLDER_MIME_TYPE
         self._md5 = data.get('md5Checksum', None)
@@ -406,6 +408,7 @@ class ReadWrite(object):
 
 
 def inner_insert_node(query, node):
+    DEBUG('wcpan.gd') << 'added' << node.name
     # add this node
     query.execute('''
         INSERT OR REPLACE INTO nodes
@@ -424,13 +427,14 @@ def inner_insert_node(query, node):
         ;''', (node.id_, node.md5, node.size))
 
     # add parentage
-    for parent in node.parents:
-        query.execute('''
-            INSERT OR REPLACE INTO parentage
-            (parent, child)
-            VALUES
-            (?, ?)
-        ;''', (parent, node.id_))
+    if node.parents:
+        for parent in node.parents:
+            query.execute('''
+                INSERT OR REPLACE INTO parentage
+                (parent, child)
+                VALUES
+                (?, ?)
+            ;''', (parent, node.id_))
 
 
 def inner_delete_node_by_id(query, node_id):

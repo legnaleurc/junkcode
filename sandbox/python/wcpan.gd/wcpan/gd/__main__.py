@@ -72,11 +72,13 @@ async def verify_upload_file(drive, local_path, remote_node):
         wl.ERROR('wcpan.gd') << 'trashed : {0}'.format(local_path)
         return
 
+    '''
     with open(local_path, 'rb') as fin:
         local_md5 = stream_md5sum(fin)
     if local_md5 != child_node.md5:
         wl.ERROR('wcpan.gd') << 'md5 mismatch : {0}'.format(local_path)
         return
+    '''
 
     wl.INFO('wcpan.gd') << 'ok : {0}'.format(local_path)
 
@@ -191,9 +193,9 @@ async def main(args=None):
     local_path = args[1]
     remote_path = args[2]
 
-    #await upload_local_to_remote(drive, local_path, remote_path)
+    await upload_local_to_remote(drive, local_path, remote_path)
 
-    #return 0
+    return 0
 
     local_path = pl.Path(local_path)
     remote_path = drive.get_node_by_path(remote_path)

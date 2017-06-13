@@ -73,6 +73,7 @@ class Network(object):
 
     def _handle_status(self, response):
         if backoff_needed(response):
+            DEBUG('wcpan.gd') << response.json_
             self._increase_backoff_level()
         else:
             self._reset_backoff_level()

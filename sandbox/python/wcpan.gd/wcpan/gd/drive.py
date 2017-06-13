@@ -13,7 +13,7 @@ from .network import NetworkError
 from .util import Settings, GoogleDriveError, stream_md5sum, FOLDER_MIME_TYPE, CHUNK_SIZE
 
 
-FILE_FIELDS = 'id,name,mimeType,trashed,parents,createdTime,modifiedTime,md5Checksum,size'
+FILE_FIELDS = 'id,name,mimeType,trashed,explicitlyTrashed,parents,createdTime,modifiedTime,md5Checksum,size'
 EMPTY_MD5SUM = 'd41d8cd98f00b204e9800998ecf8427e'
 
 
@@ -55,6 +55,7 @@ class Drive(object):
             'page_size': 1000,
             'restrict_to_my_drive': True,
             'fields': fields,
+            'include_corpus_removals': True,
         }
 
         while new_start_page_token is None:
