@@ -1,10 +1,7 @@
 // ==UserScript==
 // @name        nyaa
 // @namespace   sandbox
-// @include     http://*.nyaa.se/*
-// @include     https://*.nyaa.se/*
-// @include     http://*.nyaa.eu/*
-// @include     https://*.nyaa.eu/*
+// @include     https://*.nyaa.si/*
 // @version     1
 // @grant       GM_addStyle
 // @grant       GM_xmlhttpRequest
@@ -15,12 +12,12 @@
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  tuneLayout();
+  // tuneLayout();
   searchCache();
 });
 
 document.addEventListener('beforescriptexecute', (event) => {
-  disableInjection(event);
+  // disableInjection(event);
 });
 
 
@@ -87,15 +84,15 @@ function disableInjection (event) {
 }
 
 
-function searchCache () {
-  var title = document.querySelector('.viewtorrentname');
+async function searchCache () {
+  let title = document.querySelector('.viewtorrentname');
   if (!title) {
     return;
   }
 
   makeHintArea();
 
-  var t = searchKeyword(title.textContent);
+  let t = searchKeyword(title.textContent);
   if (!t) {
     markError();
     addHint('no match');
@@ -104,27 +101,25 @@ function searchCache () {
 
   markLoading();
   addHint(t);
-  get('http://acddl.loc.al/api/v1/nodes', {
-    pattern: t,
-  }).then((raw) => {
-    var data = JSON.parse(raw);
+
+  try {
+    let raw = await get('http://ddld.loc.al/api/v1/nodes', {
+      pattern: t,
+    });
+    let data = JSON.parse(raw);
     data.forEach((v) => {
       addHint(v.name);
     });
-
     markNormal();
-  }, (e) => {
+  } catch (e) {
     console.error(e);
     markError();
-  }).catch((e) => {
-    console.error(e);
-    markError();
-  });
+  }
 }
 
 
 function searchKeyword (title) {
-  var rv = searchArt(title);
+  let rv = searchArt(title);
   if (rv.length > 0) {
     return rv[0];
   }
@@ -139,7 +134,7 @@ function searchKeyword (title) {
 
 
 function searchArt (title) {
-  var blackList = [
+  let blackList = [
     /^\d+$/,
     /^(FHD|MP4)\//,
     /^FHD|HD|ADV|CG|RPG|HCG|MMD$/,
@@ -152,9 +147,9 @@ function searchArt (title) {
     /^BD 1080P$/,
     /$\d{4}-\d{2}-\d{2}$/,
   ];
-  var pattern = /\[([^\]]+)\]/g;
-  var rv = [];
-  var tmp = null;
+  let pattern = /\[([^\]]+)\]/g;
+  let rv = [];
+  let tmp = null;
   while ((tmp = pattern.exec(title)) !== null) {
     tmp = tmp[1];
     let isBlack = blackList.some((p) => {
@@ -170,9 +165,9 @@ function searchArt (title) {
 
 
 function searchReal (title) {
-  var pattern = /[a-zA-Z]+-\d+/g;
-  var rv = [];
-  var tmp = null;
+  let pattern = /[a-zA-Z]+-\d+/g;
+  let rv = [];
+  let tmp = null;
   while ((tmp = pattern.exec(title)) !== null) {
     rv.push(tmp[0]);
   }
@@ -181,9 +176,9 @@ function searchReal (title) {
 
 
 function makeHintArea () {
-  var a = document.querySelector('.viewdownloadbutton');
-  var b = a.nextElementSibling;
-  var c = b.nextElementSibling;
+  let a = document.querySelector('.viewdownloadbutton');
+  let b = a.nextElementSibling;
+  let c = b.nextElementSibling;
   c.parentNode.removeChild(c);
   b.parentNode.removeChild(b);
   b = a.nextElementSibling;
@@ -212,7 +207,7 @@ function makeHintArea () {
 
 
 function markNormal () {
-  var p = document.querySelector('#fake-hint');
+  let p = document.querySelector('#fake-hint');
   p.classList.remove('loading', 'error');
 }
 
@@ -220,7 +215,7 @@ function markNormal () {
 function markLoading () {
   markNormal();
 
-  var p = document.querySelector('#fake-hint');
+  let p = document.querySelector('#fake-hint');
   p.classList.add('loading');
 }
 
@@ -228,21 +223,21 @@ function markLoading () {
 function markError () {
   markNormal();
 
-  var p = document.querySelector('#fake-hint');
+  let p = document.querySelector('#fake-hint');
   p.classList.add('error');
 }
 
 
 function addHint (message) {
-  var p = document.querySelector('#fake-hint');
-  var c = document.createElement('pre');
+  let p = document.querySelector('#fake-hint');
+  let c = document.createElement('pre');
   c.textContent = message;
   p.appendChild(c);
 }
 
 
 function get (url, args) {
-  var query = new URLSearchParams();
+  let query = new URLSearchParams();
   Object.keys(args).forEach((k) => {
     query.set(k, args[k]);
   });
