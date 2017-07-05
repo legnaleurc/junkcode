@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QFileSystemModel>
 #include <QtCore/QDir>
+#include <QtWidgets/QCompleter>
 
 
 namespace qtfs {
@@ -37,6 +38,10 @@ Viewer::Private::Private(Viewer * parent)
 {
     this->ui.setupUi(this->_);
 
-    this->ui.view->setModel(this->model);
     this->model->setRootPath(QDir::rootPath());
+    this->ui.view->setModel(this->model);
+    this->ui.view->setRootIndex(this->model->index(QDir::homePath()));
+
+    QCompleter * completer = new QCompleter(this->model, this);
+    this->ui.path->setCompleter(completer);
 }
