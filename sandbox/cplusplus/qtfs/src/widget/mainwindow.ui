@@ -16,10 +16,10 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QTreeView" name="leftView"/>
+     <widget class="qtfs::Viewer" name="left" native="true"/>
     </item>
     <item>
-     <widget class="QTreeView" name="rightView"/>
+     <widget class="qtfs::Viewer" name="right" native="true"/>
     </item>
    </layout>
   </widget>
@@ -35,6 +35,14 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>qtfs::Viewer</class>
+   <extends>QWidget</extends>
+   <header>viewer.hpp</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

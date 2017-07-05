@@ -11,9 +11,14 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt5Widgets REQUIRED)
 
 
-set(SOURCES "src/main.cpp" "src/widget/mainwindow.cpp")
-set(WIDGETS "src/widget/mainwindow.ui")
-
+set(SOURCES
+    "src/main.cpp"
+    "src/widget/mainwindow.cpp"
+    "src/widget/viewer.cpp")
+set(WIDGETS
+    "src/widget/mainwindow.ui"
+    "src/widget/viewer.ui")
 
 add_executable(qtfs ${SOURCES} ${WIDGETS})
+target_include_directories(qtfs PRIVATE "src/widget")
 target_link_libraries(qtfs Qt5::Widgets)
