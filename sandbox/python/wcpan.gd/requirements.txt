@@ -1,3 +1,0 @@
-PyDrive
-tornado
-wcpan.logger
