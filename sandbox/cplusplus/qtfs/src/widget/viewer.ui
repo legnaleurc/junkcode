@@ -18,7 +18,11 @@
     <widget class="QLineEdit" name="path"/>
    </item>
    <item>
-    <widget class="QTreeView" name="view"/>
+    <widget class="QTreeView" name="view">
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
