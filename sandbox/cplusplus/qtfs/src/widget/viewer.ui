@@ -19,6 +19,15 @@
    </item>
    <item>
     <widget class="QTreeView" name="view">
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragDrop</enum>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>
