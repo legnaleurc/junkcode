@@ -46,6 +46,8 @@ Viewer::Private::Private(Viewer * parent)
     this->ui.setupUi(this->_);
 
     this->model->setRootPath(QDir::rootPath());
+    this->model->setReadOnly(false);
+
     this->ui.view->setModel(this->model);
     this->ui.view->sortByColumn(0, Qt::AscendingOrder);
 
