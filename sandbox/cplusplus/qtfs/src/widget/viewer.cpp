@@ -4,6 +4,9 @@
 #include <QtWidgets/QFileSystemModel>
 #include <QtCore/QDir>
 #include <QtWidgets/QCompleter>
+#include <QtWidgets/QMenu>
+
+#include <QtCore/QtDebug>
 
 
 namespace qtfs {
@@ -18,10 +21,12 @@ public:
 public slots:
     void commitPath();
     void goUp();
+    void showContextMenu(const QPoint & position);
 
 public:
     Viewer * _;
     Ui::Viewer ui;
+    QMenu * menu;
     QFileSystemModel * model;
 };
 
@@ -42,6 +47,7 @@ Viewer::Private::Private(Viewer * parent)
     : QObject(parent)
     , _(parent)
     , ui()
+    , menu(new QMenu(parent))
     , model(new QFileSystemModel(this))
 {
     this->ui.setupUi(this->_);
@@ -57,9 +63,14 @@ Viewer::Private::Private(Viewer * parent)
 
     this->connect(this->ui.path, SIGNAL(returnPressed()), SLOT(commitPath()));
 
-    this->setPath(QDir::homePath());
-
     this->connect(this->ui.up, SIGNAL(pressed()), SLOT(goUp()));
+
+    this->connect(this->ui.view, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(showContextMenu(const QPoint &)));
+
+    auto renameAction = this->menu->addAction(QObject::tr("Rename"));
+    auto deleteAction = this->menu->addAction(QObject::tr("Delete"));
+
+    this->setPath(QDir::homePath());
 }
 
 
@@ -82,8 +93,19 @@ void Viewer::Private::commitPath() {
 void Viewer::Private::goUp() {
     auto path = this->ui.path->text();
     QDir folder(path);
-    folder.cdUp();
-    this->setPath(folder.path());
+    if (folder.cdUp()) {
+        this->setPath(folder.path());
+    }
+}
+
+
+void Viewer::Private::showContextMenu(const QPoint & position) {
+    auto index = this->ui.view->indexAt(position);
+    auto path = this->model->filePath(index);
+    qDebug () << path;
+
+    auto globalPosition = this->ui.view->viewport()->mapToGlobal(position);
+    this->menu->popup(globalPosition);
 }
 
 
