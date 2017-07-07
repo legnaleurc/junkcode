@@ -17,6 +17,7 @@ public:
 
 public slots:
     void commitPath();
+    void goUp();
 
 public:
     Viewer * _;
@@ -57,6 +58,8 @@ Viewer::Private::Private(Viewer * parent)
     this->connect(this->ui.path, SIGNAL(returnPressed()), SLOT(commitPath()));
 
     this->setPath(QDir::homePath());
+
+    this->connect(this->ui.up, SIGNAL(pressed()), SLOT(goUp()));
 }
 
 
@@ -73,6 +76,14 @@ void Viewer::Private::setPath(const QString & path) {
 void Viewer::Private::commitPath() {
     auto path = this->ui.path->text();
     this->setPath(path);
+}
+
+
+void Viewer::Private::goUp() {
+    auto path = this->ui.path->text();
+    QDir folder(path);
+    folder.cdUp();
+    this->setPath(folder.path());
 }
 
 
