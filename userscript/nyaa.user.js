@@ -85,7 +85,7 @@ function disableInjection (event) {
 
 
 async function searchCache () {
-  let title = document.querySelector('.viewtorrentname');
+  let title = document.querySelector('body > .container > div:nth-child(1) .panel-title');
   if (!title) {
     return;
   }
@@ -176,22 +176,18 @@ function searchReal (title) {
 
 
 function makeHintArea () {
-  let a = document.querySelector('.viewdownloadbutton');
-  let b = a.nextElementSibling;
-  let c = b.nextElementSibling;
-  c.parentNode.removeChild(c);
-  b.parentNode.removeChild(b);
-  b = a.nextElementSibling;
-  a = a.parentNode;
-
-  c = document.createElement('p');
+  let a = document.querySelector('body > .container > div:nth-child(2)');
+  let c = document.createElement('div');
   c.id = 'fake-hint';
-  a.insertBefore(c, b);
+  c.classList.add('panel', 'panel-default');
+  a.parentNode.insertBefore(c, a);
 
   GM_addStyle(`
     #fake-hint > pre {
-      margin-top: 0.5em;
-      margin-bottom: 0.5em;
+      padding: initial;
+      border: initial;
+      background-color: initial;
+      overflow: initial;
     }
 
     #fake-hint.loading {

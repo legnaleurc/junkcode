@@ -30,6 +30,9 @@ async function searchCache () {
   if (!title) {
     return;
   }
+  if (!title.textContent) {
+    title = document.querySelector('#gn');
+  }
 
   title = searchKeyword(title.textContent);
   if (!title) {
@@ -42,7 +45,7 @@ async function searchCache () {
   addTextToSearchHint(title);
 
   try {
-    let data = await get('http://acddl.loc.al/api/v1/nodes', {
+    let data = await get('http://ddld.loc.al/api/v1/nodes', {
       pattern: title,
     });
     data = JSON.parse(data);
