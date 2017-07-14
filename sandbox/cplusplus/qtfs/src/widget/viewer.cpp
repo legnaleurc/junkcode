@@ -22,15 +22,27 @@ public slots:
     void commitPath();
     void goUp();
     void showContextMenu(const QPoint & position);
+    void contextMenuTriggered(QAction * action);
 
 public:
     Viewer * _;
     Ui::Viewer ui;
     QMenu * menu;
     QFileSystemModel * model;
+    QString currentContextMenuPath;
+};
+
+
+enum class ContextMenuAction : uint8_t {
+    RENAME,
+    DELETE,
+    UNKNOWN,
 };
 
 }
+
+
+Q_DECLARE_METATYPE(qtfs::ContextMenuAction);
 
 
 using namespace qtfs;
@@ -49,6 +61,7 @@ Viewer::Private::Private(Viewer * parent)
     , ui()
     , menu(new QMenu(parent))
     , model(new QFileSystemModel(this))
+    , currentContextMenuPath()
 {
     this->ui.setupUi(this->_);
 
@@ -68,7 +81,10 @@ Viewer::Private::Private(Viewer * parent)
     this->connect(this->ui.view, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(showContextMenu(const QPoint &)));
 
     auto renameAction = this->menu->addAction(QObject::tr("Rename"));
+    renameAction->setData(QVariant::fromValue(ContextMenuAction::RENAME));
     auto deleteAction = this->menu->addAction(QObject::tr("Delete"));
+    deleteAction->setData(QVariant::fromValue(ContextMenuAction::DELETE));
+    this->connect(this->menu, SIGNAL(triggered(QAction *)), SLOT(contextMenuTriggered(QAction *)));
 
     this->setPath(QDir::homePath());
 }
@@ -102,10 +118,28 @@ void Viewer::Private::goUp() {
 void Viewer::Private::showContextMenu(const QPoint & position) {
     auto index = this->ui.view->indexAt(position);
     auto path = this->model->filePath(index);
-    qDebug () << path;
+    this->currentContextMenuPath = path;
 
     auto globalPosition = this->ui.view->viewport()->mapToGlobal(position);
     this->menu->popup(globalPosition);
+}
+
+
+void Viewer::Private::contextMenuTriggered(QAction * action) {
+    if (this->currentContextMenuPath.isEmpty()) {
+        return;
+    }
+    auto cma = action->data().isValid() ? action->data().value<ContextMenuAction>() : ContextMenuAction::UNKNOWN;
+    switch (cma) {
+        case ContextMenuAction::RENAME:
+            qDebug() << "mv" << this->currentContextMenuPath;
+            break;
+        case ContextMenuAction::DELETE:
+            qDebug() << "rm" << this->currentContextMenuPath;
+            break;
+        default:
+            break;
+    }
 }
 
 
