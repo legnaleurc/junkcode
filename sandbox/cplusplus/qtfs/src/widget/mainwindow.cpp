@@ -1,10 +1,7 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-// #include <QtWidgets/QFileSystemModel>
-// #include <QtCore/QDir>
-
-// #include <QtCore/QtDebug>
+#include <QtWidgets/QFileSystemModel>
 
 
 namespace qtfs {
@@ -15,6 +12,7 @@ public:
 
     MainWindow * _;
     Ui::MainWindow ui;
+    QFileSystemModel * model;
 };
 
 }
@@ -34,6 +32,10 @@ MainWindow::Private::Private(MainWindow * parent)
     : QObject(parent)
     , _(parent)
     , ui()
+    , model(new QFileSystemModel(this))
 {
     this->ui.setupUi(this->_);
+
+    this->ui.left->initialize(this->model);
+    this->ui.right->initialize(this->model);
 }

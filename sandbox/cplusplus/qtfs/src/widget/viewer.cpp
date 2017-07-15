@@ -16,6 +16,7 @@ class Viewer::Private : public QObject {
 
 public:
     explicit Private(Viewer * parent);
+    void initialize(QFileSystemModel * model);
     void setPath(const QString & path);
 
 public slots:
@@ -55,24 +56,20 @@ Viewer::Viewer(QWidget * parent)
 }
 
 
+void Viewer::initialize(QFileSystemModel * model) {
+    _->initialize(model);
+}
+
+
 Viewer::Private::Private(Viewer * parent)
     : QObject(parent)
     , _(parent)
     , ui()
     , menu(new QMenu(parent))
-    , model(new QFileSystemModel(this))
+    , model(nullptr)
     , currentContextMenuPath()
 {
     this->ui.setupUi(this->_);
-
-    this->model->setRootPath(QDir::rootPath());
-    this->model->setReadOnly(false);
-
-    this->ui.view->setModel(this->model);
-    this->ui.view->sortByColumn(0, Qt::AscendingOrder);
-
-    auto completer = new QCompleter(this->model, this);
-    this->ui.path->setCompleter(completer);
 
     this->connect(this->ui.path, SIGNAL(returnPressed()), SLOT(commitPath()));
 
@@ -85,6 +82,20 @@ Viewer::Private::Private(Viewer * parent)
     auto deleteAction = this->menu->addAction(QObject::tr("Delete"));
     deleteAction->setData(QVariant::fromValue(ContextMenuAction::DELETE));
     this->connect(this->menu, SIGNAL(triggered(QAction *)), SLOT(contextMenuTriggered(QAction *)));
+}
+
+
+void Viewer::Private::initialize(QFileSystemModel * model) {
+    this->model = model;
+
+    this->model->setRootPath(QDir::rootPath());
+    this->model->setReadOnly(false);
+
+    this->ui.view->setModel(this->model);
+    this->ui.view->sortByColumn(0, Qt::AscendingOrder);
+
+    auto completer = new QCompleter(this->model, this);
+    this->ui.path->setCompleter(completer);
 
     this->setPath(QDir::homePath());
 }
