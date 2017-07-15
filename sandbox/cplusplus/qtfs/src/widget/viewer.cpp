@@ -20,7 +20,8 @@ public:
     void setPath(const QString & path);
 
 public slots:
-    void commitPath();
+    void changePathByIndex(const QModelIndex & index);
+    void changePathByInput();
     void goUp();
     void showContextMenu(const QPoint & position);
     void contextMenuTriggered(QAction * action);
@@ -71,10 +72,11 @@ Viewer::Private::Private(Viewer * parent)
 {
     this->ui.setupUi(this->_);
 
-    this->connect(this->ui.path, SIGNAL(returnPressed()), SLOT(commitPath()));
+    this->connect(this->ui.path, SIGNAL(returnPressed()), SLOT(changePathByInput()));
 
     this->connect(this->ui.up, SIGNAL(pressed()), SLOT(goUp()));
 
+    this->connect(this->ui.view, SIGNAL(doubleClicked(const QModelIndex &)), SLOT(changePathByIndex(const QModelIndex &)));
     this->connect(this->ui.view, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(showContextMenu(const QPoint &)));
 
     auto renameAction = this->menu->addAction(QObject::tr("Rename"));
@@ -111,7 +113,13 @@ void Viewer::Private::setPath(const QString & path) {
 }
 
 
-void Viewer::Private::commitPath() {
+void Viewer::Private::changePathByIndex(const QModelIndex & index) {
+    auto path = this->model->filePath(index);
+    this->setPath(path);
+}
+
+
+void Viewer::Private::changePathByInput() {
     auto path = this->ui.path->text();
     this->setPath(path);
 }
