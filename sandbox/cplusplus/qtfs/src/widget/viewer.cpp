@@ -8,6 +8,8 @@
 
 #include <QtCore/QtDebug>
 
+#include <cassert>
+
 
 namespace qtfs {
 
@@ -88,6 +90,9 @@ Viewer::Private::Private(Viewer * parent)
 
 
 void Viewer::Private::initialize(QFileSystemModel * model) {
+    assert(model || !"initialize with a null model");
+    assert(!this->model || !"should not have any model");
+
     this->model = model;
 
     this->model->setRootPath(QDir::rootPath());
