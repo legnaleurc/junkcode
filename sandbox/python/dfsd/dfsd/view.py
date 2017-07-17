@@ -5,6 +5,11 @@ from tornado import web as tw
 import wcpan.logger as wl
 
 
+NS = {
+    'D': 'DAV:',
+}
+
+
 class Root(tw.RequestHandler):
 
     SUPPORTED_METHODS = tw.RequestHandler.SUPPORTED_METHODS + ('MKCOL', 'PROPFIND', 'PROPPATCH', 'ORDERPATCH', 'COPY', 'MOVE', 'TRACE', 'REPORT', 'LOCK', 'UNLOCK')
@@ -47,8 +52,11 @@ class Root(tw.RequestHandler):
     def propfind(self):
         depth = self.request.headers['Depth']
         data = self.request.body
-        data = ET.fromstring(data)
         wl.DEBUG('dfsd') << data
+        root = ET.fromstring(data)
+        prop = root.find('./D:prop', NS)
+        for key in prop:
+            wl.DEBUG('dfsd') << key.tag
 
     def proppatch(self):
         wl.DEBUG('dfsd') << self.request.headers
