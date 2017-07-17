@@ -95,9 +95,6 @@ void Viewer::Private::initialize(QFileSystemModel * model) {
 
     this->model = model;
 
-    this->model->setRootPath(QDir::rootPath());
-    this->model->setReadOnly(false);
-
     this->ui.view->setModel(this->model);
     this->ui.view->sortByColumn(0, Qt::AscendingOrder);
 

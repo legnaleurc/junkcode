@@ -36,6 +36,10 @@ MainWindow::Private::Private(MainWindow * parent)
 {
     this->ui.setupUi(this->_);
 
+    this->model->setRootPath(QDir::rootPath());
+    this->model->setReadOnly(false);
+    this->model->setResolveSymlinks(true);
+
     this->ui.left->initialize(this->model);
     this->ui.right->initialize(this->model);
 }
