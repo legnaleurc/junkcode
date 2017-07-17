@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 
 #include <QtWidgets/QFileSystemModel>
+#include <QtCore/QDir>
+
+#include <QtCore/QtDebug>
 
 
 namespace qtfs {
@@ -39,6 +42,10 @@ MainWindow::Private::Private(MainWindow * parent)
     this->model->setRootPath(QDir::rootPath());
     this->model->setReadOnly(false);
     this->model->setResolveSymlinks(true);
+
+    auto filter = this->model->filter();
+    filter |= QDir::Hidden | QDir::System;
+    this->model->setFilter(filter);
 
     this->ui.left->initialize(this->model);
     this->ui.right->initialize(this->model);
