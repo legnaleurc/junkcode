@@ -15,15 +15,16 @@ def nested_get(value, property_list, default=None):
 
 class SmartPointerMatcher(gdb.xmethod.XMethodMatcher):
 
-    def __init__(self):
-        super(SmartPointerMatcher, self).__init__('SmartPointerMatcher')
+    def __init__(self, name):
+        super(SmartPointerMatcher, self).__init__(name)
 
-        self._methods = (
-            SmartPointer(),
-        )
+        self.methods = [
+            SmartPointerMethod('SmartPointerMethod'),
+        ]
 
     def match(self, class_type, method_name):
         m = re.match(r'^(Ref|nsCOM)Ptr<.*>$', class_type.tag)
+        print(m)
         if not m:
             return None
         workers = []
@@ -35,10 +36,10 @@ class SmartPointerMatcher(gdb.xmethod.XMethodMatcher):
         return workers
 
 
-class SmartPointer(gdb.xmethod.XMethod):
+class SmartPointerMethod(gdb.xmethod.XMethod):
 
-    def __init__(self):
-        super(SmartPointer, self).__init__('SmartPointer')
+    def __init__(self, name):
+        super(SmartPointerMethod, self).__init__(name)
 
     def get_worker(self, method_name):
         if method_name == 'operator*':
@@ -57,4 +58,4 @@ class SmartPointerDereference(gdb.xmethod.XMethodWorker):
         return obj['mRawPtr'].dereference()
 
 
-gdb.xmethod.register_xmethod_matcher(None, SmartPointerMatcher())
+gdb.xmethod.register_xmethod_matcher(None, SmartPointerMatcher('SmartPointerMatcher'))
