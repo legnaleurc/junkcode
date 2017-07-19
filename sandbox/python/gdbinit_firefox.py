@@ -13,13 +13,13 @@ def nested_get(value, property_list, default=None):
         return default
 
 
-class NetscapePointerMatcher(gdb.xmethod.XMethodMatcher):
+class SmartPointerMatcher(gdb.xmethod.XMethodMatcher):
 
     def __init__(self):
-        super(NetscapePointerMatcher, self).__init__('NetscapePointerMatcher')
+        super(SmartPointerMatcher, self).__init__('SmartPointerMatcher')
 
         self._methods = (
-            NetscapePointer(),
+            SmartPointer(),
         )
 
     def match(self, class_type, method_name):
@@ -35,20 +35,20 @@ class NetscapePointerMatcher(gdb.xmethod.XMethodMatcher):
         return workers
 
 
-class NetscapePointer(gdb.xmethod.XMethod):
+class SmartPointer(gdb.xmethod.XMethod):
 
     def __init__(self):
-        super(NetscapePointer, self).__init__('NetscapePointer')
+        super(SmartPointer, self).__init__('SmartPointer')
 
     def get_worker(self, method_name):
         if method_name == 'operator*':
-            return NetscapePointerDereference()
+            return SmartPointerDereference()
 
 
-class NetscapePointerDereference(gdb.xmethod.XMethodWorker):
+class SmartPointerDereference(gdb.xmethod.XMethodWorker):
 
     def __init__(self):
-        super(NetscapePointerDereference, self).__init__()
+        super(SmartPointerDereference, self).__init__()
 
     def get_arg_types(self):
         return None
@@ -57,4 +57,4 @@ class NetscapePointerDereference(gdb.xmethod.XMethodWorker):
         return obj['mRawPtr'].dereference()
 
 
-gdb.xmethod.register_xmethod_matcher(None, NetscapePointerMatcher())
+gdb.xmethod.register_xmethod_matcher(None, SmartPointerMatcher())
