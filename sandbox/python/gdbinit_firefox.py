@@ -7,13 +7,6 @@ import gdb
 import gdb.xmethod
 
 
-def nested_get(value, property_list, default=None):
-    try:
-        return ft.reduce(gdb.Value.__getitem__, property_list, value)
-    except Exception:
-        return default
-
-
 class SmartPointerMatcher(gdb.xmethod.XMethodMatcher):
 
     def __init__(self, name):
@@ -74,6 +67,13 @@ class SmartPointerDereference(gdb.xmethod.XMethodWorker):
         if v.type.code != gdb.TYPE_CODE_PTR:
             return None
         return v.dereference()
+
+
+def nested_get(value, property_list, default=None):
+    try:
+        return ft.reduce(gdb.Value.__getitem__, property_list, value)
+    except Exception:
+        return default
 
 
 gdb.xmethod.register_xmethod_matcher(None, SmartPointerMatcher('SmartPointerMatcher'))
