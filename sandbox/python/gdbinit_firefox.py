@@ -22,18 +22,27 @@ class SmartPointerMatcher(gdb.xmethod.XMethodMatcher):
             SmartPointerMethod('SmartPointerMethod'),
         ]
 
+    # Override
     def match(self, class_type, method_name):
-        m = re.match(r'^(Ref|nsCOM)Ptr<.*>$', class_type.tag)
-        print(m)
-        if not m:
+        rp = self._internal_match(class_type.tag)
+        if not rp:
             return None
-        workers = []
-        for method in self._methods:
-            if method.enabled:
-                worker = method.get_worker(method_name)
-                if worker:
-                    workers.append(worker)
+        workers = filter(lambda _: _.enabled, self.methods)
+        workers = map(lambda _: _.get_worker(method_name, rp), workers)
+        workers = filter(None, workers)
+        workers = list(workers)
         return workers
+
+    def _internal_match(self, class_name):
+        m = re.match(r'^(Ref|nsCOM)Ptr<.*>$', class_name)
+        if m:
+            return 'mRawPtr'
+
+        m = re.match(r'^mozilla::ArenaRefPtr<.*>$', class_name)
+        if m:
+            return 'mPtr'
+
+        return None
 
 
 class SmartPointerMethod(gdb.xmethod.XMethod):
@@ -41,21 +50,26 @@ class SmartPointerMethod(gdb.xmethod.XMethod):
     def __init__(self, name):
         super(SmartPointerMethod, self).__init__(name)
 
-    def get_worker(self, method_name):
+    def get_worker(self, method_name, real_pointer):
         if method_name == 'operator*':
-            return SmartPointerDereference()
+            return SmartPointerDereference(real_pointer)
+        return None
 
 
 class SmartPointerDereference(gdb.xmethod.XMethodWorker):
 
-    def __init__(self):
+    def __init__(self, real_pointer):
         super(SmartPointerDereference, self).__init__()
 
+        self._rp = real_pointer
+
+    # Override
     def get_arg_types(self):
         return None
 
+    # Override
     def __call__(self, obj):
-        return obj['mRawPtr'].dereference()
+        return obj[self._rp].dereference()
 
 
 gdb.xmethod.register_xmethod_matcher(None, SmartPointerMatcher('SmartPointerMatcher'))
