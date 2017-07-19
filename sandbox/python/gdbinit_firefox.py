@@ -1,6 +1,7 @@
 # ex: et ts=4 sts=4 sw=4 :
 
 import re
+import functools as ft
 
 import gdb
 import gdb.xmethod
@@ -8,7 +9,7 @@ import gdb.xmethod
 
 def nested_get(value, property_list, default=None):
     try:
-        return reduce(gdb.Value.__getitem__, property_list, value)
+        return ft.reduce(gdb.Value.__getitem__, property_list, value)
     except Exception:
         return default
 
@@ -36,11 +37,11 @@ class SmartPointerMatcher(gdb.xmethod.XMethodMatcher):
     def _internal_match(self, class_name):
         m = re.match(r'^(Ref|nsCOM)Ptr<.*>$', class_name)
         if m:
-            return 'mRawPtr'
+            return ['mRawPtr']
 
         m = re.match(r'^mozilla::ArenaRefPtr<.*>$', class_name)
         if m:
-            return 'mPtr'
+            return ['mPtr', 'mRawPtr']
 
         return None
 
@@ -69,7 +70,8 @@ class SmartPointerDereference(gdb.xmethod.XMethodWorker):
 
     # Override
     def __call__(self, obj):
-        return obj[self._rp].dereference()
+        v = nested_get(obj, self._rp)
+        return v.dereference()
 
 
 gdb.xmethod.register_xmethod_matcher(None, SmartPointerMatcher('SmartPointerMatcher'))
