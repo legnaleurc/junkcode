@@ -13,46 +13,6 @@ def nested_get(value, property_list, default=None):
         return default
 
 
-class DereferenceCommand(gdb.Command):
-
-    '''
-    Dereference.
-    '''
-
-    def __init__(self):
-        super(DereferenceCommand, self).__init__('pp', gdb.COMMAND_SUPPORT, gdb.COMPLETE_EXPRESSION, False)
-
-    def invoke(self, argument, from_tty):
-        args = gdb.string_to_argv(argument)
-        name = args[0]
-
-        value = gdb.parse_and_eval(name)
-
-        if value.is_optimized_out:
-            print('`{0}` has been optimized out'.format(name))
-            return
-
-        try:
-            print(value.dereference())
-            return
-        except Exception:
-            pass
-
-        try:
-            print(value['mRawPtr'].dereference())
-            return
-        except Exception:
-            pass
-
-        try:
-            print(value['mRawPtr'].dereference())
-            return
-        except Exception:
-            pass
-
-        print('no matching pointer')
-
-
 class NetscapePointerMatcher(gdb.xmethod.XMethodMatcher):
 
     def __init__(self):
@@ -97,5 +57,4 @@ class NetscapePointerDereference(gdb.xmethod.XMethodWorker):
         return obj['mRawPtr'].dereference()
 
 
-#DereferenceCommand()
 gdb.xmethod.register_xmethod_matcher(None, NetscapePointerMatcher())
