@@ -71,6 +71,8 @@ class SmartPointerDereference(gdb.xmethod.XMethodWorker):
     # Override
     def __call__(self, obj):
         v = nested_get(obj, self._rp)
+        if v.type.code != gdb.TYPE_CODE_PTR:
+            return None
         return v.dereference()
 
 
