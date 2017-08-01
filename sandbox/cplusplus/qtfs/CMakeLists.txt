@@ -13,6 +13,7 @@ find_package(Qt5Widgets REQUIRED)
 
 set(SOURCES
     "src/main.cpp"
+    "src/model/filesystemmodel.cpp"
     "src/widget/mainwindow.cpp"
     "src/widget/viewer.cpp")
 set(WIDGETS
