@@ -4,10 +4,16 @@
 
 #include <QtWidgets/QFileSystemModel>
 
+#include <memory>
+
 
 namespace qtfs {
 
 class FileProgressData;
+namespace detail {
+class FileProgressDataPrivate;
+using FPDHandle = std::shared_ptr<FileProgressDataPrivate>;
+}
 
 
 class FileSystemModel : public QFileSystemModel {
@@ -31,11 +37,16 @@ private:
 
 class FileProgressData final {
 public:
+    explicit FileProgressData(detail::FPDHandle);
+
     bool finished() const;
     uint64_t current() const;
     uint64_t total() const;
     const QString & filePath() const;
     bool succeed() const;
+
+private:
+    detail::FPDHandle _;
 };
 
 }
