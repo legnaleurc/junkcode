@@ -101,6 +101,10 @@ bool FileProgressData::succeed() const {
 } // namespace qtfs
 
 
+Q_DECLARE_METATYPE(Qt::DropAction);
+Q_DECLARE_METATYPE(QList<QUrl>);
+
+
 using qtfs::FileSystemModel;
 using qtfs::IOWorker;
 
@@ -111,6 +115,9 @@ FileSystemModel::FileSystemModel(QObject * parent)
 {
     QObject::connect(_, &Private::progressUpdated,
                      this, &FileSystemModel::progressUpdated);
+
+    qRegisterMetaType<Qt::DropAction>();
+    qRegisterMetaType<QList<QUrl>>();
 }
 
 
