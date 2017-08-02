@@ -2,16 +2,58 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QMimeData>
+#include <QtCore/QThread>
 #include <QtCore/QUrl>
 
 #include <functional>
 
 
+namespace qtfs {
+
+class IOWorker;
+
+
+class FileSystemModel::Private : public QObject {
+    Q_OBJECT
+
+public:
+    explicit Private(FileSystemModel * parent);
+    virtual ~Private();
+
+    void queueTasks(Qt::DropAction action, const QString & to,
+                    const QList<QUrl> & urls);
+
+signals:
+    void queueRequested(Qt::DropAction action, const QString & to,
+                        const QList<QUrl> & urls);
+
+public:
+    FileSystemModel * _;
+    QThread * ioThread;
+};
+
+
+class IOWorker : public QObject {
+    Q_OBJECT
+
+public:
+    IOWorker();
+
+public slots:
+    void processQueue(Qt::DropAction action, const QString & to,
+                      const QList<QUrl> & urls);
+};
+
+}
+
+
 using qtfs::FileSystemModel;
+using qtfs::IOWorker;
 
 
 FileSystemModel::FileSystemModel(QObject * parent)
     : QFileSystemModel(parent)
+    , _(new Private(this))
 {
 }
 
@@ -24,6 +66,14 @@ bool FileSystemModel::dropMimeData(const QMimeData * data,
         return false;
     }
     if (this->isReadOnly()) {
+        return false;
+    }
+    switch (action) {
+    case Qt::CopyAction:
+    case Qt::LinkAction:
+    case Qt::MoveAction:
+        break;
+    default:
         return false;
     }
 
@@ -56,3 +106,37 @@ bool FileSystemModel::dropMimeData(const QMimeData * data,
 
     return ok;
 }
+
+
+FileSystemModel::Private::Private(FileSystemModel * parent)
+    : QObject(parent)
+    , _(parent)
+    , ioThread(new QThread(this))
+{
+    auto worker = new IOWorker;
+    worker->moveToThread(this->ioThread);
+    worker->connect(this->ioThread, &QThread::finished, &QObject::deleteLater);
+    worker->connect(this, &Private::queueRequested, &IOWorker::processQueue);
+    this->ioThread->start();
+}
+
+
+FileSystemModel::Private::~Private() {
+    this->ioThread->quit();
+    this->ioThread->wait();
+}
+
+
+void FileSystemModel::Private::queueTasks(Qt::DropAction action,
+                                          const QString & to,
+                                          const QList<QUrl> & urls) {
+    ;
+}
+
+
+IOWorker::IOWorker()
+    : QObject(nullptr)
+{}
+
+
+#include "filesystemmodel.moc"
