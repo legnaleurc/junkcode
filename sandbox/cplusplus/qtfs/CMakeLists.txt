@@ -21,5 +21,5 @@ set(WIDGETS
     "src/widget/viewer.ui")
 
 add_executable(qtfs ${SOURCES} ${WIDGETS})
-target_include_directories(qtfs PRIVATE "src/widget")
+target_include_directories(qtfs PRIVATE "src")
 target_link_libraries(qtfs Qt5::Widgets)

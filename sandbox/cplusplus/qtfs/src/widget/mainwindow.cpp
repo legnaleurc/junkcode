@@ -1,7 +1,8 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-#include <QtWidgets/QFileSystemModel>
+#include "model/filesystemmodel.hpp"
+
 #include <QtCore/QDir>
 
 #include <QtCore/QtDebug>
@@ -15,7 +16,7 @@ public:
 
     MainWindow * _;
     Ui::MainWindow ui;
-    QFileSystemModel * model;
+    FileSystemModel * model;
 };
 
 }
@@ -35,7 +36,7 @@ MainWindow::Private::Private(MainWindow * parent)
     : QObject(parent)
     , _(parent)
     , ui()
-    , model(new QFileSystemModel(this))
+    , model(new FileSystemModel(this))
 {
     this->ui.setupUi(this->_);
 

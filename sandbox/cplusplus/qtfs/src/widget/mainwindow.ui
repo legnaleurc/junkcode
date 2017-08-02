@@ -39,7 +39,7 @@
   <customwidget>
    <class>qtfs::Viewer</class>
    <extends>QWidget</extends>
-   <header>viewer.hpp</header>
+   <header>widget/viewer.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
