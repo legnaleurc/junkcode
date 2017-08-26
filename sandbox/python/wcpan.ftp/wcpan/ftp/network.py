@@ -6,6 +6,8 @@ import tornado.tcpserver
 import tornado.ioloop
 import tornado.iostream
 
+import tornado.locks
+
 
 class FTPServer(tornado.tcpserver.TCPServer):
 
@@ -24,6 +26,8 @@ class PassiveListener(tornado.tcpserver.TCPServer):
         super().__init__()
         self.client_ip = client_ip
         self.stream = None
+        self._ready_lock = tornado.locks.Condition()
+
         self.bind(0, family=socket.AF_INET)
         self.start()
 
@@ -39,17 +43,19 @@ class PassiveListener(tornado.tcpserver.TCPServer):
         return "(" + result + ")"
 
     async def handle_stream(self, stream, addr):
-        print("New data connection")
-        if addr[0] != self.client_ip:
-            print("client ip doesn't match, closing connection")
-            stream.close()
+        print("New data connection", addr, self.client_ip)
         self.stream = stream
-        tornado.ioloop.IOLoop.current().add_callback(self.stop)
+        self._ready_lock.notify()
+        self._ready_lock = None
 
     async def send(self, data):
         self.stream.write(data)
         self.stream.close()
+        self.stop()
         print("Data sent, closing data connection")
+
+    async def wait_for_ready(self):
+        await self._ready_lock.wait()
 
 
 class ControlConnection:
@@ -58,7 +64,7 @@ class ControlConnection:
         self.server = server
         self.stream = stream
         self.address = address
-        self.encoding = "ascii"
+        self.encoding = "utf-8"
         self.start_position = 0
 
     async def writeline(self, value):
@@ -73,7 +79,7 @@ class ControlConnection:
 
     async def start(self):
         print("Incoming connection from {}".format(self.address))
-        await self.writeline("220")
+        await self.writeline("220 __TEST__")
         self.running = True
         while self.running:
             try:
@@ -97,7 +103,7 @@ class ControlConnection:
             command, parameters = command
 
         if command == "USER":
-            await self.writeline("230")
+            await self.writeline("230 __USER_OK__")
 
         elif command == "SYST":
             await self.writeline("215 UNIX Type: L8")
@@ -112,20 +118,21 @@ class ControlConnection:
             await self.writeline('257 "/"')
 
         elif command == "CWD":
-            await self.writeline('250')
+            await self.writeline('250 __CWD_OK__')
 
         elif command == "TYPE":
-            await self.writeline('200')
+            await self.writeline('200 __TYPE_OK__')
 
         elif command == "PASV":
             self.data_connection = PassiveListener(self.address[0])
             await self.writeline("227 " + self.data_connection.format_host())
+            await self.data_connection.wait_for_ready()
 
         elif command == "LIST":
-            await self.writeline("150")
+            await self.writeline("150 __LIST_150__")
             await self.data_connection.send(
                 subprocess.check_output(["ls", "-l", self.server.path]))
-            await self.writeline("226")
+            await self.writeline("226 __LIST_226__")
 
         elif command == "RETR":
             await self.writeline("150")
@@ -146,4 +153,4 @@ class ControlConnection:
             self.close()
 
         else:
-            await self.writeline("502")
+            await self.writeline("500 __UNKNOWN__")
