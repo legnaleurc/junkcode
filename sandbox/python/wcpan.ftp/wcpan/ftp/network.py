@@ -14,10 +14,11 @@ class FTPServer(tornado.tcpserver.TCPServer):
     def __init__(self, path):
         super().__init__()
         self.path = path
+        self._loop = tornado.ioloop.IOLoop.current()
 
     async def handle_stream(self, stream, address):
-        control_channel = ControlConnection(self, stream, address)
-        await control_channel.start()
+        session = ControlChannel(self, stream, address)
+        self._loop.add_callback(session.start)
 
 
 class PassiveListener(tornado.tcpserver.TCPServer):
@@ -32,6 +33,7 @@ class PassiveListener(tornado.tcpserver.TCPServer):
         self.start()
 
     def get_socket(self):
+        print(list(self._sockets.values()))
         return list(self._sockets.values())[0]
 
     def format_host(self):
@@ -58,18 +60,21 @@ class PassiveListener(tornado.tcpserver.TCPServer):
         await self._ready_lock.wait()
 
 
-class ControlConnection:
+class ControlChannel(object):
 
     def __init__(self, server, stream, address):
         self.server = server
         self.stream = stream
         self.address = address
         self.encoding = "utf-8"
+        self._cwd = '/'
+        self._transfer_mode = 'binary'
         self.start_position = 0
 
     async def writeline(self, value):
         value += "\r\n"
         await self.stream.write(value.encode(self.encoding))
+        print('->', value)
 
     async def readline(self):
         value = await self.stream.read_until(b"\r\n")
@@ -79,15 +84,15 @@ class ControlConnection:
 
     async def start(self):
         print("Incoming connection from {}".format(self.address))
-        await self.writeline("220 __TEST__")
+        await self.writeline("220 Service ready for new user.")
         self.running = True
         while self.running:
             try:
                 await self.handle_command()
             except tornado.iostream.StreamClosedError:
-                self.close()
+                self.stop()
 
-    def close(self):
+    def stop(self):
         print("Closing connection from {}".format(self.address))
         self.running = False
         self.stream.close()
@@ -103,7 +108,7 @@ class ControlConnection:
             command, parameters = command
 
         if command == "USER":
-            await self.writeline("230 __USER_OK__")
+            await self.writeline("230 User logged in, proceed.")
 
         elif command == "SYST":
             await self.writeline("215 UNIX Type: L8")
@@ -115,24 +120,25 @@ class ControlConnection:
             await self.writeline("211 ")
 
         elif command == "PWD":
-            await self.writeline('257 "/"')
+            await self.writeline('257 "{}"'.format(self._cwd))
 
         elif command == "CWD":
-            await self.writeline('250 __CWD_OK__')
+            self._cwd = parameters
+            await self.writeline('250 Requested file action okay, completed.')
 
         elif command == "TYPE":
             await self.writeline('200 __TYPE_OK__')
 
         elif command == "PASV":
             self.data_connection = PassiveListener(self.address[0])
-            await self.writeline("227 " + self.data_connection.format_host())
+            await self.writeline("227 Entering Passive Mode " + self.data_connection.format_host() + ".")
             await self.data_connection.wait_for_ready()
 
         elif command == "LIST":
-            await self.writeline("150 __LIST_150__")
+            await self.writeline("150 File status okay; about to open data connection.")
             await self.data_connection.send(
                 subprocess.check_output(["ls", "-l", self.server.path]))
-            await self.writeline("226 __LIST_226__")
+            await self.writeline("226 Closing data connection.")
 
         elif command == "RETR":
             await self.writeline("150")
@@ -149,8 +155,8 @@ class ControlConnection:
             await self.writeline("350")
 
         elif command == "QUIT":
-            await self.writeline("221")
+            await self.writeline("221 Service closing control connection.")
             self.close()
 
         else:
-            await self.writeline("500 __UNKNOWN__")
+            await self.writeline("502 Command not implemented.")
