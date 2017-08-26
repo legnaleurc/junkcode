@@ -44,7 +44,7 @@ class PassiveListener(tornado.tcpserver.TCPServer):
             print("client ip doesn't match, closing connection")
             stream.close()
         self.stream = stream
-        tornado.ioloop.IOLoop.instance().add_callback(self.stop)
+        tornado.ioloop.IOLoop.current().add_callback(self.stop)
 
     async def send(self, data):
         self.stream.write(data)
