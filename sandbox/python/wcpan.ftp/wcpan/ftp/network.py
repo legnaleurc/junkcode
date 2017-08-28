@@ -2,14 +2,15 @@ import socket
 import subprocess
 import os.path
 
-import tornado.tcpserver
+import tornado.tcpserver as tts
 import tornado.ioloop
 import tornado.iostream
 
-import tornado.locks
+import tornado.locks as tl
+import tornado.netutil as tn
 
 
-class FTPServer(tornado.tcpserver.TCPServer):
+class FTPServer(tts.TCPServer):
 
     def __init__(self, path):
         super().__init__()
@@ -19,45 +20,6 @@ class FTPServer(tornado.tcpserver.TCPServer):
     async def handle_stream(self, stream, address):
         session = ControlChannel(self, stream, address)
         self._loop.add_callback(session.start)
-
-
-class PassiveListener(tornado.tcpserver.TCPServer):
-
-    def __init__(self, client_ip):
-        super().__init__()
-        self.client_ip = client_ip
-        self.stream = None
-        self._ready_lock = tornado.locks.Condition()
-
-        self.bind(0, family=socket.AF_INET)
-        self.start()
-
-    def get_socket(self):
-        print(list(self._sockets.values()))
-        return list(self._sockets.values())[0]
-
-    def format_host(self):
-        addr = socket.gethostbyname(socket.gethostname())
-        port = self.get_socket().getsockname()[1]
-        result = addr.replace(".", ",")
-        result += "," + str(port // 256)
-        result += "," + str(port % 256)
-        return "(" + result + ")"
-
-    async def handle_stream(self, stream, addr):
-        print("New data connection", addr, self.client_ip)
-        self.stream = stream
-        self._ready_lock.notify()
-        self._ready_lock = None
-
-    async def send(self, data):
-        self.stream.write(data)
-        self.stream.close()
-        self.stop()
-        print("Data sent, closing data connection")
-
-    async def wait_for_ready(self):
-        await self._ready_lock.wait()
 
 
 class ControlChannel(object):
@@ -160,3 +122,54 @@ class ControlChannel(object):
 
         else:
             await self.writeline("502 Command not implemented.")
+
+
+class ChannelHandler(object):
+
+    def __init__(self, host):
+        self._host = host
+
+    def create_passive_listener(self):
+        return PassiveListener(self._host)
+
+
+class PassiveListener(tts.TCPServer):
+
+    def __init__(self, host):
+        super().__init__()
+        self._host = host
+        self._stream = None
+        self._ready_lock = tl.Condition()
+
+        # TODO support IPv6?
+        socket_list = tn.bind_sockets(0, address=self._host,
+                                      family=socket.AF_INET)
+        self.add_sockets(socket_list)
+        self.start()
+
+    def get_socket(self):
+        print(list(self._sockets.values()))
+        return list(self._sockets.values())[0]
+
+    def format_host(self):
+        addr = socket.gethostbyname(socket.gethostname())
+        port = self.get_socket().getsockname()[1]
+        result = addr.replace(".", ",")
+        result += "," + str(port // 256)
+        result += "," + str(port % 256)
+        return "(" + result + ")"
+
+    async def handle_stream(self, stream, addr):
+        print("New data connection", addr, self.client_ip)
+        self.stream = stream
+        self._ready_lock.notify()
+        self._ready_lock = None
+
+    async def send(self, data):
+        self.stream.write(data)
+        self.stream.close()
+        self.stop()
+        print("Data sent, closing data connection")
+
+    async def wait_for_ready(self):
+        await self._ready_lock.wait()
