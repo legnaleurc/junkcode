@@ -132,6 +132,9 @@ class ChannelHandler(object):
     def create_passive_listener(self):
         return PassiveListener(self._host)
 
+    async def send_passive_port(self, response):
+        await self._control.send_line(response)
+
 
 class PassiveListener(tts.TCPServer):
 
@@ -140,6 +143,7 @@ class PassiveListener(tts.TCPServer):
         self._host = host
         self._stream = None
         self._ready_lock = tl.Condition()
+        self._loop = ti.IOLoop.current()
 
         # TODO support IPv6?
         socket_list = tn.bind_sockets(0, address=self._host,
@@ -148,28 +152,22 @@ class PassiveListener(tts.TCPServer):
         self.start()
 
     def get_socket(self):
-        print(list(self._sockets.values()))
         return list(self._sockets.values())[0]
 
-    def format_host(self):
+    def get_address(self):
         addr = socket.gethostbyname(socket.gethostname())
         port = self.get_socket().getsockname()[1]
         result = addr.replace(".", ",")
         result += "," + str(port // 256)
         result += "," + str(port % 256)
-        return "(" + result + ")"
+        return result
 
     async def handle_stream(self, stream, addr):
-        print("New data connection", addr, self.client_ip)
-        self.stream = stream
+        self._stream = stream
         self._ready_lock.notify()
         self._ready_lock = None
-
-    async def send(self, data):
-        self.stream.write(data)
-        self.stream.close()
-        self.stop()
-        print("Data sent, closing data connection")
+        self._loop.add_callback(self.stop)
 
     async def wait_for_ready(self):
         await self._ready_lock.wait()
+        return self._stream

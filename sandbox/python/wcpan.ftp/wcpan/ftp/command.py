@@ -68,5 +68,7 @@ class CommandHandler(object):
         return self.done(250)
 
     async def do_pasv(self, args):
-        self._data_channel = self._channel_handler.create_passive_listener()
-        return self.done(227, self._data_channel.get_address())
+        listener = self._channel_handler.create_passive_listener()
+        await self._channel_handler.send_passive_port(self.done(227, self._data_channel.get_address()))
+        self._data_channel = await listener.wait_for_ready()
+        return None

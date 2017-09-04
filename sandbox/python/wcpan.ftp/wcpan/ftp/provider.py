@@ -10,3 +10,4 @@ class Provider(object):
 class LocalFileSystemProvider(Provider):
 
     def __init__(self, root):
+        pass
