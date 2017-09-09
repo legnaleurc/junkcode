@@ -13,6 +13,7 @@ TIME = r'{hms}(\.(\d{{3,6}}))?'.format(hms=TIME_HMS)
 ISO_DATETIME_PATTERN = (r'^({date})T({time})(Z|(([+\-])(\d{{2}}):(\d{{2}})))$'
                         .format(date=DATE, time=TIME))
 ISO_DATE_PATTERN = r'^{date}$'.format(date=DATE)
+ISO_TIME_PATTERN = r'^{time}$'.format(time=TIME)
 
 
 class BaseField(object):
@@ -165,12 +166,11 @@ class TimeField(DateTimeField):
 
     def to_python(self):
         # don't parse data that is already native
-        if isinstance(self.data, datetime.datetime):
+        if isinstance(self.data, datetime.time):
             return self.data
         elif self.format is None:
             # parse as iso8601
-            return -1
-            #return PySO8601.parse_time(self.data).time()
+            return time_from_iso(self.data)
         else:
             return datetime.datetime.strptime(self.data, self.format).time()
 
@@ -405,4 +405,22 @@ def date_from_iso(iso_date):
     day = int(rv.group(3) or rv.group(6), 10)
 
     rv = datetime.date(year, month, day)
+    return rv
+
+
+def time_from_iso(iso_time):
+    rv = re.match(ISO_TIME_PATTERN, iso_time)
+    if not rv:
+        raise ValueError(iso_time)
+
+    hour = int(rv.group(1) or rv.group(4), 10)
+    minute = int(rv.group(2) or rv.group(5), 10)
+    second = int(rv.group(3) or rv.group(6), 10)
+    if rv.group(7):
+        microsecond = rv.group(8).ljust(6, '0')
+        microsecond = int(microsecond, 10)
+    else:
+        microsecond = 0
+
+    rv = datetime.time(hour, minute, second, microsecond)
     return rv

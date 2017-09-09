@@ -232,7 +232,7 @@ class DateFieldTestCase(unittest.TestCase):
         field = wm.DateField()
         field.populate("20101228")
         result = field.to_python()
-        expected = datetime.date(2010,12,28)
+        expected = datetime.date(2010, 12, 28)
         self.assertEqual(expected, result)
 
 
@@ -255,13 +255,13 @@ class TimeFieldTestCase(unittest.TestCase):
         field = wm.TimeField()
         field.populate("09:33:30")
         result = field.to_python()
-        expected = datetime.time(9,33,30)
+        expected = datetime.time(9, 33, 30)
         self.assertEqual(expected, result)
 
         field = wm.TimeField()
         field.populate("093331")
         result = field.to_python()
-        expected = datetime.time(9,33,31)
+        expected = datetime.time(9, 33, 31)
         self.assertEqual(expected, result)
 
 
@@ -480,8 +480,6 @@ class ModelTestCase(unittest.TestCase):
         instance = Event.from_dict(data)
         output = instance.to_dict(serial=True)
         self.assertEqual(output['time'], instance.time.isoformat())
-        self.assertEqual(instance.to_dict()['time'],
-                         instance.time.isoformat())
 
     def test_model_add_field(self):
         obj = self.Person.from_dict(self.data)
