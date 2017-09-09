@@ -2,7 +2,17 @@ import datetime
 import re
 
 
-ISO_PATTERN = r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{3,6}))?(Z|(([+\-])(\d{2}):(\d{2})))$'
+DATE_BASIC = r'(\d{4})(\d{2})(\d{2})'
+DATE_EXTENDED = r'(\d{4})-(\d{2})-(\d{2})'
+DATE = r'{basic}|{extended}'.format(basic=DATE_BASIC, extended=DATE_EXTENDED)
+TIME_HMS_BASIC = r'(\d{2})(\d{2})(\d{2})'
+TIME_HMS_EXTENDED = r'(\d{2}):(\d{2}):(\d{2})'
+TIME_HMS = r'{basic}|{extended}'.format(basic=TIME_HMS_BASIC,
+                                        extended=TIME_HMS_EXTENDED)
+TIME = r'{hms}(\.(\d{{3,6}}))?'.format(hms=TIME_HMS)
+ISO_DATETIME_PATTERN = (r'^({date})T({time})(Z|(([+\-])(\d{{2}}):(\d{{2}})))$'
+                        .format(date=DATE, time=TIME))
+ISO_DATE_PATTERN = r'^{date}$'.format(date=DATE)
 
 
 class BaseField(object):
@@ -120,11 +130,12 @@ class DateTimeField(BaseField):
         # don't parse data that is already native
         if isinstance(self.data, datetime.datetime):
             return self.data
-        elif self.format is None:
+
+        if self.format is None:
             # parse as iso8601
-            return from_isoformat(self.data)
-        else:
-            return datetime.datetime.strptime(self.data, self.format)
+            return datetime_from_iso(self.data)
+
+        return datetime.datetime.strptime(self.data, self.format)
 
     def to_serial(self, time_obj):
         if not self.serial_format:
@@ -135,11 +146,17 @@ class DateField(DateTimeField):
     """Field to represent a :mod:`datetime.date`"""
 
     def to_python(self):
+        if self.data is None:
+            return None
+
         # don't parse data that is already native
         if isinstance(self.data, datetime.date):
             return self.data
 
-        dt = super(DateField, self).to_python()
+        if self.format is None:
+            return date_from_iso(self.data)
+
+        dt = datetime.datetime.strptime(self.data, self.format)
         return dt.date()
 
 
@@ -345,29 +362,29 @@ class FieldCollectionField(BaseField):
         return [self._instance.to_serial(data) for data in list_of_fields]
 
 
-def from_isoformat(iso_datetime):
-    rv = re.match(ISO_PATTERN, iso_datetime)
+def datetime_from_iso(iso_datetime):
+    rv = re.match(ISO_DATETIME_PATTERN, iso_datetime)
     if not rv:
         raise ValueError(iso_datetime)
 
-    year = int(rv.group(1), 10)
-    month = int(rv.group(2), 10)
-    day = int(rv.group(3), 10)
-    hour = int(rv.group(4), 10)
-    minute = int(rv.group(5), 10)
-    second = int(rv.group(6), 10)
-    if rv.group(8):
-        microsecond = rv.group(8).ljust(6, '0')
+    year = int(rv.group(2) or rv.group(5), 10)
+    month = int(rv.group(3) or rv.group(6), 10)
+    day = int(rv.group(4) or rv.group(7), 10)
+    hour = int(rv.group(9) or rv.group(12), 10)
+    minute = int(rv.group(10) or rv.group(13), 10)
+    second = int(rv.group(11) or rv.group(14), 10)
+    if rv.group(15):
+        microsecond = rv.group(16).ljust(6, '0')
         microsecond = int(microsecond, 10)
     else:
         microsecond = 0
-    tz = rv.group(9)
+    tz = rv.group(17)
     if tz == 'Z':
         tz = datetime.timezone.utc
     else:
-        f = rv.group(11)
-        h = int(rv.group(12), 10)
-        m = int(rv.group(13), 10)
+        f = rv.group(19)
+        h = int(rv.group(20), 10)
+        m = int(rv.group(21), 10)
         tz = datetime.timedelta(hours=h, minutes=m)
         if f == '-':
             tz = -tz
@@ -375,4 +392,17 @@ def from_isoformat(iso_datetime):
 
     rv = datetime.datetime(year, month, day, hour, minute, second, microsecond,
                            tz)
+    return rv
+
+
+def date_from_iso(iso_date):
+    rv = re.match(ISO_DATE_PATTERN, iso_date)
+    if not rv:
+        raise ValueError(iso_date)
+
+    year = int(rv.group(1) or rv.group(4), 10)
+    month = int(rv.group(2) or rv.group(5), 10)
+    day = int(rv.group(3) or rv.group(6), 10)
+
+    rv = datetime.date(year, month, day)
     return rv

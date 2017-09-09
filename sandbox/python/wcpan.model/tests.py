@@ -182,7 +182,7 @@ class DateTimeFieldTestCase(unittest.TestCase):
         field.populate("20100713T140200-05:00")
         result = field.to_python()
         expected = datetime.datetime(2010, 7, 13, 14, 2, 0,
-                                     tzinfo=Timezone("-05:00"))
+                                     tzinfo=datetime.timezone(offset))
 
         self.assertEqual(expected, result)
 
@@ -322,7 +322,7 @@ class ModelFieldTestCase(unittest.TestCase):
         class Post(wm.Model):
             title = wm.CharField()
             author = wm.ModelField(User, related_name="post")
-        
+
         data = {'title': 'Test Post', 'author': {'name': 'Eric Martin'}}
         post = Post.from_dict(data)
         self.assertEqual(post.author.post, post)
@@ -346,7 +346,7 @@ class ModelFieldTestCase(unittest.TestCase):
         data = {'title': 'Test Post', 'author': {'name': 'Eric Martin'}}
         self.assertRaises(SomethingExceptional, Post.from_dict,
                           data)
-                           
+
 
 class ModelCollectionFieldTestCase(unittest.TestCase):
 
@@ -418,7 +418,7 @@ class ModelCollectionFieldTestCase(unittest.TestCase):
             self.assertEqual(post.author, eric)
 
         self.assertEqual(processed, data)
-        
+
 
 class FieldCollectionFieldTestCase(unittest.TestCase):
 
