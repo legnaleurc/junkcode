@@ -1,5 +1,5 @@
 import datetime
-import PySO8601
+import re
 
 
 class BaseField(object):
@@ -119,7 +119,7 @@ class DateTimeField(BaseField):
             return self.data
         elif self.format is None:
             # parse as iso8601
-            return PySO8601.parse(self.data)
+            return from_isoformat(self.data)
         else:
             return datetime.datetime.strptime(self.data, self.format)
 
@@ -135,7 +135,7 @@ class DateField(DateTimeField):
         # don't parse data that is already native
         if isinstance(self.data, datetime.date):
             return self.data
-        
+
         dt = super(DateField, self).to_python()
         return dt.date()
 
@@ -149,7 +149,8 @@ class TimeField(DateTimeField):
             return self.data
         elif self.format is None:
             # parse as iso8601
-            return PySO8601.parse_time(self.data).time()
+            return -1
+            #return PySO8601.parse_time(self.data).time()
         else:
             return datetime.datetime.strptime(self.data, self.format).time()
 
@@ -339,3 +340,36 @@ class FieldCollectionField(BaseField):
 
     def to_serial(self, list_of_fields):
         return [self._instance.to_serial(data) for data in list_of_fields]
+
+
+def from_isoformat(iso_datetime):
+    rv = re.match(ISO_PATTERN, iso_datetime)
+    if not rv:
+        raise InvalidDateTimeError(iso_datetime)
+
+    year = int(rv.group(1), 10)
+    month = int(rv.group(2), 10)
+    day = int(rv.group(3), 10)
+    hour = int(rv.group(4), 10)
+    minute = int(rv.group(5), 10)
+    second = int(rv.group(6), 10)
+    if rv.group(8):
+        microsecond = rv.group(8).ljust(6, '0')
+        microsecond = int(microsecond, 10)
+    else:
+        microsecond = 0
+    tz = rv.group(9)
+    if tz == 'Z':
+        tz = datetime.timezone.utc
+    else:
+        f = rv.group(11)
+        h = int(rv.group(12), 10)
+        m = int(rv.group(13), 10)
+        tz = datetime.timedelta(hours=h, minutes=m)
+        if f == '-':
+            tz = -tz
+        tz = datetime.timezone(tz)
+
+    rv = datetime.datetime(year, month, day, hour, minute, second, microsecond,
+                           tz)
+    return rv

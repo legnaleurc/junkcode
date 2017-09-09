@@ -1,11 +1,20 @@
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
 from .fields import BaseField
 
-class Model(object):
+
+class MetaModel(type):
+    '''Creates the metaclass for Model. The main function of this metaclass
+    is to move all of fields into the _fields variable on the class.
+
+    '''
+    def __init__(cls, name, bases, attrs):
+        cls._clsfields = {}
+        for key, value in attrs.items():
+            if isinstance(value, BaseField):
+                cls._clsfields[key] = value
+                delattr(cls, key)
+
+
+class Model(object, metaclass=MetaModel):
     """The Model is the main component of micromodels. Model makes it trivial
     to parse data from many sources, including JSON APIs.
 
@@ -46,17 +55,6 @@ class Model(object):
     value are just set on the instance like any other assignment in Python.
 
     """
-    class __metaclass__(type):
-        '''Creates the metaclass for Model. The main function of this metaclass
-        is to move all of fields into the _fields variable on the class.
-
-        '''
-        def __init__(cls, name, bases, attrs):
-            cls._clsfields = {}
-            for key, value in attrs.iteritems():
-                if isinstance(value, BaseField):
-                    cls._clsfields[key] = value
-                    delattr(cls, key)
 
     def __init__(self):
         super(Model, self).__setattr__('_extra', {})
@@ -87,7 +85,7 @@ class Model(object):
     def set_data(self, data, is_json=False):
         if is_json:
             data = json.loads(data)
-        for name, field in self._clsfields.iteritems():
+        for name, field in self._clsfields.items():
             key = field.source or name
             if key in data:
                 setattr(self, name, data.get(key))
