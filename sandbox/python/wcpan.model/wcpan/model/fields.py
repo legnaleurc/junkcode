@@ -52,7 +52,7 @@ class BaseField(object):
         return data
 
 
-class CharField(BaseField):
+class StringField(BaseField):
     """Field to represent a simple Unicode string value."""
 
     def to_python(self):
@@ -204,10 +204,10 @@ class ModelField(WrappedObjectField):
     (note that you have to define the inner nested models first)::
 
         class MyNestedModel(micromodels.Model):
-            nested_item = micromodels.CharField()
+            nested_item = micromodels.StringField()
 
         class MyMainModel(micromodels.Model):
-            first_item = micromodels.CharField()
+            first_item = micromodels.StringField()
             second_item = micromodels.ModelField(MyNestedModel)
 
     Then you can access the data as follows::
@@ -254,7 +254,7 @@ class ModelCollectionField(WrappedObjectField):
         }
 
         class MyNestedModel(micromodels.Model):
-            value = micromodels.CharField()
+            value = micromodels.StringField()
 
         class MyMainModel(micromodels.Model):
             list = micromodels.ModelCollectionField(MyNestedModel)
@@ -297,8 +297,8 @@ class FieldCollectionField(BaseField):
         }
 
         class Person(Model):
-            legal_name = CharField()
-            aliases = FieldCollectionField(CharField())
+            legal_name = StringField()
+            aliases = FieldCollectionField(StringField())
 
         p = Person(data)
 
@@ -321,7 +321,7 @@ class FieldCollectionField(BaseField):
         }
 
         class FaultLine(Model):
-            name = CharField()
+            name = StringField()
             earthquake_dates = FieldCollectionField(DateField('%Y-%m-%d',
                                                     serial_format='%m-%d-%Y'),
                                                     source='dates')

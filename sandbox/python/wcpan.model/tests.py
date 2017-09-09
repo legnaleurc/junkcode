@@ -8,8 +8,8 @@ class ClassCreationTestCase(unittest.TestCase):
 
     def setUp(self):
         class SimpleModel(wm.Model):
-            name = wm.CharField()
-            field_with_source = wm.CharField(source='foo')
+            name = wm.StringField()
+            field_with_source = wm.StringField(source='foo')
         self.model_class = SimpleModel
         self.instance = SimpleModel()
 
@@ -23,7 +23,7 @@ class ClassCreationTestCase(unittest.TestCase):
 
     def test_field_collected(self):
         """Model property should be of correct type"""
-        self.assertTrue(isinstance(self.instance._fields['name'], wm.CharField))
+        self.assertTrue(isinstance(self.instance._fields['name'], wm.StringField))
 
     def test_field_source_not_set(self):
         """Field without a custom source should have a source of None"""
@@ -48,17 +48,17 @@ class BaseFieldTestCase(unittest.TestCase):
         self.assertEqual(field.source, 'customsource')
 
 
-class CharFieldTestCase(unittest.TestCase):
+class StringFieldTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.field = wm.CharField()
+        self.field = wm.StringField()
 
     def test_string_conversion(self):
         self.field.populate('somestring')
         self.assertEqual(self.field.to_python(), 'somestring')
 
     def test_none_conversion(self):
-        """CharField should convert None to empty string"""
+        """StringField should convert None to empty string"""
         self.field.populate(None)
         self.assertEqual(self.field.to_python(), '')
 
@@ -269,9 +269,9 @@ class InstanceTestCase(unittest.TestCase):
 
     def test_basic_data(self):
         class ThreeFieldsModel(wm.Model):
-            first = wm.CharField()
-            second = wm.CharField()
-            third = wm.CharField()
+            first = wm.StringField()
+            second = wm.StringField()
+            third = wm.StringField()
 
         data = {'first': 'firstvalue', 'second': 'secondvalue'}
         instance = ThreeFieldsModel.from_dict(data)
@@ -281,7 +281,7 @@ class InstanceTestCase(unittest.TestCase):
 
     def test_custom_data_source(self):
         class CustomSourceModel(wm.Model):
-            first = wm.CharField(source='custom_source')
+            first = wm.StringField(source='custom_source')
 
         data = {'custom_source': 'somevalue'}
         instance = CustomSourceModel.from_dict(data)
@@ -293,7 +293,7 @@ class ModelFieldTestCase(unittest.TestCase):
 
     def test_model_field_creation(self):
         class IsASubModel(wm.Model):
-            first = wm.CharField()
+            first = wm.StringField()
 
         class HasAModelField(wm.Model):
             first = wm.ModelField(IsASubModel)
@@ -305,10 +305,10 @@ class ModelFieldTestCase(unittest.TestCase):
 
     def test_model_field_to_serial(self):
         class User(wm.Model):
-            name = wm.CharField()
+            name = wm.StringField()
 
         class Post(wm.Model):
-            title = wm.CharField()
+            title = wm.StringField()
             author = wm.ModelField(User)
 
         data = {'title': 'Test Post', 'author': {'name': 'Eric Martin'}}
@@ -317,10 +317,10 @@ class ModelFieldTestCase(unittest.TestCase):
 
     def test_related_name(self):
         class User(wm.Model):
-            name = wm.CharField()
+            name = wm.StringField()
 
         class Post(wm.Model):
-            title = wm.CharField()
+            title = wm.StringField()
             author = wm.ModelField(User, related_name="post")
 
         data = {'title': 'Test Post', 'author': {'name': 'Eric Martin'}}
@@ -333,14 +333,14 @@ class ModelFieldTestCase(unittest.TestCase):
             pass
 
         class User(wm.Model):
-            name = wm.CharField()
+            name = wm.StringField()
 
             @classmethod
             def from_dict(cls, *args, **kwargs):
                 raise SomethingExceptional("opps.")
 
         class Post(wm.Model):
-            title = wm.CharField()
+            title = wm.StringField()
             author = wm.ModelField(User)
 
         data = {'title': 'Test Post', 'author': {'name': 'Eric Martin'}}
@@ -352,7 +352,7 @@ class ModelCollectionFieldTestCase(unittest.TestCase):
 
     def test_model_collection_field_creation(self):
         class IsASubModel(wm.Model):
-            first = wm.CharField()
+            first = wm.StringField()
 
         class HasAModelCollectionField(wm.Model):
             first = wm.ModelCollectionField(IsASubModel)
@@ -367,7 +367,7 @@ class ModelCollectionFieldTestCase(unittest.TestCase):
 
     def test_model_collection_field_with_no_elements(self):
         class IsASubModel(wm.Model):
-            first = wm.CharField()
+            first = wm.StringField()
 
         class HasAModelCollectionField(wm.Model):
             first = wm.ModelCollectionField(IsASubModel)
@@ -378,10 +378,10 @@ class ModelCollectionFieldTestCase(unittest.TestCase):
 
     def test_model_collection_to_serial(self):
         class Post(wm.Model):
-            title = wm.CharField()
+            title = wm.StringField()
 
         class User(wm.Model):
-            name = wm.CharField()
+            name = wm.StringField()
             posts = wm.ModelCollectionField(Post)
 
         data = {
@@ -398,10 +398,10 @@ class ModelCollectionFieldTestCase(unittest.TestCase):
 
     def test_related_name(self):
         class Post(wm.Model):
-            title = wm.CharField()
+            title = wm.StringField()
 
         class User(wm.Model):
-            name = wm.CharField()
+            name = wm.StringField()
             posts = wm.ModelCollectionField(Post, related_name="author")
 
         data = {
@@ -424,7 +424,7 @@ class FieldCollectionFieldTestCase(unittest.TestCase):
 
     def test_field_collection_field_creation(self):
         class HasAFieldCollectionField(wm.Model):
-            first = wm.FieldCollectionField(wm.CharField())
+            first = wm.FieldCollectionField(wm.StringField())
 
         data = {'first': ['one', 'two', 'three']}
         instance = HasAFieldCollectionField.from_dict(data)
@@ -435,7 +435,7 @@ class FieldCollectionFieldTestCase(unittest.TestCase):
 
     def test_field_collection_field_to_serial(self):
         class Person(wm.Model):
-            aliases = wm.FieldCollectionField(wm.CharField())
+            aliases = wm.FieldCollectionField(wm.StringField())
             events = wm.FieldCollectionField(wm.DateField('%Y-%m-%d',
                                         serial_format='%m-%d-%Y'), source='schedule')
 
@@ -453,7 +453,7 @@ class ModelTestCase(unittest.TestCase):
 
     def setUp(self):
         class Person(wm.Model):
-            name = wm.CharField()
+            name = wm.StringField()
             age = wm.IntegerField()
 
         self.Person = Person
@@ -483,7 +483,7 @@ class ModelTestCase(unittest.TestCase):
 
     def test_model_add_field(self):
         obj = self.Person.from_dict(self.data)
-        obj.add_field('gender', 'male', wm.CharField())
+        obj.add_field('gender', 'male', wm.StringField())
         self.assertEqual(obj.gender, 'male')
         self.assertEqual(obj.to_dict(), dict(self.data, gender='male'))
 
