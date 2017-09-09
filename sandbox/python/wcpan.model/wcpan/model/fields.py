@@ -2,6 +2,9 @@ import datetime
 import re
 
 
+ISO_PATTERN = r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.(\d{3,6}))?(Z|(([+\-])(\d{2}):(\d{2})))$'
+
+
 class BaseField(object):
     """Base class for all field types.
 
@@ -48,7 +51,7 @@ class CharField(BaseField):
         """
         if self.data is None:
             return ''
-        return unicode(self.data)
+        return str(self.data)
 
 
 class IntegerField(BaseField):
@@ -85,7 +88,7 @@ class BooleanField(BaseField):
         to ``True``, as will any positive integers.
 
         """
-        if isinstance(self.data, basestring):
+        if isinstance(self.data, str):
             return self.data.strip().lower() == 'true'
         if isinstance(self.data, int):
             return self.data > 0
@@ -345,7 +348,7 @@ class FieldCollectionField(BaseField):
 def from_isoformat(iso_datetime):
     rv = re.match(ISO_PATTERN, iso_datetime)
     if not rv:
-        raise InvalidDateTimeError(iso_datetime)
+        raise ValueError(iso_datetime)
 
     year = int(rv.group(1), 10)
     month = int(rv.group(2), 10)

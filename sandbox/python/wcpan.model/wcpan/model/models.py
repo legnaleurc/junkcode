@@ -60,15 +60,14 @@ class Model(object, metaclass=MetaModel):
         super(Model, self).__setattr__('_extra', {})
 
     @classmethod
-    def from_dict(cls, D, is_json=False):
+    def from_dict(cls, D):
         '''This factory for :class:`Model`
-        takes either a native Python dictionary or a JSON dictionary/object
-        if ``is_json`` is ``True``. The dictionary passed does not need to
-        contain all of the values that the Model declares.
+        takes either a native Python dictionary. The dictionary passed does not
+        need to contain all of the values that the Model declares.
 
         '''
         instance = cls()
-        instance.set_data(D, is_json=is_json)
+        instance.set_data(D)
         return instance
 
     @classmethod
@@ -82,9 +81,7 @@ class Model(object, metaclass=MetaModel):
         instance.set_data(kwargs)
         return instance
 
-    def set_data(self, data, is_json=False):
-        if is_json:
-            data = json.loads(data)
+    def set_data(self, data):
         for name, field in self._clsfields.items():
             key = field.source or name
             if key in data:
@@ -127,10 +124,3 @@ class Model(object, metaclass=MetaModel):
         else:
             return dict((key, getattr(self, key)) for key in self._fields.keys()
                        if hasattr(self, key))
-
-    def to_json(self):
-        '''Returns a representation of the model as a JSON string. This method
-        relies on the :meth:`~micromodels.Model.to_dict` method.
-
-        '''
-        return json.dumps(self.to_dict(serial=True))

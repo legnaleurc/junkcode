@@ -3,6 +3,7 @@ import unittest
 
 import wcpan.model as wm
 
+
 class ClassCreationTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -163,15 +164,16 @@ class DateTimeFieldTestCase(unittest.TestCase):
         field.populate("2010-07-13T14:01:00Z")
         result = field.to_python()
         expected = datetime.datetime(2010, 7, 13, 14, 1, 0,
-                                     tzinfo=datetime.timezone())
+                                     tzinfo=datetime.timezone.utc)
         self.assertEqual(expected, result)
 
 
         field = wm.DateTimeField()
         field.populate("2010-07-13T14:02:00-05:00")
         result = field.to_python()
+        offset = datetime.timedelta(hours=-5)
         expected = datetime.datetime(2010, 7, 13, 14, 2, 0,
-                                     tzinfo=Timezone("-05:00"))
+                                     tzinfo=datetime.timezone(offset))
 
         self.assertEqual(expected, result)
 
@@ -456,19 +458,17 @@ class ModelTestCase(unittest.TestCase):
 
         self.Person = Person
         self.data = {'name': 'Eric', 'age': 18}
-        self.json_data = json.dumps(self.data)
 
     def test_model_creation(self):
-        instance = self.Person.from_dict(self.json_data, is_json=True)
+        instance = self.Person.from_dict(self.data)
         self.assertTrue(isinstance(instance, wm.Model))
         self.assertEqual(instance.name, self.data['name'])
         self.assertEqual(instance.age, self.data['age'])
 
     def test_model_reserialization(self):
-        instance = self.Person.from_dict(self.json_data, is_json=True)
-        self.assertEqual(instance.to_json(), self.json_data)
+        instance = self.Person.from_dict(self.data)
         instance.name = 'John'
-        self.assertEqual(json.loads(instance.to_json())['name'],
+        self.assertEqual(instance.to_dict()['name'],
                          'John')
 
     def test_model_type_change_serialization(self):
@@ -476,12 +476,11 @@ class ModelTestCase(unittest.TestCase):
             time = wm.DateField(format="%Y-%m-%d")
 
         data = {'time': '2000-10-31'}
-        json_data = json.dumps(data)
 
-        instance = Event.from_dict(json_data, is_json=True)
+        instance = Event.from_dict(data)
         output = instance.to_dict(serial=True)
         self.assertEqual(output['time'], instance.time.isoformat())
-        self.assertEqual(json.loads(instance.to_json())['time'],
+        self.assertEqual(instance.to_dict()['time'],
                          instance.time.isoformat())
 
     def test_model_add_field(self):
