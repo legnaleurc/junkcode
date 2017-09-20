@@ -1,6 +1,7 @@
 import chai from 'chai';
 
 import {
+  filter,
   map,
 } from '../lib/index';
 
@@ -8,6 +9,30 @@ chai.should();
 
 
 describe('sync', () => {
+
+  describe('filter', () => {
+
+    it('should accept Array', () => {
+      let a = [1, 2, 3];
+      a = filter(a, v => v % 2 === 1);
+      a = Array.from(a);
+      a.should.deep.equal([1, 3]);
+    });
+
+    it('should accept Map', () => {
+      let a = new Map();
+      a.set('a', 1);
+      a.set('b', 2);
+      a.set('c', 3);
+      a = filter(a, ([k, v]) => k === 'c' || v % 2 === 0);
+      a = new Map(a);
+      let b = new Map();
+      b.set('b', 2);
+      b.set('c', 3);
+      a.should.deep.equal(b);
+    });
+
+  });
 
   describe('map', () => {
 
