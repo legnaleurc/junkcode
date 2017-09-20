@@ -15,7 +15,7 @@ describe('sync', () => {
       let a = [1, 2, 3];
       a = map(a, v => v * 2);
       a = Array.from(a);
-      a.should.equal.to([2, 4, 6]);
+      a.should.equal([2, 4, 6]);
     });
 
   });
