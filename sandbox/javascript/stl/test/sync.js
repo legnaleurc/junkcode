@@ -67,6 +67,13 @@ describe('sync', () => {
       a.should.deep.equal([6, 12, 18]);
     });
 
+    it('should be able use async function', async () => {
+      let a = [1, 2, 3];
+      a = map(a, async v => v * 2);
+      a = await Promise.all(Array.from(a));
+      a.should.deep.equal([2, 4, 6]);
+    });
+
   });
 
 });
