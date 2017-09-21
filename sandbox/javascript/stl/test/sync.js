@@ -20,15 +20,17 @@ describe('sync', () => {
     });
 
     it('should accept Map', () => {
-      let a = new Map();
-      a.set('a', 1);
-      a.set('b', 2);
-      a.set('c', 3);
+      let a = toMap({
+        a: 1,
+        b: 2,
+        c: 3,
+      });
       a = filter(a, ([k, v]) => k === 'c' || v % 2 === 0);
       a = new Map(a);
-      let b = new Map();
-      b.set('b', 2);
-      b.set('c', 3);
+      let b = toMap({
+        b: 2,
+        c: 3,
+      });
       a.should.deep.equal(b);
     });
 
