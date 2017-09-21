@@ -59,6 +59,14 @@ describe('sync', () => {
       a.should.deep.equal(b);
     });
 
+    it('should be able to use as pipe', () => {
+      let a = [1, 2, 3];
+      a = map(a, v => v * 2);
+      a = map(a, v => v * 3);
+      a = Array.from(a);
+      a.should.deep.equal([6, 12, 18]);
+    });
+
   });
 
 });
