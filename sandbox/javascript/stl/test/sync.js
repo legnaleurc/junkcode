@@ -44,19 +44,26 @@ describe('sync', () => {
     });
 
     it('should accept Map', () => {
-      let a = new Map();
-      a.set('a', 1);
-      a.set('b', 2);
-      a.set('c', 3);
+      let a = toMap({
+        a: 1,
+        b: 2,
+        c: 3,
+      });
       a = map(a, ([k, v]) => [k + k, v * 2]);
       a = new Map(a);
-      let b = new Map();
-      b.set('aa', 2);
-      b.set('bb', 4);
-      b.set('cc', 6);
+      let b = toMap({
+        aa: 2,
+        bb: 4,
+        cc: 6,
+      });
       a.should.deep.equal(b);
     });
 
   });
 
 });
+
+
+function toMap (object) {
+  return new Map(Object.entries(object));
+}
