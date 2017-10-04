@@ -1,10 +1,10 @@
 {
 
   "manifest_version": 2,
-  "name": "Borderify",
+  "name": "Download with Transmission",
   "version": "1.0",
 
-  "description": "Adds a solid red border to all webpages matching mozilla.org.",
+  "description": "Download a link with Transmission.",
 
   "icons": {
     "64": "icons/icon-64.png",
@@ -13,7 +13,9 @@
   },
 
   "permissions": [
-    "contextMenus"
+    "contextMenus",
+    "http://*/",
+    "https://*/"
   ],
 
   "background": {
