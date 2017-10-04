@@ -20,6 +20,10 @@
 
   "background": {
     "scripts": ["lib/main.js"]
+  },
+  "options_ui": {
+    "page": "views/options.html",
+    "browser_style": true
   }
 
 }
