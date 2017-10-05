@@ -10,13 +10,13 @@ const csrfTokenKey = 'X-Transmission-Session-Id';
 let currentCsrfToken = null;
 
 
-chrome.contextMenus.create({
+browser.contextMenus.create({
   id: 'send-to-transmission',
   title: 'Send To Transmission',
   contexts: ['link'],
 });
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'send-to-transmission') {
     sendToTransmission(info.linkUrl)
       .then((rv) => {

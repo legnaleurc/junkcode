@@ -12,7 +12,7 @@ function getDefaultValue () {
 async function loadOptions () {
   let opts = null;
   try {
-    opts = await chrome.storage.local.get('options');
+    opts = await browser.storage.local.get('options');
     opts = opts.options;
   } catch (e) {
     opts = getDefaultValue();
@@ -23,6 +23,13 @@ async function loadOptions () {
   }
   delete opts.version;
   return opts;
+}
+
+
+async function saveOptions (opts) {
+  await browser.storage.local.set({
+    options: opts,
+  });
 }
 
 
@@ -37,13 +44,27 @@ async function loadOptionsToForm (form) {
       }
     }
   }
-  ;
 }
 
 
 async function saveOptionsFromForm (form) {
-  let data = new FormData(form);
-  for (const [k, v] of data) {
-    console.info('form_data', k, v);
-  }
+  const opts = Array.prototype.reduce.call(form.elements, (rv, input) => {
+    if (input.name === 'version') {
+      rv.version = parseInt(input.value, 10);
+      return rv;
+    }
+    switch (input.type) {
+      case 'text':
+      case 'password':
+        rv[input.name] = input.value;
+        break;
+      case 'checkbox':
+        rv[input.name] = input.checked;
+        break;
+      default:
+        break;
+    }
+    return rv;
+  }, {});
+  await saveOptions(opts);
 }
