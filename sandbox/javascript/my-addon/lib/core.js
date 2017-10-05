@@ -1,10 +1,43 @@
+function getDefaultValue () {
+  return {
+    version: 1,
+    url: '',
+    username: '',
+    password: '',
+    'add-paused': false,
+  };
+}
+
+
 async function loadOptions () {
+  let opts = null;
   try {
-    const opts = await chrome.storage.local.get('options');
-    return opts.options;
+    opts = await chrome.storage.local.get('options');
+    opts = opts.options;
   } catch (e) {
-    return {};
+    opts = getDefaultValue();
   }
+  // TODO migration
+  if (opts.version !== 1) {
+    throw new Error('incompatible version');
+  }
+  delete opts.version;
+  return opts;
+}
+
+
+async function loadOptionsToForm (form) {
+  const opts = await loadOptions();
+  for (const input of form.elements) {
+    if (opts.hasOwnProperty(input.name)) {
+      if (input.type === 'checkbox') {
+        input.checked = opts[input.name];
+      } else {
+        input.value = opts[input.name];
+      }
+    }
+  }
+  ;
 }
 
 
