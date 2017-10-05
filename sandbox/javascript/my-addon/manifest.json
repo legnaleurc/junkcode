@@ -13,7 +13,7 @@
   },
 
   "permissions": [
-    "contextMenus",
+    "menus",
     "storage",
     "http://*/",
     "https://*/"
@@ -25,6 +25,16 @@
       "lib/main.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": ["lib/content.js"],
+      "css": ["styles/content.css"]
+    }
+  ],
   "options_ui": {
     "page": "views/options.html",
     "browser_style": true

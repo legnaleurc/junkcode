@@ -118,3 +118,13 @@ async function sendToTransmission (torrentURL) {
   }
   return rv;
 }
+
+
+async function showPrompt (tabId, message) {
+  return browser.tabs.sendMessage(tabId, {
+    topic: 'show-prompt',
+    args: {
+      message,
+    },
+  });
+}

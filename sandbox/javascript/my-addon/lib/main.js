@@ -8,10 +8,11 @@ browser.menus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'send-to-transmission') {
     sendToTransmission(info.linkUrl)
       .then((rv) => {
-        console.info('after sendToTransmission', rv);
+        return showPrompt(tab.id, 'ok');
       })
       .catch((e) => {
-        console.error('after sendToTransmission', e);
+        console.error('Download with Transmission', e);
+        return showPrompt(tab.id, e.toString());
       });
   }
 });
