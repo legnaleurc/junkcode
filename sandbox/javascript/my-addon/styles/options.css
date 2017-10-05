@@ -1,0 +1,17 @@
+#options {
+  max-width: 720px;
+}
+
+#options .container {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+}
+
+#options .container input[type="checkbox"] {
+  width: 16px;
+}
+
+#options .button-box {
+  display: flex;
+  justify-content: flex-end;
+}

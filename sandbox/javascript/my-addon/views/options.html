@@ -2,24 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="../styles/options.css" />
   </head>
   <body>
     <form id="options">
-      <input name="version" type="hidden" value="1" />
+      <div class="container">
+        <input name="version" type="hidden" value="1" />
 
-      <label for="url">URL</label>
-      <input name="url" type="text" />
+        <label for="url">URL</label>
+        <input name="url" type="text" />
 
-      <label for="username">User Name</label>
-      <input name="username" type="text" />
+        <label for="username">User Name</label>
+        <input name="username" type="text" />
 
-      <label for="password">Password</label>
-      <input name="password" type="password" />
+        <label for="password">Password</label>
+        <input name="password" type="password" />
 
-      <label for="add-paused">Add Paused</label>
-      <input name="add-paused" type="checkbox" />
+        <label for="add-paused">Add Paused</label>
+        <input name="add-paused" type="checkbox" />
+      </div>
 
-      <button type="submit">Save</button>
+      <div class="button-box">
+        <button type="submit">Save</button>
+      </div>
     </form>
 
     <script defer src="../lib/options.js"></script>
