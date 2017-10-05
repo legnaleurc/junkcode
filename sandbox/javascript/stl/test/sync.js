@@ -34,6 +34,12 @@ describe('sync', () => {
       a.should.deep.equal(b);
     });
 
+    it('should throw error with async function', () => {
+      (() => {
+        Array.from(filter([], async () => {}));
+      }).should.throw(TypeError);
+    });
+
   });
 
   describe('map', () => {
