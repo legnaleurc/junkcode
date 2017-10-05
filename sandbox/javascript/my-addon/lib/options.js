@@ -3,8 +3,14 @@ const options = document.querySelector('#options');
 options.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  let data = new FormData(event.target);
-  for (const [k, v] of data) {
-    console.info('form_data', k, v);
-  }
+  saveOptionsFromForm(event.target);
 });
+
+(async () => {
+  const opts = await loadOptions();
+  for (const input of options.elements) {
+    if (opts.hasOwnProperty(input.name)) {
+      input.value = opts[input.name];
+    }
+  }
+})();

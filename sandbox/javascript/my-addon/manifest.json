@@ -14,12 +14,16 @@
 
   "permissions": [
     "contextMenus",
+    "storage",
     "http://*/",
     "https://*/"
   ],
 
   "background": {
-    "scripts": ["lib/main.js"]
+    "scripts": [
+      "lib/core.js",
+      "lib/main.js"
+    ]
   },
   "options_ui": {
     "page": "views/options.html",
