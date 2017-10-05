@@ -1,11 +1,4 @@
-const URL_ = '';
-const username = '';
-const password = '';
-const addPaused = true;
-const enableForAllLinks = true;
-const troubleshooting = false;
-const tooltipPosition = 1;
-
+// TODO multi-hosts?
 const csrfTokenKey = 'X-Transmission-Session-Id';
 let currentCsrfToken = null;
 
@@ -30,8 +23,10 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 
 
 async function sendToTransmission (torrentURL) {
+  const opts = await loadOptions();
+
   const headers = new Headers();
-  const authToken = btoa(`${username}:${password}`);
+  const authToken = btoa(`${opts.username}:${opts.password}`);
   headers.append('Authorization', `Basic ${authToken}`);
   headers.append('Content-Type', 'application/json');
   if (currentCsrfToken) {
@@ -42,11 +37,11 @@ async function sendToTransmission (torrentURL) {
     method: 'torrent-add',
     arguments: {
       filename: torrentURL,
-      paused: addPaused,
+      paused: opts['add-paused'],
     },
   };
 
-  const request = new Request(URL_, {
+  const request = new Request(opts.url, {
     method: 'POST',
     headers,
     body: JSON.stringify(args),
