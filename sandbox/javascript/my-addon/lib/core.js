@@ -1,3 +1,8 @@
+// TODO multi-hosts?
+const kCsrfTokenKey = 'X-Transmission-Session-Id';
+let gCurrentCsrfToken = null;
+
+
 function getDefaultValue () {
   return {
     version: 1,
@@ -67,4 +72,49 @@ async function saveOptionsFromForm (form) {
     return rv;
   }, {});
   await saveOptions(opts);
+}
+
+
+async function sendToTransmission (torrentURL) {
+  const opts = await loadOptions();
+
+  const headers = new Headers();
+  const authToken = btoa(`${opts.username}:${opts.password}`);
+  headers.append('Authorization', `Basic ${authToken}`);
+  headers.append('Content-Type', 'application/json');
+  if (gCurrentCsrfToken) {
+    headers.append(kCsrfTokenKey, gCurrentCsrfToken);
+  }
+
+  const args = {
+    method: 'torrent-add',
+    arguments: {
+      filename: torrentURL,
+      paused: opts['add-paused'],
+    },
+  };
+
+  const request = new Request(opts.url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(args),
+    mode: 'cors',
+    credentials: 'include',
+  });
+
+  let rv = await fetch(request);
+  if (rv.status === 409) {
+    if (rv.headers.has(kCsrfTokenKey)) {
+      gCurrentCsrfToken = rv.headers.get(kCsrfTokenKey);
+      return sendToTransmission(torrentURL);
+    }
+  }
+  if (!rv.ok) {
+    throw new Error(`request error: ${rv.status}`);
+  }
+  rv = await rv.json();
+  if (rv.result !== 'success') {
+    throw new Error(`transmission error: ${rv.result}`);
+  }
+  return rv;
 }
