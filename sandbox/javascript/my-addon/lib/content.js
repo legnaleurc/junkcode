@@ -5,25 +5,28 @@ function wait (msDelay) {
 }
 
 
-function makePrompt (message) {
+function makePrompt (message, resolve) {
   const block = document.createElement('div');
   block.classList.add('download-with-transmission', 'bubble');
   block.textContent = message;
   block.addEventListener('transitionend', () => {
     block.parentElement.removeChild(block);
+    resolve();
   });
   return block;
 }
 
 
-async function showPrompt (message) {
-  const anchor = document.activeElement;
-  const block = makePrompt(message);
-  document.body.appendChild(block);
+function showPrompt (message) {
+  return new Promise((resolve) => {
+    const anchor = document.activeElement;
+    const block = makePrompt(message, resolve);
+    document.body.appendChild(block);
 
-  const position = getTargetPosition(anchor, block);
-  moveElementCenterTo(block, position);
-  block.classList.add('fade');
+    const position = getTargetPosition(anchor, block);
+    moveElementCenterTo(block, position);
+    block.classList.add('fade');
+  });
 }
 
 
