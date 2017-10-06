@@ -15,8 +15,8 @@
 
   "background": {
     "scripts": [
-      "lib/core.js",
-      "lib/main.js"
+      "chrome/core.js",
+      "chrome/main.js"
     ]
   },
   "content_scripts": [
@@ -25,12 +25,12 @@
         "http://*/*",
         "https://*/*"
       ],
-      "js": ["lib/content.js"],
-      "css": ["styles/content.css"]
+      "js": ["content/main.js"],
+      "css": ["content/main.css"]
     }
   ],
   "options_ui": {
-    "page": "views/options.html",
+    "page": "pages/options.html",
     "browser_style": true
   }
 
