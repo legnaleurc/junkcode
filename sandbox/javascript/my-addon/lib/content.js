@@ -1,32 +1,49 @@
-function wait (msDelay) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, msDelay);
-  });
-}
+class PromptClient {
 
+  constructor () {
+    this._anchor = null;
+    this._block = null;
+  }
 
-function makePrompt (message, resolve) {
-  const block = document.createElement('div');
-  block.classList.add('download-with-transmission', 'bubble');
-  block.textContent = message;
-  block.addEventListener('transitionend', () => {
-    block.parentElement.removeChild(block);
-    resolve();
-  });
-  return block;
-}
+  async setMessage (message) {
+    this._maybeInitialize();
+    this._block.textContent = message;
+    this._update();
+  }
 
+  close () {
+    return new Promise((resolve) => {
+      this._block.addEventListener('transitionend', () => {
+        this._block.parentElement.removeChild(this._block);
+        this._block = null;
+        this._anchor = null;
+        resolve();
+      });
+      this._block.classList.add('fade');
+    });
+  }
 
-function showPrompt (message) {
-  return new Promise((resolve) => {
-    const anchor = document.activeElement;
-    const block = makePrompt(message, resolve);
-    document.body.appendChild(block);
+  _maybeInitialize () {
+    if (!this._anchor) {
+      this._anchor = document.activeElement;
+    }
+    if (!this._block) {
+      this._block = this._create();
+      document.body.appendChild(this._block);
+    }
+  }
 
-    const position = getTargetPosition(anchor, block);
-    moveElementCenterTo(block, position);
-    block.classList.add('fade');
-  });
+  _create () {
+    const block = document.createElement('div');
+    block.classList.add('download-with-transmission', 'bubble');
+    return block;
+  }
+
+  _update () {
+    const position = getTargetPosition(this._anchor, this._block);
+    moveElementCenterTo(this._block, position);
+  }
+
 }
 
 
@@ -70,9 +87,15 @@ function moveElementCenterTo (element, position) {
 }
 
 
+const prompt = new PromptClient();
+
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.topic !== 'show-prompt') {
-    return;
+  switch (message.topic) {
+    case 'show-prompt':
+      return prompt.setMessage(message.args.message);
+    case 'close-prompt':
+      return prompt.close();
+    default:
+      break;
   }
-  return showPrompt(message.args.message);
 });

@@ -6,13 +6,21 @@ browser.menus.create({
 
 browser.menus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'send-to-transmission') {
-    sendToTransmission(info.linkUrl)
-      .then((rv) => {
-        return showPrompt(tab.id, 'ok');
-      })
-      .catch((e) => {
-        console.error('Download with Transmission', e);
-        return showPrompt(tab.id, e.toString());
-      });
+    main(info.linkUrl, tab.id);
   }
 });
+
+
+async function main (linkUrl, tabId) {
+  const prompt = new PromptServer(tabId);
+  await prompt.setMessage('Sending ...');
+  let msg = 'Done';
+  try {
+    await sendToTransmission(linkUrl);
+  } catch (e) {
+    console.error('Download with Transmission', e);
+    msg = e.toString();
+  }
+  await prompt.setMessage(msg);
+  await prompt.close();
+}

@@ -120,11 +120,25 @@ async function sendToTransmission (torrentURL) {
 }
 
 
-async function showPrompt (tabId, message) {
-  return browser.tabs.sendMessage(tabId, {
-    topic: 'show-prompt',
-    args: {
-      message,
-    },
-  });
+class PromptServer {
+
+  constructor (tabId) {
+    this._tabId = tabId;
+  }
+
+  async setMessage (message) {
+    await browser.tabs.sendMessage(this._tabId, {
+      topic: 'show-prompt',
+      args: {
+        message,
+      },
+    });
+  }
+
+  async close () {
+    await browser.tabs.sendMessage(this._tabId, {
+      topic: 'close-prompt',
+    });
+  }
+
 }
