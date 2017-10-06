@@ -9,6 +9,9 @@ function makePrompt (message) {
   const block = document.createElement('div');
   block.classList.add('download-with-transmission', 'bubble');
   block.textContent = message;
+  block.addEventListener('transitionend', () => {
+    block.parentElement.removeChild(block);
+  });
   return block;
 }
 
@@ -20,9 +23,7 @@ async function showPrompt (message) {
 
   const position = getTargetPosition(anchor, block);
   moveElementCenterTo(block, position);
-
-  // await wait(5000);
-  // block.parentElement.removeChild(block);
+  block.classList.add('fade');
 }
 
 

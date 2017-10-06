@@ -17,4 +17,10 @@
   vertical-align: baseline;
 
   z-index: 100;
+
+  transition: opacity 5s ease-in;
+}
+
+.download-with-transmission.bubble.fade {
+  opacity: 0;
 }
