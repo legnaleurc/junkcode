@@ -84,9 +84,11 @@ async function sendToTransmission (torrentURL) {
   const opts = await loadOptions();
 
   const headers = new Headers();
-  const authToken = btoa(`${opts.username}:${opts.password}`);
-  headers.append('Authorization', `Basic ${authToken}`);
   headers.append('Content-Type', 'application/json');
+  if (opts.username && opts.password) {
+    const authToken = btoa(`${opts.username}:${opts.password}`);
+    headers.append('Authorization', `Basic ${authToken}`);
+  }
   if (gCurrentCsrfToken) {
     headers.append(kCsrfTokenKey, gCurrentCsrfToken);
   }
