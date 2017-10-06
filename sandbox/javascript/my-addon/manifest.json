@@ -6,12 +6,6 @@
 
   "description": "Download a link with Transmission.",
 
-  "icons": {
-    "64": "icons/icon-64.png",
-    "32": "icons/icon-32.png",
-    "16": "icons/icon-16.png"
-  },
-
   "permissions": [
     "menus",
     "storage",
