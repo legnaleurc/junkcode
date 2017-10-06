@@ -18,8 +18,13 @@ async function loadOptions () {
   let opts = null;
   try {
     opts = await browser.storage.local.get('options');
-    opts = opts.options;
   } catch (e) {
+    opts = null;
+  }
+  if (opts) {
+    opts = opts.options;
+  }
+  if (!opts) {
     opts = getDefaultValue();
   }
   // TODO migration
