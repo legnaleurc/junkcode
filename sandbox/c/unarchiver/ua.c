@@ -9,8 +9,11 @@ int list_archive(const char * file_name);
 
 
 int main (int argc, char * argv[]) {
+    if (argc != 2) {
+        return 1;
+    }
     int rv = 0;
-    rv = list_archive("test.zip");
+    rv = list_archive(argv[1]);
     return 0;
 }
 
