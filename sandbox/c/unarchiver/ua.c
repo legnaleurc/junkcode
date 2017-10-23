@@ -25,6 +25,8 @@ int list_archive(const char * file_name) {
 
     rv = archive_read_support_format_all(handle);
     assert(rv == ARCHIVE_OK || !"no supported format");
+    rv = archive_read_support_filter_all(handle);
+    assert(rv == ARCHIVE_OK || !"no supported filter");
 
     rv = archive_read_open_filename(handle, file_name, 1024);
     if (rv != ARCHIVE_OK) {
