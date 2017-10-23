@@ -21,15 +21,33 @@ int list_archive(const char * file_name) {
     assert(handle || !"null archive handle");
 
     rv = archive_read_support_format_all(handle);
-    assert(rv == 0 || !"no supported format");
+    assert(rv == ARCHIVE_OK || !"no supported format");
 
     rv = archive_read_open_filename(handle, file_name, 1024);
-    if (rv != 0) {
+    if (rv != ARCHIVE_OK) {
         printf("archive_read_open_filename: %s (%d)\n",
                archive_error_string(handle), rv);
         return 1;
     }
 
+    for (;;) {
+        struct archive_entry * entry = NULL;
+        rv = archive_read_next_header(handle, &entry);
+
+        if (rv == ARCHIVE_EOF) {
+            break;
+        }
+
+        if (rv != ARCHIVE_OK) {
+            assert(!"broken entry?");
+            break;
+        }
+
+        const char * entry_path = archive_entry_pathname_utf8(entry);
+        printf("%s\n", entry_path);
+    }
+
+finish:
     rv = archive_read_free(handle);
     assert(rv == 0 || !"archive handle free error");
     return rv;
