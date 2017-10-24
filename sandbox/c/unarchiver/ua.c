@@ -118,9 +118,7 @@ int extract_archive(const char * file_name, const char * dst_path) {
         assert(rv == strlen(dst_path) + 1 + strlen(entry_path) || !"wrong path");
 
         rv = archive_entry_update_pathname_utf8(entry, new_path);
-        if (rv != ARCHIVE_OK) {
-            printf("archive_entry_update_pathname_utf8: %s (%d)\n",
-                   archive_error_string(handle), rv);
+        if (!rv) {
             assert(!"update path name failed");
             break;
         }
