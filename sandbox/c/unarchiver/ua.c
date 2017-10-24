@@ -2,6 +2,7 @@
 #include <archive_entry.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 
 #include <locale.h>
@@ -108,8 +109,29 @@ int extract_archive(const char * file_name, const char * dst_path) {
             }
         }
 
+        const char * entry_path = archive_entry_pathname_utf8(entry);
+        assert(entry_path || !"empty entry path");
+
+        char new_path[1024 * 4];
+        rv = snprintf(new_path, sizeof(new_path),
+                      "%s/%s", dst_path, entry_path);
+        assert(rv == strlen(dst_path) + 1 + strlen(entry_path) || !"wrong path");
+
+        rv = archive_entry_update_pathname_utf8(entry, new_path);
+        if (rv != ARCHIVE_OK) {
+            printf("archive_entry_update_pathname_utf8: %s (%d)\n",
+                   archive_error_string(handle), rv);
+            assert(!"update path name failed");
+            break;
+        }
+
         rv = archive_write_header(dst, entry);
-        assert(rv == ARCHIVE_OK || !"write error");
+        if (rv != ARCHIVE_OK) {
+            printf("archive_write_header: %s (%d)\n",
+                   archive_error_string(dst), rv);
+            assert(!"write failed");
+            break;
+        }
 
         rv = extract_internal(handle, dst);
         assert(rv == ARCHIVE_OK || !"extract error");
