@@ -44,6 +44,8 @@ int list_archive(const char * file_name) {
         }
 
         if (rv != ARCHIVE_OK) {
+            printf("archive_read_next_header: %s (%d)\n",
+                   archive_error_string(handle), rv);
             assert(!"broken entry?");
             break;
         }
