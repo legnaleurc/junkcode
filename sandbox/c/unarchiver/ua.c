@@ -57,11 +57,9 @@ int list_archive(const char * file_name) {
         }
 
         const char * entry_path = archive_entry_pathname_utf8(entry);
-        if (entry_path) {
-            printf("%s\n", entry_path);
-        } else {
-            printf("!!!! unknown path name !!!!\n");
-        }
+        assert(entry_path || !"null entry path");
+
+        printf("%s\n", entry_path);
     }
 
 finish:
