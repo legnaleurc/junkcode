@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include <locale.h>
+
 
 int list_archive(const char * file_name);
 
@@ -12,6 +14,8 @@ int main (int argc, char * argv[]) {
     if (argc != 2) {
         return 1;
     }
+    // TODO Windows?
+    setlocale(LC_ALL, "");
     int rv = 0;
     rv = list_archive(argv[1]);
     return 0;
@@ -46,12 +50,18 @@ int list_archive(const char * file_name) {
         if (rv != ARCHIVE_OK) {
             printf("archive_read_next_header: %s (%d)\n",
                    archive_error_string(handle), rv);
-            assert(!"broken entry?");
-            break;
+            if (rv != ARCHIVE_WARN) {
+                assert(!"broken entry?");
+                break;
+            }
         }
 
         const char * entry_path = archive_entry_pathname_utf8(entry);
-        printf("%s\n", entry_path);
+        if (entry_path) {
+            printf("%s\n", entry_path);
+        } else {
+            printf("!!!! unknown path name !!!!\n");
+        }
     }
 
 finish:
