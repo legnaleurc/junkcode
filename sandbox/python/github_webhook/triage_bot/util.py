@@ -1,3 +1,4 @@
+import itertools as it
 import json
 import sys
 
@@ -6,10 +7,11 @@ import wcpan.listen as wls
 import wcpan.logger as wlg
 from wcpan.logger import DEBUG
 
-from . import api
+from . import api, parser
 
 
-REPOSITORY_NAME = 'legnaleurc/junkcode'
+REPOSITORY_OWNER = 'legnaleurc'
+REPOSITORY_NAME = 'junkcode'
 
 
 def main(args=None):
@@ -40,7 +42,7 @@ def main(args=None):
 
 def triage(payload):
     # TODO extract repository name
-    if payload['repository']['full_name'] != REPOSITORY_NAME:
+    if payload['repository']['full_name'] != '{}/{}'.format(REPOSITORY_OWNER, REPOSITORY_NAME):
         return
 
     # ignored: closed, labeled, reopened, edited, unlabeled
@@ -53,4 +55,11 @@ def triage(payload):
     issue_title = payload['issue']['title']
     issue_body = payload['issue']['body']
 
-    DEBUG('triage_bot') << json.dumps(payload, indent=2)
+    urls = map(parser.extractURLs, [issue_title, issue_body])
+    urls = it.chain(*urls)
+    urls = list(urls)
+    if not urls:
+        DEBUG('triage_bot') << 'no matching url for issue' << issue_number
+        return
+
+    triaged_issues = fetch_triaged_issues()
