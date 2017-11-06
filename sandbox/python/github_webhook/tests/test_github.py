@@ -10,5 +10,6 @@ class TestGitHub(tt.AsyncTestCase):
     @tt.gen_test
     def testFetchTriagedIssues(self):
         ghapi = tbgh.GitHubAPI('')
-        rv = yield ghapi.fetch_triaged_issues('adsbypasser', 'adsbypasser')
-        print(rv)
+        issues = yield ghapi.fetch_issues('adsbypasser', 'adsbypasser')
+        print(len(issues))
+        #for issue in issues:
