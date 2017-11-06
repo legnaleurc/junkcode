@@ -9,6 +9,9 @@ from wcpan.logger import DEBUG
 from . import api
 
 
+REPOSITORY_NAME = 'legnaleurc/junkcode'
+
+
 def main(args=None):
     if args is None:
         args = sys.argv
@@ -37,12 +40,13 @@ def main(args=None):
 
 def triage(payload):
     # TODO extract repository name
-    if payload['repository']['full_name'] != 'legnaleurc/junkcode':
+    if payload['repository']['full_name'] != REPOSITORY_NAME:
         return
 
     # ignored: closed, labeled, reopened, edited, unlabeled
     # if you need to handle labeled/unlabeled, watch out loop triggering
-    if payload['action'] == 'opened':
+    if payload['action'] != 'opened':
+        DEBUG('triage_bot') << 'ignored action' << payload['action']
         pass
 
     issue_number = payload['issue']['number']
