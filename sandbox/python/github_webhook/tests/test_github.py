@@ -9,5 +9,6 @@ class TestGitHub(tt.AsyncTestCase):
 
     @tt.gen_test
     def testFetchTriagedIssues(self):
-        rv = await fetch_triaged_issues('legnaleurc', 'junkcode')
+        ghapi = tbgh.GitHubAPI('')
+        rv = yield ghapi.fetch_triaged_issues('adsbypasser', 'adsbypasser')
         print(rv)
