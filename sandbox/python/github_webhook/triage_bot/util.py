@@ -21,7 +21,7 @@ def main(args=None):
     ])
 
     application = tw.Application([
-        (r'/api/v1/.*', api.IndexHandler),
+        (r'/api/v1/issue', api.IssueHandler),
     ])
 
     server = ths.HTTPServer(application)
@@ -47,7 +47,7 @@ def triage(payload):
     # if you need to handle labeled/unlabeled, watch out loop triggering
     if payload['action'] != 'opened':
         DEBUG('triage_bot') << 'ignored action' << payload['action']
-        pass
+        return
 
     issue_number = payload['issue']['number']
     issue_title = payload['issue']['title']

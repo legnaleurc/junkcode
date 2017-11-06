@@ -6,7 +6,7 @@ from wcpan.logger import DEBUG
 from . import util
 
 
-class IndexHandler(tw.RequestHandler):
+class IssueHandler(tw.RequestHandler):
 
     def post(self):
         payload = self.request.body
