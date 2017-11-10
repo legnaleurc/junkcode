@@ -5,6 +5,9 @@
         <title>Chat Test</title>
     </head>
     <body>
+        <div id="sink">
+        </div>
+
         <script src="./signal-socket.js"></script>
         <script>
             async function main () {
@@ -40,6 +43,11 @@
                             },
                         });
                     });
+                    link.addEventListener('addstream', async (event) => {
+                        let sink = document.querySelector('#sink');
+                        let audio = document.createElement('audio');
+                        audio.srcObject = event.stream;
+                    });
                     link.addStream(stream);
                 };
                 socket.onaudiooffer = async (sender, sdp) => {
@@ -55,6 +63,11 @@
                                 candidate: event.candidate,
                             },
                         });
+                    });
+                    peer.addEventListener('addstream', async (event) => {
+                        let sink = document.querySelector('#sink');
+                        let audio = document.createElement('audio');
+                        audio.srcObject = event.stream;
                     });
 
                     sdp = new RTCSessionDescription(sdp);
