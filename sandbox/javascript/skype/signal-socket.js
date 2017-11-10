@@ -1,7 +1,7 @@
 class SignalSocket {
 
     constructor () {
-        this._socket = new WebSocket('ws://localhost:8000/socket');
+        this._socket = new WebSocket('wss://www.wcpan.me/skype/socket');
         this._id = null;
         this._id_promise = new Promise((resolve) => {
             this._id_resolver = resolve;

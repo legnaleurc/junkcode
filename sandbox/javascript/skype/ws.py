@@ -114,7 +114,7 @@ def main(args=None):
         (r'^/signal-socket\.js$', JSHandler),
         (r'^/socket$', SocketHandler),
     ])
-    app.listen(8000)
+    app.listen(6666)
 
     loop.start()
     loop.close()
