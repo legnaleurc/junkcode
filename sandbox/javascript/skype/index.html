@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Chat Test</title>
+    </head>
+    <body>
+        <script src="./signal-socket.js"></script>
+        <script>
+            async function main () {
+                let stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                });
+                let link = null;
+
+                let socket = new SignalSocket();
+                socket.onnewmember = (id) => {
+                    link = new RTCPeerConnection();
+                    link.addEventListener('negotiationneeded', async (event) => {
+                        let offer = await link.createOffer();
+                        await link.setLocalDescription(offer);
+
+                        socket.send({
+                            action: 'audio-offer',
+                            args: {
+                                receiver: id,
+                                sdp: link.localDescription,
+                            },
+                        });
+                    });
+                    link.addEventListener('icecandidate', async (event) => {
+                        if (!event.candidate) {
+                            return;
+                        }
+                        socket.send({
+                            actoin: 'new-ice-candidate',
+                            args: {
+                                receiver: id,
+                                candidate: event.candidate,
+                            },
+                        });
+                    });
+                    link.addStream(stream);
+                };
+                socket.onaudiooffer = async (sender, sdp) => {
+                    let peer = new RTCPeerConnection();
+                    peer.addEventListener('icecandidate', async (event) => {
+                        if (!event.candidate) {
+                            return;
+                        }
+                        socket.send({
+                            actoin: 'new-ice-candidate',
+                            args: {
+                                receiver: sender,
+                                candidate: event.candidate,
+                            },
+                        });
+                    });
+
+                    sdp = new RTCSessionDescription(sdp);
+                    await peer.setRemoteDescription(sdp);
+
+                    peer.addStream(stream);
+                    let answer = await peer.createAnswer();
+                    await peer.setLocalDescription(answer);
+
+                    socket.send({
+                        action: 'audio-answer',
+                        args: {
+                            receiver: sender,
+                            sdp: peer.localDescription,
+                        },
+                    });
+                };
+                socket.onaudioanswer = async (sender, sdp) => {
+                    sdp = new RTCSessionDescription(sdp);
+                    await link.setRemoteDescription(sdp);
+                };
+                socket.onnewicecandidate = async (sender, candidate) => {
+                    candidate = new RTCIceCandidate(candidate);
+                    await link.addIceCandidate(candidate);
+                };
+                await socket.prepare();
+            }
+
+            main().catch((e) => {
+                console.error(e);
+            });
+        </script>
+    </body>
+</html>
