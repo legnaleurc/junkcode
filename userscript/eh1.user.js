@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        eh1
+// @name        eh hide cover
 // @namespace   sandbox
 // @include     https://exhentai.org/*
 // @include     https://e-hentai.org/*
