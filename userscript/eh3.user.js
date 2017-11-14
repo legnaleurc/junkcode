@@ -1,11 +1,10 @@
 // ==UserScript==
-// @name        eh3
+// @name        eh query
 // @namespace   sandbox
 // @include     https://exhentai.org/g/*
 // @include     https://e-hentai.org/g/*
 // @version     2
-// @grant       GM_xmlhttpRequest
-// @grant       GM_addStyle
+// @grant       GM.xmlHttpRequest
 // ==/UserScript==
 
 'use strict';
@@ -150,7 +149,7 @@ function makeHintArea () {
 
   infoBlock.parentElement.insertBefore(displayArea, infoBlock.nextElementSibling);
 
-  GM_addStyle(`
+  addStyle(`
     #blk-search {
       text-align: left;
     }
@@ -308,7 +307,7 @@ function get (url, args) {
     });
   }
   return new Promise((resolve, reject) => {
-    GM_xmlhttpRequest({
+    GM.xmlHttpRequest({
       header: {
         'Cache-Control': 'no-store',
       },
@@ -340,7 +339,7 @@ function post (url, args, header) {
   }
 
   return new Promise((resolve, reject) => {
-    GM_xmlhttpRequest({
+    GM.xmlHttpRequest({
       headers: headers,
       method: 'POST',
       data: data.toString(),
@@ -360,4 +359,12 @@ function wait (msDelay) {
   return new Promise((resolve) => {
     setTimeout(resolve, msDelay);
   });
+}
+
+
+function addStyle (text) {
+  let style = document.createElement('style');
+  style.type = 'text/css';
+  style.textContent = text;
+  document.head.appendChild(style);
 }
