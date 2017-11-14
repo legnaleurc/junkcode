@@ -3,8 +3,7 @@
 // @namespace   sandbox
 // @include     https://*.nyaa.si/*
 // @version     1
-// @grant       GM_addStyle
-// @grant       GM_xmlhttpRequest
+// @grant       GM.xmlHttpRequest
 // @run-at      document-start
 // ==/UserScript==
 
@@ -12,76 +11,8 @@
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  // tuneLayout();
   searchCache();
 });
-
-document.addEventListener('beforescriptexecute', (event) => {
-  // disableInjection(event);
-});
-
-
-function tuneLayout () {
-  document.querySelectorAll('iframe').forEach((n) => {
-    n.parentNode.removeChild(n);
-  });
-
-  GM_addStyle(`
-    #main {
-      width: 99%;
-    }
-
-    #main > :not(.content) {
-      display: none;
-    }
-
-    #tabnav {
-      float: unset;
-    }
-
-    #tabnav > li {
-      display: none;
-    }
-
-    #tabnav > li:nth-child(1), #tabnav > li:nth-child(8) {
-      display: inline;
-    }
-
-    .content {
-      font-size: 1.2em;
-      width: 100%;
-    }
-
-    .tlist {
-      table-layout: auto;
-    }
-
-    .tlistname {
-      padding-bottom: 9px;
-      padding-top: 9px;
-    }
-
-    .tlisticon {
-      width: 7.5%;
-    }
-
-    .tlisticon img, .tlistdownload img {
-      width: 100%;
-    }
-  `);
-}
-
-
-function disableInjection (event) {
-  var url = event.target.src;
-  var a = document.createElement('a');
-  a.href = url;
-  url = a.host;
-  if (!url.match(/\.nyaa\.se$/)) {
-    event.preventDefault();
-    return false;
-  }
-}
 
 
 async function searchCache () {
@@ -182,7 +113,7 @@ function makeHintArea () {
   c.classList.add('panel', 'panel-default');
   a.parentNode.insertBefore(c, a);
 
-  GM_addStyle(`
+  addStyle(`
     #fake-hint > pre {
       padding: initial;
       border: initial;
@@ -238,7 +169,7 @@ function get (url, args) {
     query.set(k, args[k]);
   });
   return new Promise((resolve, reject) => {
-    GM_xmlhttpRequest({
+    GM.xmlHttpRequest({
       header: {
         'Cache-Control': 'no-store',
       },
@@ -252,4 +183,12 @@ function get (url, args) {
       url: url + '?' + query.toString(),
     });
   });
+}
+
+
+function addStyle (text) {
+  let style = document.createElement('style');
+  style.type = 'text/css';
+  style.textContent = text;
+  document.head.appendChild(style);
 }
