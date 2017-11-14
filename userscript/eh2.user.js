@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        eh2
+// @name        eh no ad
 // @namespace   sandbox
 // @include     http://g.e-hentai.org/s/*
 // @include     http://g.exhentai.org/s/*
