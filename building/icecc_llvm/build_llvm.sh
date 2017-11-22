@@ -77,7 +77,7 @@ build_source () {
     -DCMAKE_BUILD_TYPE=Release \
     "$build_dir/$llvm_dir"
 
-  make -j8
+  make -j
   make install
 
   cd "$cwd"
