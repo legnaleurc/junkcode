@@ -13,42 +13,42 @@ prepare_source () {
   version="$2"
   llvm_dir="llvm-$version.src"
   llvm_tarball="$llvm_dir.tar.xz"
-  llvm_url="http://llvm.org/releases/$version/$llvm_tarball"
+  llvm_url="https://releases.llvm.org/$version/$llvm_tarball"
   clang_dir="cfe-$version.src"
   clang_tarball="$clang_dir.tar.xz"
-  clang_url="http://llvm.org/releases/$version/$clang_tarball"
+  clang_url="https://releases.llvm.org/$version/$clang_tarball"
   libcxx_dir="libcxx-$version.src"
   libcxx_tarball="$libcxx_dir.tar.xz"
-  libcxx_url="http://llvm.org/releases/$version/$libcxx_tarball"
+  libcxx_url="https://releases.llvm.org/$version/$libcxx_tarball"
   libcxxabi_dir="libcxxabi-$version.src"
   libcxxabi_tarball="$libcxxabi_dir.tar.xz"
-  libcxxabi_url="http://llvm.org/releases/$version/$libcxxabi_tarball"
+  libcxxabi_url="https://releases.llvm.org/$version/$libcxxabi_tarball"
   lldb_dir="lldb-$version.src"
   lldb_tarball="$lldb_dir.tar.xz"
-  lldb_url="http://llvm.org/releases/$version/$lldb_tarball"
+  lldb_url="https://releases.llvm.org/$version/$lldb_tarball"
   cwd="$(pwd)"
 
   cd "$build_dir"
 
   # Download a release clang release from the website
-  curl -O "$llvm_url"
+  curl -L -O "$llvm_url"
   tar -xvf "$llvm_tarball"
 
   # Get the same release of clang
-  curl -O "$clang_url"
+  curl -L -O "$clang_url"
   tar -xvf "$clang_tarball"
   mv "$clang_dir" "$llvm_dir/tools/clang"
 
   # Get the same release of libcxx and libcxxabi
-  curl -O "$libcxx_url"
+  curl -L -O "$libcxx_url"
   tar -xvf "$libcxx_tarball"
   mv "$libcxx_dir" "$llvm_dir/projects/libcxx"
-  curl -O "$libcxxabi_url"
+  curl -L -O "$libcxxabi_url"
   tar -xvf "$libcxxabi_tarball"
   mv "$libcxxabi_dir" "$llvm_dir/projects/libcxxabi"
 
   # Get the same release of lldb
-  curl -O "$lldb_url"
+  curl -L -O "$lldb_url"
   tar -xvf "$lldb_tarball"
   mv "$lldb_dir" "$llvm_dir/tools/lldb"
 
@@ -77,12 +77,20 @@ build_source () {
     -DCMAKE_BUILD_TYPE=Release \
     "$build_dir/$llvm_dir"
 
-  make -j
+  make -j$(get_cpu_cores)
   make install
 
   cd "$cwd"
 }
 
+
+get_cpu_cores () {
+  if which nproc > /dev/null ; then
+    nproc --all
+  else
+    sysctl -n hw.ncpu
+  fi
+}
 
 # Find/make a parent dir
 mkdir -p "$BUILD_DIR"
