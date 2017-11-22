@@ -4,8 +4,8 @@ set -e -x
 
 BUILD_DIR='/tmp/llvm-clang'
 INSTALL_DIR='~/local/opt/llvm-clang'
-LLVM_VERSION='3.9.0'
-DARWIN_VERSION='16.3.0'
+LLVM_VERSION='5.0.0'
+DARWIN_VERSION='17.2.0'
 
 
 prepare_source () {
