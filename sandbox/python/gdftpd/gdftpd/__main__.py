@@ -1,18 +1,29 @@
-import asyncio
+import sys
 
 import tornado.platform.asyncio as tpa
-import aioftp
+
+from .server import FtpServer
 
 
-loop = tpa.AsyncIOMainLoop()
-loop.install()
+async def start_server():
+    server = FtpServer()
+    await server.start('0.0.0.0', 2121)
 
-server = aioftp.Server()
-f = server.start('0.0.0.0', 2121)
 
-f = asyncio.ensure_future(f)
-f = tpa.to_tornado_future(f)
-loop.add_future(f, lambda _: print(_))
+def main(args=None):
+    if args is None:
+        args = sys.argv
 
-loop.start()
-loop.close()
+    loop = tpa.AsyncIOMainLoop()
+    loop.install()
+
+    loop.add_callback(start_server)
+
+    loop.start()
+    loop.close()
+
+    return 0
+
+
+rv = main()
+sys.exit(rv)
