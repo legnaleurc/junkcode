@@ -21,6 +21,17 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         node = await f
         return node is not None
 
+    async def is_dir(self, path):
+        path = op.join('/', path)
+        path = op.normpath(path)
+        f = self._drive.get_node_by_path(path)
+        f = asyncio.wrap_future(f)
+        node = await f
+        return node.is_folder
+
+    async def is_file(self, path):
+        return not await self.is_dir(path)
+
     def list(self, path):
         return GoogleDriveLister(self._drive, path, self.timeout, self.loop)
 
@@ -86,7 +97,7 @@ class GoogleDriveStat(object):
         if not node:
             raise FileNotFoundError
 
-        self.st_size = node.size
+        self.st_size = node.size if node.is_file else 0
         self.st_mtime = node.modified.timestamp()
         self.st_ctime = node.created.timestamp()
         self.st_nlink = 1
