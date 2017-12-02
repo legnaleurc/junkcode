@@ -10,4 +10,4 @@ class FtpServer(aioftp.Server):
         try:
             await super().dispatcher(reader, writer)
         except ConnectionResetError as e:
-            print('client disconnected')
+            pass
