@@ -90,4 +90,4 @@ class GoogleDriveStat(object):
         self.st_mtime = node.modified.timestamp()
         self.st_ctime = node.created.timestamp()
         self.st_nlink = 1
-        self.st_mode = 0o422
+        self.st_mode = 0o444 if node.is_file else 0o555
