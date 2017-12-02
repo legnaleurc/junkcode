@@ -14,16 +14,14 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         self._drive = drive
 
     async def exists(self, path):
-        path = op.join('/', path)
-        path = op.normpath(path)
+        path = abs_path(path)
         f = self._drive.get_node_by_path(path)
         f = asyncio.wrap_future(f)
         node = await f
         return node is not None
 
     async def is_dir(self, path):
-        path = op.join('/', path)
-        path = op.normpath(path)
+        path = abs_path(path)
         f = self._drive.get_node_by_path(path)
         f = asyncio.wrap_future(f)
         node = await f
@@ -65,8 +63,7 @@ class GoogleDriveLister(aioftp.AbstractAsyncLister):
         return path
 
     async def _fetch(self):
-        path = op.join('/', self._path)
-        path = op.normpath(path)
+        path = abs_path(self._path)
 
         f = self._drive.get_node_by_path(path)
         f = asyncio.wrap_future(f)
@@ -87,8 +84,7 @@ class GoogleDriveStat(object):
         self._path = path
 
     async def initialize(self):
-        path = op.join('/', self._path)
-        path = op.normpath(path)
+        path = abs_path(self._path)
 
         f = self._drive.get_node_by_path(path)
         f = asyncio.wrap_future(f)
@@ -102,3 +98,11 @@ class GoogleDriveStat(object):
         self.st_ctime = node.created.timestamp()
         self.st_nlink = 1
         self.st_mode = 0o444 if node.is_file else 0o555
+
+
+def abs_path(path):
+    if op.isabs(path):
+        return path
+    path = op.join('/', path)
+    path = op.normpath(path)
+    return path
