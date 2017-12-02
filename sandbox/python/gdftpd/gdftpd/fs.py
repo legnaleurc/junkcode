@@ -1,3 +1,4 @@
+import asyncio
 import os.path as op
 
 import aioftp
@@ -15,41 +16,47 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         path = op.join('/', path)
         path = op.normpath(path)
         f = self._drive.get_node_by_path(path)
-        f = tpa.to_asyncio_future(f)
+        f = asyncio.wrap_future(f)
         node = await f
         return node is not None
 
-    async def list(self, path):
-        path = op.join('/', path)
-        path = op.normpath(path)
-
-        f = self._drive.get_node_by_path(path)
-        f = tpa.to_asyncio_future(f)
-        node = await f
-
-        f = self._drive.get_children(node)
-        f = tpa.to_asyncio_future(f)
-        children = await f
-
-        return GoogleDriveLister(children, self.timeout, self.loop)
+    def list(self, path):
+        return GoogleDriveLister(self._drive, path, self.timeout, self.loop)
 
 
 class GoogleDriveLister(aioftp.AbstractAsyncLister):
 
-    def __init__(self, children, timeout=None, loop=None):
-        super().__init__(timeout, loop)
+    def __init__(self, drive, path, timeout=None, loop=None):
+        super().__init__(timeout=timeout, loop=loop)
 
-        self._children = iter(children)
+        self._drive = drive
+        self._path = path
+        self._children = None
 
     @aioftp.with_timeout
-    def __aiter__(self):
+    async def __aiter__(self):
         return self
 
     @aioftp.with_timeout
     async def __anext__(self):
+        if not self._children:
+            self._children = await self._fetch()
         try:
             node = next(self._children)
         except StopIteration:
             raise StopAsyncIteration
-        print('anext', node)
         return node.name
+
+    async def _fetch(self):
+        path = op.join('/', self._path)
+        path = op.normpath(path)
+
+        f = self._drive.get_node_by_path(path)
+        f = asyncio.wrap_future(f)
+        node = await f
+
+        f = self._drive.get_children(node)
+        f = asyncio.wrap_future(f)
+        children = await f
+
+        return iter(children)
