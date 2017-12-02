@@ -1,5 +1,6 @@
 import asyncio
 import os.path as op
+import pathlib as pl
 
 import aioftp
 import tornado.platform.asyncio as tpa
@@ -23,6 +24,11 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
     def list(self, path):
         return GoogleDriveLister(self._drive, path, self.timeout, self.loop)
 
+    async def stat(self, path):
+        stat = GoogleDriveStat(self._drive, path)
+        await stat.initialize()
+        return stat
+
 
 class GoogleDriveLister(aioftp.AbstractAsyncLister):
 
@@ -42,10 +48,10 @@ class GoogleDriveLister(aioftp.AbstractAsyncLister):
         if not self._children:
             self._children = await self._fetch()
         try:
-            node = next(self._children)
+            path = next(self._children)
         except StopIteration:
             raise StopAsyncIteration
-        return node.name
+        return path
 
     async def _fetch(self):
         path = op.join('/', self._path)
@@ -59,4 +65,29 @@ class GoogleDriveLister(aioftp.AbstractAsyncLister):
         f = asyncio.wrap_future(f)
         children = await f
 
-        return iter(children)
+        children = (pl.Path(path, _.name) for _ in children)
+        return children
+
+
+class GoogleDriveStat(object):
+
+    def __init__(self, drive, path):
+        self._drive = drive
+        self._path = path
+
+    async def initialize(self):
+        path = op.join('/', self._path)
+        path = op.normpath(path)
+
+        f = self._drive.get_node_by_path(path)
+        f = asyncio.wrap_future(f)
+        node = await f
+
+        if not node:
+            raise FileNotFoundError
+
+        self.st_size = node.size
+        self.st_mtime = node.modified.timestamp()
+        self.st_ctime = node.created.timestamp()
+        self.st_nlink = 1
+        self.st_mode = 0o422
