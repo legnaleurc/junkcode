@@ -1,6 +1,7 @@
 import asyncio
 import os.path as op
 import pathlib as pl
+import stat
 
 import aioftp
 import tornado.platform.asyncio as tpa
@@ -34,9 +35,9 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         return GoogleDriveLister(self._drive, path, self.timeout, self.loop)
 
     async def stat(self, path):
-        stat = GoogleDriveStat(self._drive, path)
-        await stat.initialize()
-        return stat
+        s = GoogleDriveStat(self._drive, path)
+        await s.initialize()
+        return s
 
 
 class GoogleDriveLister(aioftp.AbstractAsyncLister):
@@ -93,11 +94,16 @@ class GoogleDriveStat(object):
         if not node:
             raise FileNotFoundError
 
-        self.st_size = node.size if node.is_file else 0
+        if node.is_file:
+            self.st_size = node.size
+            self.st_mode = stat.S_IFREG | 0o444
+        else:
+            self.st_size = 0
+            self.st_mode = stat.S_IFDIR | 0o555
+
         self.st_mtime = node.modified.timestamp()
         self.st_ctime = node.created.timestamp()
         self.st_nlink = 1
-        self.st_mode = 0o444 if node.is_file else 0o555
 
 
 def abs_path(path):
