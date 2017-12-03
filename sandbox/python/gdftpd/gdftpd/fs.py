@@ -16,16 +16,12 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
 
     async def exists(self, path):
         path = abs_path(path)
-        f = self._drive.get_node_by_path(path)
-        f = asyncio.wrap_future(f)
-        node = await f
+        node = await self._drive.get_node_by_path(path)
         return node is not None
 
     async def is_dir(self, path):
         path = abs_path(path)
-        f = self._drive.get_node_by_path(path)
-        f = asyncio.wrap_future(f)
-        node = await f
+        node = await self._drive.get_node_by_path(path)
         return node.is_folder
 
     async def is_file(self, path):
@@ -66,13 +62,8 @@ class GoogleDriveLister(aioftp.AbstractAsyncLister):
     async def _fetch(self):
         path = abs_path(self._path)
 
-        f = self._drive.get_node_by_path(path)
-        f = asyncio.wrap_future(f)
-        node = await f
-
-        f = self._drive.get_children(node)
-        f = asyncio.wrap_future(f)
-        children = await f
+        node = await self._drive.get_node_by_path(path)
+        children = await self._drive.get_children(node)
 
         children = (pl.Path(path, _.name) for _ in children)
         return children
@@ -87,10 +78,7 @@ class GoogleDriveStat(object):
     async def initialize(self):
         path = abs_path(self._path)
 
-        f = self._drive.get_node_by_path(path)
-        f = asyncio.wrap_future(f)
-        node = await f
-
+        node = await self._drive.get_node_by_path(path)
         if not node:
             raise FileNotFoundError
 
