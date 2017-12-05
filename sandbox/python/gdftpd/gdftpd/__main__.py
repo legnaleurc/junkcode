@@ -3,7 +3,7 @@ import logging
 import os.path as op
 import sys
 
-import tornado.platform.asyncio as tpa
+import tornado.ioloop as ti
 import wcpan.drive.google as wdg
 import wcpan.logger as wl
 
@@ -31,8 +31,7 @@ def main(args=None):
     if args is None:
         args = sys.argv
 
-    loop = tpa.AsyncIOMainLoop()
-    loop.install()
+    loop = ti.IOLoop.instance()
 
     loop.add_callback(setup)
 
