@@ -39,15 +39,7 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         source = abs_path(source)
         destination = abs_path(destination)
 
-        src_node = await self._drive.get_node_by_path(source)
-        if not src_node:
-            raise FileNotFoundError
-
-        dst_node = await self._drive.get_node_by_path(destination)
-        if dst_node and dst_node.is_file:
-            raise TypeError
-
-        raise NotImplementedError
+        await self._drive.rename_node_by_path(source, destination)
 
 
 class GoogleDriveLister(aioftp.AbstractAsyncLister):
