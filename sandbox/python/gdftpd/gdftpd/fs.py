@@ -13,6 +13,7 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         super().__init__(timeout, loop)
 
         self._drive = drive
+        self._cache = NodeCache()
 
     async def exists(self, path):
         path = abs_path(path)
@@ -28,10 +29,11 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         return not await self.is_dir(path)
 
     def list(self, path):
-        return GoogleDriveLister(self._drive, path, self.timeout, self.loop)
+        return GoogleDriveLister(self._drive, path, self._cache, self.timeout,
+                                 self.loop)
 
     async def stat(self, path):
-        s = GoogleDriveStat(self._drive, path)
+        s = GoogleDriveStat(self._drive, path, self._cache)
         await s.initialize()
         return s
 
@@ -39,20 +41,23 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         source = abs_path(source)
         destination = abs_path(destination)
         await self._drive.rename_node_by_path(source, destination)
+        self._cache.delete_path(source)
 
     async def unlink(self, path):
         path = abs_path(path)
         node = await self._drive.get_node_by_path(path)
         await self._drive.trash_node(node)
+        self._cache.delete_path(path)
 
 
 class GoogleDriveLister(aioftp.AbstractAsyncLister):
 
-    def __init__(self, drive, path, timeout=None, loop=None):
+    def __init__(self, drive, path, cache, timeout=None, loop=None):
         super().__init__(timeout=timeout, loop=loop)
 
         self._drive = drive
         self._path = path
+        self._cache = cache
         self._children = None
 
     @aioftp.with_timeout
@@ -75,22 +80,27 @@ class GoogleDriveLister(aioftp.AbstractAsyncLister):
         node = await self._drive.get_node_by_path(path)
         children = await self._drive.get_children(node)
 
-        children = (pl.Path(path, _.name).relative_to('/') for _ in children)
-        return children
+        return iter_node_list(path, children, self._cache)
 
 
 class GoogleDriveStat(object):
 
-    def __init__(self, drive, path):
+    def __init__(self, drive, path, cache):
         self._drive = drive
         self._path = path
+        self._cache = cache
 
     async def initialize(self):
         path = abs_path(self._path)
 
-        node = await self._drive.get_node_by_path(path)
+        try:
+            node = self._cache.get_path(path)
+        except KeyError:
+            node = await self._drive.get_node_by_path(path)
+
         if not node:
-            raise FileNotFoundError
+            raise FileNotFoundError(path)
+        self._cache.update_path(path, node)
 
         if node.is_file:
             self.st_size = node.size
@@ -104,9 +114,31 @@ class GoogleDriveStat(object):
         self.st_nlink = 1
 
 
+class NodeCache(object):
+
+    def __init__(self):
+        self._cache = {}
+
+    def update_path(self, path, node):
+        self._cache[path] = node
+
+    def delete_path(self, path):
+        del self._cache[path]
+
+    def get_path(self, path):
+        return self._cache[path]
+
+
 def abs_path(path):
     if op.isabs(path):
         return path
     path = op.join('/', path)
     path = op.normpath(path)
     return path
+
+
+def iter_node_list(parent_path, node_list, cache):
+    for node in node_list:
+        path = pl.Path(parent_path, node.name)
+        cache.update_path(path, node)
+        yield path.relative_to('/')
