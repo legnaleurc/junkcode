@@ -24,7 +24,7 @@ async def setup():
     factory = ft.partial(GoogleDrivePathIO, drive=drive)
 
     server = FtpServer(path_io_factory=factory)
-    await server.start('0.0.0.0', 2121)
+    await server.start('127.0.0.1', 2121)
 
 
 def main(args=None):

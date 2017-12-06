@@ -38,7 +38,6 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
     async def rename(self, source, destination):
         source = abs_path(source)
         destination = abs_path(destination)
-
         await self._drive.rename_node_by_path(source, destination)
 
 
@@ -71,7 +70,7 @@ class GoogleDriveLister(aioftp.AbstractAsyncLister):
         node = await self._drive.get_node_by_path(path)
         children = await self._drive.get_children(node)
 
-        children = (pl.Path(path, _.name) for _ in children)
+        children = (pl.Path(path, _.name).relative_to('/') for _ in children)
         return children
 
 
