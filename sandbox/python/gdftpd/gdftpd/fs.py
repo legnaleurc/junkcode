@@ -40,6 +40,11 @@ class GoogleDrivePathIO(aioftp.AbstractPathIO):
         destination = abs_path(destination)
         await self._drive.rename_node_by_path(source, destination)
 
+    async def unlink(self, path):
+        path = abs_path(path)
+        node = await self._drive.get_node_by_path(path)
+        await self._drive.trash_node(node)
+
 
 class GoogleDriveLister(aioftp.AbstractAsyncLister):
 
