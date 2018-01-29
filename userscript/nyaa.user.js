@@ -11,8 +11,16 @@
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
+  removeBanner();
   searchCache();
 });
+
+
+function removeBanner () {
+  let el = document.querySelector('.servers-cost-money');
+  el.parentElement.removeChild(el.previousElementSibling);
+  el.parentElement.removeChild(el);
+}
 
 
 async function searchCache () {
