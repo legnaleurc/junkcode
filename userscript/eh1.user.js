@@ -26,10 +26,7 @@ function main () {
 function hasFlags (item) {
   let marks = item.querySelectorAll('.tft');
   marks = Array.prototype.filter.call(marks, (mark) => {
-    return [
-      'female:netorare',
-      'parody:touhou project',
-    ].some(_ => _ === mark.title);
+    return mark.style.backgroundPosition === '0px -1px';
   });
   return marks.length > 0;
 }
