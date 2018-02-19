@@ -9,7 +9,7 @@ import tornado.platform.asyncio as tpa
 
 class GoogleDrivePathIO(aioftp.AbstractPathIO):
 
-    def __init__(self, drive, timeout=None, loop=None):
+    def __init__(self, drive, timeout=None, loop=None, connection=None):
         super().__init__(timeout, loop)
 
         self._drive = drive
