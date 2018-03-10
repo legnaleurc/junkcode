@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
 function removeBanner () {
-  let el = document.querySelector('.servers-cost-money');
-  el.parentElement.removeChild(el.previousElementSibling);
-  el.parentElement.removeChild(el);
+  let el = document.querySelector('.servers-cost-money1');
+  el.previousElementSibling.remove();
+  el.remove();
 }
 
 
