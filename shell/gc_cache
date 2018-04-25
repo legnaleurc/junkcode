@@ -12,7 +12,7 @@ def main(args=None):
     if args is None:
         args = sys.argv
 
-    load_patterns = load_patterns(sys.stdin)
+    patterns = load_patterns(sys.stdin)
 
     for root, folders, files in os.walk('.'):
         folders[:] = list(filter_by_patterns(root, folders, patterns, print))
