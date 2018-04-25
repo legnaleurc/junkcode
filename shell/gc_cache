@@ -21,7 +21,6 @@ def main(args=None):
         action = unlink
 
     patterns = load_patterns(sys.stdin)
-    patterns = [r'.*and.*']
 
     for root, folders, files in os.walk('.'):
         folders[:] = list(filter_by_patterns(root, folders, patterns, action))
