@@ -16,14 +16,16 @@ function main () {
   const items = document.querySelectorAll('.id1');
 
   items.forEach((item) => {
-    if (hasFlags(item) || hasCategories(item)) {
+    if (hasHiddenFlags(item) || hasHiddenCategories(item)) {
       item.style.opacity = 0.2;
+    } else if (hasHighlightFlags(item)) {
+      item.style.borderColor = 'lime';
     }
   });
 }
 
 
-function hasFlags (item) {
+function hasHiddenFlags (item) {
   let marks = item.querySelectorAll('.tft');
   marks = Array.prototype.filter.call(marks, (mark) => {
     return mark.style.backgroundPosition === '0px -1px';
@@ -32,10 +34,19 @@ function hasFlags (item) {
 }
 
 
-function hasCategories (item) {
+function hasHiddenCategories (item) {
   let marks = item.querySelectorAll('.id41');
   marks = Array.prototype.filter.call(marks, (mark) => {
     return mark.title === 'Western';
+  });
+  return marks.length > 0;
+}
+
+
+function hasHighlightFlags (item) {
+  let marks = item.querySelectorAll('.tft');
+  marks = Array.prototype.filter.call(marks, (mark) => {
+    return mark.style.backgroundPosition === '0px -52px';
   });
   return marks.length > 0;
 }
