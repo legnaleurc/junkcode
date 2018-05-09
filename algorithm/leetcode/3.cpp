@@ -1,20 +1,21 @@
 class Solution {
 public:
     int lengthOfLongestSubstring(string s) {
-        int rv = 0;
-        unordered_map<char, string::iterator> table;
-        auto l = begin(s), r = begin(s), e = end(s);
-        for (; r != e; ++r) {
-            rv = max(rv, static_cast<int>(distance(l, r)));
-            auto it = table.find(*r);
-            if (it == end(table)) {
-                table.insert({*r, next(r)});
-            } else {
-                l = it->second;
-                it->second = next(r);
-            }
+        if (s.empty()) {
+            return 0;
         }
-        rv = max(rv, static_cast<int>(distance(l, r)));
+
+        int rv = 0;
+        unordered_map<char, int> table;
+        int start = -1;
+
+        for (int i = 0; i < s.length(); ++i) {
+            if (table.find(s[i]) != table.end()) {
+                start = max(start, table[s[i]]);
+            }
+            rv = max(rv, i - start);
+            table[s[i]] = i;
+        }
         return rv;
     }
 };
