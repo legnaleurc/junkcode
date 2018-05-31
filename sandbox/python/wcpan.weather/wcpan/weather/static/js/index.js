@@ -6,6 +6,14 @@
 
 
     async function main () {
+        selectionCountry.addEventListener('change', async (event) => {
+            await updateCities();
+        });
+        await updateCities();
+    }
+
+
+    async function updateCities () {
         let countryID = selectionCountry.value;
         let cities = await fetch(`/api/v1/country/${countryID}/city`);
         cities = await cities.json();
