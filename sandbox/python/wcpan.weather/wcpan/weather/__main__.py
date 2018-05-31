@@ -4,6 +4,8 @@ import signal
 import sys
 
 from aiohttp import web as aw
+import aiohttp_jinja2 as aj
+import jinja2
 from wcpan.logger import setup as setup_logger, EXCEPTION
 
 
@@ -38,8 +40,8 @@ class Daemon(object):
     async def _main(self):
         app = aw.Application()
 
-        # app.router.add_view(r'/api/v1/torrents', api.TorrentsHandler)
-        # app.router.add_view(r'/api/v1/torrents/{torrent_id:\d+}', api.TorrentsHandler)
+        setup_static_and_view(app)
+        setup_api_path(app)
 
         async with ServerContext(app):
             await self._wait_for_finished()
@@ -75,6 +77,27 @@ class ServerContext(object):
 #                         help='settings file name')
 #     args = parser.parse_args(args[1:])
 #     return args
+
+
+def setup_static_and_view(app):
+    root = op.dirname(__file__)
+    static_path = op.join(root, 'static')
+    template_path = op.join(root, 'templates')
+
+    app.router.add_static('/static/', path=static_path, name='static')
+    app['static_root_url'] = '/static'
+
+    aj.setup(app, loader=jinja2.FileSystemLoader(template_path))
+
+    app.router.add_view(r'/', view.IndexHandler)
+
+
+def setup_api_path(app):
+    app.router.add_view(r'/api/v1/nodes', api.NodesHandler)
+    app.router.add_view(r'/api/v1/nodes/{id:[a-zA-Z0-9\-_]+}', api.NodesHandler)
+    app.router.add_view(r'/api/v1/cache', api.CacheHandler)
+    app.router.add_view(r'/api/v1/cache/{id:[a-zA-Z0-9\-_]+}', api.CacheHandler)
+    app.router.add_view(r'/api/v1/log', api.LogHandler)
 
 
 main = Daemon(sys.argv)

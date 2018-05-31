@@ -1,4 +1,5 @@
 PyYAML
 aiohttp >= 3
+aiohttp-jinja2
 wcpan.logger
 wcpan.worker >= 1.3
