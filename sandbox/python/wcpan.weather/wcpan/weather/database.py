@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+import math
 import sqlite3
 from typing import Any, Dict, List, Text, Union
 
@@ -128,6 +129,24 @@ class Database(object):
             'temp_max':  rv['temp_max'],
             'state':  rv['state'],
         }
+
+    def update_weather(self, city_id, weather_data):
+        with ReadWrite(self._db) as query:
+            # just drop cache, we are going to update almost all fields anyway
+            query.execute('DELETE FROM weather WHERE city=?;', (city_id,))
+
+            now = dt.datetime.now()
+            now = math.floor(now.timestamp())
+            query.execute('''
+                INSERT INTO weather
+                (city, mtime, temp, temp_min, temp_max, state)
+                VALUES
+                (?, ?, ?, ?, ?, ?)
+            ;''', (city_id, now,
+                   weather_data['temp'],
+                   weather_data['temp_min'],
+                   weather_data['temp_max'],
+                   weather_data['state']))
 
     def _open(self) -> sqlite3.Connection:
         db = sqlite3.connect(self._dsn)

@@ -20,7 +20,12 @@ class Weather(object):
         url = self._create_weather_url(id_)
         async with self._session.get(url) as r:
             data = await r.json()
-        return data
+        return {
+            'temp': data['main']['temp'],
+            'temp_min': data['main']['temp_min'],
+            'temp_max': data['main']['temp_max'],
+            'state': data['weather'][0],
+        }
 
     def _create_weather_url(self, id_):
         return 'https://{0}/data/2.5/weather?id={1}&units=metric&appid={2}'.format(API_HOST, id_, self._api_key)
