@@ -8,7 +8,7 @@ import aiohttp_jinja2 as aj
 import jinja2
 from wcpan.logger import setup as setup_logger, EXCEPTION
 
-from . import view, database, api
+from . import view, database, api, weather
 
 
 class Daemon(object):
@@ -46,9 +46,10 @@ class Daemon(object):
         setup_api_path(app)
 
         with database.Database('./db.sqlite') as db:
-            app['db'] = db
-
-            async with ServerContext(app):
+            async with weather.Weather() as w, \
+                       ServerContext(app):
+                app['db'] = db
+                app['weather'] = w
                 await self._wait_for_finished()
 
         return 0

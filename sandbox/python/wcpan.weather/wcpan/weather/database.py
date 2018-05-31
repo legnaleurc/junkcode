@@ -84,9 +84,9 @@ class Database(object):
             'name': _['name'],
         } for _ in rv]
 
-    def get_city_list_from_country_id(self, id):
+    def get_city_list_from_country_id(self, id_):
         with ReadOnly(self._db) as query:
-            query.execute('SELECT id, name FROM city WHERE country=?;', (id,))
+            query.execute('SELECT id, name FROM city WHERE country=?;', (id_,))
             rv = query.fetchall()
         return [{
             'id': _['id'],
