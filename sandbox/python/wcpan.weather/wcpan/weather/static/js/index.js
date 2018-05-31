@@ -9,6 +9,10 @@
         selectionCountry.addEventListener('change', async (event) => {
             await updateCities();
         });
+        selectionCity.addEventListener('change', async (event) => {
+            await updateWeather();
+        });
+
         await updateCities();
     }
 
@@ -27,6 +31,12 @@
             o.textContent = name;
             selectionCity.appendChild(o);
         }
+    }
+
+
+    async function updateWeather () {
+        let cityID = selectionCity.value;
+        let weather = await fetch(`/api/v1/weather/${cityID}`);
     }
 
 

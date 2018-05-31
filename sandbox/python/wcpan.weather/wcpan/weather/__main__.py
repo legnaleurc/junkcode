@@ -104,6 +104,7 @@ def setup_static_and_view(app):
 
 def setup_api_path(app):
     app.router.add_view(r'/api/v1/country/{country_id:\d+}/city', api.CityHandler)
+    app.router.add_view(r'/api/v1/weather/{city_id:\d+}', api.WeatherHandler)
     # app.router.add_view(r'/api/v1/nodes', api.NodesHandler)
     # app.router.add_view(r'/api/v1/nodes/{id:[a-zA-Z0-9\-_]+}', api.NodesHandler)
     # app.router.add_view(r'/api/v1/cache', api.CacheHandler)

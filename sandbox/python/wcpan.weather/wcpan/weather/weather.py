@@ -16,7 +16,7 @@ class Weather(object):
     async def __aexit__(self, exc_type, exc, tb):
         await self._session.__aexit__(exc_type, exc, tb)
 
-    async def get_weather_from_city_id(self, id_):
+    async def get_weather_by_city_id(self, id_):
         url = self._create_forecast_url(id_)
         async with self._session.get(url) as r:
             data = await r.json()
