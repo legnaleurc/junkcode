@@ -1,7 +1,7 @@
 import aiohttp
 
 
-API_HOST = 'samples.openweathermap.org'
+API_HOST = 'api.openweathermap.org'
 
 
 class Weather(object):
@@ -12,6 +12,7 @@ class Weather(object):
 
     async def __aenter__(self):
         await self._session.__aenter__()
+        return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self._session.__aexit__(exc_type, exc, tb)
@@ -24,7 +25,7 @@ class Weather(object):
             'temp': data['main']['temp'],
             'temp_min': data['main']['temp_min'],
             'temp_max': data['main']['temp_max'],
-            'state': data['weather'][0],
+            'state': data['weather'][0]['main'],
         }
 
     def _create_weather_url(self, id_):
