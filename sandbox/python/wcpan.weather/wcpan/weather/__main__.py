@@ -82,7 +82,7 @@ class ServerContext(object):
 def setup_static_and_view(app):
     root = op.dirname(__file__)
     static_path = op.join(root, 'static')
-    template_path = op.join(root, 'templates')
+    template_path = op.join(root, 'template')
 
     app.router.add_static('/static/', path=static_path, name='static')
     app['static_root_url'] = '/static'
@@ -93,11 +93,12 @@ def setup_static_and_view(app):
 
 
 def setup_api_path(app):
-    app.router.add_view(r'/api/v1/nodes', api.NodesHandler)
-    app.router.add_view(r'/api/v1/nodes/{id:[a-zA-Z0-9\-_]+}', api.NodesHandler)
-    app.router.add_view(r'/api/v1/cache', api.CacheHandler)
-    app.router.add_view(r'/api/v1/cache/{id:[a-zA-Z0-9\-_]+}', api.CacheHandler)
-    app.router.add_view(r'/api/v1/log', api.LogHandler)
+    pass
+    # app.router.add_view(r'/api/v1/nodes', api.NodesHandler)
+    # app.router.add_view(r'/api/v1/nodes/{id:[a-zA-Z0-9\-_]+}', api.NodesHandler)
+    # app.router.add_view(r'/api/v1/cache', api.CacheHandler)
+    # app.router.add_view(r'/api/v1/cache/{id:[a-zA-Z0-9\-_]+}', api.CacheHandler)
+    # app.router.add_view(r'/api/v1/log', api.LogHandler)
 
 
 main = Daemon(sys.argv)
