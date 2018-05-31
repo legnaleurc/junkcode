@@ -42,8 +42,11 @@ class Database(object):
         self._db = None
 
     def update_city(self, city_data):
-        # some city does not have name, ignore them
+        # some cities do not have name, ignore them
         if not city_data['name']:
+            return
+        # some data represent continent, ignore them
+        if not city_data['country']:
             return
 
         country_id = self.get_country_id_by_name(city_data['country'])
