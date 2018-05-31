@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 import sqlite3
 from typing import Any, Dict, List, Text, Union
@@ -13,12 +14,22 @@ SQL_CREATE_TABLES = [
     '''
     CREATE TABLE city (
         id INTEGER NOT NULL,
-        name TEXT,
-        country INTEGER,
-        lon REAL,
-        lat REAL,
+        name TEXT NOT NULL,
+        country INTEGER NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY (country) REFERENCES country (id)
+    );
+    ''',
+    '''
+    CREATE TABLE weather (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        city INTEGER NOT NULL,
+        mtime INTEGER NOT NULL,
+        temp REAL NOT NULL,
+        temp_min REAL NOT NULL,
+        temp_max REAL NOT NULL,
+        state TEXT NOT NULL,
+        FOREIGN KEY (city) REFERENCES city (id)
     );
     ''',
     'CREATE INDEX ix_city_country ON city(country);',
@@ -56,11 +67,10 @@ class Database(object):
         with ReadWrite(self._db) as query:
             query.execute('''
                 INSERT INTO city
-                (id, name, country, lon, lat)
+                (id, name, country)
                 VALUES
-                (?, ?, ?, ?, ?)
-            ;''', (city_data['id'], city_data['name'], country_id,
-            city_data['coord']['lon'], city_data['coord']['lat']))
+                (?, ?, ?)
+            ;''', (city_data['id'], city_data['name'], country_id))
 
     def get_country_id_by_name(self, name):
         with ReadOnly(self._db) as query:
@@ -84,7 +94,7 @@ class Database(object):
             'name': _['name'],
         } for _ in rv]
 
-    def get_city_list_from_country_id(self, id_):
+    def get_city_list_by_country_id(self, id_):
         with ReadOnly(self._db) as query:
             query.execute('SELECT id, name FROM city WHERE country=?;', (id_,))
             rv = query.fetchall()
@@ -92,6 +102,32 @@ class Database(object):
             'id': _['id'],
             'name': _['name'],
         } for _ in rv]
+
+    def get_weather_by_city_id(self, id_):
+        with ReadOnly(self._db) as query:
+            query.execute('''
+                SELECT mtime, temp, temp_min, temp_max, state
+                FROM weather
+                WHERE city=?
+            ;''', (id_,))
+            rv = query.fetchone()
+
+        # no cached value
+        if not rv:
+            return None
+
+        # cached one day ago, need new one
+        now = dt.datetime.now()
+        mtime = dt.datetime.fromtimestamp(rv['mtime'])
+        if (now - mtime) > dt.timedelta(days=1):
+            return None
+
+        return {
+            'temp': rv['temp'],
+            'temp_min':  rv['temp_min'],
+            'temp_max':  rv['temp_max'],
+            'state':  rv['state'],
+        }
 
     def _open(self) -> sqlite3.Connection:
         db = sqlite3.connect(self._dsn)

@@ -7,7 +7,7 @@ class CityHandler(aw.View):
         db = self.request.app['db']
         country_id = self.request.match_info.get('country_id')
         country_id = int(country_id)
-        cities = db.get_city_list_from_country_id(country_id)
+        cities = db.get_city_list_by_country_id(country_id)
         return aw.json_response(cities)
 
 
@@ -25,7 +25,7 @@ class WeatherHandler(aw.View):
             return aw.json_response(weather_data)
 
         # if the cache is invalid, fetch new one
-        weather_data = w.get_weather_by_city_id(city_id)
+        weather_data = await w.get_weather_by_city_id(city_id)
         if weather_data:
             db.update_weather(city_id, weather_data)
             return aw.json_response(weather_data)
