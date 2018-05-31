@@ -1,4 +1,5 @@
 import asyncio
+import os
 import os.path as op
 import signal
 import sys
@@ -45,8 +46,11 @@ class Daemon(object):
         setup_static_and_view(app)
         setup_api_path(app)
 
+        # TODO accept config
+        api_key = os.environ['WEATHER_API_KEY']
+
         with database.Database('./db.sqlite') as db:
-            async with weather.Weather() as w, \
+            async with weather.Weather(api_key) as w, \
                        ServerContext(app):
                 app['db'] = db
                 app['weather'] = w
