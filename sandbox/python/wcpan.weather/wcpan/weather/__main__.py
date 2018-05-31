@@ -62,7 +62,7 @@ class ServerContext(object):
 
     async def __aenter__(self):
         await self._runner.setup()
-        site = aw.TCPSite(self._runner, host='127.0.0.1', port=settings['port'])
+        site = aw.TCPSite(self._runner, host='127.0.0.1', port=8000)
         await site.start()
         return self._runner
 
