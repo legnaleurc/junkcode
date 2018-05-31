@@ -3,6 +3,8 @@
 
     const selectionCountry = document.querySelector('#selection-country');
     const selectionCity = document.querySelector('#selection-city');
+    const displayState = document.querySelector('#display-state');
+    const displayTemp = document.querySelector('#display-temp');
 
 
     async function main () {
@@ -37,6 +39,10 @@
     async function updateWeather () {
         let cityID = selectionCity.value;
         let weather = await fetch(`/api/v1/weather/${cityID}`);
+        weather = await weather.json();
+
+        displayState.textContent = weather.state;
+        displayTemp.textContent = weather.temp;
     }
 
 
