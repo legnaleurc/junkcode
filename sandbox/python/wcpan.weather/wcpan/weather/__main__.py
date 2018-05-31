@@ -8,7 +8,7 @@ import aiohttp_jinja2 as aj
 import jinja2
 from wcpan.logger import setup as setup_logger, EXCEPTION
 
-from . import view, database
+from . import view, database, api
 
 
 class Daemon(object):
@@ -98,7 +98,7 @@ def setup_static_and_view(app):
 
 
 def setup_api_path(app):
-    pass
+    app.router.add_view(r'/api/v1/country/{country_id:\d+}/city', api.CityHandler)
     # app.router.add_view(r'/api/v1/nodes', api.NodesHandler)
     # app.router.add_view(r'/api/v1/nodes/{id:[a-zA-Z0-9\-_]+}', api.NodesHandler)
     # app.router.add_view(r'/api/v1/cache', api.CacheHandler)

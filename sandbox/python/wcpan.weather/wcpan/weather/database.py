@@ -81,6 +81,15 @@ class Database(object):
             'name': _['name'],
         } for _ in rv]
 
+    def get_city_list_from_country_id(self, id):
+        with ReadOnly(self._db) as query:
+            query.execute('SELECT id, name FROM city WHERE country=?;', (id,))
+            rv = query.fetchall()
+        return [{
+            'id': _['id'],
+            'name': _['name'],
+        } for _ in rv]
+
     def _open(self) -> sqlite3.Connection:
         db = sqlite3.connect(self._dsn)
         db.row_factory = sqlite3.Row
