@@ -1,18 +1,19 @@
 (function () {
     'use strict';
 
-    const inputSearchCity = document.querySelector('#input-search-city');
+    const selectionCountry = document.querySelector('#selection-country');
+    const selectionCity = document.querySelector('#selection-city');
 
 
-    function main () {
-        inputSearchCity.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                ;
-            }
-        });
+    async function main () {
+        let countryID = selectionCountry.value;
+        let cities = await fetch(`/api/v1/country/${countryID}/city`);
+        cities = await cities.json();
     }
 
 
-    main();
+    main().catch((e) => {
+        console.error(e);
+    });
 
 })();

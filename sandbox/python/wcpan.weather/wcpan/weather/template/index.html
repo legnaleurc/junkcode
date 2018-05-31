@@ -9,12 +9,13 @@
 </head>
 <body>
     <div>
-        <select>
+        <select id="selection-country">
             {% for country in country_list %}
                 <option value="{{ country.id }}">{{ country.name }}</option>
             {% endfor %}
         </select>
-        <input type="text" id="input-search-city" />
+        <select id="selection-city">
+        </select>
     </div>
 
     <script src="/static/js/index.js"></script>
