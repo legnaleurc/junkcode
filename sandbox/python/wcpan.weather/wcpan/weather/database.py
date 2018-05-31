@@ -39,6 +39,7 @@ class Database(object):
 
     def __exit__(self, exc_type, exc, tb) -> bool:
         self._db.close()
+        self._db = None
 
     def _open(self) -> sqlite3.Connection:
         db = sqlite3.connect(self._dsn)
