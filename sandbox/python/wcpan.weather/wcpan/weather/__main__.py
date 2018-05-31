@@ -1,5 +1,5 @@
 import asyncio
-import argparse
+import os.path as op
 import signal
 import sys
 
@@ -7,6 +7,8 @@ from aiohttp import web as aw
 import aiohttp_jinja2 as aj
 import jinja2
 from wcpan.logger import setup as setup_logger, EXCEPTION
+
+from . import view
 
 
 class Daemon(object):
