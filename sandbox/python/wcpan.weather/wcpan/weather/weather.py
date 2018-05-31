@@ -23,4 +23,4 @@ class Weather(object):
         return data
 
     def _create_forecast_url(self, id_):
-        return 'https://{0}/data/2.5/forecast?id={1}&appid={2}'.format(API_HOST, id_, self._api_key)
+        return 'https://{0}/data/2.5/forecast?id={1}&units=metric&appid={2}'.format(API_HOST, id_, self._api_key)
