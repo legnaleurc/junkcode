@@ -43,6 +43,9 @@
 
         displayState.textContent = weather.state;
         displayTemp.textContent = weather.temp;
+
+        let cse = google.search.cse.element.getElement('searchresults-only0');
+        cse.execute(`${weather.state} music`);
     }
 
 
