@@ -8,7 +8,7 @@ import aiohttp_jinja2 as aj
 import jinja2
 from wcpan.logger import setup as setup_logger, EXCEPTION
 
-from . import view
+from . import view, database
 
 
 class Daemon(object):
@@ -45,8 +45,11 @@ class Daemon(object):
         setup_static_and_view(app)
         setup_api_path(app)
 
-        async with ServerContext(app):
-            await self._wait_for_finished()
+        with database.Database('./db.sqlite') as db:
+            app['db'] = db
+
+            async with ServerContext(app):
+                await self._wait_for_finished()
 
         return 0
 

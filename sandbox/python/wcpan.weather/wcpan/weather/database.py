@@ -68,6 +68,15 @@ class Database(object):
             query.execute('INSERT INTO country (name) VALUES (?);', (name,))
             return query.lastrowid
 
+    def get_country_list(self):
+        with ReadOnly(self._db) as query:
+            query.execute('SELECT id, name FROM country;')
+            rv = query.fetchall()
+        return [{
+            'id': _['id'],
+            'name': _['name'],
+        } for _ in rv]
+
     def _open(self) -> sqlite3.Connection:
         db = sqlite3.connect(self._dsn)
         db.row_factory = sqlite3.Row
