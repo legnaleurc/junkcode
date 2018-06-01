@@ -9,35 +9,34 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/index.css" />
 </head>
 <body>
-    <div>
-        <select class="flat-style" id="selection-country">
-            {% for country in country_list %}
-                <option value="{{ country.id }}">{{ country.name }}</option>
-            {% endfor %}
-        </select>
-        <select class="flat-style" id="selection-city">
-        </select>
+
+    <div class="container">
+
+        <div class="form-group">
+            <label for="selection-country">Select Country</label>
+            <select class="form-control" id="selection-country">
+                {% for country in country_list %}
+                    <option value="{{ country.id }}">{{ country.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="selection-city">Select City</label>
+            <select class="form-control" id="selection-city">
+            </select>
+        </div>
+
+        <div class="form-group">
+            <h2 id="display-state"></h2>
+            <h1 id="display-temp"></h1>
+        </div>
+
     </div>
 
-    <div>
-        <h2 id="display-state"></h2>
-        <h1 id="display-temp"></h1>
-    </div>
-
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     <script src="/static/js/index.js"></script>
-
-    <!-- copy from Google CSE -->
-    <script>
-        (function() {
-            var cx = '006869288663536695394:x4ac1heknb4';
-            var gcse = document.createElement('script');
-            gcse.type = 'text/javascript';
-            gcse.async = true;
-            gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(gcse, s);
-        })();
-    </script>
-    <gcse:searchresults-only></gcse:searchresults-only>
 </body>
 </html>
