@@ -30,5 +30,10 @@ class WeatherHandler(aw.View):
             db.update_weather(city_id, weather_data)
             return aw.json_response(weather_data)
 
-        # TODO quota exceed
-        assert False, 'quota exceed'
+        # HACK quota exceed, return a random data
+        return aw.json_response({
+            'temp': 28,
+            'temp_min': 26,
+            'temp_max': 30,
+            'icon': 300,
+        })
