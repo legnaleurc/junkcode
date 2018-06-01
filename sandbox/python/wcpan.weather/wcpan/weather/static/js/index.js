@@ -16,7 +16,6 @@
         });
 
         await updateCities();
-        await updateWeather();
     }
 
 
@@ -34,6 +33,9 @@
             o.textContent = name;
             selectionCity.appendChild(o);
         }
+
+        // need to trigger the update manually
+        await updateWeather();
     }
 
 
