@@ -29,7 +29,7 @@ SQL_CREATE_TABLES = [
         temp REAL NOT NULL,
         temp_min REAL NOT NULL,
         temp_max REAL NOT NULL,
-        state TEXT NOT NULL,
+        icon INTEGER NOT NULL,
         FOREIGN KEY (city) REFERENCES city (id)
     );
     ''',
@@ -107,7 +107,7 @@ class Database(object):
     def get_weather_by_city_id(self, id_):
         with ReadOnly(self._db) as query:
             query.execute('''
-                SELECT mtime, temp, temp_min, temp_max, state
+                SELECT mtime, temp, temp_min, temp_max, icon
                 FROM weather
                 WHERE city=?
             ;''', (id_,))
@@ -127,7 +127,7 @@ class Database(object):
             'temp': rv['temp'],
             'temp_min':  rv['temp_min'],
             'temp_max':  rv['temp_max'],
-            'state':  rv['state'],
+            'icon':  rv['icon'],
         }
 
     def update_weather(self, city_id, weather_data):
@@ -139,14 +139,14 @@ class Database(object):
             now = math.floor(now.timestamp())
             query.execute('''
                 INSERT INTO weather
-                (city, mtime, temp, temp_min, temp_max, state)
+                (city, mtime, temp, temp_min, temp_max, icon)
                 VALUES
                 (?, ?, ?, ?, ?, ?)
             ;''', (city_id, now,
                    weather_data['temp'],
                    weather_data['temp_min'],
                    weather_data['temp_max'],
-                   weather_data['state']))
+                   weather_data['icon']))
 
     def _open(self) -> sqlite3.Connection:
         db = sqlite3.connect(self._dsn)

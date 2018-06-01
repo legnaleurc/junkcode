@@ -25,7 +25,7 @@ class Weather(object):
             'temp': data['main']['temp'],
             'temp_min': data['main']['temp_min'],
             'temp_max': data['main']['temp_max'],
-            'state': data['weather'][0]['main'],
+            'icon': data['weather'][0]['id'],
         }
 
     def _create_weather_url(self, id_):
