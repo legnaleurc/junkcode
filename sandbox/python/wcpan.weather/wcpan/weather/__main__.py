@@ -15,7 +15,6 @@ from . import view, database, api, weather
 class Daemon(object):
 
     def __init__(self, args):
-        # args = parse_args(args)
         setup_logger((
             'aiohttp',
             'wcpan.weather',
