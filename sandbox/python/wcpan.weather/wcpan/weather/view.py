@@ -8,6 +8,6 @@ class IndexHandler(aw.View):
         db = self.request.app['db']
         country_list = db.get_country_list()
         country_list = sorted(country_list, key=lambda _: _['name'])
-        return aj.render_template('index.html', self.request, {
+        return aj.render_template('index.j2', self.request, {
             'country_list': country_list,
         })
