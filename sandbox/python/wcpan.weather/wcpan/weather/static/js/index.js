@@ -16,6 +16,7 @@
         });
 
         await updateCities();
+        await updateWeather();
     }
 
 
@@ -41,8 +42,20 @@
         let weather = await fetch(`/api/v1/weather/${cityID}`);
         weather = await weather.json();
 
-        displayIcon.textContent = weather.icon;
+        displayIcon.className = getIconClassName(weather.icon);
         displayTemp.textContent = weather.temp;
+    }
+
+
+    function getIconClassName (iconID) {
+        let icon = window.__WeatherIcon__[iconID].icon;
+
+        // If we are not in the ranges mentioned above, add a day/night prefix.
+        if (!(iconID > 699 && iconID < 800) && !(iconID > 899 && iconID < 1000)) {
+            icon = 'day-' + icon;
+        }
+
+        return `wi wi-${icon}`;
     }
 
 
