@@ -80,15 +80,6 @@ class ServerContext(object):
         await self._runner.cleanup()
 
 
-# def parse_args(args):
-#     parser = argparse.ArgumentParser(prog='duld',
-#         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-#     parser.add_argument('-s', '--settings', default='duld.yaml', type=str,
-#                         help='settings file name')
-#     args = parser.parse_args(args[1:])
-#     return args
-
-
 def setup_static_and_view(app):
     root = op.dirname(__file__)
     static_path = op.join(root, 'static')
