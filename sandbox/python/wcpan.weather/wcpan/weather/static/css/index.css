@@ -15,3 +15,9 @@
 .temp-container {
     font-size: 4em;
 }
+
+
+.temp-unit {
+    /* reletive to .temp-container */
+    font-size: 0.5em;
+}
