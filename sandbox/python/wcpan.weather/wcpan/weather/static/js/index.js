@@ -3,7 +3,7 @@
 
     const selectionCountry = document.querySelector('#selection-country');
     const selectionCity = document.querySelector('#selection-city');
-    const displayState = document.querySelector('#display-state');
+    const displayIcon = document.querySelector('#display-icon');
     const displayTemp = document.querySelector('#display-temp');
 
 
@@ -41,11 +41,8 @@
         let weather = await fetch(`/api/v1/weather/${cityID}`);
         weather = await weather.json();
 
-        displayState.textContent = weather.state;
+        displayIcon.textContent = weather.icon;
         displayTemp.textContent = weather.temp;
-
-        let cse = google.search.cse.element.getElement('searchresults-only0');
-        cse.execute(`${weather.state} music`);
     }
 
 
