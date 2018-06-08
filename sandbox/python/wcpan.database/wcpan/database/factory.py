@@ -15,6 +15,6 @@ async def sqlite_connector(dsn):
     return AsyncSqliteConnection(dsn.path[1:])
 
 
-connect = ft.partial({
+connect = ft.partial(inner_connect, {
     'sqlite': sqlite_connector,
 })
