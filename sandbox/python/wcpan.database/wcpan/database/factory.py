@@ -12,7 +12,8 @@ async def inner_connect(drivers, dsn):
 
 
 async def sqlite_connector(dsn):
-    return AsyncSqliteConnection(dsn.path[1:])
+    from .sqlite import AsyncConnection
+    return AsyncConnection(dsn.path[1:])
 
 
 connect = ft.partial(inner_connect, {
