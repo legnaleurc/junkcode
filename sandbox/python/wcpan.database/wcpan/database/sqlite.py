@@ -20,7 +20,7 @@ class AsyncConnection(object):
     @off_main_thread
     def cursor(self):
         db = self._get_thread_local_database()
-        return AsyncCursor(db.cursor())
+        return AsyncCursor(self._pool, db.cursor())
 
     @off_main_thread
     def commit(self):
@@ -62,7 +62,10 @@ class AsyncCursor(object):
 
     @off_main_thread
     def execute(self, operation, parameters=None):
-        return self._query.execute(operation, parameters)
+        if parameters:
+            return self._query.execute(operation, parameters)
+        else:
+            return self._query.execute(operation)
 
     @off_main_thread
     def executemany(self, operation, seq_of_parameters):
