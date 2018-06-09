@@ -141,10 +141,9 @@ class BackgroundEventLoop(object):
         try:
             rv = fn()
             cb = ft.partial(future.set_result, rv)
-            main_loop.call_soon_threadsafe(cb)
         except Exception as e:
             cb = ft.partial(future.set_exception, e)
-            main_loop.call_soon_threadsafe(cb)
+        main_loop.call_soon_threadsafe(cb)
 
 
 def is_main_thread():
