@@ -2,16 +2,16 @@ import functools as ft
 import urllib.parse as ulp
 
 
-async def inner_connect(drivers, dsn):
+def inner_connect(drivers, dsn):
     rv = ulp.urlparse(dsn)
     connector = drivers.get(rv.scheme, None)
     if not connector:
         # TODO raise error
         return None
-    return await connector(rv)
+    return connector(rv)
 
 
-async def sqlite_connector(dsn):
+def sqlite_connector(dsn):
     from .sqlite import AsyncConnection
     return AsyncConnection(dsn.path[1:])
 

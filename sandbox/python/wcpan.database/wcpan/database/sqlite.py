@@ -1,50 +1,61 @@
-# import asyncio
+import asyncio
 import concurrent.futures as cf
+import functools as ft
 import sqlite3
 import threading
 
-from wcpan.worker import off_main_thread_method
 
-
-off_main_thread = off_main_thread_method('_pool')
+def background(method):
+    @ft.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        bound_fn = ft.partial(method, self, *args, **kwargs)
+        return self._bg.call_sync(bound_fn)
+    return wrapper
 
 
 class AsyncConnection(object):
 
     def __init__(self, dsn):
         self._dsn = dsn
-        self._tls = threading.local()
-        self._pool = cf.ThreadPoolExecutor(max_workers=1,
-                                           thread_name_prefix='AsyncConnection')
+        self._bg = BackgroundEventLoop()
+        self._db = None
 
-    @off_main_thread
+    async def __aenter__(self):
+        await self._bg.__aenter__()
+        return self
+
+    async def __aexit__(self, exc_type, exc, exc_tb):
+        await self.close()
+        await self._bg.__aexit__(exc_type, exc, exc_tb)
+
+    @background
     def cursor(self):
-        db = self._get_thread_local_database()
+        db = self._get_db()
         return AsyncCursor(self._pool, db.cursor())
 
-    @off_main_thread
+    @background
     def commit(self):
-        db = self._get_thread_local_database()
+        db = self._get_db()
         db.commit()
 
-    @off_main_thread
+    @background
     def rollback(self):
-        db = self._get_thread_local_database()
+        db = self._get_db()
         db.rollback()
 
-    @off_main_thread
+    @background
     def close(self):
-        db = self._get_thread_local_database()
+        db = self._get_db()
         db.close()
 
-    def _get_thread_local_database(self):
-        db = getattr(self._tls, 'db', None)
-        if db is None:
-            db = self._open()
-            setattr(self._tls, 'db', db)
-        return db
+    def _get_db(self):
+        assert not is_main_thread()
+        if not self._db:
+            self._db = self._open()
+        return self._db
 
     def _open(self):
+        assert not is_main_thread()
         db = sqlite3.connect(self._dsn, detect_types=sqlite3.PARSE_DECLTYPES)
         db.row_factory = sqlite3.Row
         return db
@@ -52,21 +63,62 @@ class AsyncConnection(object):
 
 class AsyncCursor(object):
 
-    def __init__(self, pool, cursor):
-        self._pool = pool
+    def __init__(self, bg, cursor):
+        self._bg = bg
         self._query = cursor
 
-    @off_main_thread
+    @background
     def close(self):
         self._query.close()
 
-    @off_main_thread
+    @background
     def execute(self, operation, parameters=None):
         if parameters:
             return self._query.execute(operation, parameters)
         else:
             return self._query.execute(operation)
 
-    @off_main_thread
+    @background
     def executemany(self, operation, seq_of_parameters):
         return self._query.executemany(operation, seq_of_parameters)
+
+
+class BackgroundEventLoop(object):
+
+    def __init__(self):
+        assert is_main_thread()
+        self._thread = threading.Thread(target=self._run)
+        self._loop = None
+
+    async def __aenter__(self):
+        self._thread.start()
+        return self
+
+    async def __aexit__(self, exc_type, exc, exc_tb):
+        self._loop.stop()
+        self._thread.join()
+
+    def _run(self):
+        assert not is_main_thread()
+        self._loop = asyncio.new_event_loop()
+        self._loop.run_forever()
+
+    def call_sync(self, fn):
+        assert is_main_thread()
+        main_loop = asyncio.get_event_loop()
+        future = main_loop.create_future()
+        cb = ft.partial(self._proxy, fn, future)
+        self._loop.call_soon_threadsafe(cb)
+        return future
+
+    def _proxy(self, fn, future):
+        assert not is_main_thread()
+        try:
+            rv = fn()
+            future.set_result(rv)
+        except Exception as e:
+            future.set_exception(e)
+
+
+def is_main_thread():
+    return threading.current_thread() == threading.main_thread()
