@@ -88,36 +88,39 @@ class BackgroundEventLoop(object):
     def __init__(self):
         assert is_main_thread()
         self._thread = threading.Thread(target=self._run)
-        self._loop = None
+        self._loop = asyncio.new_event_loop()
 
     async def __aenter__(self):
+        assert is_main_thread()
         self._thread.start()
         return self
 
     async def __aexit__(self, exc_type, exc, exc_tb):
-        self._loop.stop()
+        assert is_main_thread()
+        self._loop.call_soon_threadsafe(self._loop.stop)
         self._thread.join()
 
     def _run(self):
         assert not is_main_thread()
-        self._loop = asyncio.new_event_loop()
         self._loop.run_forever()
 
     def call_sync(self, fn):
         assert is_main_thread()
         main_loop = asyncio.get_event_loop()
         future = main_loop.create_future()
-        cb = ft.partial(self._proxy, fn, future)
+        cb = ft.partial(self._proxy, fn, future, main_loop)
         self._loop.call_soon_threadsafe(cb)
         return future
 
-    def _proxy(self, fn, future):
+    def _proxy(self, fn, future, main_loop):
         assert not is_main_thread()
         try:
             rv = fn()
-            future.set_result(rv)
+            cb = ft.partial(future.set_result, rv)
+            main_loop.call_soon_threadsafe(cb)
         except Exception as e:
-            future.set_exception(e)
+            cb = ft.partial(future.set_exception, e)
+            main_loop.call_soon_threadsafe(cb)
 
 
 def is_main_thread():
