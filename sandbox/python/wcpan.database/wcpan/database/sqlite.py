@@ -31,7 +31,7 @@ class AsyncConnection(object):
     @background
     def cursor(self):
         db = self._get_db()
-        return AsyncCursor(self._pool, db.cursor())
+        return AsyncCursor(self._bg, db.cursor())
 
     @background
     def commit(self):

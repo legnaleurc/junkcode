@@ -12,7 +12,7 @@ class TestSQLite(ut.TestCase):
     async def setUp(self):
         async with AsyncExitStack() as stack:
             self._db = await stack.enter_async_context(wd.connect('sqlite:///:memory:'))
-            self._stack = stack
+            self._stack = stack.pop_all()
 
         async with u.ReadWrite(self._db) as query:
             for sql in u.SQL_CREATE_TABLE:
