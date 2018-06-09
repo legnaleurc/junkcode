@@ -93,6 +93,18 @@ class AsyncCursor(object):
         else:
             return self._query.fetchmany(size)
 
+    @background
+    def fetchall(self):
+        return self._query.fetchall()
+
+    @property
+    def arraysize(self):
+        return self._query.arraysize
+
+    @arraysize.setter
+    def arraysize(self, v):
+        self._query.arraysize = v
+
 
 class BackgroundEventLoop(object):
 
