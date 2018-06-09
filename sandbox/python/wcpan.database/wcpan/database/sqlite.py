@@ -73,14 +73,25 @@ class AsyncCursor(object):
 
     @background
     def execute(self, operation, parameters=None):
-        if parameters:
-            return self._query.execute(operation, parameters)
-        else:
+        if parameters is None:
             return self._query.execute(operation)
+        else:
+            return self._query.execute(operation, parameters)
 
     @background
     def executemany(self, operation, seq_of_parameters):
         return self._query.executemany(operation, seq_of_parameters)
+
+    @background
+    def fetchone(self):
+        return self._query.fetchone()
+
+    @background
+    def fetchmany(self, size=None):
+        if size is None:
+            return self._query.fetchmany()
+        else:
+            return self._query.fetchmany(size)
 
 
 class BackgroundEventLoop(object):
@@ -103,6 +114,7 @@ class BackgroundEventLoop(object):
     def _run(self):
         assert not is_main_thread()
         self._loop.run_forever()
+        self._loop.close()
 
     def call_sync(self, fn):
         assert is_main_thread()
