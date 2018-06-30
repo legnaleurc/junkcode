@@ -12,6 +12,7 @@
 
 document.addEventListener('DOMContentLoaded', (event) => {
   removeBanner();
+  markGarbage();
   searchCache();
 });
 
@@ -20,6 +21,45 @@ function removeBanner () {
   let el = document.querySelector('.servers-cost-money1');
   el.previousElementSibling.remove();
   el.remove();
+}
+
+
+async function markGarbage () {
+  const filters = await getFilters();
+
+  let fileIcons = document.querySelectorAll('.torrent-file-list i.fa');
+  for (let fileIcon of fileIcons) {
+    let label = fileIcon.nextSibling.textContent;
+    if (!shouldHide(label, filters)) {
+      continue;
+    }
+    let isFile = fileIcon.classList.contains('fa-file');
+    let li = null;
+    if (isFile) {
+      li = fileIcon.parentElement;
+    } else {
+      li = fileIcon.parentElement.parentElement;
+    }
+    li.style.opacity = 0.5;
+  }
+}
+
+
+async function getFilters () {
+  let rv = await get('http://dfd.loc.al/api/v1/filters', {});
+  rv = JSON.parse(rv);
+  rv = Object.keys(rv).map((key) => {
+    return new RegExp(rv[key], 'i');
+  });
+  return rv;
+}
+
+
+
+function shouldHide (name, filters) {
+  return filters.some((re) => {
+    return name.trim().match(re);
+  });
 }
 
 
@@ -176,6 +216,10 @@ function get (url, args) {
   Object.keys(args).forEach((k) => {
     query.set(k, args[k]);
   });
+  query = query.toString();
+  if (query) {
+    query = '?' + query;
+  }
   return new Promise((resolve, reject) => {
     GM.xmlHttpRequest({
       header: {
@@ -188,7 +232,7 @@ function get (url, args) {
       onerror: (error) => {
         reject(error);
       },
-      url: url + '?' + query.toString(),
+      url: url + query,
     });
   });
 }
