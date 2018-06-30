@@ -33,13 +33,7 @@ async function markGarbage () {
     if (!shouldHide(label, filters)) {
       continue;
     }
-    let isFile = fileIcon.classList.contains('fa-file');
-    let li = null;
-    if (isFile) {
-      li = fileIcon.parentElement;
-    } else {
-      li = fileIcon.parentElement.parentElement;
-    }
+    let li = getIconParent(fileIcon);
     li.style.opacity = 0.5;
   }
 }
@@ -55,11 +49,20 @@ async function getFilters () {
 }
 
 
-
 function shouldHide (name, filters) {
   return filters.some((re) => {
     return name.trim().match(re);
   });
+}
+
+
+function getIconParent (icon) {
+  let isFile = icon.classList.contains('fa-file');
+  if (isFile) {
+    return icon.parentElement;
+  } else {
+    return icon.parentElement.parentElement;
+  }
 }
 
 
