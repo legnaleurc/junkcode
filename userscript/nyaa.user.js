@@ -10,7 +10,7 @@
 'use strict';
 
 
-const URL = {
+const URL_ = {
   filters: 'http://dfd.loc.al/api/v1/filters',
   nodes: 'http://ddld.loc.al/api/v1/nodes',
 };
@@ -46,7 +46,7 @@ async function markGarbage () {
 
 
 async function getFilters () {
-  let rv = await get(URL.filters, {});
+  let rv = await get(URL_.filters, {});
   rv = JSON.parse(rv);
   rv = Object.keys(rv).map((key) => {
     return new RegExp(rv[key], 'i');
@@ -91,7 +91,7 @@ async function searchCache () {
   addHint(t);
 
   try {
-    let raw = await get(URL.nodes, {
+    let raw = await get(URL_.nodes, {
       pattern: t,
     });
     let data = JSON.parse(raw);

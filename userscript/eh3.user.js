@@ -10,7 +10,7 @@
 'use strict';
 
 
-const URL = {
+const URL_ = {
   nodes: 'http://ddld.loc.al/api/v1/nodes',
 };
 
@@ -49,7 +49,7 @@ async function searchCache () {
   addTextToSearchHint(title);
 
   try {
-    let data = await get(URL.nodes, {
+    let data = await get(URL_.nodes, {
       pattern: title,
     });
     data = JSON.parse(data);
