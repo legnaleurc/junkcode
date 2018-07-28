@@ -10,6 +10,12 @@
 'use strict';
 
 
+const URL = {
+  filters: 'http://dfd.loc.al/api/v1/filters',
+  nodes: 'http://ddld.loc.al/api/v1/nodes',
+};
+
+
 document.addEventListener('DOMContentLoaded', (event) => {
   removeBanner();
   markGarbage();
@@ -40,7 +46,7 @@ async function markGarbage () {
 
 
 async function getFilters () {
-  let rv = await get('http://dfd.loc.al/api/v1/filters', {});
+  let rv = await get(URL.filters, {});
   rv = JSON.parse(rv);
   rv = Object.keys(rv).map((key) => {
     return new RegExp(rv[key], 'i');
@@ -85,7 +91,7 @@ async function searchCache () {
   addHint(t);
 
   try {
-    let raw = await get('http://ddld.loc.al/api/v1/nodes', {
+    let raw = await get(URL.nodes, {
       pattern: t,
     });
     let data = JSON.parse(raw);
