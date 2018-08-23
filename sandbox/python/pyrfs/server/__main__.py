@@ -21,8 +21,8 @@ class Daemon(object):
         self._loggers = setup_logger((
             'aiohttp',
             'wcpan.drive.google',
-            'pym',
-        ), '/tmp/pym.log')
+            'server',
+        ), '/tmp/server.log')
 
     def __call__(self):
         self._loop.create_task(self._guard())
@@ -36,7 +36,7 @@ class Daemon(object):
         try:
             return await self._main()
         except Exception as e:
-            EXCEPTION('pym', e)
+            EXCEPTION('server', e)
         finally:
             self._loop.stop()
         return 1
@@ -46,10 +46,10 @@ class Daemon(object):
 
         setup_api_path(app)
 
-        async with wdg.Drive() as drive, \
-                   ServerContext(app, self._kwargs.listen):
+        async with wdg.Drive() as drive:
             app['drive'] = drive
-            await self._until_finished()
+            async with ServerContext(app, self._kwargs.listen):
+                await self._until_finished()
 
         return 0
 
@@ -78,7 +78,7 @@ class ServerContext(object):
 
 
 def parse_args(args):
-    parser = argparse.ArgumentParser('ddld')
+    parser = argparse.ArgumentParser('server')
 
     parser.add_argument('-l', '--listen', required=True, type=int)
 

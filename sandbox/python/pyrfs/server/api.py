@@ -11,7 +11,7 @@ async def list_(request):
     drive = request.app['drive']
     node = await drive.get_node_by_path(path)
     children = await drive.get_children(node)
-    children = [_._data for _ in children]
+    children = [dict_from_node(_) for _ in children]
     return json_response(children)
 
 
@@ -24,4 +24,6 @@ def dict_from_node(node):
     return {
         'name': node.name,
         'is_folder': node.is_folder,
+        'mime_type': node.mime_type,
+        'size': node.size,
     }
