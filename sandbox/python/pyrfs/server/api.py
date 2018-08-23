@@ -24,6 +24,8 @@ def dict_from_node(node):
     return {
         'name': node.name,
         'is_folder': node.is_folder,
+        'ctime': node.created.timestamp,
+        'mtime': node.modified.timestamp,
         'mime_type': node.mime_type,
         'size': node.size,
     }
