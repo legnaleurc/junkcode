@@ -81,9 +81,9 @@ class Node:
 class FileInfoGatherer(QtCore.QObject):
 
     Category = QtNetwork.QNetworkRequest.User
-    Path = QtNetwork.QNetworkRequest.User + 1
+    Path = QtNetwork.QNetworkRequest.Attribute(QtNetwork.QNetworkRequest.User + 1)
 
-    updates = QtCore.Signal()
+    updates = QtCore.Signal(str, QtCore.QJsonDocument)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -105,9 +105,9 @@ class FileInfoGatherer(QtCore.QObject):
     def _onFinished(self):
         reply = self.sender()
 
-        action = reply.request().getAttribute(self.Category)
+        action = reply.request().attribute(self.Category)
         if action == 'list':
-            path = reply.request().getAttribute(self.Path)
+            path = reply.request().attribute(self.Path)
             json = reply.readAll()
             json = QtCore.QJsonDocument.fromJson(json)
             self.updates.emit(path, json)
