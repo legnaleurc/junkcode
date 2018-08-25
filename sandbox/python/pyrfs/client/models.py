@@ -12,6 +12,8 @@ class DriveModel(QtCore.QAbstractItemModel):
         self._setRootPath = False
         self._fileInfoGatherer = FileInfoGatherer(self)
 
+        self._fileInfoGatherer.updates.connect(self._onFileSystemChanged)
+
     def setRootPath(self):
         self._setRootPath = True
         newRootIndex = QtCore.QModelIndex()
@@ -30,6 +32,21 @@ class DriveModel(QtCore.QAbstractItemModel):
         path.insert(0, '/')
         fullPath = pl.Path(path)
         return str(fullPath)
+
+    def index_by_path(self, path, column=0):
+        node = self._node_by_path(path, False)
+        return self._index_by_node(node, column)
+
+    def _index_by_node(self, node, column):
+        parentNode = node.parent if node else None
+        if node is self._root or not parentNode:
+            return QModelIndex()
+
+        if not node.isVisible:
+            return QModelIndex()
+
+        visualRow = self._translateVisibleLocation(parentNode, parentNode.visibleLocation(node.fileName))
+        return self.createIndex(visualRow, column, node)
 
     # override
     def fetchMore(self, parent):
@@ -69,13 +86,63 @@ class DriveModel(QtCore.QAbstractItemModel):
         assert indexNode
         return indexNode
 
+    def _node_by_path(self, path, fetch):
+        if not path:
+            return self._root
+
+        parent = self._root
+        path = pl.Path(path)
+        for part in path.parts[1:]:
+            alreadyExisted = part in parent.children
+
+            if alreadyExisted:
+                node = parent.children[part]
+            else:
+                # TODO check if the path exists
+                node = self._addNode(parent, part)
+
+            if not node.isVisible:
+                self._addVisibleFiles(parent, [part])
+
+            parent = node
+
+        return parent
+
+    def _addNode(self, parentNode, fileName):
+        node = Node(fileName, parentNode)
+        parentNode.children[fileName] = node
+        return node
+
+    def _addVisibleFiles(self, parentNode, newFiles):
+        parent = self.index(parentNode)
+        self.beginInsertRows(parent, len(parentNode.visibleChildren),
+                             len(parentNode.visibleChildren) + len(newFiles) - 1)
+
+        if parentNode.dirtyChildrenIndex == -1:
+            parentNode.dirtyChildrenIndex = len(parentNode.visibleChildren)
+
+        for newFile in newFiles:
+            parentNode.visibleChildren.append(newFile)
+            parentNode.children[newFile].isVisible = True
+
+        self.endInsertRows()
+
+    @QtCore.Slot(str, QtCore.QJsonDocument)
+    def _onFileSystemChanged(self, path, files):
+        parentNode = self._node_by_path(path, False)
+        parentIndex = self.index(parentNode)
+
 
 class Node:
 
-    def __init__(self, fileName):
+    def __init__(self, fileName, parentNode=None):
         self.fileName = fileName
+        self.parent = parentNode
         self.visibleChildren = []
+        self.children = {}
         self.populatedChildren = False
+        self.dirtyChildrenIndex = -1
+        self.isVisible = False
 
 
 class FileInfoGatherer(QtCore.QObject):
