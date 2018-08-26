@@ -85,7 +85,7 @@ inline uint qHash(const DriveModelNodePathKey &key) { return qHash(key.toCaseFol
 typedef QString DriveModelNodePathKey;
 #endif
 
-class DriveModelPrivate
+class DriveModelPrivate : public QObjectData
 {
     Q_DECLARE_PUBLIC(DriveModel)
 
