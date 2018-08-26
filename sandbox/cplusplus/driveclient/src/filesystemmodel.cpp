@@ -37,17 +37,16 @@
 **
 ****************************************************************************/
 
-#include "qfilesystemmodel_p.h"
-#include "qfilesystemmodel.h"
-#include <qlocale.h>
-#include <qmimedata.h>
-#include <qurl.h>
+#include "filesystemmodel_p.h"
+#include "filesystemmodel.h"
+#include <QtCore/QLocale>
+#include <QtCore/QMimeData>
+#include <QtCore/QUrl>
 #include <qdebug.h>
 #if QT_CONFIG(messagebox)
 #include <qmessagebox.h>
 #endif
-#include <qapplication.h>
-#include <QtCore/qcollator.h>
+#include <QtWidgets/QApplication>
 
 #include <algorithm>
 

@@ -37,8 +37,8 @@
 **
 ****************************************************************************/
 
-#ifndef QFILESYSTEMMODEL_P_H
-#define QFILESYSTEMMODEL_P_H
+#ifndef DRIVEMODEL_P_H
+#define DRIVEMODEL_P_H
 
 //
 //  W A R N I N G
@@ -51,20 +51,16 @@
 // We mean it.
 //
 
-#include <QtWidgets/private/qtwidgetsglobal_p.h>
-#include "qfilesystemmodel.h"
+#include "filesystemmodel.h"
 
-#include <private/qabstractitemmodel_p.h>
-#include <qabstractitemmodel.h>
-#include "qfileinfogatherer_p.h"
-#include <qpair.h>
-#include <qdir.h>
-#include <qicon.h>
-#include <qfileinfo.h>
-#include <qtimer.h>
-#include <qhash.h>
-
-QT_REQUIRE_CONFIG(filesystemmodel);
+#include <QtCore/QAbstractItemModel>
+#include "fileinfogatherer_p.h"
+#include <QtCore/QPair>
+#include <QtCore/QDir>
+#include <QtCore/QIcon>
+#include <QtCore/QFileinfo>
+#include <QtCore/QTimer>
+#include <QtCore/QHash>
 
 QT_BEGIN_NAMESPACE
 
@@ -89,7 +85,7 @@ inline uint qHash(const DriveModelNodePathKey &key) { return qHash(key.toCaseFol
 typedef QString DriveModelNodePathKey;
 #endif
 
-class Q_AUTOTEST_EXPORT DriveModelPrivate : public QAbstractItemModelPrivate
+class DriveModelPrivate
 {
     Q_DECLARE_PUBLIC(DriveModel)
 

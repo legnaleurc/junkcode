@@ -37,17 +37,14 @@
 **
 ****************************************************************************/
 
-#ifndef QFILESYSTEMMODEL_H
-#define QFILESYSTEMMODEL_H
+#ifndef DRIVEMODEL_H
+#define DRIVEMODEL_H
 
-#include <QtWidgets/qtwidgetsglobal.h>
-#include <QtCore/qabstractitemmodel.h>
-#include <QtCore/qpair.h>
-#include <QtCore/qdir.h>
-#include <QtGui/qicon.h>
-#include <QtCore/qdiriterator.h>
-
-QT_REQUIRE_CONFIG(filesystemmodel);
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QPair>
+#include <QtCore/QDir>
+#include <QtGui/QIcon>
+#include <QtCore/QDirIterator>
 
 QT_BEGIN_NAMESPACE
 
@@ -55,7 +52,7 @@ class ExtendedInformation;
 class DriveModelPrivate;
 class QFileIconProvider;
 
-class Q_WIDGETS_EXPORT DriveModel : public QAbstractItemModel
+class DriveModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
@@ -167,4 +164,4 @@ inline QIcon DriveModel::fileIcon(const QModelIndex &aindex) const
 
 QT_END_NAMESPACE
 
-#endif // QFILESYSTEMMODEL_H
+#endif // DRIVEMODEL_H
