@@ -51,7 +51,7 @@
 // We mean it.
 //
 
-#include "filesystemmodel.h"
+#include "drivemodel.h"
 
 #include <QtCore/QAbstractItemModel>
 #include "fileinfogatherer_p.h"
