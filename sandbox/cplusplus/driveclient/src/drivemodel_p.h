@@ -276,6 +276,10 @@ public:
             delayedSortTimer.start(0);
     }
 
+    inline bool indexValid(const QModelIndex &index) const {
+         return (index.row() >= 0) && (index.column() >= 0) && (index.model() == q_func());
+    }
+
     QIcon icon(const QModelIndex &index) const;
     QString name(const QModelIndex &index) const;
     QString displayName(const QModelIndex &index) const;

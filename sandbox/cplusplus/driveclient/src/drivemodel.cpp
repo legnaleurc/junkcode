@@ -1968,10 +1968,10 @@ void DriveModelPrivate::init()
 #endif // !QT_NO_FILESYSTEMWATCHER
     q->connect(&delayedSortTimer, SIGNAL(timeout()), q, SLOT(_q_performDelayedSort()), Qt::QueuedConnection);
 
-    roleNames.insertMulti(DriveModel::FileIconRole, QByteArrayLiteral("fileIcon")); // == Qt::decoration
-    roleNames.insert(DriveModel::FilePathRole, QByteArrayLiteral("filePath"));
-    roleNames.insert(DriveModel::FileNameRole, QByteArrayLiteral("fileName"));
-    roleNames.insert(DriveModel::FilePermissions, QByteArrayLiteral("filePermissions"));
+    // roleNames.insertMulti(DriveModel::FileIconRole, QByteArrayLiteral("fileIcon")); // == Qt::decoration
+    // roleNames.insert(DriveModel::FilePathRole, QByteArrayLiteral("filePath"));
+    // roleNames.insert(DriveModel::FileNameRole, QByteArrayLiteral("fileName"));
+    // roleNames.insert(DriveModel::FilePermissions, QByteArrayLiteral("filePermissions"));
 }
 
 /*!
