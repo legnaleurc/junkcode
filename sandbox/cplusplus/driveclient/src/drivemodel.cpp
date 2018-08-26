@@ -40,6 +40,7 @@
 #include "drivemodel_p.h"
 #include "drivemodel.h"
 #include <QtCore/QLocale>
+#include <QtCore/QCollator>
 #include <QtCore/QMimeData>
 #include <QtCore/QUrl>
 #include <QtCore/QtDebug>
@@ -2047,5 +2048,3 @@ bool DriveModelPrivate::passNameFilters(const QFileSystemNode *node) const
 }
 
 QT_END_NAMESPACE
-
-#include "moc_qfilesystemmodel.cpp"
