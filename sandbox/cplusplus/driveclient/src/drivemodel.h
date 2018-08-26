@@ -59,7 +59,7 @@ class DriveModel : public QAbstractItemModel
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(bool nameFilterDisables READ nameFilterDisables WRITE setNameFilterDisables)
 
-Q_SIGNALS:
+signals:
     void rootPathChanged(const QString &newPath);
     void fileRenamed(const QString &path, const QString &oldName, const QString &newName);
     void directoryLoaded(const QString &path);

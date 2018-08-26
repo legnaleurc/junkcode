@@ -105,11 +105,6 @@ public:
 
     bool isSymLink(bool ignoreNtfsSymLinks = false) const
     {
-        if (ignoreNtfsSymLinks) {
-#ifdef Q_OS_WIN
-            return !mFileInfo.suffix().compare(QLatin1String("lnk"), Qt::CaseInsensitive);
-#endif
-        }
         return mFileInfo.isSymLink();
     }
 
@@ -159,13 +154,6 @@ public:
     explicit QFileInfoGatherer(QObject *parent = 0);
     ~QFileInfoGatherer();
 
-#if QT_CONFIG(filesystemwatcher) && defined(Q_OS_WIN)
-    QStringList watchedFiles() const            { return watcher->files(); }
-    QStringList watchedDirectories() const      { return watcher->directories(); }
-    void watchPaths(const QStringList &paths)   { watcher->addPaths(paths); }
-    void unwatchPaths(const QStringList &paths) { watcher->removePaths(paths); }
-#endif // filesystemwatcher && Q_OS_WIN
-
     // only callable from this->thread():
     void clear();
     void removePath(const QString &path);
@@ -201,9 +189,6 @@ private:
 
 #ifndef QT_NO_FILESYSTEMWATCHER
     QFileSystemWatcher *watcher;
-#endif
-#ifdef Q_OS_WIN
-    bool m_resolveSymlinks; // not accessed by run()
 #endif
     QFileIconProvider *m_iconProvider; // not accessed by run()
     QFileIconProvider defaultProvider;

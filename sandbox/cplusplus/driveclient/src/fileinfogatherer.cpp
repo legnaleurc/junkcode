@@ -40,38 +40,12 @@
 #include "fileinfogatherer_p.h"
 #include <QtCore/QtDebug>
 #include <QtCore/QDirIterator>
-#ifndef Q_OS_WIN
-#  include <unistd.h>
-#  include <sys/types.h>
-#endif
-#if defined(Q_OS_VXWORKS)
-#  include "qplatformdefs.h"
-#endif
 
 QT_BEGIN_NAMESPACE
-
-#ifdef QT_BUILD_INTERNAL
-static QBasicAtomicInt fetchedRoot = Q_BASIC_ATOMIC_INITIALIZER(false);
-Q_AUTOTEST_EXPORT void qt_test_resetFetchedRoot()
-{
-    fetchedRoot.store(false);
-}
-
-Q_AUTOTEST_EXPORT bool qt_test_isFetchedRoot()
-{
-    return fetchedRoot.load();
-}
-#endif
 
 static QString translateDriveName(const QFileInfo &drive)
 {
     QString driveName = drive.absoluteFilePath();
-#ifdef Q_OS_WIN
-    if (driveName.startsWith(QLatin1Char('/'))) // UNC host
-        return drive.fileName();
-    if (driveName.endsWith(QLatin1Char('/')))
-        driveName.chop(1);
-#endif // Q_OS_WIN
     return driveName;
 }
 
@@ -83,25 +57,12 @@ QFileInfoGatherer::QFileInfoGatherer(QObject *parent)
 #ifndef QT_NO_FILESYSTEMWATCHER
       watcher(0),
 #endif
-#ifdef Q_OS_WIN
-      m_resolveSymlinks(true),
-#endif
       m_iconProvider(&defaultProvider)
 {
 #ifndef QT_NO_FILESYSTEMWATCHER
     watcher = new QFileSystemWatcher(this);
     connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(list(QString)));
     connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateFile(QString)));
-
-#  if defined(Q_OS_WIN) && !defined(Q_OS_WINRT)
-    const QVariant listener = watcher->property("_q_driveListener");
-    if (listener.canConvert<QObject *>()) {
-        if (QObject *driveListener = listener.value<QObject *>()) {
-            connect(driveListener, SIGNAL(driveAdded()), this, SLOT(driveAdded()));
-            connect(driveListener, SIGNAL(driveRemoved()), this, SLOT(driveRemoved()));
-        }
-    }
-#  endif // Q_OS_WIN && !Q_OS_WINRT
 #endif
     start(LowPriority);
 }
@@ -121,9 +82,6 @@ QFileInfoGatherer::~QFileInfoGatherer()
 void QFileInfoGatherer::setResolveSymlinks(bool enable)
 {
     Q_UNUSED(enable);
-#ifdef Q_OS_WIN
-    m_resolveSymlinks = enable;
-#endif
 }
 
 void QFileInfoGatherer::driveAdded()
@@ -142,11 +100,7 @@ void QFileInfoGatherer::driveRemoved()
 
 bool QFileInfoGatherer::resolveSymlinks() const
 {
-#ifdef Q_OS_WIN
-    return m_resolveSymlinks;
-#else
     return false;
-#endif
 }
 
 void QFileInfoGatherer::setIconProvider(QFileIconProvider *provider)
@@ -281,16 +235,6 @@ QExtendedInformation QFileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
         }
     }
 #endif
-
-#ifdef Q_OS_WIN
-    if (m_resolveSymlinks && info.isSymLink(/* ignoreNtfsSymLinks = */ true)) {
-        QFileInfo resolvedInfo(fileInfo.symLinkTarget());
-        resolvedInfo = resolvedInfo.canonicalFilePath();
-        if (resolvedInfo.exists()) {
-            emit nameResolved(fileInfo.filePath(), resolvedInfo.fileName());
-        }
-    }
-#endif
     return info;
 }
 
@@ -302,9 +246,6 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
 {
     // List drives
     if (path.isEmpty()) {
-#ifdef QT_BUILD_INTERNAL
-        fetchedRoot.store(true);
-#endif
         QFileInfoList infoList;
         if (files.isEmpty()) {
             infoList = QDir::drives();
