@@ -69,29 +69,29 @@ QT_REQUIRE_CONFIG(filesystemmodel);
 QT_BEGIN_NAMESPACE
 
 class ExtendedInformation;
-class QFileSystemModelPrivate;
+class DriveModelPrivate;
 class QFileIconProvider;
 
 #if defined(Q_OS_WIN)
-class QFileSystemModelNodePathKey : public QString
+class DriveModelNodePathKey : public QString
 {
 public:
-    QFileSystemModelNodePathKey() {}
-    QFileSystemModelNodePathKey(const QString &other) : QString(other) {}
-    QFileSystemModelNodePathKey(const QFileSystemModelNodePathKey &other) : QString(other) {}
-    bool operator==(const QFileSystemModelNodePathKey &other) const { return !compare(other, Qt::CaseInsensitive); }
+    DriveModelNodePathKey() {}
+    DriveModelNodePathKey(const QString &other) : QString(other) {}
+    DriveModelNodePathKey(const DriveModelNodePathKey &other) : QString(other) {}
+    bool operator==(const DriveModelNodePathKey &other) const { return !compare(other, Qt::CaseInsensitive); }
 };
 
-Q_DECLARE_TYPEINFO(QFileSystemModelNodePathKey, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(DriveModelNodePathKey, Q_MOVABLE_TYPE);
 
-inline uint qHash(const QFileSystemModelNodePathKey &key) { return qHash(key.toCaseFolded()); }
+inline uint qHash(const DriveModelNodePathKey &key) { return qHash(key.toCaseFolded()); }
 #else // Q_OS_WIN
-typedef QString QFileSystemModelNodePathKey;
+typedef QString DriveModelNodePathKey;
 #endif
 
-class Q_AUTOTEST_EXPORT QFileSystemModelPrivate : public QAbstractItemModelPrivate
+class Q_AUTOTEST_EXPORT DriveModelPrivate : public QAbstractItemModelPrivate
 {
-    Q_DECLARE_PUBLIC(QFileSystemModel)
+    Q_DECLARE_PUBLIC(DriveModel)
 
 public:
     enum { NumColumns = 4 };
@@ -206,7 +206,7 @@ public:
 
         bool populatedChildren;
         bool isVisible;
-        QHash<QFileSystemModelNodePathKey, QFileSystemNode *> children;
+        QHash<DriveModelNodePathKey, QFileSystemNode *> children;
         QList<QString> visibleChildren;
         int dirtyChildrenIndex;
         QFileSystemNode *parent;
@@ -216,7 +216,7 @@ public:
 
     };
 
-    QFileSystemModelPrivate() :
+    DriveModelPrivate() :
             forceSort(true),
             sortColumn(0),
             sortOrder(Qt::AscendingOrder),
@@ -269,9 +269,9 @@ public:
         // Vista == "Computer",
         // OS X == "Computer" (sometime user generated) "Benjamin's PowerBook G4"
 #ifdef Q_OS_WIN
-        return QFileSystemModel::tr("My Computer");
+        return DriveModel::tr("My Computer");
 #else
-        return QFileSystemModel::tr("Computer");
+        return DriveModel::tr("Computer");
 #endif
     }
 
@@ -333,7 +333,7 @@ public:
     QVector<Fetching> toFetch;
 
 };
-Q_DECLARE_TYPEINFO(QFileSystemModelPrivate::Fetching, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(DriveModelPrivate::Fetching, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
 

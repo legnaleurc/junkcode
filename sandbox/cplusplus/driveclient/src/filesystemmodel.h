@@ -52,10 +52,10 @@ QT_REQUIRE_CONFIG(filesystemmodel);
 QT_BEGIN_NAMESPACE
 
 class ExtendedInformation;
-class QFileSystemModelPrivate;
+class DriveModelPrivate;
 class QFileIconProvider;
 
-class Q_WIDGETS_EXPORT QFileSystemModel : public QAbstractItemModel
+class Q_WIDGETS_EXPORT DriveModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
@@ -75,8 +75,8 @@ public:
         FilePermissions = Qt::UserRole + 3
     };
 
-    explicit QFileSystemModel(QObject *parent = nullptr);
-    ~QFileSystemModel();
+    explicit DriveModel(QObject *parent = nullptr);
+    ~DriveModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex index(const QString &path, int column = 0) const;
@@ -106,7 +106,7 @@ public:
                       int row, int column, const QModelIndex &parent) override;
     Qt::DropActions supportedDropActions() const override;
 
-    // QFileSystemModel specific API
+    // DriveModel specific API
     QModelIndex setRootPath(const QString &path);
     QString rootPath() const;
     QDir rootDirectory() const;
@@ -144,13 +144,13 @@ public:
     bool remove(const QModelIndex &index);
 
 protected:
-    QFileSystemModel(QFileSystemModelPrivate &, QObject *parent = nullptr);
+    DriveModel(DriveModelPrivate &, QObject *parent = nullptr);
     void timerEvent(QTimerEvent *event) override;
     bool event(QEvent *event) override;
 
 private:
-    Q_DECLARE_PRIVATE(QFileSystemModel)
-    Q_DISABLE_COPY(QFileSystemModel)
+    Q_DECLARE_PRIVATE(DriveModel)
+    Q_DISABLE_COPY(DriveModel)
 
     Q_PRIVATE_SLOT(d_func(), void _q_directoryChanged(const QString &directory, const QStringList &list))
     Q_PRIVATE_SLOT(d_func(), void _q_performDelayedSort())
@@ -160,9 +160,9 @@ private:
     friend class QFileDialogPrivate;
 };
 
-inline QString QFileSystemModel::fileName(const QModelIndex &aindex) const
+inline QString DriveModel::fileName(const QModelIndex &aindex) const
 { return aindex.data(Qt::DisplayRole).toString(); }
-inline QIcon QFileSystemModel::fileIcon(const QModelIndex &aindex) const
+inline QIcon DriveModel::fileIcon(const QModelIndex &aindex) const
 { return qvariant_cast<QIcon>(aindex.data(Qt::DecorationRole)); }
 
 QT_END_NAMESPACE
