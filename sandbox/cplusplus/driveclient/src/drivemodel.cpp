@@ -37,7 +37,7 @@
 **
 ****************************************************************************/
 
-#include "drivemmodel_p.h"
+#include "drivemodel_p.h"
 #include "drivemodel.h"
 #include <QtCore/QLocale>
 #include <QtCore/QMimeData>

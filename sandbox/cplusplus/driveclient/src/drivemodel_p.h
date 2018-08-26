@@ -57,7 +57,7 @@
 #include "fileinfogatherer_p.h"
 #include <QtCore/QPair>
 #include <QtCore/QDir>
-#include <QtCore/QIcon>
+#include <QtGui/QIcon>
 #include <QtCore/QFileinfo>
 #include <QtCore/QTimer>
 #include <QtCore/QHash>

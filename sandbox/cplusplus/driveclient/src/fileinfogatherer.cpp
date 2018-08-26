@@ -37,9 +37,9 @@
 **
 ****************************************************************************/
 
-#include "qfileinfogatherer_p.h"
-#include <qdebug.h>
-#include <qdiriterator.h>
+#include "fileinfogatherer_p.h"
+#include <QtCore/QtDebug>
+#include <QtCore/QDirIterator>
 #ifndef Q_OS_WIN
 #  include <unistd.h>
 #  include <sys/types.h>

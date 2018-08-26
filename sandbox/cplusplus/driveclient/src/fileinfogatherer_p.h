@@ -51,22 +51,16 @@
 // We mean it.
 //
 
-#include <QtWidgets/private/qtwidgetsglobal_p.h>
-
-#include <qthread.h>
-#include <qmutex.h>
-#include <qwaitcondition.h>
-#include <qfilesystemwatcher.h>
-#include <qfileiconprovider.h>
-#include <qpair.h>
-#include <qstack.h>
-#include <qdatetime.h>
-#include <qdir.h>
-#include <qelapsedtimer.h>
-
-#include <private/qfilesystemengine_p.h>
-
-QT_REQUIRE_CONFIG(filesystemmodel);
+#include <QtCore/QThread>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
+#include <QtCore/QFilesystemWatcher>
+#include <QtWidgets/QFileIconProvider>
+#include <QtCore/QPair>
+#include <QtCore/QStack>
+#include <QtCore/QDatetime>
+#include <QtCore/QDir>
+#include <QtCore/QElapsedTimer>
 
 QT_BEGIN_NAMESPACE
 
