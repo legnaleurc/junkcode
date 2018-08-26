@@ -14,5 +14,4 @@ set(SOURCES
 
 
 add_executable(driveclient ${SOURCES})
-#target_include_directories(driveclient PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(driveclient Qt5::Widgets)
