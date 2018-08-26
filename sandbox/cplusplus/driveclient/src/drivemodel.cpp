@@ -42,7 +42,7 @@
 #include <QtCore/QLocale>
 #include <QtCore/QMimeData>
 #include <QtCore/QUrl>
-#include <qdebug.h>
+#include <QtCore/QtDebug>
 #if QT_CONFIG(messagebox)
 #include <qmessagebox.h>
 #endif

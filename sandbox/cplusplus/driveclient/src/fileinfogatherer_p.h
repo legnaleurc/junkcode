@@ -82,11 +82,9 @@ public:
        && lastModified() == fileInfo.lastModified();
     }
 
-#ifndef QT_NO_FSFILEENGINE
     bool isCaseSensitive() const {
-        return QFileSystemEngine::isCaseSensitive();
+        return true;
     }
-#endif
 
     QFile::Permissions permissions() const {
         return mFileInfo.permissions();
