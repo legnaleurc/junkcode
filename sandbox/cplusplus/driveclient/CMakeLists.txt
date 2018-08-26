@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 project(driveclient)
 
 find_package(Qt5Widgets REQUIRED)
+set(CMAKE_AUTOMOC ON)
 
 
 set(SOURCES
