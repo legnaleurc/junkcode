@@ -224,7 +224,9 @@ bool DriveModel::remove(const QModelIndex &aindex)
   Constructs a file system model with the given \a parent.
 */
 DriveModel::DriveModel(QObject *parent)
-    : QAbstractItemModel(*new DriveModelPrivate, parent)
+    // TODO initialize DriveModelPrivate
+    // : QAbstractItemModel(*new DriveModelPrivate, parent)
+    : QAbstractItemModel(parent)
 {
     Q_D(DriveModel);
     d->init();
@@ -234,7 +236,9 @@ DriveModel::DriveModel(QObject *parent)
     \internal
 */
 DriveModel::DriveModel(DriveModelPrivate &dd, QObject *parent)
-    : QAbstractItemModel(dd, parent)
+    // TODO initialize DriveModelPrivate
+    // : QAbstractItemModel(dd, parent)
+    : QAbstractItemModel(parent)
 {
     Q_D(DriveModel);
     d->init();
