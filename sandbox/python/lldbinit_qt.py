@@ -6,7 +6,7 @@ import lldb
 
 def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand(
-        b'type summary add -x -e -F'
+        b'type summary add -x -v -F'
         b' lldbinit_qt.qstring_summary "^QString$"')
     debugger.HandleCommand(
         b'type synthetic add -x -l'
@@ -25,13 +25,15 @@ class QVectorSyntheticProvider(object):
         except:
             return 0
 
-    def get_child_index(self,name):
+    def get_child_index(self, name):
+        print('get_child_index', name)
         try:
             return int(name.lstrip(b'[').rstrip(b']'))
         except:
             return None
 
-    def get_child_at_index(self,index):
+    def get_child_at_index(self, index):
+        print('get_child_at_index', index)
         if index < 0:
             return None
         if index >= self.num_children():
