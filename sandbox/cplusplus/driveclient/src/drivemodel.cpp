@@ -311,7 +311,7 @@ DriveModelPrivate::QFileSystemNode *DriveModelPrivate::node(const QString &path,
 {
     Q_Q(const DriveModel);
     Q_UNUSED(q);
-    if (path.isEmpty() || path == myComputer() || path.startsWith(QLatin1Char(':')))
+    if (path.isEmpty() || path.startsWith(QLatin1Char(':')))
         return const_cast<DriveModelPrivate::QFileSystemNode*>(&root);
 
     // Construct the nodes up to the new root path if they need to be built
@@ -1235,7 +1235,7 @@ QModelIndex DriveModel::setRootPath(const QString &newPath)
     if (d->rootDir.path() == longNewPath)
         return d->index(rootPath());
 
-    bool showDrives = (longNewPath.isEmpty() || longNewPath == d->myComputer());
+    bool showDrives = longNewPath.isEmpty();
     if (!showDrives && !newPathDir.exists())
         return d->index(rootPath());
 

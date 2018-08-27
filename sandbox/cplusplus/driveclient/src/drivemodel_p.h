@@ -246,18 +246,6 @@ public:
         return row;
     }
 
-    inline static QString myComputer() {
-        // ### TODO We should query the system to find out what the string should be
-        // XP == "My Computer",
-        // Vista == "Computer",
-        // OS X == "Computer" (sometime user generated) "Benjamin's PowerBook G4"
-#ifdef Q_OS_WIN
-        return DriveModel::tr("My Computer");
-#else
-        return DriveModel::tr("Computer");
-#endif
-    }
-
     inline void delayedSort() {
         if (!delayedSortTimer.isActive())
             delayedSortTimer.start(0);
