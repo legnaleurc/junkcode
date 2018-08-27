@@ -14,6 +14,9 @@ def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand(
         b'type synthetic add -x -l'
         b' lldbinit_qt.QListSyntheticProvider "^QList<.+>$"')
+    debugger.HandleCommand(
+        b'type synthetic add -x -l'
+        b' lldbinit_qt.QListSyntheticProvider "^QStringList$"')
 
 
 class QVectorSyntheticProvider(object):
@@ -57,11 +60,12 @@ class QListSyntheticProvider(object):
 
     def num_children(self):
         try:
-            listDataD = self.valobj.GetChildMemberWithName('p').GetChildMemberWithName('d')
-            begin = listDataD.GetChildMemberWithName('begin').GetValueAsUnsigned()
-            end = listDataD.GetChildMemberWithName('end').GetValueAsUnsigned()
+            listDataD = self.valobj.GetChildAtIndex(0).GetChildMemberWithName(b'd')
+            begin = listDataD.GetChildMemberWithName(b'begin').GetValueAsUnsigned()
+            end = listDataD.GetChildMemberWithName(b'end').GetValueAsUnsigned()
             return (end - begin)
-        except:
+        except Exception as e:
+            print('error', e)
             return 0
 
     def get_child_index(self, name):
@@ -78,14 +82,17 @@ class QListSyntheticProvider(object):
         if self.valobj.IsValid() == False:
             return None
         try:
-            pD = self.valobj.GetChildMemberWithName('p').GetChildMemberWithName('d')
-            pBegin = pD.GetChildMemberWithName('begin').GetValueAsUnsigned()
-            pArray = pD.GetChildMemberWithName('array').GetValueAsUnsigned()
+            pD = self.valobj.GetChildAtIndex(0).GetChildMemberWithName(b'd')
+            pBegin = pD.GetChildMemberWithName(b'begin').GetValueAsUnsigned()
+            pArray = pD.GetChildMemberWithName(b'array').GetValueAsUnsigned()
             pAt = pArray + pBegin + index
-            type_ = self.valobj.GetType().GetTemplateArgumentType(0)
+            if self.valobj.GetTypeName() == b'QStringList':
+                type_ = self.valobj.GetTarget().FindFirstType(b'QString')
+            else:
+                type_ = self.valobj.GetType().GetTemplateArgumentType(0)
             elementSize = type_.GetByteSize()
-            voidSize = pD.GetChildMemberWithName('array').GetType().GetByteSize()
-            return self.valobj.GetChildMemberWithName('p').GetChildMemberWithName('d').GetChildMemberWithName('array').CreateChildAtOffset('[' + str(index) + ']', pBegin + index * voidSize, type_)
+            voidSize = pD.GetChildMemberWithName(b'array').GetType().GetByteSize()
+            return pD.GetChildMemberWithName(b'array').CreateChildAtOffset(b'[' + str(index) + b']', pBegin + index * voidSize, type_)
         except:
             print("boned getchild")
         return None
