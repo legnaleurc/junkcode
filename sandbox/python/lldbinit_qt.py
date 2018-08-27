@@ -6,8 +6,45 @@ import lldb
 
 def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand(
-        b'type summary add "^QString$" -x -e -F'
-        b' lldbinit_qt.qstring_summary')
+        b'type summary add -x -e -F'
+        b' lldbinit_qt.qstring_summary "^QString$"')
+    debugger.HandleCommand(
+        b'type synthetic add -x -l'
+        b' lldbinit_qt.QVectorSyntheticProvider "^QVector<.+>$"')
+
+
+class QVectorSyntheticProvider(object):
+
+    def __init__(self, value, internal_dict):
+        self.valobj = value
+
+    def num_children(self):
+        try:
+            s = self.valobj.GetChildMemberWithName(b'd').GetChildMemberWithName(b'size').GetValueAsUnsigned()
+            return s
+        except:
+            return 0
+
+    def get_child_index(self,name):
+        try:
+            return int(name.lstrip(b'[').rstrip(b']'))
+        except:
+            return None
+
+    def get_child_at_index(self,index):
+        if index < 0:
+            return None
+        if index >= self.num_children():
+            return None
+        if self.valobj.IsValid() == False:
+            return None
+        try:
+            doffset = self.valobj.GetChildMemberWithName(b'd').GetChildMemberWithName(b'offset').GetValueAsUnsigned()
+            type_ = self.valobj.GetType().GetTemplateArgumentType(0)
+            elementSize = type_.GetByteSize()
+            return self.valobj.GetChildMemberWithName(b'd').CreateChildAtOffset(b'[' + str(index) + b']', doffset + index * elementSize, type_)
+        except:
+            return None
 
 
 def qstring_summary(value, unused):
