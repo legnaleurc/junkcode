@@ -289,10 +289,6 @@ public:
 
     QDir rootDir;
 #if QT_CONFIG(filesystemwatcher)
-#  ifdef Q_OS_WIN
-    QStringList unwatchPathsAt(const QModelIndex &);
-    void watchPaths(const QStringList &paths) { fileInfoGatherer.watchPaths(paths); }
-#  endif // Q_OS_WIN
     QFileInfoGatherer fileInfoGatherer;
 #endif // filesystemwatcher
     QTimer delayedSortTimer;
