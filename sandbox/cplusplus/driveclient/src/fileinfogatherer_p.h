@@ -76,10 +76,10 @@ public:
     inline bool isSystem() { return type() == System; }
 
     bool operator ==(const ExtendedInformation &fileInfo) const {
-       return mFileInfo == fileInfo.mFileInfo
-       && displayType == fileInfo.displayType
-       && permissions() == fileInfo.permissions()
-       && lastModified() == fileInfo.lastModified();
+        return mFileInfo == fileInfo.mFileInfo
+            && displayType == fileInfo.displayType
+            && permissions() == fileInfo.permissions()
+            && lastModified() == fileInfo.lastModified();
     }
 
     bool isCaseSensitive() const {
