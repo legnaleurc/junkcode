@@ -6,8 +6,8 @@ import lldb
 
 def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand(
-        b'type summary add -x -F'
-        b' lldbinit_qt.qstring_summary "QString"')
+        b'type summary add "^QString$" -x -e -F'
+        b' lldbinit_qt.qstring_summary')
 
 
 def qstring_summary(value, unused):
