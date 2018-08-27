@@ -26,14 +26,12 @@ class QVectorSyntheticProvider(object):
             return 0
 
     def get_child_index(self, name):
-        print('get_child_index', name)
         try:
             return int(name.lstrip(b'[').rstrip(b']'))
         except:
             return None
 
     def get_child_at_index(self, index):
-        print('get_child_at_index', index)
         if index < 0:
             return None
         if index >= self.num_children():
