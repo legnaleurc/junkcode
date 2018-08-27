@@ -78,12 +78,12 @@ class DriveModelPrivate : public QObject
 public:
     enum { NumColumns = 4 };
 
-    class QFileSystemNode
+    class FileNode
     {
     public:
-        explicit QFileSystemNode(const QString &filename = QString(), QFileSystemNode *p = 0)
+        explicit FileNode(const QString &filename = QString(), FileNode *p = 0)
             : fileName(filename), populatedChildren(false), isVisible(false), dirtyChildrenIndex(-1), parent(p), info(0) {}
-        ~QFileSystemNode() {
+        ~FileNode() {
             qDeleteAll(children);
             delete info;
             info = 0;
@@ -117,7 +117,7 @@ public:
         inline bool caseSensitive() const { if (info) return info->isCaseSensitive(); return false; }
         inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
 
-        inline bool operator <(const QFileSystemNode &node) const {
+        inline bool operator <(const FileNode &node) const {
             if (caseSensitive() || node.caseSensitive())
                 return fileName < node.fileName;
             return QString::compare(fileName, node.fileName, Qt::CaseInsensitive) < 0;
@@ -159,7 +159,7 @@ public:
         void updateIcon(QFileIconProvider *iconProvider, const QString &path) {
             if (info)
                 info->icon = iconProvider->icon(QFileInfo(path));
-            for (QFileSystemNode *child : qAsConst(children)) {
+            for (FileNode *child : qAsConst(children)) {
                 //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
                 if (!path.isEmpty()) {
                     if (path.endsWith(QLatin1Char('/')))
@@ -174,7 +174,7 @@ public:
         void retranslateStrings(QFileIconProvider *iconProvider, const QString &path) {
             if (info)
                 info->displayType = iconProvider->type(QFileInfo(path));
-            for (QFileSystemNode *child : qAsConst(children)) {
+            for (FileNode *child : qAsConst(children)) {
                 //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
                 if (!path.isEmpty()) {
                     if (path.endsWith(QLatin1Char('/')))
@@ -188,10 +188,10 @@ public:
 
         bool populatedChildren;
         bool isVisible;
-        QHash<DriveModelNodePathKey, QFileSystemNode *> children;
+        QHash<DriveModelNodePathKey, FileNode *> children;
         QList<QString> visibleChildren;
         int dirtyChildrenIndex;
-        QFileSystemNode *parent;
+        FileNode *parent;
 
 
         QExtendedInformation *info;
@@ -218,23 +218,23 @@ public:
 
       Return true if index which is owned by node is hidden by the filter.
     */
-    inline bool isHiddenByFilter(QFileSystemNode *indexNode, const QModelIndex &index) const
+    inline bool isHiddenByFilter(FileNode *indexNode, const QModelIndex &index) const
     {
        return (indexNode != &root && !index.isValid());
     }
-    QFileSystemNode *node(const QModelIndex &index) const;
-    QFileSystemNode *node(const QString &path, bool fetch = true) const;
+    FileNode *node(const QModelIndex &index) const;
+    FileNode *node(const QString &path, bool fetch = true) const;
     inline QModelIndex index(const QString &path, int column = 0) { return index(node(path), column); }
-    QModelIndex index(const QFileSystemNode *node, int column = 0) const;
-    bool filtersAcceptsNode(const QFileSystemNode *node) const;
-    bool passNameFilters(const QFileSystemNode *node) const;
-    void removeNode(QFileSystemNode *parentNode, const QString &name);
-    QFileSystemNode* addNode(QFileSystemNode *parentNode, const QString &fileName, const QFileInfo &info);
-    void addVisibleFiles(QFileSystemNode *parentNode, const QStringList &newFiles);
-    void removeVisibleFile(QFileSystemNode *parentNode, int visibleLocation);
+    QModelIndex index(const FileNode *node, int column = 0) const;
+    bool filtersAcceptsNode(const FileNode *node) const;
+    bool passNameFilters(const FileNode *node) const;
+    void removeNode(FileNode *parentNode, const QString &name);
+    FileNode* addNode(FileNode *parentNode, const QString &fileName, const QFileInfo &info);
+    void addVisibleFiles(FileNode *parentNode, const QStringList &newFiles);
+    void removeVisibleFile(FileNode *parentNode, int visibleLocation);
     void sortChildren(int column, const QModelIndex &parent);
 
-    inline int translateVisibleLocation(QFileSystemNode *parent, int row) const {
+    inline int translateVisibleLocation(FileNode *parent, int row) const {
         if (sortOrder != Qt::AscendingOrder) {
             if (parent->dirtyChildrenIndex == -1)
                 return parent->visibleChildren.count() - row - 1;
@@ -286,7 +286,7 @@ public:
     bool readOnly;
     bool setRootPath;
     QDir::Filters filters;
-    QHash<const QFileSystemNode*, bool> bypassFilters;
+    QHash<const FileNode*, bool> bypassFilters;
     bool nameFilterDisables;
     //This flag is an optimization for the QFileDialog
     //It enable a sort which is not recursive, it means
@@ -297,13 +297,13 @@ public:
 #endif
     QHash<QString, QString> resolvedSymLinks;
 
-    QFileSystemNode root;
+    FileNode root;
 
     QBasicTimer fetchingTimer;
     struct Fetching {
         QString dir;
         QString file;
-        const QFileSystemNode *node;
+        const FileNode *node;
     };
     QVector<Fetching> toFetch;
 

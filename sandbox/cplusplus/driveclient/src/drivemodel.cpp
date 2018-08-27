@@ -246,8 +246,8 @@ QModelIndex DriveModel::index(int row, int column, const QModelIndex &parent) co
         return QModelIndex();
 
     // get the parent node
-    DriveModelPrivate::QFileSystemNode *parentNode = (d->indexValid(parent) ? d->node(parent) :
-                                                   const_cast<DriveModelPrivate::QFileSystemNode*>(&d->root));
+    DriveModelPrivate::FileNode *parentNode = (d->indexValid(parent) ? d->node(parent) :
+                                                   const_cast<DriveModelPrivate::FileNode*>(&d->root));
     Q_ASSERT(parentNode);
 
     // now get the internal pointer for the index
@@ -255,10 +255,10 @@ QModelIndex DriveModel::index(int row, int column, const QModelIndex &parent) co
     if (i >= parentNode->visibleChildren.size())
         return QModelIndex();
     const QString &childName = parentNode->visibleChildren.at(i);
-    const DriveModelPrivate::QFileSystemNode *indexNode = parentNode->children.value(childName);
+    const DriveModelPrivate::FileNode *indexNode = parentNode->children.value(childName);
     Q_ASSERT(indexNode);
 
-    return createIndex(row, column, const_cast<DriveModelPrivate::QFileSystemNode*>(indexNode));
+    return createIndex(row, column, const_cast<DriveModelPrivate::FileNode*>(indexNode));
 }
 
 /*!
@@ -284,20 +284,20 @@ QModelIndex DriveModel::sibling(int row, int column, const QModelIndex &idx) con
 QModelIndex DriveModel::index(const QString &path, int column) const
 {
     Q_D(const DriveModel);
-    DriveModelPrivate::QFileSystemNode *node = d->node(path, false);
+    DriveModelPrivate::FileNode *node = d->node(path, false);
     return d->index(node, column);
 }
 
 /*!
     \internal
 
-    Return the QFileSystemNode that goes to index.
+    Return the FileNode that goes to index.
   */
-DriveModelPrivate::QFileSystemNode *DriveModelPrivate::node(const QModelIndex &index) const
+DriveModelPrivate::FileNode *DriveModelPrivate::node(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return const_cast<QFileSystemNode*>(&root);
-    DriveModelPrivate::QFileSystemNode *indexNode = static_cast<DriveModelPrivate::QFileSystemNode*>(index.internalPointer());
+        return const_cast<FileNode*>(&root);
+    DriveModelPrivate::FileNode *indexNode = static_cast<DriveModelPrivate::FileNode*>(index.internalPointer());
     Q_ASSERT(indexNode);
     return indexNode;
 }
@@ -305,14 +305,14 @@ DriveModelPrivate::QFileSystemNode *DriveModelPrivate::node(const QModelIndex &i
 /*!
     \internal
 
-    Given a path return the matching QFileSystemNode or &root if invalid
+    Given a path return the matching FileNode or &root if invalid
 */
-DriveModelPrivate::QFileSystemNode *DriveModelPrivate::node(const QString &path, bool fetch) const
+DriveModelPrivate::FileNode *DriveModelPrivate::node(const QString &path, bool fetch) const
 {
     Q_Q(const DriveModel);
     Q_UNUSED(q);
     if (path.isEmpty() || path.startsWith(QLatin1Char(':')))
-        return const_cast<DriveModelPrivate::QFileSystemNode*>(&root);
+        return const_cast<DriveModelPrivate::FileNode*>(&root);
 
     // Construct the nodes up to the new root path if they need to be built
     QString absolutePath;
@@ -327,7 +327,7 @@ DriveModelPrivate::QFileSystemNode *DriveModelPrivate::node(const QString &path,
     if ((pathElements.isEmpty())
         && QDir::fromNativeSeparators(longPath) != QLatin1String("/")
         )
-        return const_cast<DriveModelPrivate::QFileSystemNode*>(&root);
+        return const_cast<DriveModelPrivate::FileNode*>(&root);
     QModelIndex index = QModelIndex(); // start with "My Computer"
     QString elementPath;
     QChar separator = QLatin1Char('/');
@@ -336,7 +336,7 @@ DriveModelPrivate::QFileSystemNode *DriveModelPrivate::node(const QString &path,
     if (absolutePath[0] == QLatin1Char('/'))
         pathElements.prepend(QLatin1String("/"));
 
-    DriveModelPrivate::QFileSystemNode *parent = node(index);
+    DriveModelPrivate::FileNode *parent = node(index);
 
     for (int i = 0; i < pathElements.count(); ++i) {
         QString element = pathElements.at(i);
@@ -358,13 +358,13 @@ DriveModelPrivate::QFileSystemNode *DriveModelPrivate::node(const QString &path,
                 alreadyExisted = false;
         }
 
-        DriveModelPrivate::QFileSystemNode *node;
+        DriveModelPrivate::FileNode *node;
         if (!alreadyExisted) {
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
             // a path that doesn't exists, I.E. don't blindly create directories.
             QFileInfo info(elementPath);
             if (!info.exists())
-                return const_cast<DriveModelPrivate::QFileSystemNode*>(&root);
+                return const_cast<DriveModelPrivate::FileNode*>(&root);
             DriveModelPrivate *p = const_cast<DriveModelPrivate*>(this);
             node = p->addNode(parent, element,info);
 #ifndef QT_NO_FILESYSTEMWATCHER
@@ -378,7 +378,7 @@ DriveModelPrivate::QFileSystemNode *DriveModelPrivate::node(const QString &path,
         if (!node->isVisible) {
             // It has been filtered out
             if (alreadyExisted && node->hasInformation() && !fetch)
-                return const_cast<DriveModelPrivate::QFileSystemNode*>(&root);
+                return const_cast<DriveModelPrivate::FileNode*>(&root);
 
             DriveModelPrivate *p = const_cast<DriveModelPrivate*>(this);
             p->addVisibleFiles(parent, QStringList(element));
@@ -407,7 +407,7 @@ void DriveModel::timerEvent(QTimerEvent *event)
         d->fetchingTimer.stop();
 #ifndef QT_NO_FILESYSTEMWATCHER
         for (int i = 0; i < d->toFetch.count(); ++i) {
-            const DriveModelPrivate::QFileSystemNode *node = d->toFetch.at(i).node;
+            const DriveModelPrivate::FileNode *node = d->toFetch.at(i).node;
             if (!node->hasInformation()) {
                 d->fileInfoGatherer.fetchExtendedInformation(d->toFetch.at(i).dir,
                                                  QStringList(d->toFetch.at(i).file));
@@ -430,7 +430,7 @@ bool DriveModel::isDir(const QModelIndex &index) const
     Q_D(const DriveModel);
     if (!index.isValid())
         return true;
-    DriveModelPrivate::QFileSystemNode *n = d->node(index);
+    DriveModelPrivate::FileNode *n = d->node(index);
     if (n->hasInformation())
         return n->isDir();
     return fileInfo(index).isDir();
@@ -478,14 +478,14 @@ QModelIndex DriveModel::parent(const QModelIndex &index) const
     if (!d->indexValid(index))
         return QModelIndex();
 
-    DriveModelPrivate::QFileSystemNode *indexNode = d->node(index);
+    DriveModelPrivate::FileNode *indexNode = d->node(index);
     Q_ASSERT(indexNode != 0);
-    DriveModelPrivate::QFileSystemNode *parentNode = indexNode->parent;
+    DriveModelPrivate::FileNode *parentNode = indexNode->parent;
     if (parentNode == 0 || parentNode == &d->root)
         return QModelIndex();
 
     // get the parent's row
-    DriveModelPrivate::QFileSystemNode *grandParentNode = parentNode->parent;
+    DriveModelPrivate::FileNode *grandParentNode = parentNode->parent;
     Q_ASSERT(grandParentNode->children.contains(parentNode->fileName));
     int visualRow = d->translateVisibleLocation(grandParentNode, grandParentNode->visibleLocation(grandParentNode->children.value(parentNode->fileName)->fileName));
     if (visualRow == -1)
@@ -498,10 +498,10 @@ QModelIndex DriveModel::parent(const QModelIndex &index) const
 
     return the index for node
 */
-QModelIndex DriveModelPrivate::index(const DriveModelPrivate::QFileSystemNode *node, int column) const
+QModelIndex DriveModelPrivate::index(const DriveModelPrivate::FileNode *node, int column) const
 {
     Q_Q(const DriveModel);
-    DriveModelPrivate::QFileSystemNode *parentNode = (node ? node->parent : 0);
+    DriveModelPrivate::FileNode *parentNode = (node ? node->parent : 0);
     if (node == &root || !parentNode)
         return QModelIndex();
 
@@ -511,7 +511,7 @@ QModelIndex DriveModelPrivate::index(const DriveModelPrivate::QFileSystemNode *n
         return QModelIndex();
 
     int visualRow = translateVisibleLocation(parentNode, parentNode->visibleLocation(node->fileName));
-    return q->createIndex(visualRow, column, const_cast<QFileSystemNode*>(node));
+    return q->createIndex(visualRow, column, const_cast<FileNode*>(node));
 }
 
 /*!
@@ -526,7 +526,7 @@ bool DriveModel::hasChildren(const QModelIndex &parent) const
     if (!parent.isValid()) // drives
         return true;
 
-    const DriveModelPrivate::QFileSystemNode *indexNode = d->node(parent);
+    const DriveModelPrivate::FileNode *indexNode = d->node(parent);
     Q_ASSERT(indexNode);
     return (indexNode->isDir());
 }
@@ -537,7 +537,7 @@ bool DriveModel::hasChildren(const QModelIndex &parent) const
 bool DriveModel::canFetchMore(const QModelIndex &parent) const
 {
     Q_D(const DriveModel);
-    const DriveModelPrivate::QFileSystemNode *indexNode = d->node(parent);
+    const DriveModelPrivate::FileNode *indexNode = d->node(parent);
     return (!indexNode->populatedChildren);
 }
 
@@ -549,7 +549,7 @@ void DriveModel::fetchMore(const QModelIndex &parent)
     Q_D(DriveModel);
     if (!d->setRootPath)
         return;
-    DriveModelPrivate::QFileSystemNode *indexNode = d->node(parent);
+    DriveModelPrivate::FileNode *indexNode = d->node(parent);
     if (indexNode->populatedChildren)
         return;
     indexNode->populatedChildren = true;
@@ -570,7 +570,7 @@ int DriveModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return d->root.visibleChildren.count();
 
-    const DriveModelPrivate::QFileSystemNode *parentNode = d->node(parent);
+    const DriveModelPrivate::FileNode *parentNode = d->node(parent);
     return parentNode->visibleChildren.count();
 }
 
@@ -641,7 +641,7 @@ QString DriveModelPrivate::size(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QString();
-    const QFileSystemNode *n = node(index);
+    const FileNode *n = node(index);
     if (n->isDir()) {
 #ifdef Q_OS_MAC
         return QLatin1String("--");
@@ -693,7 +693,7 @@ QString DriveModelPrivate::name(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QString();
-    QFileSystemNode *dirNode = node(index);
+    FileNode *dirNode = node(index);
     if (
 #ifndef QT_NO_FILESYSTEMWATCHER
         fileInfoGatherer.resolveSymlinks() &&
@@ -776,12 +776,12 @@ bool DriveModel::setData(const QModelIndex &idx, const QVariant &value, int role
               use layoutChanged
          */
 
-        DriveModelPrivate::QFileSystemNode *indexNode = d->node(idx);
-        DriveModelPrivate::QFileSystemNode *parentNode = indexNode->parent;
+        DriveModelPrivate::FileNode *indexNode = d->node(idx);
+        DriveModelPrivate::FileNode *parentNode = indexNode->parent;
         int visibleLocation = parentNode->visibleLocation(parentNode->children.value(indexNode->fileName)->fileName);
 
         parentNode->visibleChildren.removeAt(visibleLocation);
-        QScopedPointer<DriveModelPrivate::QFileSystemNode> nodeToRename(parentNode->children.take(oldName));
+        QScopedPointer<DriveModelPrivate::FileNode> nodeToRename(parentNode->children.take(oldName));
         nodeToRename->fileName = newName;
         nodeToRename->parent = parentNode;
 #ifndef QT_NO_FILESYSTEMWATCHER
@@ -854,7 +854,7 @@ Qt::ItemFlags DriveModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return flags;
 
-    DriveModelPrivate::QFileSystemNode *indexNode = d->node(index);
+    DriveModelPrivate::FileNode *indexNode = d->node(index);
     if (d->nameFilterDisables && !d->passNameFilters(indexNode)) {
         flags &= ~Qt::ItemIsEnabled;
         // ### TODO you shouldn't be able to set this as the current item, task 119433
@@ -897,8 +897,8 @@ public:
         naturalCompare.setCaseSensitivity(Qt::CaseInsensitive);
     }
 
-    bool compareNodes(const DriveModelPrivate::QFileSystemNode *l,
-                    const DriveModelPrivate::QFileSystemNode *r) const
+    bool compareNodes(const DriveModelPrivate::FileNode *l,
+                    const DriveModelPrivate::FileNode *r) const
     {
         switch (sortColumn) {
         case 0: {
@@ -945,8 +945,8 @@ public:
         return false;
     }
 
-    bool operator()(const DriveModelPrivate::QFileSystemNode *l,
-                    const DriveModelPrivate::QFileSystemNode *r) const
+    bool operator()(const DriveModelPrivate::FileNode *l,
+                    const DriveModelPrivate::FileNode *r) const
     {
         return compareNodes(l, r);
     }
@@ -965,11 +965,11 @@ private:
 void DriveModelPrivate::sortChildren(int column, const QModelIndex &parent)
 {
     Q_Q(DriveModel);
-    DriveModelPrivate::QFileSystemNode *indexNode = node(parent);
+    DriveModelPrivate::FileNode *indexNode = node(parent);
     if (indexNode->children.count() == 0)
         return;
 
-    QVector<DriveModelPrivate::QFileSystemNode*> values;
+    QVector<DriveModelPrivate::FileNode*> values;
 
     for (auto iterator = indexNode->children.constBegin(), cend = indexNode->children.constEnd(); iterator != cend; ++iterator) {
         if (filtersAcceptsNode(iterator.value())) {
@@ -994,7 +994,7 @@ void DriveModelPrivate::sortChildren(int column, const QModelIndex &parent)
     if (!disableRecursiveSort) {
         for (int i = 0; i < q->rowCount(parent); ++i) {
             const QModelIndex childIndex = q->index(i, 0, parent);
-            DriveModelPrivate::QFileSystemNode *indexNode = node(childIndex);
+            DriveModelPrivate::FileNode *indexNode = node(childIndex);
             //Only do a recursive sort on visible nodes
             if (indexNode->isVisible)
                 sortChildren(column, childIndex);
@@ -1013,12 +1013,12 @@ void DriveModel::sort(int column, Qt::SortOrder order)
 
     emit layoutAboutToBeChanged();
     QModelIndexList oldList = persistentIndexList();
-    QVector<QPair<DriveModelPrivate::QFileSystemNode*, int> > oldNodes;
+    QVector<QPair<DriveModelPrivate::FileNode*, int> > oldNodes;
     const int nodeCount = oldList.count();
     oldNodes.reserve(nodeCount);
     for (int i = 0; i < nodeCount; ++i) {
         const QModelIndex &oldNode = oldList.at(i);
-        QPair<DriveModelPrivate::QFileSystemNode*, int> pair(d->node(oldNode), oldNode.column());
+        QPair<DriveModelPrivate::FileNode*, int> pair(d->node(oldNode), oldNode.column());
         oldNodes.append(pair);
     }
 
@@ -1034,7 +1034,7 @@ void DriveModel::sort(int column, Qt::SortOrder order)
     const int numOldNodes = oldNodes.size();
     newList.reserve(numOldNodes);
     for (int i = 0; i < numOldNodes; ++i) {
-        const QPair<DriveModelPrivate::QFileSystemNode*, int> &oldNode = oldNodes.at(i);
+        const QPair<DriveModelPrivate::FileNode*, int> &oldNode = oldNodes.at(i);
         newList.append(d->index(oldNode.first, oldNode.second));
     }
     changePersistentIndexList(oldList, newList);
@@ -1133,7 +1133,7 @@ QString DriveModel::filePath(const QModelIndex &index) const
 {
     Q_D(const DriveModel);
     QString fullPath = d->filePath(index);
-    DriveModelPrivate::QFileSystemNode *dirNode = d->node(index);
+    DriveModelPrivate::FileNode *dirNode = d->node(index);
     if (dirNode->isSymLink()
 #ifndef QT_NO_FILESYSTEMWATCHER
         && d->fileInfoGatherer.resolveSymlinks()
@@ -1159,7 +1159,7 @@ QString DriveModelPrivate::filePath(const QModelIndex &index) const
     QStringList path;
     QModelIndex idx = index;
     while (idx.isValid()) {
-        DriveModelPrivate::QFileSystemNode *dirNode = node(idx);
+        DriveModelPrivate::FileNode *dirNode = node(idx);
         if (dirNode)
             path.prepend(dirNode->fileName);
         idx = idx.parent();
@@ -1182,10 +1182,10 @@ QModelIndex DriveModel::mkdir(const QModelIndex &parent, const QString &name)
     QDir dir(filePath(parent));
     if (!dir.mkdir(name))
         return QModelIndex();
-    DriveModelPrivate::QFileSystemNode *parentNode = d->node(parent);
+    DriveModelPrivate::FileNode *parentNode = d->node(parent);
     d->addNode(parentNode, name, QFileInfo());
     Q_ASSERT(parentNode->children.contains(name));
-    DriveModelPrivate::QFileSystemNode *node = parentNode->children[name];
+    DriveModelPrivate::FileNode *node = parentNode->children[name];
 #ifndef QT_NO_FILESYSTEMWATCHER
     node->populate(d->fileInfoGatherer.getInfo(QFileInfo(dir.absolutePath() + QDir::separator() + name)));
 #endif
@@ -1438,7 +1438,7 @@ void DriveModel::setNameFilters(const QStringList &filters)
         QPersistentModelIndex root(index(rootPath()));
         const QModelIndexList persistentList = persistentIndexList();
         for (const auto &persistentIndex : persistentList) {
-            DriveModelPrivate::QFileSystemNode *node = d->node(persistentIndex);
+            DriveModelPrivate::FileNode *node = d->node(persistentIndex);
             while (node) {
                 if (d->bypassFilters.contains(node))
                     break;
@@ -1512,7 +1512,7 @@ bool DriveModel::rmdir(const QModelIndex &aindex)
  */
 void DriveModelPrivate::_q_directoryChanged(const QString &directory, const QStringList &files)
 {
-    DriveModelPrivate::QFileSystemNode *parentNode = node(directory, false);
+    DriveModelPrivate::FileNode *parentNode = node(directory, false);
     if (parentNode->children.count() == 0)
         return;
     QStringList toRemove;
@@ -1534,10 +1534,10 @@ void DriveModelPrivate::_q_directoryChanged(const QString &directory, const QStr
 
     *WARNING* this will change the count of children
 */
-DriveModelPrivate::QFileSystemNode* DriveModelPrivate::addNode(QFileSystemNode *parentNode, const QString &fileName, const QFileInfo& info)
+DriveModelPrivate::FileNode* DriveModelPrivate::addNode(FileNode *parentNode, const QString &fileName, const QFileInfo& info)
 {
     // In the common case, itemLocation == count() so check there first
-    DriveModelPrivate::QFileSystemNode *node = new DriveModelPrivate::QFileSystemNode(fileName, parentNode);
+    DriveModelPrivate::FileNode *node = new DriveModelPrivate::FileNode(fileName, parentNode);
 #ifndef QT_NO_FILESYSTEMWATCHER
     node->populate(info);
 #else
@@ -1556,7 +1556,7 @@ DriveModelPrivate::QFileSystemNode* DriveModelPrivate::addNode(QFileSystemNode *
 
     *WARNING* this will change the count of children and could change visibleChildren
  */
-void DriveModelPrivate::removeNode(DriveModelPrivate::QFileSystemNode *parentNode, const QString& name)
+void DriveModelPrivate::removeNode(DriveModelPrivate::FileNode *parentNode, const QString& name)
 {
     Q_Q(DriveModel);
     QModelIndex parent = index(parentNode);
@@ -1566,7 +1566,7 @@ void DriveModelPrivate::removeNode(DriveModelPrivate::QFileSystemNode *parentNod
     if (vLocation >= 0 && !indexHidden)
         q->beginRemoveRows(parent, translateVisibleLocation(parentNode, vLocation),
                                        translateVisibleLocation(parentNode, vLocation));
-    QFileSystemNode * node = parentNode->children.take(name);
+    FileNode * node = parentNode->children.take(name);
     delete node;
     // cleanup sort files after removing rather then re-sorting which is O(n)
     if (vLocation >= 0)
@@ -1583,7 +1583,7 @@ void DriveModelPrivate::removeNode(DriveModelPrivate::QFileSystemNode *parentNod
 
     *WARNING* this will change the visible count
  */
-void DriveModelPrivate::addVisibleFiles(QFileSystemNode *parentNode, const QStringList &newFiles)
+void DriveModelPrivate::addVisibleFiles(FileNode *parentNode, const QStringList &newFiles)
 {
     Q_Q(DriveModel);
     QModelIndex parent = index(parentNode);
@@ -1610,7 +1610,7 @@ void DriveModelPrivate::addVisibleFiles(QFileSystemNode *parentNode, const QStri
 
     *WARNING* this will change the visible count
  */
-void DriveModelPrivate::removeVisibleFile(QFileSystemNode *parentNode, int vLocation)
+void DriveModelPrivate::removeVisibleFile(FileNode *parentNode, int vLocation)
 {
     Q_Q(DriveModel);
     if (vLocation == -1)
@@ -1638,7 +1638,7 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<
     Q_Q(DriveModel);
     QVector<QString> rowsToUpdate;
     QStringList newFiles;
-    DriveModelPrivate::QFileSystemNode *parentNode = node(path, false);
+    DriveModelPrivate::FileNode *parentNode = node(path, false);
     QModelIndex parentIndex = index(parentNode);
     for (const auto &update : updates) {
         QString fileName = update.first;
@@ -1648,7 +1648,7 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<
         if (!previouslyHere) {
             addNode(parentNode, fileName, info.fileInfo());
         }
-        DriveModelPrivate::QFileSystemNode * node = parentNode->children.value(fileName);
+        DriveModelPrivate::FileNode * node = parentNode->children.value(fileName);
         bool isCaseSensitive = parentNode->caseSensitive();
         if (isCaseSensitive) {
             if (node->fileName != fileName)
@@ -1775,7 +1775,7 @@ void DriveModelPrivate::init()
     QDir::Modified is not supported
     QDir::Drives is not supported
 */
-bool DriveModelPrivate::filtersAcceptsNode(const QFileSystemNode *node) const
+bool DriveModelPrivate::filtersAcceptsNode(const FileNode *node) const
 {
     // always accept drives
     if (node->parent == &root || bypassFilters.contains(node))
@@ -1821,7 +1821,7 @@ bool DriveModelPrivate::filtersAcceptsNode(const QFileSystemNode *node) const
 
     Returns \c true if node passes the name filters and should be visible.
  */
-bool DriveModelPrivate::passNameFilters(const QFileSystemNode *node) const
+bool DriveModelPrivate::passNameFilters(const FileNode *node) const
 {
 #ifndef QT_NO_REGEXP
     if (nameFilters.isEmpty())
