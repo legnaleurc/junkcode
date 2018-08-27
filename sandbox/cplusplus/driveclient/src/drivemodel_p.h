@@ -82,7 +82,13 @@ public:
     {
     public:
         explicit FileNode(const QString &filename = QString(), FileNode *p = 0)
-            : fileName(filename), populatedChildren(false), isVisible(false), dirtyChildrenIndex(-1), parent(p), info(0) {}
+            : fileName(filename)
+            , populatedChildren(false)
+            , isVisible(false)
+            , dirtyChildrenIndex(-1)
+            , parent(p)
+            , info(0)
+        {}
         ~FileNode() {
             qDeleteAll(children);
             delete info;
@@ -91,9 +97,6 @@ public:
         }
 
         QString fileName;
-#if defined(Q_OS_WIN)
-        QString volumeName;
-#endif
 
         inline qint64 size() const { if (info && !info->isDir()) return info->size(); return 0; }
         inline QString type() const { if (info) return info->displayType; return QLatin1String(""); }
