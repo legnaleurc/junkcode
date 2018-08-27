@@ -149,6 +149,8 @@ private:
     Q_DECLARE_PRIVATE(DriveModel)
     Q_DISABLE_COPY(DriveModel)
 
+    QScopedPointer<DriveModelPrivate> d_ptr;
+
     // _Q_PRIVATE_SLOT(d_func(), void _q_directoryChanged(const QString &directory, const QStringList &list))
     // _Q_PRIVATE_SLOT(d_func(), void _q_performDelayedSort())
     // _Q_PRIVATE_SLOT(d_func(), void _q_fileSystemChanged(const QString &path, const QVector<QPair<QString, QFileInfo> > &))

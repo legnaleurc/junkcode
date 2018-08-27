@@ -212,7 +212,7 @@ public:
 
     };
 
-    DriveModelPrivate() :
+    explicit DriveModelPrivate(DriveModel *q) :
             forceSort(true),
             sortColumn(0),
             sortOrder(Qt::AscendingOrder),
@@ -222,6 +222,7 @@ public:
             nameFilterDisables(true), // false on windows, true on mac and unix
             disableRecursiveSort(false)
     {
+        q_ptr = q;
         delayedSortTimer.setSingleShot(true);
     }
 
