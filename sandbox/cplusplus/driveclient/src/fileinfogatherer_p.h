@@ -64,18 +64,18 @@
 
 QT_BEGIN_NAMESPACE
 
-class QExtendedInformation {
+class ExtendedInformation {
 public:
     enum Type { Dir, File, System };
 
-    QExtendedInformation() {}
-    QExtendedInformation(const QFileInfo &info) : mFileInfo(info) {}
+    ExtendedInformation() {}
+    ExtendedInformation(const QFileInfo &info) : mFileInfo(info) {}
 
     inline bool isDir() { return type() == Dir; }
     inline bool isFile() { return type() == File; }
     inline bool isSystem() { return type() == System; }
 
-    bool operator ==(const QExtendedInformation &fileInfo) const {
+    bool operator ==(const ExtendedInformation &fileInfo) const {
        return mFileInfo == fileInfo.mFileInfo
        && displayType == fileInfo.displayType
        && permissions() == fileInfo.permissions()
@@ -92,15 +92,15 @@ public:
 
     Type type() const {
         if (mFileInfo.isDir()) {
-            return QExtendedInformation::Dir;
+            return ExtendedInformation::Dir;
         }
         if (mFileInfo.isFile()) {
-            return QExtendedInformation::File;
+            return ExtendedInformation::File;
         }
         if (!mFileInfo.exists() && mFileInfo.isSymLink()) {
-            return QExtendedInformation::System;
+            return ExtendedInformation::System;
         }
-        return QExtendedInformation::System;
+        return ExtendedInformation::System;
     }
 
     bool isSymLink(bool ignoreNtfsSymLinks = false) const
@@ -122,9 +122,9 @@ public:
 
     qint64 size() const {
         qint64 size = -1;
-        if (type() == QExtendedInformation::Dir)
+        if (type() == ExtendedInformation::Dir)
             size = 0;
-        if (type() == QExtendedInformation::File)
+        if (type() == ExtendedInformation::File)
             size = mFileInfo.size();
         if (!mFileInfo.exists() && !mFileInfo.isSymLink())
             size = -1;
@@ -157,7 +157,7 @@ public:
     // only callable from this->thread():
     void clear();
     void removePath(const QString &path);
-    QExtendedInformation getInfo(const QFileInfo &info) const;
+    ExtendedInformation getInfo(const QFileInfo &info) const;
     QFileIconProvider *iconProvider() const;
     bool resolveSymlinks() const;
 

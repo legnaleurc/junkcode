@@ -132,7 +132,7 @@ public:
                 return fileName < name;
             return QString::compare(fileName, name, Qt::CaseInsensitive) < 0;
         }
-        inline bool operator !=(const QExtendedInformation &fileInfo) const {
+        inline bool operator !=(const ExtendedInformation &fileInfo) const {
             return !operator==(fileInfo);
         }
         bool operator ==(const QString &name) const {
@@ -140,15 +140,15 @@ public:
                 return fileName == name;
             return QString::compare(fileName, name, Qt::CaseInsensitive) == 0;
         }
-        bool operator ==(const QExtendedInformation &fileInfo) const {
+        bool operator ==(const ExtendedInformation &fileInfo) const {
             return info && (*info == fileInfo);
         }
 
         inline bool hasInformation() const { return info != 0; }
 
-        void populate(const QExtendedInformation &fileInfo) {
+        void populate(const ExtendedInformation &fileInfo) {
             if (!info)
-                info = new QExtendedInformation(fileInfo.fileInfo());
+                info = new ExtendedInformation(fileInfo.fileInfo());
             (*info) = fileInfo;
         }
 
@@ -194,7 +194,7 @@ public:
         FileNode *parent;
 
 
-        QExtendedInformation *info;
+        ExtendedInformation *info;
 
     };
 

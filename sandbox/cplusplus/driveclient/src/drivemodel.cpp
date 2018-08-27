@@ -1643,7 +1643,7 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<
     for (const auto &update : updates) {
         QString fileName = update.first;
         Q_ASSERT(!fileName.isEmpty());
-        QExtendedInformation info = fileInfoGatherer.getInfo(update.second);
+        ExtendedInformation info = fileInfoGatherer.getInfo(update.second);
         bool previouslyHere = parentNode->children.contains(fileName);
         if (!previouslyHere) {
             addNode(parentNode, fileName, info.fileInfo());
