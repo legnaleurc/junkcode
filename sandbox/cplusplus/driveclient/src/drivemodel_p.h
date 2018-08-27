@@ -85,8 +85,9 @@ inline uint qHash(const DriveModelNodePathKey &key) { return qHash(key.toCaseFol
 typedef QString DriveModelNodePathKey;
 #endif
 
-class DriveModelPrivate : public QObjectData
+class DriveModelPrivate : public QObject
 {
+    Q_OBJECT
     Q_DECLARE_PUBLIC(DriveModel)
 
 public:
@@ -213,6 +214,7 @@ public:
     };
 
     explicit DriveModelPrivate(DriveModel *q) :
+            q_ptr(q),
             forceSort(true),
             sortColumn(0),
             sortOrder(Qt::AscendingOrder),
@@ -222,7 +224,6 @@ public:
             nameFilterDisables(true), // false on windows, true on mac and unix
             disableRecursiveSort(false)
     {
-        q_ptr = q;
         delayedSortTimer.setSingleShot(true);
     }
 
@@ -290,12 +291,16 @@ public:
     QString type(const QModelIndex &index) const;
     QString time(const QModelIndex &index) const;
 
+public slots:
     void _q_directoryChanged(const QString &directory, const QStringList &list);
     void _q_performDelayedSort();
     void _q_fileSystemChanged(const QString &path, const QVector<QPair<QString, QFileInfo> > &);
     void _q_resolvedName(const QString &fileName, const QString &resolvedName);
 
+public:
     static int naturalCompare(const QString &s1, const QString &s2, Qt::CaseSensitivity cs);
+
+    DriveModel * q_ptr;
 
     QDir rootDir;
 #if QT_CONFIG(filesystemwatcher)

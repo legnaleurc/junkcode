@@ -1775,16 +1775,16 @@ void DriveModelPrivate::init()
     Q_Q(DriveModel);
     qRegisterMetaType<QVector<QPair<QString,QFileInfo> > >();
 #ifndef QT_NO_FILESYSTEMWATCHER
-    q->connect(&fileInfoGatherer, SIGNAL(newListOfFiles(QString,QStringList)),
-               q, SLOT(_q_directoryChanged(QString,QStringList)));
-    q->connect(&fileInfoGatherer, SIGNAL(updates(QString,QVector<QPair<QString,QFileInfo> >)),
-            q, SLOT(_q_fileSystemChanged(QString,QVector<QPair<QString,QFileInfo> >)));
-    q->connect(&fileInfoGatherer, SIGNAL(nameResolved(QString,QString)),
-            q, SLOT(_q_resolvedName(QString,QString)));
+    this->connect(&fileInfoGatherer, SIGNAL(newListOfFiles(QString,QStringList)),
+               SLOT(_q_directoryChanged(QString,QStringList)));
+    this->connect(&fileInfoGatherer, SIGNAL(updates(QString,QVector<QPair<QString,QFileInfo> >)),
+            SLOT(_q_fileSystemChanged(QString,QVector<QPair<QString,QFileInfo> >)));
+    this->connect(&fileInfoGatherer, SIGNAL(nameResolved(QString,QString)),
+            SLOT(_q_resolvedName(QString,QString)));
     q->connect(&fileInfoGatherer, SIGNAL(directoryLoaded(QString)),
-               q, SIGNAL(directoryLoaded(QString)));
+               SIGNAL(directoryLoaded(QString)));
 #endif // !QT_NO_FILESYSTEMWATCHER
-    q->connect(&delayedSortTimer, SIGNAL(timeout()), q, SLOT(_q_performDelayedSort()), Qt::QueuedConnection);
+    this->connect(&delayedSortTimer, SIGNAL(timeout()), SLOT(_q_performDelayedSort()), Qt::QueuedConnection);
 
     // TODO 
     // roleNames.insertMulti(DriveModel::FileIconRole, QByteArrayLiteral("fileIcon")); // == Qt::decoration
