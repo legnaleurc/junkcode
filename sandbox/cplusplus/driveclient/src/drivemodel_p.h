@@ -68,22 +68,7 @@ class ExtendedInformation;
 class DriveModelPrivate;
 class QFileIconProvider;
 
-#if defined(Q_OS_WIN)
-class DriveModelNodePathKey : public QString
-{
-public:
-    DriveModelNodePathKey() {}
-    DriveModelNodePathKey(const QString &other) : QString(other) {}
-    DriveModelNodePathKey(const DriveModelNodePathKey &other) : QString(other) {}
-    bool operator==(const DriveModelNodePathKey &other) const { return !compare(other, Qt::CaseInsensitive); }
-};
-
-Q_DECLARE_TYPEINFO(DriveModelNodePathKey, Q_MOVABLE_TYPE);
-
-inline uint qHash(const DriveModelNodePathKey &key) { return qHash(key.toCaseFolded()); }
-#else // Q_OS_WIN
 typedef QString DriveModelNodePathKey;
-#endif
 
 class DriveModelPrivate : public QObject
 {
