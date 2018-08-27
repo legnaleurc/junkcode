@@ -13,6 +13,9 @@ def __lldb_init_module(debugger, internal_dict):
         b' lldbinit_qt.QVectorSyntheticProvider "^QVector<.+>$"')
     debugger.HandleCommand(
         b'type synthetic add -x -l'
+        b' lldbinit_qt.QVectorSyntheticProvider "^QStack<.+>$"')
+    debugger.HandleCommand(
+        b'type synthetic add -x -l'
         b' lldbinit_qt.QListSyntheticProvider "^QList<.+>$"')
     debugger.HandleCommand(
         b'type synthetic add -x -l'
