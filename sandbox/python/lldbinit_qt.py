@@ -11,6 +11,9 @@ def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand(
         b'type synthetic add -x -l'
         b' lldbinit_qt.QVectorSyntheticProvider "^QVector<.+>$"')
+    debugger.HandleCommand(
+        b'type synthetic add -x -l'
+        b' lldbinit_qt.QListSyntheticProvider "^QList<.+>$"')
 
 
 class QVectorSyntheticProvider(object):
@@ -45,6 +48,47 @@ class QVectorSyntheticProvider(object):
             return self.valobj.GetChildMemberWithName(b'd').CreateChildAtOffset(b'[' + str(index) + b']', doffset + index * elementSize, type_)
         except:
             return None
+
+
+class QListSyntheticProvider(object):
+
+    def __init__(self, valobj, internal_dict):
+        self.valobj = valobj
+
+    def num_children(self):
+        try:
+            listDataD = self.valobj.GetChildMemberWithName('p').GetChildMemberWithName('d')
+            begin = listDataD.GetChildMemberWithName('begin').GetValueAsUnsigned()
+            end = listDataD.GetChildMemberWithName('end').GetValueAsUnsigned()
+            return (end - begin)
+        except:
+            return 0
+
+    def get_child_index(self, name):
+        try:
+            return int(name.lstrip('[').rstrip(']'))
+        except:
+            return None
+
+    def get_child_at_index(self, index):
+        if index < 0:
+            return None
+        if index >= self.num_children():
+            return None
+        if self.valobj.IsValid() == False:
+            return None
+        try:
+            pD = self.valobj.GetChildMemberWithName('p').GetChildMemberWithName('d')
+            pBegin = pD.GetChildMemberWithName('begin').GetValueAsUnsigned()
+            pArray = pD.GetChildMemberWithName('array').GetValueAsUnsigned()
+            pAt = pArray + pBegin + index
+            type_ = self.valobj.GetType().GetTemplateArgumentType(0)
+            elementSize = type_.GetByteSize()
+            voidSize = pD.GetChildMemberWithName('array').GetType().GetByteSize()
+            return self.valobj.GetChildMemberWithName('p').GetChildMemberWithName('d').GetChildMemberWithName('array').CreateChildAtOffset('[' + str(index) + ']', pBegin + index * voidSize, type_)
+        except:
+            print("boned getchild")
+        return None
 
 
 def qstring_summary(value, unused):
