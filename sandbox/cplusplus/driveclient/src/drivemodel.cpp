@@ -583,27 +583,6 @@ int DriveModel::columnCount(const QModelIndex &parent) const
 }
 
 /*!
-    Returns the data stored under the given \a role for the item "My Computer".
-
-    \sa Qt::ItemDataRole
- */
-QVariant DriveModel::myComputer(int role) const
-{
-#ifndef QT_NO_FILESYSTEMWATCHER
-    Q_D(const DriveModel);
-#endif
-    switch (role) {
-    case Qt::DisplayRole:
-        return DriveModelPrivate::myComputer();
-#ifndef QT_NO_FILESYSTEMWATCHER
-    case Qt::DecorationRole:
-        return d->fileInfoGatherer.iconProvider()->icon(QFileIconProvider::Computer);
-#endif
-    }
-    return QVariant();
-}
-
-/*!
     \reimp
 */
 QVariant DriveModel::data(const QModelIndex &index, int role) const
