@@ -52,7 +52,7 @@ static QString translateDriveName(const QFileInfo &drive)
 /*!
     Creates thread
 */
-QFileInfoGatherer::QFileInfoGatherer(QObject *parent)
+FileInfoGatherer::FileInfoGatherer(QObject *parent)
     : QThread(parent), abort(false),
 #ifndef QT_NO_FILESYSTEMWATCHER
       watcher(0),
@@ -70,7 +70,7 @@ QFileInfoGatherer::QFileInfoGatherer(QObject *parent)
 /*!
     Destroys thread
 */
-QFileInfoGatherer::~QFileInfoGatherer()
+FileInfoGatherer::~FileInfoGatherer()
 {
     abort.store(true);
     QMutexLocker locker(&mutex);
@@ -79,17 +79,17 @@ QFileInfoGatherer::~QFileInfoGatherer()
     wait();
 }
 
-void QFileInfoGatherer::setResolveSymlinks(bool enable)
+void FileInfoGatherer::setResolveSymlinks(bool enable)
 {
     Q_UNUSED(enable);
 }
 
-void QFileInfoGatherer::driveAdded()
+void FileInfoGatherer::driveAdded()
 {
     fetchExtendedInformation(QString(), QStringList());
 }
 
-void QFileInfoGatherer::driveRemoved()
+void FileInfoGatherer::driveRemoved()
 {
     QStringList drives;
     const QFileInfoList driveInfoList = QDir::drives();
@@ -98,17 +98,17 @@ void QFileInfoGatherer::driveRemoved()
     newListOfFiles(QString(), drives);
 }
 
-bool QFileInfoGatherer::resolveSymlinks() const
+bool FileInfoGatherer::resolveSymlinks() const
 {
     return false;
 }
 
-void QFileInfoGatherer::setIconProvider(QFileIconProvider *provider)
+void FileInfoGatherer::setIconProvider(QFileIconProvider *provider)
 {
     m_iconProvider = provider;
 }
 
-QFileIconProvider *QFileInfoGatherer::iconProvider() const
+QFileIconProvider *FileInfoGatherer::iconProvider() const
 {
     return m_iconProvider;
 }
@@ -118,7 +118,7 @@ QFileIconProvider *QFileInfoGatherer::iconProvider() const
 
     \sa updateFile(), update(), resolvedName()
 */
-void QFileInfoGatherer::fetchExtendedInformation(const QString &path, const QStringList &files)
+void FileInfoGatherer::fetchExtendedInformation(const QString &path, const QStringList &files)
 {
     QMutexLocker locker(&mutex);
     // See if we already have this dir/file in our queue
@@ -148,7 +148,7 @@ void QFileInfoGatherer::fetchExtendedInformation(const QString &path, const QStr
 
     \sa fetchExtendedInformation()
 */
-void QFileInfoGatherer::updateFile(const QString &filePath)
+void FileInfoGatherer::updateFile(const QString &filePath)
 {
     QString dir = filePath.mid(0, filePath.lastIndexOf(QLatin1Char('/')));
     QString fileName = filePath.mid(dir.length() + 1);
@@ -160,7 +160,7 @@ void QFileInfoGatherer::updateFile(const QString &filePath)
 
     \sa listed()
 */
-void QFileInfoGatherer::clear()
+void FileInfoGatherer::clear()
 {
 #ifndef QT_NO_FILESYSTEMWATCHER
     QMutexLocker locker(&mutex);
@@ -174,7 +174,7 @@ void QFileInfoGatherer::clear()
 
     \sa listed()
 */
-void QFileInfoGatherer::removePath(const QString &path)
+void FileInfoGatherer::removePath(const QString &path)
 {
 #ifndef QT_NO_FILESYSTEMWATCHER
     QMutexLocker locker(&mutex);
@@ -189,7 +189,7 @@ void QFileInfoGatherer::removePath(const QString &path)
 
     \sa listed()
 */
-void QFileInfoGatherer::list(const QString &directoryPath)
+void FileInfoGatherer::list(const QString &directoryPath)
 {
     fetchExtendedInformation(directoryPath, QStringList());
 }
@@ -197,7 +197,7 @@ void QFileInfoGatherer::list(const QString &directoryPath)
 /*
     Until aborted wait to fetch a directory or files
 */
-void QFileInfoGatherer::run()
+void FileInfoGatherer::run()
 {
     forever {
         QMutexLocker locker(&mutex);
@@ -215,7 +215,7 @@ void QFileInfoGatherer::run()
     }
 }
 
-ExtendedInformation QFileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
+ExtendedInformation FileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
 {
     ExtendedInformation info(fileInfo);
     info.icon = m_iconProvider->icon(fileInfo);
@@ -242,7 +242,7 @@ ExtendedInformation QFileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
     Get specific file info's, batch the files so update when we have 100
     items and every 200ms after that
  */
-void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &files)
+void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &files)
 {
     // List drives
     if (path.isEmpty()) {
@@ -294,7 +294,7 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
     emit directoryLoaded(path);
 }
 
-void QFileInfoGatherer::fetch(const QFileInfo &fileInfo, QElapsedTimer &base, bool &firstTime, QVector<QPair<QString, QFileInfo> > &updatedFiles, const QString &path) {
+void FileInfoGatherer::fetch(const QFileInfo &fileInfo, QElapsedTimer &base, bool &firstTime, QVector<QPair<QString, QFileInfo> > &updatedFiles, const QString &path) {
     updatedFiles.append(QPair<QString, QFileInfo>(fileInfo.fileName(), fileInfo));
     QElapsedTimer current;
     current.start();

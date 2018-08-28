@@ -280,7 +280,7 @@ public:
 
     QDir rootDir;
 #if QT_CONFIG(filesystemwatcher)
-    QFileInfoGatherer fileInfoGatherer;
+    FileInfoGatherer fileInfoGatherer;
 #endif // filesystemwatcher
     QTimer delayedSortTimer;
     bool forceSort;

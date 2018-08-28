@@ -138,9 +138,7 @@ private :
     QFileInfo mFileInfo;
 };
 
-class QFileIconProvider;
-
-class Q_AUTOTEST_EXPORT QFileInfoGatherer : public QThread
+class FileInfoGatherer : public QThread
 {
 Q_OBJECT
 
@@ -151,8 +149,8 @@ Q_SIGNALS:
     void directoryLoaded(const QString &path);
 
 public:
-    explicit QFileInfoGatherer(QObject *parent = 0);
-    ~QFileInfoGatherer();
+    explicit FileInfoGatherer(QObject *parent = 0);
+    ~FileInfoGatherer();
 
     // only callable from this->thread():
     void clear();
