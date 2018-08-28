@@ -70,6 +70,131 @@ class QFileIconProvider;
 
 typedef QString DriveModelNodePathKey;
 
+
+class FileNode
+{
+public:
+    explicit FileNode(const QString &filename = QString(), FileNode *p = 0)
+        : fileName(filename)
+        , populatedChildren(false)
+        , isVisible(false)
+        , dirtyChildrenIndex(-1)
+        , parent(p)
+        , info(0)
+    {}
+    ~FileNode() {
+        qDeleteAll(children);
+        delete info;
+        info = 0;
+        parent = 0;
+    }
+
+    QString fileName;
+
+    inline qint64 size() const { if (info && !info->isDir()) return info->size(); return 0; }
+    inline QString type() const { if (info) return info->displayType; return QLatin1String(""); }
+    inline QDateTime lastModified() const { if (info) return info->lastModified(); return QDateTime(); }
+    inline QFile::Permissions permissions() const { if (info) return info->permissions(); return 0; }
+    inline bool isReadable() const { return ((permissions() & QFile::ReadUser) != 0); }
+    inline bool isWritable() const { return ((permissions() & QFile::WriteUser) != 0); }
+    inline bool isExecutable() const { return ((permissions() & QFile::ExeUser) != 0); }
+    inline bool isDir() const {
+        if (info)
+            return info->isDir();
+        if (children.count() > 0)
+            return true;
+        return false;
+    }
+    inline QFileInfo fileInfo() const { if (info) return info->fileInfo(); return QFileInfo(); }
+    inline bool isFile() const { if (info) return info->isFile(); return true; }
+    inline bool isSystem() const { if (info) return info->isSystem(); return true; }
+    inline bool isHidden() const { if (info) return info->isHidden(); return false; }
+    inline bool isSymLink(bool ignoreNtfsSymLinks = false) const { return info && info->isSymLink(ignoreNtfsSymLinks); }
+    inline bool caseSensitive() const { if (info) return info->isCaseSensitive(); return false; }
+    inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
+
+    inline bool operator <(const FileNode &node) const {
+        if (caseSensitive() || node.caseSensitive())
+            return fileName < node.fileName;
+        return QString::compare(fileName, node.fileName, Qt::CaseInsensitive) < 0;
+    }
+    inline bool operator >(const QString &name) const {
+        if (caseSensitive())
+            return fileName > name;
+        return QString::compare(fileName, name, Qt::CaseInsensitive) > 0;
+    }
+    inline bool operator <(const QString &name) const {
+        if (caseSensitive())
+            return fileName < name;
+        return QString::compare(fileName, name, Qt::CaseInsensitive) < 0;
+    }
+    inline bool operator !=(const ExtendedInformation &fileInfo) const {
+        return !operator==(fileInfo);
+    }
+    bool operator ==(const QString &name) const {
+        if (caseSensitive())
+            return fileName == name;
+        return QString::compare(fileName, name, Qt::CaseInsensitive) == 0;
+    }
+    bool operator ==(const ExtendedInformation &fileInfo) const {
+        return info && (*info == fileInfo);
+    }
+
+    inline bool hasInformation() const { return info != 0; }
+
+    void populate(const ExtendedInformation &fileInfo) {
+        if (!info)
+            info = new ExtendedInformation(fileInfo.fileInfo());
+        (*info) = fileInfo;
+    }
+
+    // children shouldn't normally be accessed directly, use node()
+    inline int visibleLocation(const QString &childName) {
+        return visibleChildren.indexOf(childName);
+    }
+    void updateIcon(QFileIconProvider *iconProvider, const QString &path) {
+        if (info)
+            info->icon = iconProvider->icon(QFileInfo(path));
+        for (FileNode *child : qAsConst(children)) {
+            //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
+            if (!path.isEmpty()) {
+                if (path.endsWith(QLatin1Char('/')))
+                    child->updateIcon(iconProvider, path + child->fileName);
+                else
+                    child->updateIcon(iconProvider, path + QLatin1Char('/') + child->fileName);
+            } else
+                child->updateIcon(iconProvider, child->fileName);
+        }
+    }
+
+    void retranslateStrings(QFileIconProvider *iconProvider, const QString &path) {
+        if (info)
+            info->displayType = iconProvider->type(QFileInfo(path));
+        for (FileNode *child : qAsConst(children)) {
+            //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
+            if (!path.isEmpty()) {
+                if (path.endsWith(QLatin1Char('/')))
+                    child->retranslateStrings(iconProvider, path + child->fileName);
+                else
+                    child->retranslateStrings(iconProvider, path + QLatin1Char('/') + child->fileName);
+            } else
+                child->retranslateStrings(iconProvider, child->fileName);
+        }
+    }
+
+    bool populatedChildren;
+    bool isVisible;
+    QHash<DriveModelNodePathKey, FileNode *> children;
+    QList<QString> visibleChildren;
+    int dirtyChildrenIndex;
+    FileNode *parent;
+
+
+    ExtendedInformation *info;
+
+};
+
+
 class DriveModelPrivate : public QObject
 {
     Q_OBJECT
@@ -77,129 +202,6 @@ class DriveModelPrivate : public QObject
 
 public:
     enum { NumColumns = 4 };
-
-    class FileNode
-    {
-    public:
-        explicit FileNode(const QString &filename = QString(), FileNode *p = 0)
-            : fileName(filename)
-            , populatedChildren(false)
-            , isVisible(false)
-            , dirtyChildrenIndex(-1)
-            , parent(p)
-            , info(0)
-        {}
-        ~FileNode() {
-            qDeleteAll(children);
-            delete info;
-            info = 0;
-            parent = 0;
-        }
-
-        QString fileName;
-
-        inline qint64 size() const { if (info && !info->isDir()) return info->size(); return 0; }
-        inline QString type() const { if (info) return info->displayType; return QLatin1String(""); }
-        inline QDateTime lastModified() const { if (info) return info->lastModified(); return QDateTime(); }
-        inline QFile::Permissions permissions() const { if (info) return info->permissions(); return 0; }
-        inline bool isReadable() const { return ((permissions() & QFile::ReadUser) != 0); }
-        inline bool isWritable() const { return ((permissions() & QFile::WriteUser) != 0); }
-        inline bool isExecutable() const { return ((permissions() & QFile::ExeUser) != 0); }
-        inline bool isDir() const {
-            if (info)
-                return info->isDir();
-            if (children.count() > 0)
-                return true;
-            return false;
-        }
-        inline QFileInfo fileInfo() const { if (info) return info->fileInfo(); return QFileInfo(); }
-        inline bool isFile() const { if (info) return info->isFile(); return true; }
-        inline bool isSystem() const { if (info) return info->isSystem(); return true; }
-        inline bool isHidden() const { if (info) return info->isHidden(); return false; }
-        inline bool isSymLink(bool ignoreNtfsSymLinks = false) const { return info && info->isSymLink(ignoreNtfsSymLinks); }
-        inline bool caseSensitive() const { if (info) return info->isCaseSensitive(); return false; }
-        inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
-
-        inline bool operator <(const FileNode &node) const {
-            if (caseSensitive() || node.caseSensitive())
-                return fileName < node.fileName;
-            return QString::compare(fileName, node.fileName, Qt::CaseInsensitive) < 0;
-        }
-        inline bool operator >(const QString &name) const {
-            if (caseSensitive())
-                return fileName > name;
-            return QString::compare(fileName, name, Qt::CaseInsensitive) > 0;
-        }
-        inline bool operator <(const QString &name) const {
-            if (caseSensitive())
-                return fileName < name;
-            return QString::compare(fileName, name, Qt::CaseInsensitive) < 0;
-        }
-        inline bool operator !=(const ExtendedInformation &fileInfo) const {
-            return !operator==(fileInfo);
-        }
-        bool operator ==(const QString &name) const {
-            if (caseSensitive())
-                return fileName == name;
-            return QString::compare(fileName, name, Qt::CaseInsensitive) == 0;
-        }
-        bool operator ==(const ExtendedInformation &fileInfo) const {
-            return info && (*info == fileInfo);
-        }
-
-        inline bool hasInformation() const { return info != 0; }
-
-        void populate(const ExtendedInformation &fileInfo) {
-            if (!info)
-                info = new ExtendedInformation(fileInfo.fileInfo());
-            (*info) = fileInfo;
-        }
-
-        // children shouldn't normally be accessed directly, use node()
-        inline int visibleLocation(const QString &childName) {
-            return visibleChildren.indexOf(childName);
-        }
-        void updateIcon(QFileIconProvider *iconProvider, const QString &path) {
-            if (info)
-                info->icon = iconProvider->icon(QFileInfo(path));
-            for (FileNode *child : qAsConst(children)) {
-                //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
-                if (!path.isEmpty()) {
-                    if (path.endsWith(QLatin1Char('/')))
-                        child->updateIcon(iconProvider, path + child->fileName);
-                    else
-                        child->updateIcon(iconProvider, path + QLatin1Char('/') + child->fileName);
-                } else
-                    child->updateIcon(iconProvider, child->fileName);
-            }
-        }
-
-        void retranslateStrings(QFileIconProvider *iconProvider, const QString &path) {
-            if (info)
-                info->displayType = iconProvider->type(QFileInfo(path));
-            for (FileNode *child : qAsConst(children)) {
-                //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
-                if (!path.isEmpty()) {
-                    if (path.endsWith(QLatin1Char('/')))
-                        child->retranslateStrings(iconProvider, path + child->fileName);
-                    else
-                        child->retranslateStrings(iconProvider, path + QLatin1Char('/') + child->fileName);
-                } else
-                    child->retranslateStrings(iconProvider, child->fileName);
-            }
-        }
-
-        bool populatedChildren;
-        bool isVisible;
-        QHash<DriveModelNodePathKey, FileNode *> children;
-        QList<QString> visibleChildren;
-        int dirtyChildrenIndex;
-        FileNode *parent;
-
-
-        ExtendedInformation *info;
-
-    };
 
     explicit DriveModelPrivate(DriveModel *q) :
             q_ptr(q),
