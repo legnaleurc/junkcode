@@ -10,6 +10,9 @@ async def list_(request):
 
     drive = request.app['drive']
     node = await drive.get_node_by_path(path)
+    if not node:
+        return aw.Response(status=404)
+
     children = await drive.get_children(node)
     children = [dict_from_node(_) for _ in children]
     return json_response(children)
@@ -22,6 +25,9 @@ async def info(request):
 
     drive = request.app['drive']
     node = await drive.get_node_by_path(path)
+    if not node:
+        return aw.Response(status=404)
+
     node = dict_from_node(node)
     return json_response(node)
 
