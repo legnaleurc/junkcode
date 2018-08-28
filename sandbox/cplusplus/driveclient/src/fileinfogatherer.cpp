@@ -43,12 +43,6 @@
 
 QT_BEGIN_NAMESPACE
 
-static QString translateDriveName(const QFileInfo &drive)
-{
-    QString driveName = drive.absoluteFilePath();
-    return driveName;
-}
-
 /*!
     Creates thread
 */
@@ -215,22 +209,8 @@ ExtendedInformation FileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
  */
 void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &files)
 {
-    // List drives
     if (path.isEmpty()) {
-        QFileInfoList infoList;
-        if (files.isEmpty()) {
-            infoList = QDir::drives();
-        } else {
-            infoList.reserve(files.count());
-            for (const auto &file : files)
-                infoList << QFileInfo(file);
-        }
-        for (int i = infoList.count() - 1; i >= 0; --i) {
-            QString driveName = translateDriveName(infoList.at(i));
-            QVector<QPair<QString,QFileInfo> > updatedFiles;
-            updatedFiles.append(QPair<QString,QFileInfo>(driveName, infoList.at(i)));
-            emit updates(path, updatedFiles);
-        }
+        qDebug() << "got empty request";
         return;
     }
 
