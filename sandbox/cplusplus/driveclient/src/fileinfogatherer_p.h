@@ -138,11 +138,12 @@ private :
     QFileInfo mFileInfo;
 };
 
+
 class FileInfoGatherer : public QThread
 {
 Q_OBJECT
 
-Q_SIGNALS:
+signals:
     void updates(const QString &directory, const QVector<QPair<QString, QFileInfo> > &updates);
     void newListOfFiles(const QString &directory, const QStringList &listOfFiles) const;
     void nameResolved(const QString &fileName, const QString &resolvedName) const;
@@ -159,14 +160,14 @@ public:
     QFileIconProvider *iconProvider() const;
     bool resolveSymlinks() const;
 
-public Q_SLOTS:
+public slots:
     void list(const QString &directoryPath);
     void fetchExtendedInformation(const QString &path, const QStringList &files);
     void updateFile(const QString &path);
     void setResolveSymlinks(bool enable);
     void setIconProvider(QFileIconProvider *provider);
 
-private Q_SLOTS:
+private slots:
     void driveAdded();
     void driveRemoved();
 
