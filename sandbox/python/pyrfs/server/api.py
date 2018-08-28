@@ -28,7 +28,7 @@ async def info(request):
 
 def json_response(data):
     data = json.dumps(data)
-    return aw.Response(text=data + '\n')
+    return aw.Response(content_type='application/json', text=data + '\n')
 
 
 def dict_from_node(node):
