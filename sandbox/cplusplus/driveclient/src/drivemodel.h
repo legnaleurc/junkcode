@@ -41,16 +41,16 @@
 #define DRIVEMODEL_H
 
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QPair>
 #include <QtCore/QDir>
 #include <QtGui/QIcon>
-#include <QtCore/QDirIterator>
 
 QT_BEGIN_NAMESPACE
 
+class QFileIconProvider;
+class QIcon;
+
 class ExtendedInformation;
 class DriveModelPrivate;
-class QFileIconProvider;
 
 class DriveModel : public QAbstractItemModel
 {

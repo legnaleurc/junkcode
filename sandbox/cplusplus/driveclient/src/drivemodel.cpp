@@ -43,11 +43,12 @@
 #include <QtCore/QCollator>
 #include <QtCore/QMimeData>
 #include <QtCore/QUrl>
+#include <QtWidgets/QApplication>
 #include <QtCore/QtDebug>
+
 #if QT_CONFIG(messagebox)
 #include <QtWidgets/QMessageBox>
 #endif
-#include <QtWidgets/QApplication>
 
 #include <algorithm>
 
