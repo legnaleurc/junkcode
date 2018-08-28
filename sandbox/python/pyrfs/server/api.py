@@ -15,6 +15,17 @@ async def list_(request):
     return json_response(children)
 
 
+async def info(request):
+    path = request.query.get('path', None)
+    if not path:
+        return aw.Response(status=400)
+
+    drive = request.app['drive']
+    node = await drive.get_node_by_path(path)
+    node = dict_from_node(node)
+    return json_response(node)
+
+
 def json_response(data):
     data = json.dumps(data)
     return aw.Response(text=data + '\n')
