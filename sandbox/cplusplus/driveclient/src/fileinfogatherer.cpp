@@ -40,6 +40,45 @@
 #include "fileinfogatherer_p.h"
 #include <QtCore/QtDebug>
 #include <QtCore/QDirIterator>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+#include <QtCore/QEventLoop>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonArray>
+#include <QtCore/QUrlQuery>
+
+
+namespace {
+
+void listRemote(const QString & path) {
+    QNetworkAccessManager nam;
+    QNetworkRequest request;
+    QUrl url("http://localhost:8000/api/v1/list");
+    QUrlQuery query;
+    query.addQueryItem("path", path);
+    url.setQuery(query);
+    request.setUrl(url);
+    auto reply = nam.get(request);
+
+    QEventLoop loop;
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    auto response = reply->readAll();
+    QJsonParseError error;
+    auto json = QJsonDocument::fromJson(response, &error);
+    if (error.error != QJsonParseError::NoError) {
+        qDebug() << error.errorString();
+        return;
+    }
+    auto data = json.array().toVariantList();
+    for (const auto & info : data) {
+        ;
+    }
+}
+
+}
+
 
 QT_BEGIN_NAMESPACE
 
@@ -230,6 +269,7 @@ void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &file
             allFiles.append(fileInfo.fileName());
             fetch(fileInfo, base, firstTime, updatedFiles, path);
         }
+        listRemote(path);
     }
     if (!allFiles.isEmpty())
         emit newListOfFiles(path, allFiles);
