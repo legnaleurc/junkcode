@@ -220,21 +220,6 @@ ExtendedInformation FileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
     ExtendedInformation info(fileInfo);
     info.icon = m_iconProvider->icon(fileInfo);
     info.displayType = m_iconProvider->type(fileInfo);
-#ifndef QT_NO_FILESYSTEMWATCHER
-    // ### Not ready to listen all modifications by default
-    static const bool watchFiles = qEnvironmentVariableIsSet("QT_FILESYSTEMMODEL_WATCH_FILES");
-    if (watchFiles) {
-        if (!fileInfo.exists() && !fileInfo.isSymLink()) {
-            watcher->removePath(fileInfo.absoluteFilePath());
-        } else {
-            const QString path = fileInfo.absoluteFilePath();
-            if (!path.isEmpty() && fileInfo.exists() && fileInfo.isFile() && fileInfo.isReadable()
-                && !watcher->files().contains(path)) {
-                watcher->addPath(path);
-            }
-        }
-    }
-#endif
     return info;
 }
 

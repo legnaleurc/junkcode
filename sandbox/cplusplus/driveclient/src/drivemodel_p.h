@@ -189,9 +189,7 @@ public:
     int dirtyChildrenIndex;
     FileNode *parent;
 
-
     ExtendedInformation *info;
-
 };
 
 
