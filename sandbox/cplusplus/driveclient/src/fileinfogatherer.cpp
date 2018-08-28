@@ -84,20 +84,6 @@ void FileInfoGatherer::setResolveSymlinks(bool enable)
     Q_UNUSED(enable);
 }
 
-void FileInfoGatherer::driveAdded()
-{
-    fetchExtendedInformation(QString(), QStringList());
-}
-
-void FileInfoGatherer::driveRemoved()
-{
-    QStringList drives;
-    const QFileInfoList driveInfoList = QDir::drives();
-    for (const QFileInfo &fi : driveInfoList)
-        drives.append(translateDriveName(fi));
-    newListOfFiles(QString(), drives);
-}
-
 bool FileInfoGatherer::resolveSymlinks() const
 {
     return false;

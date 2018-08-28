@@ -167,10 +167,6 @@ public slots:
     void setResolveSymlinks(bool enable);
     void setIconProvider(QFileIconProvider *provider);
 
-private slots:
-    void driveAdded();
-    void driveRemoved();
-
 private:
     void run() override;
     // called by run():
