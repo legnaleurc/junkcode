@@ -11,7 +11,7 @@ class DriveFileInfo {
 public:
     DriveFileInfo();
     explicit DriveFileInfo(const QString & path);
-    DriveFileInfo(const QString & parentPath, const QString name);
+    DriveFileInfo(const QString & parentPath, const QString & name);
     explicit DriveFileInfo(const QFileInfo & fileInfo);
 
     ~DriveFileInfo();
