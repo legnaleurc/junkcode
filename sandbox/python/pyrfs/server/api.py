@@ -32,6 +32,14 @@ async def info(request):
     return json_response(node)
 
 
+async def sync(request):
+    drive = request.app['drive']
+    all_changes = []
+    async for changes in drive.sync():
+        all_changes.extend(changes)
+    return json_response(all_changes)
+
+
 def json_response(data):
     data = json.dumps(data)
     return aw.Response(content_type='application/json', text=data + '\n')
