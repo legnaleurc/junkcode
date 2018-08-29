@@ -11,6 +11,7 @@ set(SOURCES
     "src/main.cpp"
     "src/drivemodel.cpp"
     "src/fileinfogatherer.cpp"
+    "src/drivefileinfo.cpp"
 )
 
 
