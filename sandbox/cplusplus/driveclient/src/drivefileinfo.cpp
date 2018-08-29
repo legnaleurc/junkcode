@@ -6,6 +6,11 @@ DriveFileInfo::DriveFileInfo()
 {}
 
 
+DriveFileInfo::DriveFileInfo(const DriveFileInfo & that)
+    : d_ptr(new DriveFileInfoPrivate(this, that.d_ptr->fileInfo))
+{}
+
+
 DriveFileInfo::DriveFileInfo(const QString & path)
     : d_ptr(new DriveFileInfoPrivate(this, path))
 {}
@@ -19,6 +24,14 @@ DriveFileInfo::DriveFileInfo(const QString & parentPath, const QString & name)
 DriveFileInfo::DriveFileInfo(const QFileInfo & fileInfo)
     : d_ptr(new DriveFileInfoPrivate(this, fileInfo))
 {}
+
+DriveFileInfo::~DriveFileInfo()
+{}
+
+
+DriveFileInfo & DriveFileInfo::operator = (const DriveFileInfo & that) {
+    return *this;
+}
 
 
 DriveFileInfo & DriveFileInfo::operator = (const QFileInfo & fileInfo) {
@@ -36,7 +49,13 @@ QString DriveFileInfo::fileName() const {
 bool DriveFileInfo::isDir() const {
     Q_D(const DriveFileInfo);
     if (!d->fetched) {
-        d->fetch();
+        assert(!"not fetched");
     }
     return d->isFolder;
+}
+
+
+void DriveFileInfo::setFile(const QString & path) {
+    d_ptr->fileInfo.setFile(path);
+    d_ptr->fetched = false;
 }
