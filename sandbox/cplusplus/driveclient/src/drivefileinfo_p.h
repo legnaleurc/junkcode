@@ -13,8 +13,12 @@ public:
     DriveFileInfoPrivate(DriveFileInfo * q, const QFileInfo & fileInfo);
     DriveFileInfoPrivate(DriveFileInfo * q, const QString & parentPath, const QString & name);
 
+    void fetch();
+
     DriveFileInfo * q_ptr;
     QFileInfo fileInfo;
+    bool fetched;
+    bool isFolder;
 };
 
 

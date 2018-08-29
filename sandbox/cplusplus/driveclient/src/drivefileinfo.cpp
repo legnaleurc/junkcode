@@ -25,3 +25,18 @@ DriveFileInfo & DriveFileInfo::operator = (const QFileInfo & fileInfo) {
     d_ptr->fileInfo = fileInfo;
     return *this;
 }
+
+
+QString DriveFileInfo::fileName() const {
+    Q_D(const DriveFileInfo);
+    return d->fileInfo.fileName();
+}
+
+
+bool DriveFileInfo::isDir() const {
+    Q_D(const DriveFileInfo);
+    if (!d->fetched) {
+        d->fetch();
+    }
+    return d->isFolder;
+}
