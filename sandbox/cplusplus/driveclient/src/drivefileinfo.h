@@ -14,8 +14,6 @@ public:
     DriveFileInfo(const QString & parentPath, const QString & name);
     explicit DriveFileInfo(const QFileInfo & fileInfo);
 
-    ~DriveFileInfo();
-
     DriveFileInfo & operator = (const QFileInfo & fileInfo);
 
     bool operator == (const DriveFileInfo & that) const;
