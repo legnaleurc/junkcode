@@ -25,7 +25,7 @@ DriveFileInfo::DriveFileInfo(const QFileInfo & fileInfo)
     : d_ptr(new DriveFileInfoPrivate(this, fileInfo))
 {}
 
-DriveFileInfo::~DriveFileInfo()
+DriveFileInfo::~DriveFileInfo() noexcept
 {}
 
 

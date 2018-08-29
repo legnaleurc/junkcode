@@ -47,10 +47,12 @@
 #include <QtCore/QJsonArray>
 #include <QtCore/QUrlQuery>
 
+#include "drivefileinfo_p.h"
+
 
 namespace {
 
-void listRemote(const QString & path) {
+QList<DriveFileInfo> listRemote(const QString & path) {
     QNetworkAccessManager nam;
     QNetworkRequest request;
     QUrl url("http://localhost:8000/api/v1/list");
@@ -64,17 +66,20 @@ void listRemote(const QString & path) {
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
+    QList<DriveFileInfo> rv;
     auto response = reply->readAll();
     QJsonParseError error;
     auto json = QJsonDocument::fromJson(response, &error);
     if (error.error != QJsonParseError::NoError) {
         qDebug() << error.errorString();
-        return;
+        return rv;
     }
     auto data = json.array().toVariantList();
     for (const auto & info : data) {
-        ;
+        DriveFileInfo fileInfo(new DriveFileInfoPrivate(info.value<QVariantMap>()));
+        rv.push_back(fileInfo);
     }
+    return rv;
 }
 
 }
@@ -252,14 +257,13 @@ void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &file
 
     QStringList allFiles;
     if (files.isEmpty()) {
-        QDirIterator dirIt(path, QDir::AllEntries | QDir::System | QDir::Hidden);
-        while (!abort.load() && dirIt.hasNext()) {
-            dirIt.next();
-            fileInfo = dirIt.fileInfo();
+        auto children = listRemote(path);
+        QListIterator<DriveFileInfo> it(children);
+        while (!abort.load() && it.hasNext()) {
+            const auto & fileInfo = it.next();
             allFiles.append(fileInfo.fileName());
             fetch(fileInfo, base, firstTime, updatedFiles, path);
         }
-        listRemote(path);
     }
     if (!allFiles.isEmpty())
         emit newListOfFiles(path, allFiles);

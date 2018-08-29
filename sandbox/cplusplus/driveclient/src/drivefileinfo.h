@@ -17,6 +17,7 @@ public:
     DriveFileInfo & operator = (const DriveFileInfo &);
     void swap(DriveFileInfo &) noexcept;
 
+    explicit DriveFileInfo(DriveFileInfoPrivate *);
     explicit DriveFileInfo(const QString & path);
     DriveFileInfo(const QString & parentPath, const QString & name);
     explicit DriveFileInfo(const QFileInfo & fileInfo);
