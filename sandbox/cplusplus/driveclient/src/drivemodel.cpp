@@ -152,12 +152,12 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
-    \fn QFileInfo DriveModel::fileInfo(const QModelIndex &index) const
+    \fn DriveFileInfo DriveModel::fileInfo(const QModelIndex &index) const
 
-    Returns the QFileInfo for the item stored in the model under the given
+    Returns the DriveFileInfo for the item stored in the model under the given
     \a index.
 */
-QFileInfo DriveModel::fileInfo(const QModelIndex &index) const
+DriveFileInfo DriveModel::fileInfo(const QModelIndex &index) const
 {
     Q_D(const DriveModel);
     return d->node(index)->fileInfo();
@@ -202,7 +202,7 @@ bool DriveModel::remove(const QModelIndex &aindex)
     Q_D(DriveModel);
 
     const QString path = d->filePath(aindex);
-    const QFileInfo fileInfo(path);
+    const DriveFileInfo fileInfo(path);
     const bool success = (fileInfo.isFile() || fileInfo.isSymLink())
             ? QFile::remove(path) : QDir(path).removeRecursively();
     return success;
@@ -363,7 +363,7 @@ FileNode *DriveModelPrivate::node(const QString &path, bool fetch) const
         if (!alreadyExisted) {
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
             // a path that doesn't exists, I.E. don't blindly create directories.
-            QFileInfo info(elementPath);
+            DriveFileInfo info(elementPath);
             if (!info.exists())
                 return const_cast<FileNode*>(&root);
             DriveModelPrivate *p = const_cast<DriveModelPrivate*>(this);
@@ -786,7 +786,7 @@ bool DriveModel::setData(const QModelIndex &idx, const QVariant &value, int role
         nodeToRename->fileName = newName;
         nodeToRename->parent = parentNode;
 #ifndef QT_NO_FILESYSTEMWATCHER
-        nodeToRename->populate(d->fileInfoGatherer.getInfo(QFileInfo(parentPath, newName)));
+        nodeToRename->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(parentPath, newName)));
 #endif
         nodeToRename->isVisible = true;
         parentNode->children[newName] = nodeToRename.take();
@@ -1096,19 +1096,19 @@ bool DriveModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     case Qt::CopyAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::copy(path, to + QFileInfo(path).fileName()) && success;
+            success = QFile::copy(path, to + DriveFileInfo(path).fileName()) && success;
         }
         break;
     case Qt::LinkAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::link(path, to + QFileInfo(path).fileName()) && success;
+            success = QFile::link(path, to + DriveFileInfo(path).fileName()) && success;
         }
         break;
     case Qt::MoveAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::rename(path, to + QFileInfo(path).fileName()) && success;
+            success = QFile::rename(path, to + DriveFileInfo(path).fileName()) && success;
         }
         break;
     default:
@@ -1134,18 +1134,6 @@ QString DriveModel::filePath(const QModelIndex &index) const
 {
     Q_D(const DriveModel);
     QString fullPath = d->filePath(index);
-    FileNode *dirNode = d->node(index);
-    if (dirNode->isSymLink()
-#ifndef QT_NO_FILESYSTEMWATCHER
-        && d->fileInfoGatherer.resolveSymlinks()
-#endif
-        && d->resolvedSymLinks.contains(fullPath)
-        && dirNode->isDir()) {
-        QFileInfo resolvedInfo(fullPath);
-        resolvedInfo = resolvedInfo.canonicalFilePath();
-        if (resolvedInfo.exists())
-            return resolvedInfo.filePath();
-    }
     return fullPath;
 }
 
@@ -1184,11 +1172,11 @@ QModelIndex DriveModel::mkdir(const QModelIndex &parent, const QString &name)
     if (!dir.mkdir(name))
         return QModelIndex();
     FileNode *parentNode = d->node(parent);
-    d->addNode(parentNode, name, QFileInfo());
+    d->addNode(parentNode, name, DriveFileInfo());
     Q_ASSERT(parentNode->children.contains(name));
     FileNode *node = parentNode->children[name];
 #ifndef QT_NO_FILESYSTEMWATCHER
-    node->populate(d->fileInfoGatherer.getInfo(QFileInfo(dir.absolutePath() + QDir::separator() + name)));
+    node->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(dir.absolutePath() + QDir::separator() + name)));
 #endif
     d->addVisibleFiles(parentNode, QStringList(name));
     return d->index(node);
@@ -1535,7 +1523,7 @@ void DriveModelPrivate::_q_directoryChanged(const QString &directory, const QStr
 
     *WARNING* this will change the count of children
 */
-FileNode* DriveModelPrivate::addNode(FileNode *parentNode, const QString &fileName, const QFileInfo& info)
+FileNode* DriveModelPrivate::addNode(FileNode *parentNode, const QString &fileName, const DriveFileInfo& info)
 {
     // In the common case, itemLocation == count() so check there first
     FileNode *node = new FileNode(fileName, parentNode);
@@ -1633,7 +1621,7 @@ void DriveModelPrivate::removeVisibleFile(FileNode *parentNode, int vLocation)
     The thread has received new information about files,
     update and emit dataChanged if it has actually changed.
  */
-void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<QPair<QString, QFileInfo> > &updates)
+void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<QPair<QString, DriveFileInfo> > &updates)
 {
 #ifndef QT_NO_FILESYSTEMWATCHER
     Q_Q(DriveModel);
@@ -1748,12 +1736,12 @@ void DriveModelPrivate::_q_resolvedName(const QString &fileName, const QString &
 void DriveModelPrivate::init()
 {
     Q_Q(DriveModel);
-    qRegisterMetaType<QVector<QPair<QString,QFileInfo> > >();
+    qRegisterMetaType<QVector<QPair<QString,DriveFileInfo> > >();
 #ifndef QT_NO_FILESYSTEMWATCHER
     this->connect(&fileInfoGatherer, SIGNAL(newListOfFiles(QString,QStringList)),
                SLOT(_q_directoryChanged(QString,QStringList)));
-    this->connect(&fileInfoGatherer, SIGNAL(updates(QString,QVector<QPair<QString,QFileInfo> >)),
-            SLOT(_q_fileSystemChanged(QString,QVector<QPair<QString,QFileInfo> >)));
+    this->connect(&fileInfoGatherer, SIGNAL(updates(QString,QVector<QPair<QString,DriveFileInfo> >)),
+            SLOT(_q_fileSystemChanged(QString,QVector<QPair<QString,DriveFileInfo> >)));
     this->connect(&fileInfoGatherer, SIGNAL(nameResolved(QString,QString)),
             SLOT(_q_resolvedName(QString,QString)));
     q->connect(&fileInfoGatherer, SIGNAL(directoryLoaded(QString)),
@@ -1799,7 +1787,7 @@ bool DriveModelPrivate::filtersAcceptsNode(const FileNode *node) const
     const bool hideDot           = (filters & QDir::NoDot);
     const bool hideDotDot        = (filters & QDir::NoDotDot);
 
-    // Note that we match the behavior of entryList and not QFileInfo on this.
+    // Note that we match the behavior of entryList and not DriveFileInfo on this.
     bool isDot    = (node->fileName == QLatin1String("."));
     bool isDotDot = (node->fileName == QLatin1String(".."));
     if (   (hideHidden && !(isDot || isDotDot) && node->isHidden())

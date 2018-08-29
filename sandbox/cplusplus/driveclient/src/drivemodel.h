@@ -44,6 +44,8 @@
 #include <QtCore/QDir>
 #include <QtGui/QIcon>
 
+#include "drivefileinfo.h"
+
 QT_BEGIN_NAMESPACE
 
 class QFileIconProvider;
@@ -136,7 +138,7 @@ public:
     inline QString fileName(const QModelIndex &index) const;
     inline QIcon fileIcon(const QModelIndex &index) const;
     QFile::Permissions permissions(const QModelIndex &index) const;
-    QFileInfo fileInfo(const QModelIndex &index) const;
+    DriveFileInfo fileInfo(const QModelIndex &index) const;
     bool remove(const QModelIndex &index);
 
 protected:

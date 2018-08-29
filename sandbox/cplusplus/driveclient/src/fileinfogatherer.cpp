@@ -112,16 +112,6 @@ FileInfoGatherer::~FileInfoGatherer()
     wait();
 }
 
-void FileInfoGatherer::setResolveSymlinks(bool enable)
-{
-    Q_UNUSED(enable);
-}
-
-bool FileInfoGatherer::resolveSymlinks() const
-{
-    return false;
-}
-
 void FileInfoGatherer::setIconProvider(QFileIconProvider *provider)
 {
     m_iconProvider = provider;
@@ -234,11 +224,11 @@ void FileInfoGatherer::run()
     }
 }
 
-ExtendedInformation FileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
+ExtendedInformation FileInfoGatherer::getInfo(const DriveFileInfo &fileInfo) const
 {
     ExtendedInformation info(fileInfo);
-    info.icon = m_iconProvider->icon(fileInfo);
-    info.displayType = m_iconProvider->type(fileInfo);
+    info.icon = m_iconProvider->icon(fileInfo.fileInfo());
+    info.displayType = m_iconProvider->type(fileInfo.fileInfo());
     return info;
 }
 
@@ -255,9 +245,9 @@ void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &file
 
     QElapsedTimer base;
     base.start();
-    QFileInfo fileInfo;
+    DriveFileInfo fileInfo;
     bool firstTime = true;
-    QVector<QPair<QString, QFileInfo> > updatedFiles;
+    QVector<QPair<QString, DriveFileInfo> > updatedFiles;
     QStringList filesToCheck = files;
 
     QStringList allFiles;
@@ -285,8 +275,8 @@ void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &file
     emit directoryLoaded(path);
 }
 
-void FileInfoGatherer::fetch(const QFileInfo &fileInfo, QElapsedTimer &base, bool &firstTime, QVector<QPair<QString, QFileInfo> > &updatedFiles, const QString &path) {
-    updatedFiles.append(QPair<QString, QFileInfo>(fileInfo.fileName(), fileInfo));
+void FileInfoGatherer::fetch(const DriveFileInfo &fileInfo, QElapsedTimer &base, bool &firstTime, QVector<QPair<QString, DriveFileInfo> > &updatedFiles, const QString &path) {
+    updatedFiles.append(QPair<QString, DriveFileInfo>(fileInfo.fileName(), fileInfo));
     QElapsedTimer current;
     current.start();
     if ((firstTime && updatedFiles.count() > 100) || base.msecsTo(current) > 1000) {

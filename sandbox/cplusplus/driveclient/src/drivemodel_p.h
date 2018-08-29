@@ -105,7 +105,7 @@ public:
             return true;
         return false;
     }
-    inline QFileInfo fileInfo() const { if (info) return info->fileInfo(); return QFileInfo(); }
+    inline DriveFileInfo fileInfo() const { if (info) return info->fileInfo(); return DriveFileInfo(); }
     inline bool isFile() const { if (info) return info->isFile(); return true; }
     inline bool isSystem() const { if (info) return info->isSystem(); return true; }
     inline bool isHidden() const { if (info) return info->isHidden(); return false; }
@@ -154,7 +154,7 @@ public:
     }
     void updateIcon(QFileIconProvider *iconProvider, const QString &path) {
         if (info)
-            info->icon = iconProvider->icon(QFileInfo(path));
+            info->icon = iconProvider->icon(DriveFileInfo(path).fileInfo());
         for (FileNode *child : qAsConst(children)) {
             //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
             if (!path.isEmpty()) {
@@ -169,7 +169,7 @@ public:
 
     void retranslateStrings(QFileIconProvider *iconProvider, const QString &path) {
         if (info)
-            info->displayType = iconProvider->type(QFileInfo(path));
+            info->displayType = iconProvider->type(DriveFileInfo(path).fileInfo());
         for (FileNode *child : qAsConst(children)) {
             //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
             if (!path.isEmpty()) {
@@ -232,7 +232,7 @@ public:
     bool filtersAcceptsNode(const FileNode *node) const;
     bool passNameFilters(const FileNode *node) const;
     void removeNode(FileNode *parentNode, const QString &name);
-    FileNode* addNode(FileNode *parentNode, const QString &fileName, const QFileInfo &info);
+    FileNode* addNode(FileNode *parentNode, const QString &fileName, const DriveFileInfo &info);
     void addVisibleFiles(FileNode *parentNode, const QStringList &newFiles);
     void removeVisibleFile(FileNode *parentNode, int visibleLocation);
     void sortChildren(int column, const QModelIndex &parent);
@@ -270,7 +270,7 @@ public:
 public slots:
     void _q_directoryChanged(const QString &directory, const QStringList &list);
     void _q_performDelayedSort();
-    void _q_fileSystemChanged(const QString &path, const QVector<QPair<QString, QFileInfo> > &);
+    void _q_fileSystemChanged(const QString &path, const QVector<QPair<QString, DriveFileInfo> > &);
     void _q_resolvedName(const QString &fileName, const QString &resolvedName);
 
 public:

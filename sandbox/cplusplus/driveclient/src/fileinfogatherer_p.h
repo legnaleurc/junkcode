@@ -62,6 +62,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QElapsedTimer>
 
+#include "drivefileinfo.h"
+
 QT_BEGIN_NAMESPACE
 
 class ExtendedInformation {
@@ -69,7 +71,7 @@ public:
     enum Type { Dir, File, System };
 
     ExtendedInformation() {}
-    ExtendedInformation(const QFileInfo &info) : mFileInfo(info) {}
+    ExtendedInformation(const DriveFileInfo &info) : mFileInfo(info) {}
 
     inline bool isDir() { return type() == Dir; }
     inline bool isFile() { return type() == File; }
@@ -112,7 +114,7 @@ public:
         return mFileInfo.isHidden();
     }
 
-    QFileInfo fileInfo() const {
+    DriveFileInfo fileInfo() const {
         return mFileInfo;
     }
 
@@ -135,7 +137,7 @@ public:
     QIcon icon;
 
 private :
-    QFileInfo mFileInfo;
+    DriveFileInfo mFileInfo;
 };
 
 
@@ -144,7 +146,7 @@ class FileInfoGatherer : public QThread
 Q_OBJECT
 
 signals:
-    void updates(const QString &directory, const QVector<QPair<QString, QFileInfo> > &updates);
+    void updates(const QString &directory, const QVector<QPair<QString, DriveFileInfo> > &updates);
     void newListOfFiles(const QString &directory, const QStringList &listOfFiles) const;
     void nameResolved(const QString &fileName, const QString &resolvedName) const;
     void directoryLoaded(const QString &path);
@@ -156,7 +158,7 @@ public:
     // only callable from this->thread():
     void clear();
     void removePath(const QString &path);
-    ExtendedInformation getInfo(const QFileInfo &info) const;
+    ExtendedInformation getInfo(const DriveFileInfo &info) const;
     QFileIconProvider *iconProvider() const;
     bool resolveSymlinks() const;
 
@@ -171,7 +173,7 @@ private:
     void run() override;
     // called by run():
     void getFileInfos(const QString &path, const QStringList &files);
-    void fetch(const QFileInfo &info, QElapsedTimer &base, bool &firstTime, QVector<QPair<QString, QFileInfo> > &updatedFiles, const QString &path);
+    void fetch(const DriveFileInfo &info, QElapsedTimer &base, bool &firstTime, QVector<QPair<QString, DriveFileInfo> > &updatedFiles, const QString &path);
 
 private:
     mutable QMutex mutex;
