@@ -6,18 +6,19 @@
 #include <QtCore/QSharedData>
 #include <QtCore/QVariantMap>
 
+#include <mutex>
 
-class DriveFileInfoPrivate : public QSharedData {
-    Q_DECLARE_PUBLIC(DriveFileInfo)
+
+class DriveFileInfoPrivate {
 public:
-    DriveFileInfoPrivate(DriveFileInfo * q);
+    DriveFileInfoPrivate();
     DriveFileInfoPrivate(const QVariantMap & data);
-    DriveFileInfoPrivate(DriveFileInfo * q, const QFileInfo & fileInfo);
-    DriveFileInfoPrivate(DriveFileInfo * q, const QString & parentPath, const QString & name);
+    DriveFileInfoPrivate(const QFileInfo & fileInfo);
+    DriveFileInfoPrivate(const QString & parentPath, const QString & name);
 
     void fetch();
 
-    DriveFileInfo * q_ptr;
+    std::mutex lock;
     QFileInfo fileInfo;
     bool fetched;
     bool isFolder;

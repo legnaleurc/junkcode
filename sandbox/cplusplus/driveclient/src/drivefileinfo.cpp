@@ -2,27 +2,27 @@
 
 
 DriveFileInfo::DriveFileInfo()
-    : d_ptr(new DriveFileInfoPrivate(this))
+    : d(std::make_shared<Private>())
 {}
 
 
 DriveFileInfo::DriveFileInfo(const DriveFileInfo & that)
-    : d_ptr(new DriveFileInfoPrivate(this, that.d_ptr->fileInfo))
+    : d(std::make_shared<Private>(that.d->fileInfo))
 {}
 
 
 DriveFileInfo::DriveFileInfo(const QString & path)
-    : d_ptr(new DriveFileInfoPrivate(this, path))
+    : d(std::make_shared<Private>(path))
 {}
 
 
 DriveFileInfo::DriveFileInfo(const QString & parentPath, const QString & name)
-    : d_ptr(new DriveFileInfoPrivate(this, parentPath, name))
+    : d(std::make_shared<Private>(parentPath, name))
 {}
 
 
 DriveFileInfo::DriveFileInfo(const QFileInfo & fileInfo)
-    : d_ptr(new DriveFileInfoPrivate(this, fileInfo))
+    : d(std::make_shared<Private>(fileInfo))
 {}
 
 DriveFileInfo::~DriveFileInfo() noexcept
@@ -35,27 +35,27 @@ DriveFileInfo & DriveFileInfo::operator = (const DriveFileInfo & that) {
 
 
 DriveFileInfo & DriveFileInfo::operator = (const QFileInfo & fileInfo) {
-    d_ptr->fileInfo = fileInfo;
+    if (d->fileInfo != fileInfo) {
+        d = std::make_shared<Private>(fileInfo);
+    }
     return *this;
 }
 
 
 QString DriveFileInfo::fileName() const {
-    Q_D(const DriveFileInfo);
     return d->fileInfo.fileName();
 }
 
 
 bool DriveFileInfo::isDir() const {
-    Q_D(const DriveFileInfo);
     if (!d->fetched) {
-        assert(!"not fetched");
+        d->fetch();
     }
     return d->isFolder;
 }
 
 
 void DriveFileInfo::setFile(const QString & path) {
-    d_ptr->fileInfo.setFile(path);
-    d_ptr->fetched = false;
+    d->fileInfo.setFile(path);
+    d->fetched = false;
 }

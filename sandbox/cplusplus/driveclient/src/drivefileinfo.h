@@ -6,6 +6,9 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDateTime>
 
+#include <memory>
+
+
 class DriveFileInfoPrivate;
 
 
@@ -40,13 +43,10 @@ public:
     void setFile(const QString & path);
 
 private:
-    DriveFileInfoPrivate* d_func();
-    const DriveFileInfoPrivate* d_func() const;
+    using Private = DriveFileInfoPrivate;
 
-    QSharedDataPointer<DriveFileInfoPrivate> d_ptr;
+    std::shared_ptr<Private> d;
 };
-
-Q_DECLARE_SHARED(DriveFileInfo)
 
 Q_DECLARE_METATYPE(DriveFileInfo)
 
