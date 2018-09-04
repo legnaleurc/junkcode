@@ -54,13 +54,15 @@
 #include "drivemodel.h"
 
 #include <QtCore/QAbstractItemModel>
-#include "fileinfogatherer_p.h"
 #include <QtCore/QPair>
 #include <QtCore/QDir>
 #include <QtGui/QIcon>
 #include <QtCore/QFileinfo>
 #include <QtCore/QTimer>
 #include <QtCore/QHash>
+
+#include "drivesystem.h"
+#include "fileinfogatherer_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -210,7 +212,8 @@ public:
             setRootPath(false),
             filters(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::AllDirs),
             nameFilterDisables(true), // false on windows, true on mac and unix
-            disableRecursiveSort(false)
+            disableRecursiveSort(false),
+            driveSystem()
     {
         delayedSortTimer.setSingleShot(true);
     }
@@ -308,6 +311,8 @@ public:
         const FileNode *node;
     };
     QVector<Fetching> toFetch;
+
+    DriveSystem driveSystem;
 
 };
 Q_DECLARE_TYPEINFO(DriveModelPrivate::Fetching, Q_MOVABLE_TYPE);
