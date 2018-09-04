@@ -12,7 +12,7 @@
 class DriveFileInfoPrivate {
 public:
     DriveFileInfoPrivate();
-    DriveFileInfoPrivate(const QVariantMap & data);
+    DriveFileInfoPrivate(const QString & parentPath, const QVariantMap & data);
     DriveFileInfoPrivate(const QFileInfo & fileInfo);
     DriveFileInfoPrivate(const QString & parentPath, const QString & name);
 

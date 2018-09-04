@@ -136,10 +136,10 @@ DriveFileInfoPrivate::DriveFileInfoPrivate()
 {}
 
 
-// TODO fileinfo?
-DriveFileInfoPrivate::DriveFileInfoPrivate(const QVariantMap & data)
+DriveFileInfoPrivate::DriveFileInfoPrivate(const QString & parentPath,
+                                           const QVariantMap & data)
     : lock()
-    , fileInfo()
+    , fileInfo(QDir(parentPath), data.value("name").value<QString>())
     , fetched(true)
     , isFolder(data.value("is_folder").value<bool>())
     , mtime(data.value("mtime").value<QDateTime>())

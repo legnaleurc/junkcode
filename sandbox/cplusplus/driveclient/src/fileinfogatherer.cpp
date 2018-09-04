@@ -76,7 +76,7 @@ QList<DriveFileInfo> listRemote(const QString & path) {
     }
     auto data = json.array().toVariantList();
     for (const auto & info : data) {
-        DriveFileInfo fileInfo(new DriveFileInfoPrivate(info.value<QVariantMap>()));
+        DriveFileInfo fileInfo(new DriveFileInfoPrivate(path, info.value<QVariantMap>()));
         rv.push_back(fileInfo);
     }
     return rv;
