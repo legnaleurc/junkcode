@@ -25,6 +25,10 @@ DriveFileInfo::DriveFileInfo(const QFileInfo & fileInfo)
     : d(std::make_shared<Private>(fileInfo))
 {}
 
+DriveFileInfo::DriveFileInfo(DriveFileInfoPrivate * d)
+    : d(d)
+{}
+
 DriveFileInfo::~DriveFileInfo() noexcept
 {}
 
@@ -42,6 +46,11 @@ DriveFileInfo & DriveFileInfo::operator = (const QFileInfo & fileInfo) {
 }
 
 
+bool DriveFileInfo::operator == (const DriveFileInfo & that) const {
+    return d->fileInfo == that.d->fileInfo;
+}
+
+
 QString DriveFileInfo::fileName() const {
     return d->fileInfo.fileName();
 }
@@ -52,6 +61,59 @@ bool DriveFileInfo::isDir() const {
         d->fetch();
     }
     return d->isFolder;
+}
+
+
+QFile::Permissions DriveFileInfo::permissions() const {
+    auto flags = QFile::ReadUser | QFile::WriteUser;
+    if (this->isDir()) {
+        flags |= QFile::ExeUser;
+    }
+    return flags;
+}
+
+
+const QDateTime & DriveFileInfo::lastModified() const {
+    if (!d->fetched) {
+        d->fetch();
+    }
+    return d->mtime;
+}
+
+
+qint64 DriveFileInfo::size() const {
+    if (!d->fetched) {
+        d->fetch();
+    }
+    return d->size;
+}
+
+
+bool DriveFileInfo::exists() const {
+    if (!d->fetched) {
+        d->fetch();
+    }
+    return d->exists;
+}
+
+
+bool DriveFileInfo::isFile() const {
+    return !this->isDir();
+}
+
+
+const QFileInfo & DriveFileInfo::fileInfo() const {
+    return d->fileInfo;
+}
+
+
+bool DriveFileInfo::isHidden() const {
+    return false;
+}
+
+
+bool DriveFileInfo::isSymLink() const {
+    return false;
 }
 
 

@@ -22,6 +22,9 @@ public:
     QFileInfo fileInfo;
     bool fetched;
     bool isFolder;
+    QDateTime mtime;
+    qint64 size;
+    bool exists;
 };
 
 
