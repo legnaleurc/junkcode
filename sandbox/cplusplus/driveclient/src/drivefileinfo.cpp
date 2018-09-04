@@ -169,3 +169,12 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const QString & parentPath,
     , size(0)
     , exists(false)
 {}
+
+
+void DriveFileInfoPrivate::fetch() {
+    std::unique_lock locker(this->lock);
+    if (this->fetched) {
+        return;
+    }
+    // TODO fetch data
+}
