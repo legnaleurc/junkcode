@@ -1,5 +1,7 @@
 #include "drivefileinfo_p.h"
 
+#include <QtCore/QDir>
+
 
 DriveFileInfo::DriveFileInfo()
     : d(std::make_shared<Private>())
@@ -121,3 +123,49 @@ void DriveFileInfo::setFile(const QString & path) {
     d->fileInfo.setFile(path);
     d->fetched = false;
 }
+
+
+DriveFileInfoPrivate::DriveFileInfoPrivate()
+    : lock()
+    , fileInfo()
+    , fetched(false)
+    , isFolder(false)
+    , mtime()
+    , size(0)
+    , exists(false)
+{}
+
+
+// TODO fileinfo?
+DriveFileInfoPrivate::DriveFileInfoPrivate(const QVariantMap & data)
+    : lock()
+    , fileInfo()
+    , fetched(true)
+    , isFolder(data.value("is_folder").value<bool>())
+    , mtime(data.value("mtime").value<QDateTime>())
+    , size(data.value("size").value<qint64>())
+    , exists(true)
+{}
+
+
+DriveFileInfoPrivate::DriveFileInfoPrivate(const QFileInfo & fileInfo)
+    : lock()
+    , fileInfo(fileInfo)
+    , fetched(false)
+    , isFolder(false)
+    , mtime()
+    , size(0)
+    , exists(false)
+{}
+
+
+DriveFileInfoPrivate::DriveFileInfoPrivate(const QString & parentPath,
+                                           const QString & fileName)
+    : lock()
+    , fileInfo(QDir(parentPath), fileName)
+    , fetched(false)
+    , isFolder(false)
+    , mtime()
+    , size(0)
+    , exists(false)
+{}
