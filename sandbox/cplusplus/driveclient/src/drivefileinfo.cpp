@@ -172,7 +172,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const QString & parentPath,
 
 
 void DriveFileInfoPrivate::fetch() {
-    std::unique_lock locker(this->lock);
+    std::unique_lock<std::mutex> locker(this->lock);
     if (this->fetched) {
         return;
     }

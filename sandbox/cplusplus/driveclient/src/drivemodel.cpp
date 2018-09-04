@@ -695,14 +695,6 @@ QString DriveModelPrivate::name(const QModelIndex &index) const
     if (!index.isValid())
         return QString();
     FileNode *dirNode = node(index);
-    if (
-#ifndef QT_NO_FILESYSTEMWATCHER
-        fileInfoGatherer.resolveSymlinks() &&
-#endif
-        !resolvedSymLinks.isEmpty() && dirNode->isSymLink(/* ignoreNtfsSymLinks = */ true)) {
-        QString fullPath = QDir::fromNativeSeparators(filePath(index));
-        return resolvedSymLinks.value(fullPath, dirNode->fileName);
-    }
     return dirNode->fileName;
 }
 
@@ -1341,34 +1333,6 @@ QDir::Filters DriveModel::filter() const
 }
 
 /*!
-    \property DriveModel::resolveSymlinks
-    \brief Whether the directory model should resolve symbolic links
-
-    This is only relevant on Windows.
-
-    By default, this property is \c true.
-*/
-void DriveModel::setResolveSymlinks(bool enable)
-{
-#ifndef QT_NO_FILESYSTEMWATCHER
-    Q_D(DriveModel);
-    d->fileInfoGatherer.setResolveSymlinks(enable);
-#else
-    Q_UNUSED(enable)
-#endif
-}
-
-bool DriveModel::resolveSymlinks() const
-{
-#ifndef QT_NO_FILESYSTEMWATCHER
-    Q_D(const DriveModel);
-    return d->fileInfoGatherer.resolveSymlinks();
-#else
-    return false;
-#endif
-}
-
-/*!
     \property DriveModel::readOnly
     \brief Whether the directory model allows writing to the file system
 
@@ -1727,7 +1691,7 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<
 */
 void DriveModelPrivate::_q_resolvedName(const QString &fileName, const QString &resolvedName)
 {
-    resolvedSymLinks[fileName] = resolvedName;
+    assert(!"deprecated signal call");
 }
 
 /*!

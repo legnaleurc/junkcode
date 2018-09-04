@@ -166,7 +166,6 @@ public slots:
     void list(const QString &directoryPath);
     void fetchExtendedInformation(const QString &path, const QStringList &files);
     void updateFile(const QString &path);
-    void setResolveSymlinks(bool enable);
     void setIconProvider(QFileIconProvider *provider);
 
 private:

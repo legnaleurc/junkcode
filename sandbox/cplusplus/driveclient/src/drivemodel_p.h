@@ -298,7 +298,6 @@ public:
 #ifndef QT_NO_REGEXP
     QList<QRegExp> nameFilters;
 #endif
-    QHash<QString, QString> resolvedSymLinks;
 
     FileNode root;
 
