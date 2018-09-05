@@ -11,13 +11,7 @@ class TreeView extends Component {
 
     this.state = {
       data: this.props.roots.map((root) => {
-        return {
-          toggled: false,
-          fetched: false,
-          id: root.id,
-          name: root.name,
-          children: root.is_folder ? [] : null,
-        };
+        return createNode(root);
       }),
     };
   }
@@ -31,24 +25,9 @@ class TreeView extends Component {
 
     if (node.children && !node.fetched) {
       const children = await this.props.fileSystem.list(node.id);
-      children.sort((l, r) => {
-        if (l.name < r.name) {
-          return -1;
-        }
-        if (l.name > r.name) {
-          return 1;
-        }
-        return 0;
-      });
 
       for (const child of children) {
-        node.children.push({
-          toggled: false,
-          fetched: false,
-          id: child.id,
-          name: child.name,
-          children: child.is_folder ? [] : null,
-        });
+        node.children.push(createNode(child));
       }
 
       node.fetched = true;
@@ -72,6 +51,17 @@ class TreeView extends Component {
     );
   }
 
+}
+
+
+function createNode (data) {
+  return {
+    toggled: false,
+    fetched: false,
+    id: data.id,
+    name: data.name,
+    children: data.is_folder ? [] : null,
+  };
 }
 
 

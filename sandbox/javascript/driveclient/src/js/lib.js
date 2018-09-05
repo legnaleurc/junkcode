@@ -11,9 +11,19 @@ class FileSystem {
   }
 
   async list (id_or_path) {
-    return await this._get('/api/v1/list', [
+    const children =  await this._get('/api/v1/list', [
       ['id_or_path', id_or_path],
     ]);
+    children.sort((l, r) => {
+      if (l.name < r.name) {
+        return -1;
+      }
+      if (l.name > r.name) {
+        return 1;
+      }
+      return 0;
+    });
+    return children;
   }
 
   async _get (path, params) {
