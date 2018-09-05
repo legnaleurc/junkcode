@@ -4,7 +4,7 @@ import { hot } from 'react-hot-loader';
 import { Treebeard } from 'react-treebeard';
 
 
-class MainFrame extends Component {
+class TreeView extends Component {
 
   constructor (props) {
     super(props);
@@ -75,4 +75,4 @@ class MainFrame extends Component {
 }
 
 
-export default hot(module)(MainFrame);
+export default hot(module)(TreeView);

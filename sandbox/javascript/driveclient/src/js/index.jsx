@@ -2,14 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { FileSystem } from './lib.js';
-import MainFrame from './main_frame.jsx';
+import TreeView from './tree_view.jsx';
 
 
 async function main () {
   const rfs = new FileSystem('http://localhost:8000');
   const children = await rfs.list('/');
   const el = document.querySelector('#main-window');
-  ReactDOM.render(<MainFrame
+  ReactDOM.render(<TreeView
     fileSystem={rfs}
     roots={children}
   />, el);
