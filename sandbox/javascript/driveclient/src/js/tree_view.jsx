@@ -16,7 +16,7 @@ class TreeView extends Component {
     };
   }
 
-  async onToggle (node, toggled) {
+  async _onToggle (node, toggled) {
     if (this.state.cursor) {
       this.state.cursor.active = false;
     }
@@ -46,7 +46,7 @@ class TreeView extends Component {
     return (
       <Treebeard
         data={this.state.data}
-        onToggle={this.onToggle.bind(this)}
+        onToggle={this._onToggle.bind(this)}
       />
     );
   }
