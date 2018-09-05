@@ -50,6 +50,8 @@ class MainFrame extends Component {
           children: child.is_folder ? [] : null,
         });
       }
+
+      node.fetched = true;
     }
 
     if (node.children) {
