@@ -7,11 +7,11 @@ import MainFrame from './main_frame.jsx';
 
 async function main () {
   const rfs = new FileSystem('http://localhost:8000');
-  const rv = await rfs.info('/');
+  const children = await rfs.list('/');
   const el = document.querySelector('#main-window');
   ReactDOM.render(<MainFrame
     fileSystem={rfs}
-    data={rv}
+    roots={children}
   />, el);
 }
 
@@ -19,4 +19,3 @@ async function main () {
 main().catch((e) => {
   console.error(e);
 });
-

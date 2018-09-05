@@ -9,16 +9,16 @@ class MainFrame extends Component {
   constructor (props) {
     super(props);
 
-    const data = this.props.data;
-
     this.state = {
-      data: {
-        toggled: false,
-        fetched: false,
-        id: data.id,
-        name: data.name || '/',
-        children: data.is_folder ? [] : null,
-      },
+      data: this.props.roots.map((root) => {
+        return {
+          toggled: false,
+          fetched: false,
+          id: root.id,
+          name: root.name,
+          children: root.is_folder ? [] : null,
+        };
+      }),
     };
   }
 
