@@ -9,7 +9,7 @@ class MainFrame extends Component {
   constructor (props) {
     super(props);
 
-    const data = props.data;
+    const data = this.props.data;
 
     this.state = {
       data: {
@@ -30,16 +30,8 @@ class MainFrame extends Component {
     node.active = true;
 
     if (node.children && !node.fetched) {
-      const url = new URL('http://localhost:8000/api/v1/list');
-      url.searchParams.append('id_or_path', node.id);
-      const rqst = new Request(url, {
-        method: 'GET',
-        mode: 'cors',
-      });
-      let rv = await fetch(rqst);
-      rv = await rv.json();
-
-      rv.sort((l, r) => {
+      const children = await this.props.fileSystem.list(node.id);
+      children.sort((l, r) => {
         if (l.name < r.name) {
           return -1;
         }
@@ -49,7 +41,7 @@ class MainFrame extends Component {
         return 0;
       });
 
-      for (const child of rv) {
+      for (const child of children) {
         node.children.push({
           toggled: false,
           fetched: false,
