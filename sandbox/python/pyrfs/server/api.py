@@ -4,12 +4,12 @@ import aiohttp.web as aw
 
 
 async def list_(request):
-    path = request.query.get('path', None)
-    if not path:
+    id_or_path = request.query.get('id_or_path', None)
+    if not id_or_path:
         return aw.Response(status=400)
 
     drive = request.app['drive']
-    node = await drive.get_node_by_path(path)
+    node = await get_node(drive, id_or_path)
     if not node:
         return aw.Response(status=404)
 
@@ -19,12 +19,12 @@ async def list_(request):
 
 
 async def info(request):
-    path = request.query.get('path', None)
-    if not path:
+    id_or_path = request.query.get('id_or_path', None)
+    if not id_or_path:
         return aw.Response(status=400)
 
     drive = request.app['drive']
-    node = await drive.get_node_by_path(path)
+    node = await get_node(drive, id_or_path)
     if not node:
         return aw.Response(status=404)
 
@@ -42,11 +42,16 @@ async def sync(request):
 
 def json_response(data):
     data = json.dumps(data)
-    return aw.Response(content_type='application/json', text=data + '\n')
+    return aw.Response(content_type='application/json',
+                       text=data + '\n',
+                       headers={
+                           'Access-Control-Allow-Origin': '*',
+                       })
 
 
 def dict_from_node(node):
     return {
+        'id': node.id_,
         'name': node.name,
         'is_folder': node.is_folder,
         'ctime': node.created.timestamp,
@@ -54,3 +59,10 @@ def dict_from_node(node):
         'mime_type': node.mime_type,
         'size': node.size,
     }
+
+
+async def get_node(drive, id_or_path):
+    if id_or_path.startswith('/'):
+        return await drive.get_node_by_path(id_or_path)
+    else:
+        return await drive.get_node_by_id(id_or_path)

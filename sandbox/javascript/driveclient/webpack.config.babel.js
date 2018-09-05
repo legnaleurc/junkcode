@@ -3,6 +3,7 @@ import HtmlWebPackPlugin from 'html-webpack-plugin';
 
 export default {
   entry: './src/js/index.jsx',
+  devtool: 'eval-source-map',
   module: {
     rules: [
       // js, jsx
