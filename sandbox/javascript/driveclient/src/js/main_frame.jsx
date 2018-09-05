@@ -24,7 +24,7 @@ class MainFrame extends Component {
 
   async onToggle (node, toggled) {
     if (this.state.cursor) {
-      this.state.cursor.active = true;
+      this.state.cursor.active = false;
     }
 
     node.active = true;
