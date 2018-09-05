@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { hot } from 'react-hot-loader';
 
-import { Treebeard } from 'react-treebeard';
+import { Treebeard, decorators } from 'react-treebeard';
 
 
-class TreeView extends Component {
+class TreeView extends React.Component {
 
   constructor (props) {
     super(props);
@@ -47,7 +47,33 @@ class TreeView extends Component {
       <Treebeard
         data={this.state.data}
         onToggle={this._onToggle.bind(this)}
+        decorators={{
+          Loading: decorators.Loading,
+          Toggle: decorators.Toggle,
+          Header: decorators.Header,
+          Container: Container,
+        }}
       />
+    );
+  }
+
+}
+
+
+class Container extends React.Component {
+
+  render () {
+    const classes = ['draggable-container'];
+    if (this.props.terminal) {
+      classes.push('file');
+    }
+    return (
+      <div
+        draggable
+        className={classes.join(' ')}
+      >
+        <decorators.Container {...this.props} />
+      </div>
     );
   }
 
