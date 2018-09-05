@@ -69,12 +69,18 @@ class Container extends React.Component {
     }
     return (
       <div
-        draggable
         className={classes.join(' ')}
+        draggable
+        onDragStart={this._onDragStart.bind(this)}
       >
         <decorators.Container {...this.props} />
       </div>
     );
+  }
+
+  _onDragStart (event) {
+    const node = this.props.node;
+    event.dataTransfer.setData('text/plain', node.id);
   }
 
 }
