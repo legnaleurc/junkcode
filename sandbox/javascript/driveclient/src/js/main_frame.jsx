@@ -39,6 +39,16 @@ class MainFrame extends Component {
       let rv = await fetch(rqst);
       rv = await rv.json();
 
+      rv.sort((l, r) => {
+        if (l.name < r.name) {
+          return -1;
+        }
+        if (l.name > r.name) {
+          return 1;
+        }
+        return 0;
+      });
+
       for (const child of rv) {
         node.children.push({
           toggled: false,
