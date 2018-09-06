@@ -21,6 +21,7 @@ public:
 
     std::mutex lock;
     const DriveSystem * driveSystem;
+    QString id;
     QFileInfo fileInfo;
     bool fetched;
     bool isFolder;

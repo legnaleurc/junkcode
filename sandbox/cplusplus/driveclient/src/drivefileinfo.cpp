@@ -59,9 +59,7 @@ QString DriveFileInfo::fileName() const {
 
 
 bool DriveFileInfo::isDir() const {
-    if (!d->fetched) {
-        d->fetch();
-    }
+    d->fetch();
     return d->isFolder;
 }
 
@@ -76,25 +74,19 @@ QFile::Permissions DriveFileInfo::permissions() const {
 
 
 const QDateTime & DriveFileInfo::lastModified() const {
-    if (!d->fetched) {
-        d->fetch();
-    }
+    d->fetch();
     return d->mtime;
 }
 
 
 qint64 DriveFileInfo::size() const {
-    if (!d->fetched) {
-        d->fetch();
-    }
+    d->fetch();
     return d->size;
 }
 
 
 bool DriveFileInfo::exists() const {
-    if (!d->fetched) {
-        d->fetch();
-    }
+    d->fetch();
     return d->exists;
 }
 
@@ -183,5 +175,10 @@ void DriveFileInfoPrivate::fetch() {
     if (this->fetched) {
         return;
     }
-    // TODO fetch data
+    auto info = this->driveSystem->info(this->id);
+    this->isFolder = info.isDir();
+    this->mtime = info.lastModified();
+    this->size = info.size();
+    this->exists = info.exists();
+    this->fetched = true;
 }
