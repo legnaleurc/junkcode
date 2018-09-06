@@ -1208,6 +1208,7 @@ QModelIndex DriveModel::setRootPath(const QString &newPath)
     }
 
     d->setRootPath = true;
+    d->driveSystem.setBaseUrl("http://localhost:8000");
 
     //user don't ask for the root path ("") but the conversion failed
     if (!newPath.isEmpty() && longNewPath.isEmpty())

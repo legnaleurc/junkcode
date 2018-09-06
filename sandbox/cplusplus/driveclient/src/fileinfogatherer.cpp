@@ -95,7 +95,8 @@ FileInfoGatherer::FileInfoGatherer(QObject *parent)
 #ifndef QT_NO_FILESYSTEMWATCHER
       watcher(0),
 #endif
-      m_iconProvider(&defaultProvider)
+      m_iconProvider(&defaultProvider),
+      driveSystem(nullptr)
 {
 #ifndef QT_NO_FILESYSTEMWATCHER
     watcher = new QFileSystemWatcher(this);

@@ -205,6 +205,7 @@ public:
 
     explicit DriveModelPrivate(DriveModel *q) :
             q_ptr(q),
+            driveSystem(),
             forceSort(true),
             sortColumn(0),
             sortOrder(Qt::AscendingOrder),
@@ -212,10 +213,10 @@ public:
             setRootPath(false),
             filters(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::AllDirs),
             nameFilterDisables(true), // false on windows, true on mac and unix
-            disableRecursiveSort(false),
-            driveSystem()
+            disableRecursiveSort(false)
     {
         delayedSortTimer.setSingleShot(true);
+        fileInfoGatherer.setDriveSystem(&this->driveSystem);
     }
 
     void init();
@@ -282,6 +283,7 @@ public:
     DriveModel * q_ptr;
 
     QDir rootDir;
+    DriveSystem driveSystem;
 #if QT_CONFIG(filesystemwatcher)
     FileInfoGatherer fileInfoGatherer;
 #endif // filesystemwatcher
@@ -311,8 +313,6 @@ public:
         const FileNode *node;
     };
     QVector<Fetching> toFetch;
-
-    DriveSystem driveSystem;
 
 };
 Q_DECLARE_TYPEINFO(DriveModelPrivate::Fetching, Q_MOVABLE_TYPE);

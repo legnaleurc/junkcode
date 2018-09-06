@@ -63,6 +63,7 @@
 #include <QtCore/QElapsedTimer>
 
 #include "drivefileinfo.h"
+#include "drivesystem.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -162,6 +163,8 @@ public:
     QFileIconProvider *iconProvider() const;
     bool resolveSymlinks() const;
 
+    void setDriveSystem(DriveSystem * driveSystem);
+
 public slots:
     void list(const QString &directoryPath);
     void fetchExtendedInformation(const QString &path, const QStringList &files);
@@ -188,6 +191,8 @@ private:
 #endif
     QFileIconProvider *m_iconProvider; // not accessed by run()
     QFileIconProvider defaultProvider;
+
+    DriveSystem * driveSystem;
 };
 
 QT_END_NAMESPACE
