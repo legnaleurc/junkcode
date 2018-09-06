@@ -156,7 +156,7 @@ public:
     }
     void updateIcon(QFileIconProvider *iconProvider, const QString &path) {
         if (info)
-            info->icon = iconProvider->icon(DriveFileInfo(path).fileInfo());
+            info->icon = iconProvider->icon(DriveFileInfo(this->driveSystem, path).fileInfo());
         for (FileNode *child : qAsConst(children)) {
             //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
             if (!path.isEmpty()) {
@@ -171,7 +171,7 @@ public:
 
     void retranslateStrings(QFileIconProvider *iconProvider, const QString &path) {
         if (info)
-            info->displayType = iconProvider->type(DriveFileInfo(path).fileInfo());
+            info->displayType = iconProvider->type(DriveFileInfo(this->driveSystem, path).fileInfo());
         for (FileNode *child : qAsConst(children)) {
             //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
             if (!path.isEmpty()) {
@@ -192,6 +192,7 @@ public:
     FileNode *parent;
 
     ExtendedInformation *info;
+    const DriveSystem * driveSystem;
 };
 
 

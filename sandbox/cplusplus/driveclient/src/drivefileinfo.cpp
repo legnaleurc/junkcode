@@ -13,17 +13,17 @@ DriveFileInfo::DriveFileInfo(const DriveFileInfo & that)
 {}
 
 
-DriveFileInfo::DriveFileInfo(const QString & path)
+DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & path)
     : d(std::make_shared<Private>(path))
 {}
 
 
-DriveFileInfo::DriveFileInfo(const QString & parentPath, const QString & name)
+DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name)
     : d(std::make_shared<Private>(parentPath, name))
 {}
 
 
-DriveFileInfo::DriveFileInfo(const QFileInfo & fileInfo)
+DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QFileInfo & fileInfo)
     : d(std::make_shared<Private>(fileInfo))
 {}
 

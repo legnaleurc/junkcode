@@ -202,7 +202,7 @@ bool DriveModel::remove(const QModelIndex &aindex)
     Q_D(DriveModel);
 
     const QString path = d->filePath(aindex);
-    const DriveFileInfo fileInfo(path);
+    const DriveFileInfo fileInfo(&d->driveSystem, path);
     const bool success = (fileInfo.isFile() || fileInfo.isSymLink())
             ? QFile::remove(path) : QDir(path).removeRecursively();
     return success;
@@ -363,7 +363,7 @@ FileNode *DriveModelPrivate::node(const QString &path, bool fetch) const
         if (!alreadyExisted) {
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
             // a path that doesn't exists, I.E. don't blindly create directories.
-            DriveFileInfo info(elementPath);
+            DriveFileInfo info(&this->driveSystem, elementPath);
             if (!info.exists())
                 return const_cast<FileNode*>(&root);
             DriveModelPrivate *p = const_cast<DriveModelPrivate*>(this);
@@ -778,7 +778,7 @@ bool DriveModel::setData(const QModelIndex &idx, const QVariant &value, int role
         nodeToRename->fileName = newName;
         nodeToRename->parent = parentNode;
 #ifndef QT_NO_FILESYSTEMWATCHER
-        nodeToRename->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(parentPath, newName)));
+        nodeToRename->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(&d->driveSystem, parentPath, newName)));
 #endif
         nodeToRename->isVisible = true;
         parentNode->children[newName] = nodeToRename.take();
@@ -1073,6 +1073,7 @@ QMimeData *DriveModel::mimeData(const QModelIndexList &indexes) const
 bool DriveModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                              int row, int column, const QModelIndex &parent)
 {
+    Q_D(DriveModel);
     Q_UNUSED(row);
     Q_UNUSED(column);
     if (!parent.isValid() || isReadOnly())
@@ -1088,19 +1089,19 @@ bool DriveModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     case Qt::CopyAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::copy(path, to + DriveFileInfo(path).fileName()) && success;
+            success = QFile::copy(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
         }
         break;
     case Qt::LinkAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::link(path, to + DriveFileInfo(path).fileName()) && success;
+            success = QFile::link(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
         }
         break;
     case Qt::MoveAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::rename(path, to + DriveFileInfo(path).fileName()) && success;
+            success = QFile::rename(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
         }
         break;
     default:
@@ -1168,7 +1169,7 @@ QModelIndex DriveModel::mkdir(const QModelIndex &parent, const QString &name)
     Q_ASSERT(parentNode->children.contains(name));
     FileNode *node = parentNode->children[name];
 #ifndef QT_NO_FILESYSTEMWATCHER
-    node->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(dir.absolutePath() + QDir::separator() + name)));
+    node->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(&d->driveSystem, dir.absolutePath() + QDir::separator() + name)));
 #endif
     d->addVisibleFiles(parentNode, QStringList(name));
     return d->index(node);

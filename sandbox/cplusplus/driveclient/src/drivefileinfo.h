@@ -10,6 +10,7 @@
 
 
 class DriveFileInfoPrivate;
+class DriveSystem;
 
 
 class DriveFileInfo {
@@ -21,9 +22,9 @@ public:
     void swap(DriveFileInfo &) noexcept;
 
     explicit DriveFileInfo(DriveFileInfoPrivate *);
-    explicit DriveFileInfo(const QString & path);
-    DriveFileInfo(const QString & parentPath, const QString & name);
-    explicit DriveFileInfo(const QFileInfo & fileInfo);
+    DriveFileInfo(const DriveSystem * driveSystem, const QString & path);
+    DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name);
+    DriveFileInfo(const DriveSystem * driveSystem, const QFileInfo & fileInfo);
 
     DriveFileInfo & operator = (const QFileInfo & fileInfo);
 
