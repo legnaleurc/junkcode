@@ -9,22 +9,22 @@ DriveFileInfo::DriveFileInfo()
 
 
 DriveFileInfo::DriveFileInfo(const DriveFileInfo & that)
-    : d(std::make_shared<Private>(that.d->fileInfo))
+    : d(std::make_shared<Private>(that.d->driveSystem, that.d->fileInfo))
 {}
 
 
 DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & path)
-    : d(std::make_shared<Private>(path))
+    : d(std::make_shared<Private>(driveSystem, path))
 {}
 
 
 DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name)
-    : d(std::make_shared<Private>(parentPath, name))
+    : d(std::make_shared<Private>(driveSystem, parentPath, name))
 {}
 
 
 DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QFileInfo & fileInfo)
-    : d(std::make_shared<Private>(fileInfo))
+    : d(std::make_shared<Private>(driveSystem, fileInfo))
 {}
 
 DriveFileInfo::DriveFileInfo(DriveFileInfoPrivate * d)
@@ -42,7 +42,7 @@ DriveFileInfo & DriveFileInfo::operator = (const DriveFileInfo & that) {
 
 DriveFileInfo & DriveFileInfo::operator = (const QFileInfo & fileInfo) {
     if (d->fileInfo != fileInfo) {
-        d = std::make_shared<Private>(fileInfo);
+        d = std::make_shared<Private>(d->driveSystem, fileInfo);
     }
     return *this;
 }
@@ -127,6 +127,7 @@ void DriveFileInfo::setFile(const QString & path) {
 
 DriveFileInfoPrivate::DriveFileInfoPrivate()
     : lock()
+    , driveSystem(nullptr)
     , fileInfo()
     , fetched(false)
     , isFolder(false)
@@ -136,9 +137,11 @@ DriveFileInfoPrivate::DriveFileInfoPrivate()
 {}
 
 
-DriveFileInfoPrivate::DriveFileInfoPrivate(const QString & parentPath,
+DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
+                                           const QString & parentPath,
                                            const QVariantMap & data)
     : lock()
+    , driveSystem(driveSystem)
     , fileInfo(QDir(parentPath), data.value("name").value<QString>())
     , fetched(true)
     , isFolder(data.value("is_folder").value<bool>())
@@ -148,8 +151,10 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const QString & parentPath,
 {}
 
 
-DriveFileInfoPrivate::DriveFileInfoPrivate(const QFileInfo & fileInfo)
+DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
+                                           const QFileInfo & fileInfo)
     : lock()
+    , driveSystem(driveSystem)
     , fileInfo(fileInfo)
     , fetched(false)
     , isFolder(false)
@@ -159,9 +164,11 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const QFileInfo & fileInfo)
 {}
 
 
-DriveFileInfoPrivate::DriveFileInfoPrivate(const QString & parentPath,
+DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
+                                           const QString & parentPath,
                                            const QString & fileName)
     : lock()
+    , driveSystem(driveSystem)
     , fileInfo(QDir(parentPath), fileName)
     , fetched(false)
     , isFolder(false)
