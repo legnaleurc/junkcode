@@ -1,6 +1,39 @@
+import asyncio
 import json
 
+import aiohttp
 import aiohttp.web as aw
+
+
+class ChangesChannel(object):
+
+    def __init__(self, app):
+        self._app = app
+
+    async def __aenter__(self):
+        self._app['changes'] = set()
+        self._queue = asyncio.Queue()
+        return self
+
+    async def __aexit__(self, type_, exc, tb):
+        wss = set(self._app['changes'])
+        fs = [ws.close(code=aiohttp.WSCloseCode.GOING_AWAY) for ws in wss]
+        if fs:
+            done, pending = await asyncio.wait(fs)
+        del self._app['changes']
+
+    async def __call__(self, request):
+        ws = aw.WebSocketResponse()
+        await ws.prepare(request)
+        request.app['changes'].add(ws)
+
+        try:
+            async for message in ws:
+                pass
+        finally:
+            request.app['changes'].discard(ws)
+
+        return ws
 
 
 async def list_(request):
@@ -34,10 +67,12 @@ async def info(request):
 
 async def sync(request):
     drive = request.app['drive']
-    all_changes = []
     async for changes in drive.sync():
-        all_changes.extend(changes)
-    return json_response(all_changes)
+        data = json.dumps(changes)
+        fs = [ws.send_str(data + '\n') for ws in request.app['changes']]
+        if fs:
+            done, pending = await asyncio.wait(fs)
+    return aw.Response()
 
 
 def json_response(data):
