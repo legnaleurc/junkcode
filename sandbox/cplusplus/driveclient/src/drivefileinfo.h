@@ -22,12 +22,12 @@ public:
     void swap(DriveFileInfo &) noexcept;
 
     explicit DriveFileInfo(DriveFileInfoPrivate *);
-    DriveFileInfo(const DriveSystem * driveSystem, const QString & path);
-    DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name);
+    // DriveFileInfo(const DriveSystem * driveSystem, const QString & path);
+    // DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name);
 
     bool operator == (const DriveFileInfo & that) const;
 
-    QString fileName() const;
+    const QString & fileName() const;
     bool isDir() const;
     bool exists() const;
     bool isSymLink() const;
@@ -36,9 +36,7 @@ public:
     const QDateTime & lastModified() const;
     bool isHidden() const;
     QFile::Permissions permissions() const;
-    QString mimeType() const;
-
-    void setFile(const QString & path);
+    const QString & mimeType() const;
 
 private:
     using Private = DriveFileInfoPrivate;

@@ -201,11 +201,13 @@ bool DriveModel::remove(const QModelIndex &aindex)
 {
     Q_D(DriveModel);
 
-    const QString path = d->filePath(aindex);
-    const DriveFileInfo fileInfo(&d->driveSystem, path);
-    const bool success = (fileInfo.isFile() || fileInfo.isSymLink())
-            ? QFile::remove(path) : QDir(path).removeRecursively();
-    return success;
+    // TODO
+    return false;
+    // const QString path = d->filePath(aindex);
+    // const DriveFileInfo fileInfo(&d->driveSystem, path);
+    // const bool success = (fileInfo.isFile() || fileInfo.isSymLink())
+    //         ? QFile::remove(path) : QDir(path).removeRecursively();
+    // return success;
 }
 
 /*!
@@ -749,46 +751,48 @@ bool DriveModel::setData(const QModelIndex &idx, const QVariant &value, int role
     if (newName == oldName)
         return true;
 
-    const QString parentPath = filePath(parent(idx));
+    // TODO rename
+    return false;
+//     const QString parentPath = filePath(parent(idx));
 
-    if (newName.isEmpty() || QDir::toNativeSeparators(newName).contains(QDir::separator())) {
-        displayRenameFailedMessage(newName);
-        return false;
-    }
+//     if (newName.isEmpty() || QDir::toNativeSeparators(newName).contains(QDir::separator())) {
+//         displayRenameFailedMessage(newName);
+//         return false;
+//     }
 
-    if (!QDir(parentPath).rename(oldName, newName)) {
-        displayRenameFailedMessage(newName);
-        return false;
-    } else {
-        /*
-            *After re-naming something we don't want the selection to change*
-            - can't remove rows and later insert
-            - can't quickly remove and insert
-            - index pointer can't change because treeview doesn't use persistant index's
+//     if (!QDir(parentPath).rename(oldName, newName)) {
+//         displayRenameFailedMessage(newName);
+//         return false;
+//     } else {
+//         /*
+//             *After re-naming something we don't want the selection to change*
+//             - can't remove rows and later insert
+//             - can't quickly remove and insert
+//             - index pointer can't change because treeview doesn't use persistant index's
 
-            - if this get any more complicated think of changing it to just
-              use layoutChanged
-         */
+//             - if this get any more complicated think of changing it to just
+//               use layoutChanged
+//          */
 
-        FileNode *indexNode = d->node(idx);
-        FileNode *parentNode = indexNode->parent;
-        int visibleLocation = parentNode->visibleLocation(parentNode->children.value(indexNode->fileName)->fileName);
+//         FileNode *indexNode = d->node(idx);
+//         FileNode *parentNode = indexNode->parent;
+//         int visibleLocation = parentNode->visibleLocation(parentNode->children.value(indexNode->fileName)->fileName);
 
-        parentNode->visibleChildren.removeAt(visibleLocation);
-        QScopedPointer<FileNode> nodeToRename(parentNode->children.take(oldName));
-        nodeToRename->fileName = newName;
-        nodeToRename->parent = parentNode;
-#ifndef QT_NO_FILESYSTEMWATCHER
-        nodeToRename->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(&d->driveSystem, parentPath, newName)));
-#endif
-        nodeToRename->isVisible = true;
-        parentNode->children[newName] = nodeToRename.take();
-        parentNode->visibleChildren.insert(visibleLocation, newName);
+//         parentNode->visibleChildren.removeAt(visibleLocation);
+//         QScopedPointer<FileNode> nodeToRename(parentNode->children.take(oldName));
+//         nodeToRename->fileName = newName;
+//         nodeToRename->parent = parentNode;
+// #ifndef QT_NO_FILESYSTEMWATCHER
+//         nodeToRename->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(&d->driveSystem, parentPath, newName)));
+// #endif
+//         nodeToRename->isVisible = true;
+//         parentNode->children[newName] = nodeToRename.take();
+//         parentNode->visibleChildren.insert(visibleLocation, newName);
 
-        d->delayedSort();
-        emit fileRenamed(parentPath, oldName, newName);
-    }
-    return true;
+//         d->delayedSort();
+//         emit fileRenamed(parentPath, oldName, newName);
+//     }
+//     return true;
 }
 
 /*!
@@ -1090,19 +1094,25 @@ bool DriveModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     case Qt::CopyAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::copy(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
+            // TODO
+            success = false;
+            // success = QFile::copy(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
         }
         break;
     case Qt::LinkAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::link(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
+            // TODO
+            success = false;
+            // success = QFile::link(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
         }
         break;
     case Qt::MoveAction:
         for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
-            success = QFile::rename(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
+            // TODO
+            success = false;
+            // success = QFile::rename(path, to + DriveFileInfo(&d->driveSystem, path).fileName()) && success;
         }
         break;
     default:
@@ -1162,18 +1172,20 @@ QModelIndex DriveModel::mkdir(const QModelIndex &parent, const QString &name)
     if (!parent.isValid())
         return parent;
 
-    QDir dir(filePath(parent));
-    if (!dir.mkdir(name))
-        return QModelIndex();
-    FileNode *parentNode = d->node(parent);
-    d->addNode(parentNode, name, DriveFileInfo());
-    Q_ASSERT(parentNode->children.contains(name));
-    FileNode *node = parentNode->children[name];
-#ifndef QT_NO_FILESYSTEMWATCHER
-    node->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(&d->driveSystem, dir.absolutePath() + QDir::separator() + name)));
-#endif
-    d->addVisibleFiles(parentNode, QStringList(name));
-    return d->index(node);
+    // TODO d->driveSystem.mkdir(parent, name)
+    return QModelIndex();
+//     QDir dir(filePath(parent));
+//     if (!dir.mkdir(name))
+//         return QModelIndex();
+//     FileNode *parentNode = d->node(parent);
+//     d->addNode(parentNode, name, DriveFileInfo());
+//     Q_ASSERT(parentNode->children.contains(name));
+//     FileNode *node = parentNode->children[name];
+// #ifndef QT_NO_FILESYSTEMWATCHER
+//     node->populate(d->fileInfoGatherer.getInfo(DriveFileInfo(&d->driveSystem, dir.absolutePath() + QDir::separator() + name)));
+// #endif
+//     d->addVisibleFiles(parentNode, QStringList(name));
+//     return d->index(node);
 }
 
 /*!

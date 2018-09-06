@@ -228,7 +228,7 @@ void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &file
 
     QStringList::const_iterator filesIt = filesToCheck.constBegin();
     while (!abort.load() && filesIt != filesToCheck.constEnd()) {
-        fileInfo.setFile(path + QDir::separator() + *filesIt);
+        fileInfo = this->driveSystem->info(path + QDir::separator() + *filesIt);
         ++filesIt;
         fetch(fileInfo, base, firstTime, updatedFiles, path);
     }

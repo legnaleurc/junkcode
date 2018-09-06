@@ -1,7 +1,5 @@
 #include "drivefileinfo_p.h"
 
-#include <QtCore/QDir>
-
 
 DriveFileInfo::DriveFileInfo()
     : d(std::make_shared<Private>())
@@ -15,18 +13,18 @@ DriveFileInfo::DriveFileInfo(const DriveFileInfo & that)
 }
 
 
-DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & path)
-    : d(std::make_shared<Private>(driveSystem, path))
-{
-    assert(d->driveSystem);
-}
+// DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & path)
+//     : d(std::make_shared<Private>(driveSystem, path))
+// {
+//     assert(d->driveSystem);
+// }
 
 
-DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name)
-    : d(std::make_shared<Private>(driveSystem, parentPath, name))
-{
-    assert(d->driveSystem);
-}
+// DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name)
+//     : d(std::make_shared<Private>(driveSystem, parentPath, name))
+// {
+//     assert(d->driveSystem);
+// }
 
 DriveFileInfo::DriveFileInfo(DriveFileInfoPrivate * d)
     : d(d)
@@ -46,12 +44,12 @@ DriveFileInfo & DriveFileInfo::operator = (const DriveFileInfo & that) {
 
 
 bool DriveFileInfo::operator == (const DriveFileInfo & that) const {
-    return d->fileInfo == that.d->fileInfo;
+    return d->id == that.d->id;
 }
 
 
-QString DriveFileInfo::fileName() const {
-    return d->fileInfo.fileName();
+const QString & DriveFileInfo::fileName() const {
+    return d->fileName;
 }
 
 
@@ -103,67 +101,54 @@ bool DriveFileInfo::isSymLink() const {
 }
 
 
-void DriveFileInfo::setFile(const QString & path) {
-    d->fileInfo.setFile(path);
-    d->fetched = false;
+const QString & DriveFileInfo::mimeType() const {
+    d->fetch();
+    return d->mimeType;
 }
 
 
 DriveFileInfoPrivate::DriveFileInfoPrivate()
     : lock()
     , driveSystem(nullptr)
-    , fileInfo()
     , fetched(false)
     , id()
+    , fileName()
     , isFolder(false)
     , mtime()
     , size(0)
     , exists(false)
+    , mimeType()
 {}
 
 
 DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
-                                           const QString & parentPath,
                                            const QVariantMap & data)
     : lock()
     , driveSystem(driveSystem)
-    , fileInfo(QDir(parentPath), data.value("name").value<QString>())
     , fetched(true)
-    , id(data.value("id").value<QString>())
-    , isFolder(data.value("is_folder").value<bool>())
+    , id(data.value("id").toString())
+    , fileName(data.value("name").toString())
+    , isFolder(data.value("is_folder").toBool())
     , mtime(data.value("mtime").value<QDateTime>())
     , size(data.value("size").value<qint64>())
     , exists(true)
+    , mimeType(data.value("mime_type").toString())
 {}
 
 
-DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
-                                           const QFileInfo & fileInfo)
-    : lock()
-    , driveSystem(driveSystem)
-    , fileInfo(fileInfo)
-    , fetched(false)
-    , id()
-    , isFolder(false)
-    , mtime()
-    , size(0)
-    , exists(false)
-{}
-
-
-DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
-                                           const QString & parentPath,
-                                           const QString & fileName)
-    : lock()
-    , driveSystem(driveSystem)
-    , fileInfo(QDir(parentPath), fileName)
-    , fetched(false)
-    , id()
-    , isFolder(false)
-    , mtime()
-    , size(0)
-    , exists(false)
-{}
+// DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
+//                                            const QString & parentPath,
+//                                            const QString & fileName)
+//     : lock()
+//     , driveSystem(driveSystem)
+//     , fetched(false)
+//     , id()
+//     , isFolder(false)
+//     , mtime()
+//     , size(0)
+//     , exists(false)
+//     , mimeType()
+// {}
 
 
 void DriveFileInfoPrivate::fetch() {

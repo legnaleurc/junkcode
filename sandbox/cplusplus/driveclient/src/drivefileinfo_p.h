@@ -13,21 +13,21 @@
 class DriveFileInfoPrivate {
 public:
     DriveFileInfoPrivate();
-    DriveFileInfoPrivate(const DriveSystem * driveSystem, const QString & parentPath, const QVariantMap & data);
-    DriveFileInfoPrivate(const DriveSystem * driveSystem, const QFileInfo & fileInfo);
-    DriveFileInfoPrivate(const DriveSystem * driveSystem, const QString & parentPath, const QString & name);
+    DriveFileInfoPrivate(const DriveSystem * driveSystem, const QVariantMap & data);
+    // DriveFileInfoPrivate(const DriveSystem * driveSystem, const QString & parentPath, const QString & name);
 
     void fetch();
 
     std::mutex lock;
     const DriveSystem * driveSystem;
-    QFileInfo fileInfo;
     bool fetched;
     QString id;
+    QString fileName;
     bool isFolder;
     QDateTime mtime;
     qint64 size;
     bool exists;
+    QString mimeType;
 };
 
 
