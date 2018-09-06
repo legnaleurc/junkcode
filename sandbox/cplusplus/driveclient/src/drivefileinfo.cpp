@@ -13,25 +13,13 @@ DriveFileInfo::DriveFileInfo(const DriveFileInfo & that)
 }
 
 
-// DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & path)
-//     : d(std::make_shared<Private>(driveSystem, path))
-// {
-//     assert(d->driveSystem);
-// }
-
-
-// DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name)
-//     : d(std::make_shared<Private>(driveSystem, parentPath, name))
-// {
-//     assert(d->driveSystem);
-// }
-
 DriveFileInfo::DriveFileInfo(DriveFileInfoPrivate * d)
     : d(d)
 {
     assert(d->driveSystem);
     assert(d->fetched);
 }
+
 
 DriveFileInfo::~DriveFileInfo() noexcept
 {}
@@ -134,21 +122,6 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
     , exists(true)
     , mimeType(data.value("mime_type").toString())
 {}
-
-
-// DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
-//                                            const QString & parentPath,
-//                                            const QString & fileName)
-//     : lock()
-//     , driveSystem(driveSystem)
-//     , fetched(false)
-//     , id()
-//     , isFolder(false)
-//     , mtime()
-//     , size(0)
-//     , exists(false)
-//     , mimeType()
-// {}
 
 
 void DriveFileInfoPrivate::fetch() {

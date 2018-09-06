@@ -22,8 +22,6 @@ public:
     void swap(DriveFileInfo &) noexcept;
 
     explicit DriveFileInfo(DriveFileInfoPrivate *);
-    // DriveFileInfo(const DriveSystem * driveSystem, const QString & path);
-    // DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name);
 
     bool operator == (const DriveFileInfo & that) const;
 

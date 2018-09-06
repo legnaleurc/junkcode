@@ -14,7 +14,6 @@ class DriveFileInfoPrivate {
 public:
     DriveFileInfoPrivate();
     DriveFileInfoPrivate(const DriveSystem * driveSystem, const QVariantMap & data);
-    // DriveFileInfoPrivate(const DriveSystem * driveSystem, const QString & parentPath, const QString & name);
 
     void fetch();
 
