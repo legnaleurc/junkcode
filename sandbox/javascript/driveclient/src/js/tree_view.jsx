@@ -62,16 +62,31 @@ class TreeView extends React.Component {
 
 class Container extends React.Component {
 
+  constructor (props) {
+    super(props);
+
+    this.state = {
+      highlight: false,
+    };
+  }
+
   render () {
     const classes = ['draggable-container'];
     if (this.props.terminal) {
       classes.push('file');
+    }
+    if (this.state.highlight) {
+      classes.push('highlight');
     }
     return (
       <div
         className={classes.join(' ')}
         draggable
         onDragStart={this._onDragStart.bind(this)}
+        onDragEnter={this._onDragEnter.bind(this)}
+        onDragOver={this._onDragOver.bind(this)}
+        onDragLeave={this._onDragLeave.bind(this)}
+        onDrop={this._onDrop.bind(this)}
       >
         <decorators.Container {...this.props} />
       </div>
@@ -79,8 +94,33 @@ class Container extends React.Component {
   }
 
   _onDragStart (event) {
+    // event.preventDefault();
     const node = this.props.node;
     event.dataTransfer.setData('text/plain', node.id);
+  }
+
+  _onDragEnter (event) {
+    event.preventDefault();
+    this.setState({
+      highlight: true,
+    });
+    console.info('enter', this.props.node.name, event.target);
+  }
+
+  _onDragOver (event) {
+    event.preventDefault();
+  }
+
+  _onDragLeave (event) {
+    event.preventDefault();
+    this.setState({
+      highlight: false,
+    });
+    console.info('leave', this.props.node.name, event.target);
+  }
+
+  _onDrop (event) {
+    event.preventDefault();
   }
 
 }
