@@ -28,30 +28,34 @@ void DriveSystem::setBaseUrl(const QString & baseUrl) {
 }
 
 
-QList<DriveFileInfo> DriveSystem::list(const QString & idOrPath) const {
-    QUrlQuery query;
-    query.addQueryItem("id_or_path", idOrPath);
-    QUrl url(d->baseUrl + "/api/v1/list");
-    url.setQuery(query);
-    QNetworkRequest request;
-    request.setUrl(url);
-    auto reply = d->nam.get(request);
+DriveFileInfo DriveSystem::info(const QString & idOrPath) const {
+    auto data = d->get("/api/v1/info", {
+        {"id_or_path", idOrPath},
+    });
 
-    QEventLoop loop;
-    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-    loop.exec();
+    if (!data.isValid()) {
+        return DriveFileInfo();
+    }
+
+    auto mapData = data.toMap();
+    DriveFileInfo fileInfo(new DriveFileInfoPrivate(idOrPath, mapData));
+    return fileInfo;
+}
+
+
+QList<DriveFileInfo> DriveSystem::list(const QString & idOrPath) const {
+    auto data = d->get("/api/v1/list", {
+        {"id_or_path", idOrPath},
+    });
 
     QList<DriveFileInfo> rv;
-    auto response = reply->readAll();
-    QJsonParseError error;
-    auto json = QJsonDocument::fromJson(response, &error);
-    if (error.error != QJsonParseError::NoError) {
-        qDebug() << error.errorString();
+    if (!data.isValid()) {
         return rv;
     }
-    auto data = json.array().toVariantList();
-    for (const auto & info : data) {
-        DriveFileInfo fileInfo(new DriveFileInfoPrivate(idOrPath, info.value<QVariantMap>()));
+
+    auto listData = data.toList();
+    for (const auto & info : listData) {
+        DriveFileInfo fileInfo(new DriveFileInfoPrivate(idOrPath, info.toMap()));
         rv.push_back(fileInfo);
     }
     return rv;
@@ -62,3 +66,29 @@ DriveSystemPrivate::DriveSystemPrivate()
     : nam()
     , baseUrl()
 {}
+
+
+QVariant DriveSystemPrivate::get(const QString & path, const QList<QPair<QString, QString>> & params) {
+    QUrlQuery query;
+    for (const auto & p : params) {
+        query.addQueryItem(p.first, p.second);
+    }
+    QUrl url(this->baseUrl + path);
+    url.setQuery(query);
+    QNetworkRequest request;
+    request.setUrl(url);
+    auto reply = this->nam.get(request);
+
+    QEventLoop loop;
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    auto response = reply->readAll();
+    QJsonParseError error;
+    auto json = QJsonDocument::fromJson(response, &error);
+    if (error.error != QJsonParseError::NoError) {
+        qDebug() << error.errorString();
+        return QVariant();
+    }
+    return json.toVariant();
+}

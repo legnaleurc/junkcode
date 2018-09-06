@@ -10,6 +10,8 @@ class DriveSystemPrivate {
 public:
     DriveSystemPrivate();
 
+    QVariant get(const QString & path, const QList<QPair<QString, QString>> & params);
+
     QNetworkAccessManager nam;
     QString baseUrl;
 };
