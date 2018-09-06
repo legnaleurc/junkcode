@@ -9,33 +9,45 @@ DriveFileInfo::DriveFileInfo()
 
 
 DriveFileInfo::DriveFileInfo(const DriveFileInfo & that)
-    : d(std::make_shared<Private>(that.d->driveSystem, that.d->fileInfo))
-{}
+    : d(that.d)
+{
+    assert(d->driveSystem);
+}
 
 
 DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & path)
     : d(std::make_shared<Private>(driveSystem, path))
-{}
+{
+    assert(d->driveSystem);
+}
 
 
 DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name)
     : d(std::make_shared<Private>(driveSystem, parentPath, name))
-{}
+{
+    assert(d->driveSystem);
+}
 
 
 DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QFileInfo & fileInfo)
     : d(std::make_shared<Private>(driveSystem, fileInfo))
-{}
+{
+    assert(d->driveSystem);
+}
 
 DriveFileInfo::DriveFileInfo(DriveFileInfoPrivate * d)
     : d(d)
-{}
+{
+    assert(d->driveSystem);
+    assert(d->fetched);
+}
 
 DriveFileInfo::~DriveFileInfo() noexcept
 {}
 
 
 DriveFileInfo & DriveFileInfo::operator = (const DriveFileInfo & that) {
+    d = that.d;
     return *this;
 }
 
@@ -44,6 +56,7 @@ DriveFileInfo & DriveFileInfo::operator = (const QFileInfo & fileInfo) {
     if (d->fileInfo != fileInfo) {
         d = std::make_shared<Private>(d->driveSystem, fileInfo);
     }
+    assert(d->driveSystem);
     return *this;
 }
 
@@ -122,6 +135,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate()
     , driveSystem(nullptr)
     , fileInfo()
     , fetched(false)
+    , id()
     , isFolder(false)
     , mtime()
     , size(0)
@@ -136,6 +150,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
     , driveSystem(driveSystem)
     , fileInfo(QDir(parentPath), data.value("name").value<QString>())
     , fetched(true)
+    , id(data.value("id").value<QString>())
     , isFolder(data.value("is_folder").value<bool>())
     , mtime(data.value("mtime").value<QDateTime>())
     , size(data.value("size").value<qint64>())
@@ -149,6 +164,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
     , driveSystem(driveSystem)
     , fileInfo(fileInfo)
     , fetched(false)
+    , id()
     , isFolder(false)
     , mtime()
     , size(0)
@@ -163,6 +179,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
     , driveSystem(driveSystem)
     , fileInfo(QDir(parentPath), fileName)
     , fetched(false)
+    , id()
     , isFolder(false)
     , mtime()
     , size(0)
