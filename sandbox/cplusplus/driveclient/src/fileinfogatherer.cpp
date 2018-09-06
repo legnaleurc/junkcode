@@ -258,7 +258,7 @@ void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &file
 
     QStringList allFiles;
     if (files.isEmpty()) {
-        auto children = listRemote(path);
+        auto children = this->driveSystem->list(path);
         QListIterator<DriveFileInfo> it(children);
         while (!abort.load() && it.hasNext()) {
             const auto & fileInfo = it.next();

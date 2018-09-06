@@ -1,9 +1,10 @@
 #ifndef DRIVESYSTEM_H
 #define DRIVESYSTEM_H
 
+#include "drivefileinfo.h"
+
 #include <QtCore/QString>
-#include <QtCore/QVariantList>
-#include <QtCore/QVariantMap>
+#include <QtCore/QList>
 
 #include <memory>
 
@@ -20,8 +21,8 @@ public:
 
     void setBaseUrl(const QString & baseUrl);
 
-    QVariantMap info(const QString & idOrPath) const;
-    QVariantList list(const QString & idOrPath) const;
+    DriveFileInfo info(const QString & idOrPath) const;
+    QList<DriveFileInfo> list(const QString & idOrPath) const;
 
 private:
     using Private = DriveSystemPrivate;
