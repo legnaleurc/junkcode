@@ -67,79 +67,79 @@
 
 QT_BEGIN_NAMESPACE
 
-class ExtendedInformation {
-public:
-    enum Type { Dir, File, System };
+// class ExtendedInformation {
+// public:
+//     enum Type { Dir, File, System };
 
-    ExtendedInformation() {}
-    ExtendedInformation(const DriveFileInfo &info) : mFileInfo(info) {}
+//     ExtendedInformation() {}
+//     ExtendedInformation(const DriveFileInfo &info) : mFileInfo(info) {}
 
-    inline bool isDir() { return type() == Dir; }
-    inline bool isFile() { return type() == File; }
-    inline bool isSystem() { return type() == System; }
+//     inline bool isDir() { return type() == Dir; }
+//     inline bool isFile() { return type() == File; }
+//     inline bool isSystem() { return type() == System; }
 
-    bool operator ==(const ExtendedInformation &fileInfo) const {
-        return mFileInfo == fileInfo.mFileInfo
-            && displayType == fileInfo.displayType
-            && permissions() == fileInfo.permissions()
-            && lastModified() == fileInfo.lastModified();
-    }
+//     bool operator ==(const ExtendedInformation &fileInfo) const {
+//         return mFileInfo == fileInfo.mFileInfo
+//             && displayType == fileInfo.displayType
+//             && permissions() == fileInfo.permissions()
+//             && lastModified() == fileInfo.lastModified();
+//     }
 
-    bool isCaseSensitive() const {
-        return true;
-    }
+//     bool isCaseSensitive() const {
+//         return true;
+//     }
 
-    QFile::Permissions permissions() const {
-        return mFileInfo.permissions();
-    }
+//     QFile::Permissions permissions() const {
+//         return mFileInfo.permissions();
+//     }
 
-    Type type() const {
-        if (mFileInfo.isDir()) {
-            return ExtendedInformation::Dir;
-        }
-        if (mFileInfo.isFile()) {
-            return ExtendedInformation::File;
-        }
-        if (!mFileInfo.exists() && mFileInfo.isSymLink()) {
-            return ExtendedInformation::System;
-        }
-        return ExtendedInformation::System;
-    }
+//     Type type() const {
+//         if (mFileInfo.isDir()) {
+//             return ExtendedInformation::Dir;
+//         }
+//         if (mFileInfo.isFile()) {
+//             return ExtendedInformation::File;
+//         }
+//         if (!mFileInfo.exists() && mFileInfo.isSymLink()) {
+//             return ExtendedInformation::System;
+//         }
+//         return ExtendedInformation::System;
+//     }
 
-    bool isSymLink(bool ignoreNtfsSymLinks = false) const
-    {
-        return mFileInfo.isSymLink();
-    }
+//     bool isSymLink(bool ignoreNtfsSymLinks = false) const
+//     {
+//         return mFileInfo.isSymLink();
+//     }
 
-    bool isHidden() const {
-        return mFileInfo.isHidden();
-    }
+//     bool isHidden() const {
+//         return mFileInfo.isHidden();
+//     }
 
-    DriveFileInfo fileInfo() const {
-        return mFileInfo;
-    }
+//     DriveFileInfo fileInfo() const {
+//         return mFileInfo;
+//     }
 
-    QDateTime lastModified() const {
-        return mFileInfo.lastModified();
-    }
+//     QDateTime lastModified() const {
+//         return mFileInfo.lastModified();
+//     }
 
-    qint64 size() const {
-        qint64 size = -1;
-        if (type() == ExtendedInformation::Dir)
-            size = 0;
-        if (type() == ExtendedInformation::File)
-            size = mFileInfo.size();
-        if (!mFileInfo.exists() && !mFileInfo.isSymLink())
-            size = -1;
-        return size;
-    }
+//     qint64 size() const {
+//         qint64 size = -1;
+//         if (type() == ExtendedInformation::Dir)
+//             size = 0;
+//         if (type() == ExtendedInformation::File)
+//             size = mFileInfo.size();
+//         if (!mFileInfo.exists() && !mFileInfo.isSymLink())
+//             size = -1;
+//         return size;
+//     }
 
-    QString displayType;
-    QIcon icon;
+//     QString displayType;
+//     QIcon icon;
 
-private :
-    DriveFileInfo mFileInfo;
-};
+// private :
+//     DriveFileInfo mFileInfo;
+// };
 
 
 class FileInfoGatherer : public QThread
@@ -159,7 +159,7 @@ public:
     // only callable from this->thread():
     void clear();
     void removePath(const QString &path);
-    ExtendedInformation getInfo(const DriveFileInfo &info) const;
+    // ExtendedInformation getInfo(const DriveFileInfo &info) const;
     QFileIconProvider *iconProvider() const;
     bool resolveSymlinks() const;
 

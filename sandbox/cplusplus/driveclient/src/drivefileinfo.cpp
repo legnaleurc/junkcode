@@ -36,6 +36,11 @@ bool DriveFileInfo::operator == (const DriveFileInfo & that) const {
 }
 
 
+bool DriveFileInfo::operator != (const DriveFileInfo & that) const {
+    return !(*this == that);
+}
+
+
 const QString & DriveFileInfo::fileName() const {
     return d->fileName;
 }
@@ -95,6 +100,11 @@ const QString & DriveFileInfo::mimeType() const {
 }
 
 
+const QIcon & DriveFileInfo::icon() const {
+    return d->icon;
+}
+
+
 DriveFileInfoPrivate::DriveFileInfoPrivate()
     : lock()
     , driveSystem(nullptr)
@@ -106,6 +116,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate()
     , size(0)
     , exists(false)
     , mimeType()
+    , icon()
 {}
 
 
@@ -121,6 +132,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
     , size(data.value("size").value<qint64>())
     , exists(true)
     , mimeType(data.value("mime_type").toString())
+    , icon()
 {}
 
 

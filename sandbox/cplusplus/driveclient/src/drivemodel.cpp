@@ -372,7 +372,7 @@ FileNode *DriveModelPrivate::node(const QString &path, bool fetch) const
             DriveModelPrivate *p = const_cast<DriveModelPrivate*>(this);
             node = p->addNode(parent, element,info);
 #ifndef QT_NO_FILESYSTEMWATCHER
-            node->populate(fileInfoGatherer.getInfo(info));
+            node->populate(info);
 #endif
         } else {
             node = parent->children.value(element);
@@ -1572,10 +1572,10 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<
     for (const auto &update : updates) {
         QString fileName = update.first;
         Q_ASSERT(!fileName.isEmpty());
-        ExtendedInformation info = fileInfoGatherer.getInfo(update.second);
+        auto info = update.second;
         bool previouslyHere = parentNode->children.contains(fileName);
         if (!previouslyHere) {
-            addNode(parentNode, fileName, info.fileInfo());
+            addNode(parentNode, fileName, info);
         }
         FileNode * node = parentNode->children.value(fileName);
         bool isCaseSensitive = parentNode->caseSensitive();
@@ -1592,7 +1592,7 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<
             node->fileName = fileName;
         }
 
-        if (*node != info ) {
+        if (node->fileInfo() != info) {
             node->populate(info);
             bypassFilters.remove(node);
             // brand new information.

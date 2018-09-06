@@ -187,14 +187,6 @@ void FileInfoGatherer::run()
     }
 }
 
-ExtendedInformation FileInfoGatherer::getInfo(const DriveFileInfo &fileInfo) const
-{
-    ExtendedInformation info(fileInfo);
-    info.icon = QIcon();
-    info.displayType = fileInfo.mimeType();
-    return info;
-}
-
 /*
     Get specific file info's, batch the files so update when we have 100
     items and every 200ms after that

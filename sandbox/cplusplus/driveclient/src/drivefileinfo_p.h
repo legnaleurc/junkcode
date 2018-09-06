@@ -6,6 +6,7 @@
 
 #include <QtCore/QSharedData>
 #include <QtCore/QVariantMap>
+#include <QtGui/QIcon>
 
 #include <mutex>
 
@@ -27,6 +28,7 @@ public:
     qint64 size;
     bool exists;
     QString mimeType;
+    QIcon icon;
 };
 
 

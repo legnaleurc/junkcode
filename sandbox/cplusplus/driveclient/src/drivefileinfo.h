@@ -24,6 +24,7 @@ public:
     explicit DriveFileInfo(DriveFileInfoPrivate *);
 
     bool operator == (const DriveFileInfo & that) const;
+    bool operator != (const DriveFileInfo & that) const;
 
     const QString & fileName() const;
     bool isDir() const;
@@ -35,6 +36,7 @@ public:
     bool isHidden() const;
     QFile::Permissions permissions() const;
     const QString & mimeType() const;
+    const QIcon & icon() const;
 
 private:
     using Private = DriveFileInfoPrivate;

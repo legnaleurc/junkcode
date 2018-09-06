@@ -94,7 +94,7 @@ public:
     QString fileName;
 
     inline qint64 size() const { if (info && !info->isDir()) return info->size(); return 0; }
-    inline QString type() const { if (info) return info->displayType; return QLatin1String(""); }
+    inline QString type() const { if (info) return info->mimeType(); return QLatin1String(""); }
     inline QDateTime lastModified() const { if (info) return info->lastModified(); return QDateTime(); }
     inline QFile::Permissions permissions() const { if (info) return info->permissions(); return 0; }
     inline bool isReadable() const { return ((permissions() & QFile::ReadUser) != 0); }
@@ -107,13 +107,13 @@ public:
             return true;
         return false;
     }
-    inline DriveFileInfo fileInfo() const { if (info) return info->fileInfo(); return DriveFileInfo(); }
+    inline DriveFileInfo fileInfo() const { if (info) return *info; return DriveFileInfo(); }
     inline bool isFile() const { if (info) return info->isFile(); return true; }
-    inline bool isSystem() const { if (info) return info->isSystem(); return true; }
+    inline bool isSystem() const { return false; }
     inline bool isHidden() const { if (info) return info->isHidden(); return false; }
-    inline bool isSymLink(bool ignoreNtfsSymLinks = false) const { return info && info->isSymLink(ignoreNtfsSymLinks); }
-    inline bool caseSensitive() const { if (info) return info->isCaseSensitive(); return false; }
-    inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
+    inline bool isSymLink(bool ignoreNtfsSymLinks = false) const { return info && info->isSymLink(); }
+    inline bool caseSensitive() const { return true; }
+    inline QIcon icon() const { if (info) return info->icon(); return QIcon(); }
 
     inline bool operator <(const FileNode &node) const {
         if (caseSensitive() || node.caseSensitive())
@@ -130,23 +130,17 @@ public:
             return fileName < name;
         return QString::compare(fileName, name, Qt::CaseInsensitive) < 0;
     }
-    inline bool operator !=(const ExtendedInformation &fileInfo) const {
-        return !operator==(fileInfo);
-    }
     bool operator ==(const QString &name) const {
         if (caseSensitive())
             return fileName == name;
         return QString::compare(fileName, name, Qt::CaseInsensitive) == 0;
     }
-    bool operator ==(const ExtendedInformation &fileInfo) const {
-        return info && (*info == fileInfo);
-    }
 
     inline bool hasInformation() const { return info != 0; }
 
-    void populate(const ExtendedInformation &fileInfo) {
+    void populate(const DriveFileInfo &fileInfo) {
         if (!info)
-            info = new ExtendedInformation(fileInfo.fileInfo());
+            info = new DriveFileInfo(fileInfo);
         (*info) = fileInfo;
     }
 
@@ -162,7 +156,7 @@ public:
     int dirtyChildrenIndex;
     FileNode *parent;
 
-    ExtendedInformation *info;
+    DriveFileInfo *info;
     const DriveSystem * driveSystem;
 };
 
