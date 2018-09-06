@@ -28,13 +28,6 @@ DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QString & pa
     assert(d->driveSystem);
 }
 
-
-DriveFileInfo::DriveFileInfo(const DriveSystem * driveSystem, const QFileInfo & fileInfo)
-    : d(std::make_shared<Private>(driveSystem, fileInfo))
-{
-    assert(d->driveSystem);
-}
-
 DriveFileInfo::DriveFileInfo(DriveFileInfoPrivate * d)
     : d(d)
 {
@@ -48,15 +41,6 @@ DriveFileInfo::~DriveFileInfo() noexcept
 
 DriveFileInfo & DriveFileInfo::operator = (const DriveFileInfo & that) {
     d = that.d;
-    return *this;
-}
-
-
-DriveFileInfo & DriveFileInfo::operator = (const QFileInfo & fileInfo) {
-    if (d->fileInfo != fileInfo) {
-        d = std::make_shared<Private>(d->driveSystem, fileInfo);
-    }
-    assert(d->driveSystem);
     return *this;
 }
 
@@ -106,11 +90,6 @@ bool DriveFileInfo::exists() const {
 
 bool DriveFileInfo::isFile() const {
     return !this->isDir();
-}
-
-
-const QFileInfo & DriveFileInfo::fileInfo() const {
-    return d->fileInfo;
 }
 
 

@@ -1277,31 +1277,6 @@ QDir DriveModel::rootDirectory() const
 }
 
 /*!
-    Sets the \a provider of file icons for the directory model.
-*/
-void DriveModel::setIconProvider(QFileIconProvider *provider)
-{
-    Q_D(DriveModel);
-#ifndef QT_NO_FILESYSTEMWATCHER
-    d->fileInfoGatherer.setIconProvider(provider);
-#endif
-    d->root.updateIcon(provider, QString());
-}
-
-/*!
-    Returns the file icon provider for this directory model.
-*/
-QFileIconProvider *DriveModel::iconProvider() const
-{
-#ifndef QT_NO_FILESYSTEMWATCHER
-    Q_D(const DriveModel);
-    return d->fileInfoGatherer.iconProvider();
-#else
-    return 0;
-#endif
-}
-
-/*!
     Sets the directory model's filter to that specified by \a filters.
 
     Note that the filter you set should always include the QDir::AllDirs enum value,
@@ -1432,20 +1407,6 @@ QStringList DriveModel::nameFilters() const
     return filters;
 }
 
-/*!
-    \reimp
-*/
-bool DriveModel::event(QEvent *event)
-{
-#ifndef QT_NO_FILESYSTEMWATCHER
-    Q_D(DriveModel);
-    if (event->type() == QEvent::LanguageChange) {
-        d->root.retranslateStrings(d->fileInfoGatherer.iconProvider(), QString());
-        return true;
-    }
-#endif
-    return QAbstractItemModel::event(event);
-}
 
 bool DriveModel::rmdir(const QModelIndex &aindex)
 {

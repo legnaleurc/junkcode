@@ -24,9 +24,6 @@ public:
     explicit DriveFileInfo(DriveFileInfoPrivate *);
     DriveFileInfo(const DriveSystem * driveSystem, const QString & path);
     DriveFileInfo(const DriveSystem * driveSystem, const QString & parentPath, const QString & name);
-    DriveFileInfo(const DriveSystem * driveSystem, const QFileInfo & fileInfo);
-
-    DriveFileInfo & operator = (const QFileInfo & fileInfo);
 
     bool operator == (const DriveFileInfo & that) const;
 
@@ -35,11 +32,11 @@ public:
     bool exists() const;
     bool isSymLink() const;
     bool isFile() const;
-    const QFileInfo & fileInfo() const;
     qint64 size() const;
     const QDateTime & lastModified() const;
     bool isHidden() const;
     QFile::Permissions permissions() const;
+    QString mimeType() const;
 
     void setFile(const QString & path);
 

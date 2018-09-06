@@ -108,9 +108,6 @@ public:
     QString rootPath() const;
     QDir rootDirectory() const;
 
-    void setIconProvider(QFileIconProvider *provider);
-    QFileIconProvider *iconProvider() const;
-
     void setFilter(QDir::Filters filters);
     QDir::Filters filter() const;
 
@@ -140,7 +137,6 @@ public:
 protected:
     DriveModel(DriveModelPrivate &, QObject *parent = nullptr);
     void timerEvent(QTimerEvent *event) override;
-    bool event(QEvent *event) override;
 
 private:
     Q_DECLARE_PRIVATE(DriveModel)

@@ -154,35 +154,6 @@ public:
     inline int visibleLocation(const QString &childName) {
         return visibleChildren.indexOf(childName);
     }
-    void updateIcon(QFileIconProvider *iconProvider, const QString &path) {
-        if (info)
-            info->icon = iconProvider->icon(DriveFileInfo(this->driveSystem, path).fileInfo());
-        for (FileNode *child : qAsConst(children)) {
-            //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
-            if (!path.isEmpty()) {
-                if (path.endsWith(QLatin1Char('/')))
-                    child->updateIcon(iconProvider, path + child->fileName);
-                else
-                    child->updateIcon(iconProvider, path + QLatin1Char('/') + child->fileName);
-            } else
-                child->updateIcon(iconProvider, child->fileName);
-        }
-    }
-
-    void retranslateStrings(QFileIconProvider *iconProvider, const QString &path) {
-        if (info)
-            info->displayType = iconProvider->type(DriveFileInfo(this->driveSystem, path).fileInfo());
-        for (FileNode *child : qAsConst(children)) {
-            //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
-            if (!path.isEmpty()) {
-                if (path.endsWith(QLatin1Char('/')))
-                    child->retranslateStrings(iconProvider, path + child->fileName);
-                else
-                    child->retranslateStrings(iconProvider, path + QLatin1Char('/') + child->fileName);
-            } else
-                child->retranslateStrings(iconProvider, child->fileName);
-        }
-    }
 
     bool populatedChildren;
     bool isVisible;

@@ -190,8 +190,8 @@ void FileInfoGatherer::run()
 ExtendedInformation FileInfoGatherer::getInfo(const DriveFileInfo &fileInfo) const
 {
     ExtendedInformation info(fileInfo);
-    info.icon = m_iconProvider->icon(fileInfo.fileInfo());
-    info.displayType = m_iconProvider->type(fileInfo.fileInfo());
+    info.icon = QIcon();
+    info.displayType = fileInfo.mimeType();
     return info;
 }
 
