@@ -14,6 +14,9 @@ public:
     DriveSystem(const DriveSystem &) = delete;
     DriveSystem & operator = (const DriveSystem &) = delete;
 
+    QVariantMap info(const QString & idOrPath) const;
+    QVariantList list(const QString & idOrPath) const;
+
 private:
     using Private = DriveSystemPrivate;
     using PrivateDeleter = void (*)(Private *);
