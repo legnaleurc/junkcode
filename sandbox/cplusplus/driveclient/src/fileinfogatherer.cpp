@@ -40,49 +40,6 @@
 #include "fileinfogatherer_p.h"
 #include <QtCore/QtDebug>
 #include <QtCore/QDirIterator>
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
-#include <QtCore/QEventLoop>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QJsonArray>
-#include <QtCore/QUrlQuery>
-
-#include "drivefileinfo_p.h"
-
-
-namespace {
-
-QList<DriveFileInfo> listRemote(const QString & path) {
-    QNetworkAccessManager nam;
-    QNetworkRequest request;
-    QUrl url("http://localhost:8000/api/v1/list");
-    QUrlQuery query;
-    query.addQueryItem("path", path);
-    url.setQuery(query);
-    request.setUrl(url);
-    auto reply = nam.get(request);
-
-    QEventLoop loop;
-    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-    loop.exec();
-
-    QList<DriveFileInfo> rv;
-    auto response = reply->readAll();
-    QJsonParseError error;
-    auto json = QJsonDocument::fromJson(response, &error);
-    if (error.error != QJsonParseError::NoError) {
-        qDebug() << error.errorString();
-        return rv;
-    }
-    auto data = json.array().toVariantList();
-    for (const auto & info : data) {
-        DriveFileInfo fileInfo(new DriveFileInfoPrivate(path, info.value<QVariantMap>()));
-        rv.push_back(fileInfo);
-    }
-    return rv;
-}
-
-}
 
 
 QT_BEGIN_NAMESPACE
@@ -290,6 +247,10 @@ void FileInfoGatherer::fetch(const DriveFileInfo &fileInfo, QElapsedTimer &base,
         base = current;
         firstTime = false;
     }
+}
+
+void FileInfoGatherer::setDriveSystem(DriveSystem * driveSystem) {
+    this->driveSystem = driveSystem;
 }
 
 QT_END_NAMESPACE

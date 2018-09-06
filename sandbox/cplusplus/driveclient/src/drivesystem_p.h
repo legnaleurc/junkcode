@@ -11,7 +11,7 @@ public:
     DriveSystemPrivate();
 
     QNetworkAccessManager nam;
-    QString host;
+    QString baseUrl;
 };
 
 
