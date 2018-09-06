@@ -72,7 +72,9 @@ async def sync(request):
         fs = [ws.send_str(data + '\n') for ws in request.app['changes']]
         if fs:
             done, pending = await asyncio.wait(fs)
-    return aw.Response()
+    return aw.Response(headers={
+                           'Access-Control-Allow-Origin': '*',
+                       })
 
 
 def json_response(data):
