@@ -67,6 +67,7 @@ class Container extends React.Component {
 
     this.state = {
       highlight: false,
+      guard: false,
     };
   }
 
@@ -103,19 +104,29 @@ class Container extends React.Component {
     event.preventDefault();
     this.setState({
       highlight: true,
+      guard: true,
     });
     console.info('enter', this.props.node.name, event.target);
   }
 
   _onDragOver (event) {
     event.preventDefault();
+    this.setState({
+      guard: false,
+    });
   }
 
   _onDragLeave (event) {
     event.preventDefault();
-    this.setState({
-      highlight: false,
-    });
+    if (this.state.guard) {
+      this.setState({
+        guard: false,
+      });
+    } else {
+      this.setState({
+        highlight: false,
+      });
+    }
     console.info('leave', this.props.node.name, event.target);
   }
 
