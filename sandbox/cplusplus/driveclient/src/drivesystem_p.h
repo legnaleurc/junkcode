@@ -3,8 +3,6 @@
 
 #include "drivesystem.h"
 
-#include <QtNetwork/QNetworkAccessManager>
-
 
 class DriveSystemPrivate {
 public:
@@ -12,7 +10,6 @@ public:
 
     QVariant get(const QString & path, const QList<QPair<QString, QString>> & params);
 
-    QNetworkAccessManager nam;
     QString baseUrl;
 };
 

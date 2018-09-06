@@ -63,8 +63,7 @@ QList<DriveFileInfo> DriveSystem::list(const QString & idOrPath) const {
 
 
 DriveSystemPrivate::DriveSystemPrivate()
-    : nam()
-    , baseUrl()
+    : baseUrl()
 {}
 
 
@@ -77,13 +76,15 @@ QVariant DriveSystemPrivate::get(const QString & path, const QList<QPair<QString
     url.setQuery(query);
     QNetworkRequest request;
     request.setUrl(url);
-    auto reply = this->nam.get(request);
+    QNetworkAccessManager nam;
+    auto reply = nam.get(request);
 
     QEventLoop loop;
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
     auto response = reply->readAll();
+    reply->deleteLater();
     QJsonParseError error;
     auto json = QJsonDocument::fromJson(response, &error);
     if (error.error != QJsonParseError::NoError) {
