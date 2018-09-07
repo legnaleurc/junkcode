@@ -19,7 +19,10 @@ void DriveSystem::setBaseUrl(const QString & baseUrl) {
     d->baseUrl = baseUrl;
     d->socket->open(QUrl("ws://localhost:8000/socket/v1/changes"));
 
-    ;
+    auto rootInfo = this->info("/");
+    d->root = std::make_shared<Node>(rootInfo, nullptr);
+    d->database.clear();
+    d->database.emplace(rootInfo.id(), d->root);
 }
 
 
@@ -129,3 +132,10 @@ void DriveSystemPrivate::onMessage(const QString & message) {
 void DriveSystemPrivate::onError(QAbstractSocket::SocketError error) {
     qDebug() << "error" << error << this->socket->errorString();
 }
+
+
+Node::Node(const DriveFileInfo & info, std::shared_ptr<Node> parent)
+    : info(info)
+    , parent(parent)
+    , children()
+{}

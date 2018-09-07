@@ -25,6 +25,11 @@ struct hash<QString> {
 
 class Node {
 public:
+    Node(const DriveFileInfo & info, std::shared_ptr<Node> parent);
+    Node() = delete;
+    Node(const Node &) = delete;
+    Node & operator ()(const Node &) = delete;
+
     DriveFileInfo info;
     std::weak_ptr<Node> parent;
     std::unordered_map<QString, std::shared_ptr<Node>> children;

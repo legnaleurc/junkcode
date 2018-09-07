@@ -48,6 +48,11 @@ bool DriveFileInfo::isValid() const {
 }
 
 
+const QString & DriveFileInfo::id() const {
+    return d->id;
+}
+
+
 const QString & DriveFileInfo::fileName() const {
     return d->fileName;
 }
