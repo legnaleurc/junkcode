@@ -42,9 +42,8 @@ public:
     explicit DriveSystemPrivate(DriveSystem * parent);
 
     QVariant get(const QString & path, const QList<QPair<QString, QString>> & params);
-
     DriveFileInfo fetchInfo(const QString & idOrPath);
-
+    void upsertNode(const DriveFileInfo & fileInfo);
     void applyChange(const QVariantMap & change);
 
 public slots:

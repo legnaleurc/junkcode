@@ -49,37 +49,7 @@ void DriveSystem::setBaseUrl(const QString & baseUrl) {
 
 DriveFileInfo DriveSystem::info(const QString & idOrPath) const {
     auto fileInfo = d->fetchInfo(idOrPath);
-    auto hit = d->database.find(fileInfo.id());
-    if (hit != d->database.end()) {
-        auto node = hit->second.lock();
-        assert(node || !"dead hash");
-        if (node->info != fileInfo) {
-            if (node->info.parentId() != fileInfo.parentId()) {
-                // moved
-
-                // remove from old parent
-                auto parentNode = node->parent.lock();
-                auto cit = parentNode->children.find(node->info.id());
-                if (cit != parentNode->children.end()) {
-                    parentNode->children.erase(cit);
-                }
-
-                // add to new parent
-                hit = d->database.find(fileInfo.parentId());
-                assert(hit != d->database.end() || !"invalid parent");
-                parentNode = hit->second.lock();
-                parentNode->children.emplace(fileInfo.id(), node);
-            }
-            node->info = fileInfo;
-        }
-    } else {
-        hit = d->database.find(fileInfo.parentId());
-        assert(hit != d->database.end());
-        auto parentNode = hit->second.lock();
-        auto node = std::make_shared<Node>(fileInfo, parentNode);
-        parentNode->children.emplace(fileInfo.id(), node);
-        d->database.emplace(fileInfo.id(), node);
-    }
+    d->upsertNode(fileInfo);
     return fileInfo;
 }
 
@@ -98,6 +68,7 @@ QList<DriveFileInfo> DriveSystem::list(const QString & idOrPath) const {
     for (const auto & info : listData) {
         DriveFileInfo fileInfo(new DriveFileInfoPrivate(info.toMap()));
         rv.push_back(fileInfo);
+        d->upsertNode(fileInfo);
     }
     return rv;
 }
@@ -158,6 +129,42 @@ QVariant DriveSystemPrivate::get(const QString & path, const QList<QPair<QString
         return QVariant();
     }
     return json.toVariant();
+}
+
+
+void DriveSystemPrivate::upsertNode(const DriveFileInfo & fileInfo) {
+    auto hit = this->database.find(fileInfo.id());
+    if (hit != this->database.end()) {
+        auto node = hit->second.lock();
+        assert(node || !"dead hash");
+        if (node->info != fileInfo) {
+            if (node->info.parentId() != fileInfo.parentId()) {
+                // moved
+
+                // remove from old parent
+                auto parentNode = node->parent.lock();
+                auto cit = parentNode->children.find(node->info.id());
+                if (cit != parentNode->children.end()) {
+                    parentNode->children.erase(cit);
+                }
+
+                // add to new parent
+                hit = this->database.find(fileInfo.parentId());
+                assert(hit != this->database.end() || !"invalid parent");
+                parentNode = hit->second.lock();
+                parentNode->children.emplace(fileInfo.id(), node);
+            }
+            node->info = fileInfo;
+        }
+    } else {
+        hit = this->database.find(fileInfo.parentId());
+        if (hit != this->database.end()) {
+            auto parentNode = hit->second.lock();
+            auto node = std::make_shared<Node>(fileInfo, parentNode);
+            parentNode->children.emplace(fileInfo.id(), node);
+            this->database.emplace(fileInfo.id(), node);
+        }
+    }
 }
 
 

@@ -15,7 +15,7 @@ public:
 
     QString id;
     QString fileName;
-    QString parent;
+    QString parentId;
     bool isFolder;
     QDateTime mtime;
     qint64 size;

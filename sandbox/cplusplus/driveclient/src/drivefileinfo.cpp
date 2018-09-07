@@ -51,7 +51,7 @@ const QString & DriveFileInfo::id() const {
 
 
 const QString & DriveFileInfo::parentId() const {
-    return d->parent;
+    return d->parentId;
 }
 
 
@@ -124,7 +124,7 @@ QDebug operator <<(QDebug debug, const DriveFileInfo & info) {
 DriveFileInfoPrivate::DriveFileInfoPrivate(const QVariantMap & data)
     : id(data.value("id").toString())
     , fileName(data.value("name").toString())
-    , parent(data.value("parent").toString())
+    , parentId(data.value("parent_id").toString())
     , isFolder(data.value("is_folder").toBool())
     , mtime(data.value("mtime").value<QDateTime>())
     , size(data.value("size").value<qint64>())

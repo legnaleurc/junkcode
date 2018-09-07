@@ -88,6 +88,7 @@ def json_response(data):
 def dict_from_node(node):
     return {
         'id': node.id_,
+        'parent_id': node.parent_id,
         'name': node.name,
         'trashed': node.trashed,
         'is_folder': node.is_folder,
