@@ -2,7 +2,7 @@
 
 
 DriveFileInfo::DriveFileInfo()
-    : d(std::make_shared<Private>())
+    : d()
 {}
 
 
@@ -44,12 +44,17 @@ bool DriveFileInfo::operator != (const DriveFileInfo & that) const {
 
 
 bool DriveFileInfo::isValid() const {
-    return !d->id.isEmpty();
+    return !!d;
 }
 
 
 const QString & DriveFileInfo::id() const {
     return d->id;
+}
+
+
+const QString & DriveFileInfo::parentId() const {
+    return d->parent;
 }
 
 
@@ -124,21 +129,6 @@ QDebug operator <<(QDebug debug, const DriveFileInfo & info) {
 }
 
 
-DriveFileInfoPrivate::DriveFileInfoPrivate()
-    : lock()
-    , driveSystem(nullptr)
-    , fetched(false)
-    , id()
-    , fileName()
-    , isFolder(false)
-    , mtime()
-    , size(0)
-    , exists(false)
-    , mimeType()
-    , icon()
-{}
-
-
 DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
                                            const QVariantMap & data)
     : lock()
@@ -146,6 +136,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
     , fetched(true)
     , id(data.value("id").toString())
     , fileName(data.value("name").toString())
+    , parent(data.value("parent").toString())
     , isFolder(data.value("is_folder").toBool())
     , mtime(data.value("mtime").value<QDateTime>())
     , size(data.value("size").value<qint64>())

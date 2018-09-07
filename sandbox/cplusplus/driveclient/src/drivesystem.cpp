@@ -27,16 +27,31 @@ void DriveSystem::setBaseUrl(const QString & baseUrl) {
 
 
 DriveFileInfo DriveSystem::info(const QString & idOrPath) const {
-    auto data = d->get("/api/v1/info", {
-        {"id_or_path", idOrPath},
-    });
+    auto fileInfo = d->fetchInfo(idOrPath);
+    auto hit = d->database.find(fileInfo.id());
+    if (hit != d->database.end()) {
+        auto node = hit->second.lock();
+        assert(node || !"dead hash");
+        if (node->info != fileInfo) {
+            if (node->info.parentId() != fileInfo.parentId()) {
+                // moved
 
-    if (!data.isValid()) {
-        return DriveFileInfo();
+                // remove from old parent
+                auto parentNode = node->parent.lock();
+                auto cit = parentNode->children.find(node->info.id());
+                if (cit != parentNode->children.end()) {
+                    parentNode->children.erase(cit);
+                }
+
+                // add to new parent
+                hit = d->database.find(fileInfo.parentId());
+                assert(hit != d->database.end() || !"invalid parent");
+                parentNode = hit->second.lock();
+                parentNode->children.emplace(fileInfo.id(), node);
+            }
+            node->info = fileInfo;
+        }
     }
-
-    auto mapData = data.toMap();
-    DriveFileInfo fileInfo(new DriveFileInfoPrivate(this, mapData));
     return fileInfo;
 }
 
@@ -72,6 +87,21 @@ DriveSystemPrivate::DriveSystemPrivate(DriveSystem * parent)
     QObject::connect(this->socket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error), this, &DriveSystemPrivate::onError);
     QObject::connect(this, &DriveSystemPrivate::removed, q, &DriveSystem::removed);
     QObject::connect(this, &DriveSystemPrivate::updated, q, &DriveSystem::updated);
+}
+
+
+DriveFileInfo DriveSystemPrivate::fetchInfo(const QString & idOrPath) {
+    auto data = this->get("/api/v1/info", {
+        {"id_or_path", idOrPath},
+    });
+
+    if (!data.isValid()) {
+        return DriveFileInfo();
+    }
+
+    auto mapData = data.toMap();
+    DriveFileInfo fileInfo(new DriveFileInfoPrivate(q, mapData));
+    return fileInfo;
 }
 
 

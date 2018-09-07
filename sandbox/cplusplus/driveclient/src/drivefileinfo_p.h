@@ -13,7 +13,6 @@
 
 class DriveFileInfoPrivate {
 public:
-    DriveFileInfoPrivate();
     DriveFileInfoPrivate(const DriveSystem * driveSystem, const QVariantMap & data);
 
     void fetch();
@@ -23,6 +22,7 @@ public:
     bool fetched;
     QString id;
     QString fileName;
+    QString parent;
     bool isFolder;
     QDateTime mtime;
     qint64 size;
