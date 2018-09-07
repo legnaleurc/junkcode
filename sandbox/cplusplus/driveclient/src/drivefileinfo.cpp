@@ -43,6 +43,11 @@ bool DriveFileInfo::operator != (const DriveFileInfo & that) const {
 }
 
 
+bool DriveFileInfo::isValid() const {
+    return !d->id.isEmpty();
+}
+
+
 const QString & DriveFileInfo::fileName() const {
     return d->fileName;
 }

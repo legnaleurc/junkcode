@@ -27,6 +27,7 @@ public:
     bool operator == (const DriveFileInfo & that) const;
     bool operator != (const DriveFileInfo & that) const;
 
+    bool isValid() const;
     const QString & fileName() const;
     bool isDir() const;
     bool exists() const;

@@ -17,6 +17,7 @@ DriveSystem::DriveSystem(QObject * parent)
 
 void DriveSystem::setBaseUrl(const QString & baseUrl) {
     d->baseUrl = baseUrl;
+    d->socket->open(baseUrl + "/socket/v1/changes");
 }
 
 
@@ -58,7 +59,10 @@ DriveSystemPrivate::DriveSystemPrivate(DriveSystem * parent)
     : QObject(parent)
     , q(parent)
     , baseUrl()
-{}
+    , socket(new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this))
+{
+    QObject::connect(this->socket, &QWebSocket::textMessageReceived, this, &DriveSystemPrivate::onMessage);
+}
 
 
 QVariant DriveSystemPrivate::get(const QString & path, const QList<QPair<QString, QString>> & params) {
@@ -86,4 +90,9 @@ QVariant DriveSystemPrivate::get(const QString & path, const QList<QPair<QString
         return QVariant();
     }
     return json.toVariant();
+}
+
+
+void DriveSystemPrivate::onMessage(const QString & message) {
+    qDebug() << message;
 }

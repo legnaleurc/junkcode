@@ -367,7 +367,7 @@ FileNode *DriveModelPrivate::node(const QString &path, bool fetch) const
             // a path that doesn't exists, I.E. don't blindly create directories.
             // DriveFileInfo info(&this->driveSystem, elementPath);
             auto info = this->driveSystem->info(elementPath);
-            if (!info.exists())
+            if (!info.isValid() || !info.exists())
                 return const_cast<FileNode*>(&root);
             DriveModelPrivate *p = const_cast<DriveModelPrivate*>(this);
             node = p->addNode(parent, element,info);
