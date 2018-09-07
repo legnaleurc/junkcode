@@ -390,6 +390,7 @@ FileNode *DriveModelPrivate::node(const QString &path, bool fetch) const
                 p->bypassFilters[node] = 1;
             QString dir = q->filePath(this->index(parent));
             if (!node->hasInformation() && fetch) {
+                assert(!"fetch???");
                 Fetching f = { std::move(dir), std::move(element), node };
                 p->toFetch.append(std::move(f));
                 p->fetchingTimer.start(0, const_cast<DriveModel*>(q));

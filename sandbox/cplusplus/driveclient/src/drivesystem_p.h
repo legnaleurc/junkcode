@@ -5,6 +5,16 @@
 
 #include <QtWebSockets/QWebSocket>
 
+#include <memory>
+
+
+class Node {
+public:
+    DriveFileInfo info;
+    std::weak_ptr<Node> parent;
+    QHash<QString, std::shared_ptr<Node>> children;
+};
+
 
 class DriveSystemPrivate : public QObject {
     Q_OBJECT
@@ -27,6 +37,8 @@ public:
     DriveSystem * q;
     QString baseUrl;
     QWebSocket * socket;
+    std::shared_ptr<Node> root;
+    QHash<QString, std::weak_ptr<Node>> database;
 };
 
 
