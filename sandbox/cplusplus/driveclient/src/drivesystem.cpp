@@ -152,6 +152,7 @@ void DriveSystemPrivate::upsertNode(const DriveFileInfo & fileInfo) {
                 hit = this->database.find(fileInfo.parentId());
                 assert(hit != this->database.end() || !"invalid parent");
                 parentNode = hit->second.lock();
+                node->parent = parentNode;
                 parentNode->children.emplace(fileInfo.id(), node);
             }
             node->info = fileInfo;
