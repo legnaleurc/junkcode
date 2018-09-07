@@ -107,6 +107,13 @@ const QIcon & DriveFileInfo::icon() const {
 }
 
 
+QDebug operator <<(QDebug debug, const DriveFileInfo & info) {
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "DriveFileInfo(" << info.fileName() << ")";
+    return debug;
+}
+
+
 DriveFileInfoPrivate::DriveFileInfoPrivate()
     : lock()
     , driveSystem(nullptr)

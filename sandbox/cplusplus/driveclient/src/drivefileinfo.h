@@ -5,6 +5,7 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDateTime>
+#include <QtCore/QDebug>
 
 #include <memory>
 
@@ -43,6 +44,10 @@ private:
 
     std::shared_ptr<Private> d;
 };
+
+
+QDebug operator <<(QDebug debug, const DriveFileInfo & info);
+
 
 Q_DECLARE_METATYPE(DriveFileInfo)
 
