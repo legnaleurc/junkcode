@@ -64,6 +64,7 @@ DriveSystemPrivate::DriveSystemPrivate(DriveSystem * parent)
     QObject::connect(this->socket, &QWebSocket::textMessageReceived, this, &DriveSystemPrivate::onMessage);
     QObject::connect(this->socket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error), this, &DriveSystemPrivate::onError);
     QObject::connect(this, &DriveSystemPrivate::removed, q, &DriveSystem::removed);
+    QObject::connect(this, &DriveSystemPrivate::updated, q, &DriveSystem::updated);
 }
 
 

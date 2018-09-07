@@ -21,6 +21,7 @@ public slots:
 
 signals:
     void removed(const QString & id);
+    void updated(const DriveFileInfo & info);
 
 public:
     DriveSystem * q;

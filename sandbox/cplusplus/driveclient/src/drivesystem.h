@@ -26,6 +26,7 @@ public:
 
 signals:
     void removed(const QString & id);
+    void updated(const DriveFileInfo & info);
 
 private:
     using Private = DriveSystemPrivate;
