@@ -13,9 +13,14 @@ public:
 
     QVariant get(const QString & path, const QList<QPair<QString, QString>> & params);
 
+    void applyChange(const QVariantMap & change);
+
 public slots:
-    void onMessage(const QString &);
+    void onMessage(const QString & message);
     void onError(QAbstractSocket::SocketError error);
+
+signals:
+    void removed(const QString & id);
 
 public:
     DriveSystem * q;

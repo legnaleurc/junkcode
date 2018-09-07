@@ -63,6 +63,7 @@ DriveSystemPrivate::DriveSystemPrivate(DriveSystem * parent)
 {
     QObject::connect(this->socket, &QWebSocket::textMessageReceived, this, &DriveSystemPrivate::onMessage);
     QObject::connect(this->socket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error), this, &DriveSystemPrivate::onError);
+    QObject::connect(this, &DriveSystemPrivate::removed, q, &DriveSystem::removed);
 }
 
 
@@ -94,6 +95,18 @@ QVariant DriveSystemPrivate::get(const QString & path, const QList<QPair<QString
 }
 
 
+void DriveSystemPrivate::applyChange(const QVariantMap & change) {
+    auto id = change.value("fileId").toString();
+    auto removed = change.value("removed").toBool();
+    if (removed) {
+        emit this->removed(id);
+        return;
+    }
+    auto mapInfo = change.value("file").toMap();
+    DriveFileInfo info(new DriveFileInfoPrivate(q, mapInfo));
+}
+
+
 void DriveSystemPrivate::onMessage(const QString & message) {
     QJsonParseError error;
     auto json = QJsonDocument::fromJson(message.toUtf8(), &error);
@@ -101,8 +114,10 @@ void DriveSystemPrivate::onMessage(const QString & message) {
         qDebug() << error.errorString();
         return;
     }
-    auto data = json.toVariant().toList();
-    qDebug() << data;
+    auto listData = json.toVariant().toList();
+    for (const auto & data : listData) {
+        this->applyChange(data.toMap());
+    }
 }
 
 

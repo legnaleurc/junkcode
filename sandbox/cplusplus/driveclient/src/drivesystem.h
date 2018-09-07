@@ -12,6 +12,7 @@ class DriveSystemPrivate;
 
 
 class DriveSystem : public QObject {
+    Q_OBJECT
 public:
     explicit DriveSystem(QObject * parent);
 
@@ -22,6 +23,9 @@ public:
 
     DriveFileInfo info(const QString & idOrPath) const;
     QList<DriveFileInfo> list(const QString & idOrPath) const;
+
+signals:
+    void removed(const QString & id);
 
 private:
     using Private = DriveSystemPrivate;
