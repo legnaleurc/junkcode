@@ -68,7 +68,7 @@ QList<DriveFileInfo> DriveSystem::list(const QString & idOrPath) const {
 
     auto listData = data.toList();
     for (const auto & info : listData) {
-        DriveFileInfo fileInfo(new DriveFileInfoPrivate(this, info.toMap()));
+        DriveFileInfo fileInfo(new DriveFileInfoPrivate(info.toMap()));
         rv.push_back(fileInfo);
     }
     return rv;
@@ -100,7 +100,7 @@ DriveFileInfo DriveSystemPrivate::fetchInfo(const QString & idOrPath) {
     }
 
     auto mapData = data.toMap();
-    DriveFileInfo fileInfo(new DriveFileInfoPrivate(q, mapData));
+    DriveFileInfo fileInfo(new DriveFileInfoPrivate(mapData));
     return fileInfo;
 }
 
@@ -141,7 +141,7 @@ void DriveSystemPrivate::applyChange(const QVariantMap & change) {
         return;
     }
     auto mapInfo = change.value("file").toMap();
-    DriveFileInfo info(new DriveFileInfoPrivate(q, mapInfo));
+    DriveFileInfo info(new DriveFileInfoPrivate(mapInfo));
 }
 
 

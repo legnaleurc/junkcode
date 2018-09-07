@@ -9,15 +9,12 @@ DriveFileInfo::DriveFileInfo()
 DriveFileInfo::DriveFileInfo(const DriveFileInfo & that)
     : d(that.d)
 {
-    assert(d->driveSystem);
 }
 
 
 DriveFileInfo::DriveFileInfo(DriveFileInfoPrivate * d)
     : d(d)
 {
-    assert(d->driveSystem);
-    assert(d->fetched);
 }
 
 
@@ -64,7 +61,6 @@ const QString & DriveFileInfo::fileName() const {
 
 
 bool DriveFileInfo::isDir() const {
-    d->fetch();
     return d->isFolder;
 }
 
@@ -79,19 +75,16 @@ QFile::Permissions DriveFileInfo::permissions() const {
 
 
 const QDateTime & DriveFileInfo::lastModified() const {
-    d->fetch();
     return d->mtime;
 }
 
 
 qint64 DriveFileInfo::size() const {
-    d->fetch();
     return d->size;
 }
 
 
 bool DriveFileInfo::exists() const {
-    d->fetch();
     return d->exists;
 }
 
@@ -112,7 +105,6 @@ bool DriveFileInfo::isSymLink() const {
 
 
 const QString & DriveFileInfo::mimeType() const {
-    d->fetch();
     return d->mimeType;
 }
 
@@ -129,12 +121,8 @@ QDebug operator <<(QDebug debug, const DriveFileInfo & info) {
 }
 
 
-DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
-                                           const QVariantMap & data)
-    : lock()
-    , driveSystem(driveSystem)
-    , fetched(true)
-    , id(data.value("id").toString())
+DriveFileInfoPrivate::DriveFileInfoPrivate(const QVariantMap & data)
+    : id(data.value("id").toString())
     , fileName(data.value("name").toString())
     , parent(data.value("parent").toString())
     , isFolder(data.value("is_folder").toBool())
@@ -144,17 +132,3 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
     , mimeType(data.value("mime_type").toString())
     , icon()
 {}
-
-
-void DriveFileInfoPrivate::fetch() {
-    std::unique_lock<std::mutex> locker(this->lock);
-    if (this->fetched) {
-        return;
-    }
-    auto info = this->driveSystem->info(this->id);
-    this->isFolder = info.isDir();
-    this->mtime = info.lastModified();
-    this->size = info.size();
-    this->exists = info.exists();
-    this->fetched = true;
-}

@@ -8,18 +8,11 @@
 #include <QtCore/QVariantMap>
 #include <QtGui/QIcon>
 
-#include <mutex>
-
 
 class DriveFileInfoPrivate {
 public:
-    DriveFileInfoPrivate(const DriveSystem * driveSystem, const QVariantMap & data);
+    explicit DriveFileInfoPrivate(const QVariantMap & data);
 
-    void fetch();
-
-    std::mutex lock;
-    const DriveSystem * driveSystem;
-    bool fetched;
     QString id;
     QString fileName;
     QString parent;
