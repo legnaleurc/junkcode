@@ -15,6 +15,7 @@ public:
 
 public slots:
     void onMessage(const QString &);
+    void onError(QAbstractSocket::SocketError error);
 
 public:
     DriveSystem * q;
