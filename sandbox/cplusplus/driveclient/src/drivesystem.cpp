@@ -95,7 +95,14 @@ QVariant DriveSystemPrivate::get(const QString & path, const QList<QPair<QString
 
 
 void DriveSystemPrivate::onMessage(const QString & message) {
-    qDebug() << message;
+    QJsonParseError error;
+    auto json = QJsonDocument::fromJson(message.toUtf8(), &error);
+    if (error.error != QJsonParseError::NoError) {
+        qDebug() << error.errorString();
+        return;
+    }
+    auto data = json.toVariant().toList();
+    qDebug() << data;
 }
 
 
