@@ -8,6 +8,27 @@
 #include <QtCore/QJsonArray>
 #include <QtCore/QUrlQuery>
 
+#include <queue>
+
+
+// namespace {
+
+void dumpTree (DriveSystemPrivate * d) {
+    std::queue<std::shared_ptr<Node>> q;
+    q.push(d->root);
+
+    while (!q.empty()) {
+        auto n = q.front();
+        q.pop();
+        for (const auto & p : n->children) {
+            q.push(p.second);
+        }
+        qDebug() << n->info;
+    }
+}
+
+// }
+
 
 DriveSystem::DriveSystem(QObject * parent)
     : QObject(parent)
@@ -19,7 +40,7 @@ void DriveSystem::setBaseUrl(const QString & baseUrl) {
     d->baseUrl = baseUrl;
     d->socket->open(QUrl("ws://localhost:8000/socket/v1/changes"));
 
-    auto rootInfo = this->info("/");
+    auto rootInfo = d->fetchInfo("/");
     d->root = std::make_shared<Node>(rootInfo, nullptr);
     d->database.clear();
     d->database.emplace(rootInfo.id(), d->root);
@@ -51,6 +72,13 @@ DriveFileInfo DriveSystem::info(const QString & idOrPath) const {
             }
             node->info = fileInfo;
         }
+    } else {
+        hit = d->database.find(fileInfo.parentId());
+        assert(hit != d->database.end());
+        auto parentNode = hit->second.lock();
+        auto node = std::make_shared<Node>(fileInfo, parentNode);
+        parentNode->children.emplace(fileInfo.id(), node);
+        d->database.emplace(fileInfo.id(), node);
     }
     return fileInfo;
 }
