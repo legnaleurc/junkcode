@@ -9,17 +9,9 @@
 #include <QtCore/QUrlQuery>
 
 
-namespace {
-
-void deletePrivate (DriveSystemPrivate * d) {
-    delete d;
-}
-
-}
-
-
-DriveSystem::DriveSystem()
-    : d(new Private, &deletePrivate)
+DriveSystem::DriveSystem(QObject * parent)
+    : QObject(parent)
+    , d(new Private(this))
 {}
 
 
@@ -62,8 +54,10 @@ QList<DriveFileInfo> DriveSystem::list(const QString & idOrPath) const {
 }
 
 
-DriveSystemPrivate::DriveSystemPrivate()
-    : baseUrl()
+DriveSystemPrivate::DriveSystemPrivate(DriveSystem * parent)
+    : QObject(parent)
+    , q(parent)
+    , baseUrl()
 {}
 
 

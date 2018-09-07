@@ -171,7 +171,7 @@ public:
 
     explicit DriveModelPrivate(DriveModel *q) :
             q_ptr(q),
-            driveSystem(),
+            driveSystem(new DriveSystem(this)),
             forceSort(true),
             sortColumn(0),
             sortOrder(Qt::AscendingOrder),
@@ -182,7 +182,7 @@ public:
             disableRecursiveSort(false)
     {
         delayedSortTimer.setSingleShot(true);
-        fileInfoGatherer.setDriveSystem(&this->driveSystem);
+        fileInfoGatherer.setDriveSystem(this->driveSystem);
     }
 
     void init();
@@ -249,7 +249,7 @@ public:
     DriveModel * q_ptr;
 
     QDir rootDir;
-    DriveSystem driveSystem;
+    DriveSystem * driveSystem;
 #if QT_CONFIG(filesystemwatcher)
     FileInfoGatherer fileInfoGatherer;
 #endif // filesystemwatcher

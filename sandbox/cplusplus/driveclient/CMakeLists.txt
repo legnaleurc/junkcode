@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(Qt5WebSockets REQUIRED)
 set(CMAKE_AUTOMOC ON)
 
 
@@ -19,4 +20,4 @@ set(SOURCES
 
 
 add_executable(driveclient ${SOURCES})
-target_link_libraries(driveclient Qt5::Widgets  Qt5::Network)
+target_link_libraries(driveclient Qt5::Widgets Qt5::Network Qt5::WebSockets)

@@ -3,18 +3,17 @@
 
 #include "drivefileinfo.h"
 
+#include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QList>
-
-#include <memory>
 
 
 class DriveSystemPrivate;
 
 
-class DriveSystem {
+class DriveSystem : public QObject {
 public:
-    DriveSystem();
+    explicit DriveSystem(QObject * parent);
 
     DriveSystem(const DriveSystem &) = delete;
     DriveSystem & operator = (const DriveSystem &) = delete;
@@ -26,9 +25,8 @@ public:
 
 private:
     using Private = DriveSystemPrivate;
-    using PrivateDeleter = void (*)(Private *);
 
-    std::unique_ptr<Private, PrivateDeleter> d;
+    Private * d;
 };
 
 #endif

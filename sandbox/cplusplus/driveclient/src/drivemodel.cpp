@@ -366,7 +366,7 @@ FileNode *DriveModelPrivate::node(const QString &path, bool fetch) const
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
             // a path that doesn't exists, I.E. don't blindly create directories.
             // DriveFileInfo info(&this->driveSystem, elementPath);
-            auto info = this->driveSystem.info(elementPath);
+            auto info = this->driveSystem->info(elementPath);
             if (!info.exists())
                 return const_cast<FileNode*>(&root);
             DriveModelPrivate *p = const_cast<DriveModelPrivate*>(this);
@@ -1222,7 +1222,7 @@ QModelIndex DriveModel::setRootPath(const QString &newPath)
     }
 
     d->setRootPath = true;
-    d->driveSystem.setBaseUrl("http://localhost:8000");
+    d->driveSystem->setBaseUrl("http://localhost:8000");
 
     //user don't ask for the root path ("") but the conversion failed
     if (!newPath.isEmpty() && longNewPath.isEmpty())

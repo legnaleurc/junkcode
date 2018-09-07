@@ -4,12 +4,13 @@
 #include "drivesystem.h"
 
 
-class DriveSystemPrivate {
+class DriveSystemPrivate : public QObject {
 public:
-    DriveSystemPrivate();
+    explicit DriveSystemPrivate(DriveSystem * parent);
 
     QVariant get(const QString & path, const QList<QPair<QString, QString>> & params);
 
+    DriveSystem * q;
     QString baseUrl;
 };
 
