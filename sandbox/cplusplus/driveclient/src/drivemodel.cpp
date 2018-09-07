@@ -1592,7 +1592,8 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString &path, const QVector<
             node->fileName = fileName;
         }
 
-        if (node->fileInfo() != info) {
+        // FIXME this does not work anymore
+        if (true || node->fileInfo() != info) {
             node->populate(info);
             bypassFilters.remove(node);
             // brand new information.
