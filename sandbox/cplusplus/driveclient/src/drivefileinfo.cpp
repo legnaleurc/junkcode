@@ -26,7 +26,9 @@ DriveFileInfo::~DriveFileInfo() noexcept
 
 
 DriveFileInfo & DriveFileInfo::operator = (const DriveFileInfo & that) {
-    d = that.d;
+    if (this != &that) {
+        d = that.d;
+    }
     return *this;
 }
 

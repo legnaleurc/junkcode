@@ -46,7 +46,7 @@ class Daemon(object):
 
         setup_api_path(app)
 
-        async with wdg.Drive() as drive ,\
+        async with wdg.Drive('/tmp/gd') as drive ,\
                    api.ChangesChannel(app) as changes:
             app['drive'] = drive
             app.router.add_view(r'/socket/v1/changes', changes)
