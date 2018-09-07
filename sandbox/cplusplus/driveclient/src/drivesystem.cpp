@@ -18,6 +18,8 @@ DriveSystem::DriveSystem(QObject * parent)
 void DriveSystem::setBaseUrl(const QString & baseUrl) {
     d->baseUrl = baseUrl;
     d->socket->open(QUrl("ws://localhost:8000/socket/v1/changes"));
+
+    ;
 }
 
 
@@ -60,6 +62,8 @@ DriveSystemPrivate::DriveSystemPrivate(DriveSystem * parent)
     , q(parent)
     , baseUrl()
     , socket(new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this))
+    , root()
+    , database()
 {
     QObject::connect(this->socket, &QWebSocket::textMessageReceived, this, &DriveSystemPrivate::onMessage);
     QObject::connect(this->socket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error), this, &DriveSystemPrivate::onError);

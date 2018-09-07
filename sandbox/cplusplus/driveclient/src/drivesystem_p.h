@@ -6,13 +6,28 @@
 #include <QtWebSockets/QWebSocket>
 
 #include <memory>
+#include <unordered_map>
+
+
+namespace std {
+
+template<>
+struct hash<QString> {
+    using argument_type = QString;
+    using result_type = uint;
+    result_type operator ()(const argument_type & s) const noexcept {
+        return qHash(s);
+    }
+};
+
+}
 
 
 class Node {
 public:
     DriveFileInfo info;
     std::weak_ptr<Node> parent;
-    QHash<QString, std::shared_ptr<Node>> children;
+    std::unordered_map<QString, std::shared_ptr<Node>> children;
 };
 
 
@@ -38,7 +53,7 @@ public:
     QString baseUrl;
     QWebSocket * socket;
     std::shared_ptr<Node> root;
-    QHash<QString, std::weak_ptr<Node>> database;
+    std::unordered_map<QString, std::weak_ptr<Node>> database;
 };
 
 
