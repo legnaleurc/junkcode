@@ -1239,7 +1239,7 @@ QModelIndex DriveModel::setRootPath(const QString &newPath)
     if (!rootPath().isEmpty() && rootPath() != QLatin1String(".")) {
         //This remove the watcher for the old rootPath
 #ifndef QT_NO_FILESYSTEMWATCHER
-        d->fileInfoGatherer.removePath(rootPath());
+        // d->fileInfoGatherer.removePath(rootPath());
 #endif
         //This line "marks" the node as dirty, so the next fetchMore
         //call on the path will ask the gatherer to install a watcher again
@@ -1422,15 +1422,17 @@ QStringList DriveModel::nameFilters() const
 
 bool DriveModel::rmdir(const QModelIndex &aindex)
 {
-    QString path = filePath(aindex);
-    const bool success = QDir().rmdir(path);
+    // TODO
+    return false;
+    // QString path = filePath(aindex);
+    // const bool success = QDir().rmdir(path);
 #ifndef QT_NO_FILESYSTEMWATCHER
-    if (success) {
-        DriveModelPrivate * d = const_cast<DriveModelPrivate*>(d_func());
-        d->fileInfoGatherer.removePath(path);
-    }
+    // if (success) {
+        // DriveModelPrivate * d = const_cast<DriveModelPrivate*>(d_func());
+        // d->fileInfoGatherer.removePath(path);
+    // }
 #endif
-    return success;
+    // return success;
 }
 
 /*!

@@ -50,15 +50,15 @@ QT_BEGIN_NAMESPACE
 FileInfoGatherer::FileInfoGatherer(QObject *parent)
     : QThread(parent), abort(false),
 #ifndef QT_NO_FILESYSTEMWATCHER
-      watcher(0),
+    //   watcher(0),
 #endif
       m_iconProvider(&defaultProvider),
       driveSystem(nullptr)
 {
 #ifndef QT_NO_FILESYSTEMWATCHER
-    watcher = new QFileSystemWatcher(this);
-    connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(list(QString)));
-    connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateFile(QString)));
+    // watcher = new QFileSystemWatcher(this);
+    // connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(list(QString)));
+    // connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateFile(QString)));
 #endif
     start(LowPriority);
 }
@@ -75,10 +75,10 @@ FileInfoGatherer::~FileInfoGatherer()
     wait();
 }
 
-void FileInfoGatherer::setIconProvider(QFileIconProvider *provider)
-{
-    m_iconProvider = provider;
-}
+// void FileInfoGatherer::setIconProvider(QFileIconProvider *provider)
+// {
+//     m_iconProvider = provider;
+// }
 
 QFileIconProvider *FileInfoGatherer::iconProvider() const
 {
@@ -106,12 +106,12 @@ void FileInfoGatherer::fetchExtendedInformation(const QString &path, const QStri
     condition.wakeAll();
 
 #ifndef QT_NO_FILESYSTEMWATCHER
-    if (files.isEmpty()
-        && !path.isEmpty()
-        && !path.startsWith(QLatin1String("//")) /*don't watch UNC path*/) {
-        if (!watcher->directories().contains(path))
-            watcher->addPath(path);
-    }
+    // if (files.isEmpty()
+    //     && !path.isEmpty()
+    //     && !path.startsWith(QLatin1String("//")) /*don't watch UNC path*/) {
+    //     if (!watcher->directories().contains(path))
+    //         watcher->addPath(path);
+    // }
 #endif
 }
 
@@ -132,29 +132,29 @@ void FileInfoGatherer::updateFile(const QString &filePath)
 
     \sa listed()
 */
-void FileInfoGatherer::clear()
-{
-#ifndef QT_NO_FILESYSTEMWATCHER
-    QMutexLocker locker(&mutex);
-    watcher->removePaths(watcher->files());
-    watcher->removePaths(watcher->directories());
-#endif
-}
+// void FileInfoGatherer::clear()
+// {
+// #ifndef QT_NO_FILESYSTEMWATCHER
+//     QMutexLocker locker(&mutex);
+//     watcher->removePaths(watcher->files());
+//     watcher->removePaths(watcher->directories());
+// #endif
+// }
 
 /*
     Remove a \a path from the watcher
 
     \sa listed()
 */
-void FileInfoGatherer::removePath(const QString &path)
-{
-#ifndef QT_NO_FILESYSTEMWATCHER
-    QMutexLocker locker(&mutex);
-    watcher->removePath(path);
-#else
-    Q_UNUSED(path);
-#endif
-}
+// void FileInfoGatherer::removePath(const QString &path)
+// {
+// #ifndef QT_NO_FILESYSTEMWATCHER
+//     QMutexLocker locker(&mutex);
+//     watcher->removePath(path);
+// #else
+//     Q_UNUSED(path);
+// #endif
+// }
 
 /*
     List all files in \a directoryPath

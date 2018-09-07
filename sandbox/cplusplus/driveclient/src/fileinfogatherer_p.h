@@ -157,8 +157,8 @@ public:
     ~FileInfoGatherer();
 
     // only callable from this->thread():
-    void clear();
-    void removePath(const QString &path);
+    // void clear();
+    // void removePath(const QString &path);
     // ExtendedInformation getInfo(const DriveFileInfo &info) const;
     QFileIconProvider *iconProvider() const;
     bool resolveSymlinks() const;
@@ -169,7 +169,7 @@ public slots:
     void list(const QString &directoryPath);
     void fetchExtendedInformation(const QString &path, const QStringList &files);
     void updateFile(const QString &path);
-    void setIconProvider(QFileIconProvider *provider);
+    // void setIconProvider(QFileIconProvider *provider);
 
 private:
     void run() override;
@@ -187,7 +187,7 @@ private:
     QAtomicInt abort;
 
 #ifndef QT_NO_FILESYSTEMWATCHER
-    QFileSystemWatcher *watcher;
+    // QFileSystemWatcher *watcher;
 #endif
     QFileIconProvider *m_iconProvider; // not accessed by run()
     QFileIconProvider defaultProvider;
