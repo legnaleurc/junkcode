@@ -67,11 +67,10 @@ async def info(request):
 
 async def sync(request):
     drive = request.app['drive']
-    async for changes in drive.sync():
-        data = json.dumps(changes)
-        fs = [ws.send_str(data + '\n') for ws in request.app['changes']]
-        if fs:
-            done, pending = await asyncio.wait(fs)
+    sockets = request.app['changes']
+    lock = request.app['sync_lock']
+    loop = asyncio.get_event_loop()
+    loop.create_task(broadcast_changes(drive, lock, sockets))
     return aw.Response(headers={
                            'Access-Control-Allow-Origin': '*',
                        })
@@ -90,6 +89,7 @@ def dict_from_node(node):
     return {
         'id': node.id_,
         'name': node.name,
+        'trashed': node.trashed,
         'is_folder': node.is_folder,
         'ctime': node.created.timestamp,
         'mtime': node.modified.timestamp,
@@ -103,3 +103,12 @@ async def get_node(drive, id_or_path):
         return await drive.get_node_by_path(id_or_path)
     else:
         return await drive.get_node_by_id(id_or_path)
+
+
+async def broadcast_changes(drive, lock, socket_set):
+    async with lock:
+        async for changes in drive.sync():
+            data = json.dumps(changes)
+            fs = [ws.send_str(data + '\n') for ws in socket_set]
+            if fs:
+                done, pending = await asyncio.wait(fs)

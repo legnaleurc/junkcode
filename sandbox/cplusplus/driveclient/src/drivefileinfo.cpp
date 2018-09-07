@@ -144,7 +144,7 @@ DriveFileInfoPrivate::DriveFileInfoPrivate(const DriveSystem * driveSystem,
     , isFolder(data.value("is_folder").toBool())
     , mtime(data.value("mtime").value<QDateTime>())
     , size(data.value("size").value<qint64>())
-    , exists(true)
+    , exists(!data.value("trashed").toBool())
     , mimeType(data.value("mime_type").toString())
     , icon()
 {}
