@@ -36,7 +36,7 @@ DriveSystem::DriveSystem(QObject * parent)
 {}
 
 
-void DriveSystem::setBaseUrl(const QString & baseUrl) {
+DriveFileInfo DriveSystem::setBaseUrl(const QString & baseUrl) {
     d->baseUrl = baseUrl;
     d->socket->open(QUrl("ws://localhost:8000/socket/v1/changes"));
 
@@ -44,6 +44,8 @@ void DriveSystem::setBaseUrl(const QString & baseUrl) {
     d->root = std::make_shared<Node>(rootInfo, nullptr);
     d->database.clear();
     d->database.emplace(rootInfo.id(), d->root);
+
+    return rootInfo;
 }
 
 
