@@ -11,7 +11,7 @@ int main(int argc, char * argv[]) {
     QTreeView view;
     view.show();
     view.setModel(&model);
-    model.setRootPath("/");
+    model.setRootPath("localhost", 8000);
 
     return app.exec();
 }

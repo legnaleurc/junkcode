@@ -36,9 +36,10 @@ DriveSystem::DriveSystem(QObject * parent)
 {}
 
 
-DriveFileInfo DriveSystem::setBaseUrl(const QString & baseUrl) {
-    d->baseUrl = baseUrl;
-    d->socket->open(QUrl("ws://localhost:8000/socket/v1/changes"));
+DriveFileInfo DriveSystem::setBaseUrl(const QString & host, int port) {
+    d->baseUrl.setHost(host);
+    d->baseUrl.setPort(port);
+    d->socket->open(d->createSocketUrl());
 
     auto rootInfo = d->fetchInfo("/");
     d->root = std::make_shared<Node>(rootInfo, nullptr);
@@ -111,7 +112,7 @@ QVariant DriveSystemPrivate::get(const QString & path, const QList<QPair<QString
     for (const auto & p : params) {
         query.addQueryItem(p.first, p.second);
     }
-    QUrl url(this->baseUrl + path);
+    auto url = this->createApiUrl(path);
     url.setQuery(query);
     QNetworkRequest request;
     request.setUrl(url);
@@ -199,6 +200,22 @@ void DriveSystemPrivate::onMessage(const QString & message) {
 
 void DriveSystemPrivate::onError(QAbstractSocket::SocketError error) {
     qDebug() << "error" << error << this->socket->errorString();
+}
+
+
+QUrl DriveSystemPrivate::createSocketUrl() const {
+    auto url = this->baseUrl;
+    url.setScheme("ws");
+    url.setPath("/socket/v1/changes");
+    return url;
+}
+
+
+QUrl DriveSystemPrivate::createApiUrl(const QString & path) const {
+    auto url = this->baseUrl;
+    url.setScheme("http");
+    url.setPath(path);
+    return url;
 }
 
 

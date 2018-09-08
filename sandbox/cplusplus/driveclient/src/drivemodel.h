@@ -104,9 +104,8 @@ public:
     Qt::DropActions supportedDropActions() const override;
 
     // DriveModel specific API
-    QModelIndex setRootPath(const QString &path);
-    QString rootPath() const;
-    QDir rootDirectory() const;
+    QModelIndex setRootPath(const QString & host, int port);
+    QString rootId() const;
 
     void setFilter(QDir::Filters filters);
     QDir::Filters filter() const;

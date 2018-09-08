@@ -19,7 +19,7 @@ public:
     DriveSystem(const DriveSystem &) = delete;
     DriveSystem & operator = (const DriveSystem &) = delete;
 
-    DriveFileInfo setBaseUrl(const QString & baseUrl);
+    DriveFileInfo setBaseUrl(const QString & host, int port);
 
     DriveFileInfo info(const QString & idOrPath) const;
     QList<DriveFileInfo> list(const QString & idOrPath) const;

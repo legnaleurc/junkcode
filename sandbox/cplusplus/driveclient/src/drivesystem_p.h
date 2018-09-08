@@ -45,6 +45,8 @@ public:
     DriveFileInfo fetchInfo(const QString & idOrPath);
     void upsertNode(const DriveFileInfo & fileInfo);
     void applyChange(const QVariantMap & change);
+    QUrl createSocketUrl() const;
+    QUrl createApiUrl(const QString & path) const;
 
 public slots:
     void onMessage(const QString & message);
@@ -56,7 +58,7 @@ signals:
 
 public:
     DriveSystem * q;
-    QString baseUrl;
+    QUrl baseUrl;
     QWebSocket * socket;
     std::shared_ptr<Node> root;
     std::unordered_map<QString, std::weak_ptr<Node>> database;

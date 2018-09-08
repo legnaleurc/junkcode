@@ -1211,54 +1211,29 @@ QFile::Permissions DriveModel::permissions(const QModelIndex &index) const
     the model is \e not changed to include only files and directories
     within the directory specified by \a newPath in the file system.
   */
-QModelIndex DriveModel::setRootPath(const QString &newPath)
+QModelIndex DriveModel::setRootPath(const QString & host, int port)
 {
     Q_D(DriveModel);
-    QString longNewPath = newPath;
-    QDir newPathDir(longNewPath);
-    //we remove .. and . from the given path if exist
-    if (!newPath.isEmpty()) {
-        longNewPath = QDir::cleanPath(longNewPath);
-        newPathDir.setPath(longNewPath);
-    }
 
     d->setRootPath = true;
-    d->driveSystem->setBaseUrl("http://localhost:8000");
+    auto rootInfo = d->driveSystem->setBaseUrl(host, port);
 
-    //user don't ask for the root path ("") but the conversion failed
-    if (!newPath.isEmpty() && longNewPath.isEmpty())
-        return d->index(rootPath());
+    if (!rootInfo.isValid()) {
+        return d->index(rootId());
+    }
 
-    if (d->rootDir.path() == longNewPath)
-        return d->index(rootPath());
-
-    bool showDrives = longNewPath.isEmpty();
-    if (!showDrives && !newPathDir.exists())
-        return d->index(rootPath());
-
-    //We remove the watcher on the previous path
-    if (!rootPath().isEmpty() && rootPath() != QLatin1String(".")) {
-        //This remove the watcher for the old rootPath
-#ifndef QT_NO_FILESYSTEMWATCHER
-        // d->fileInfoGatherer.removePath(rootPath());
-#endif
+    if (!rootId().isEmpty()) {
         //This line "marks" the node as dirty, so the next fetchMore
         //call on the path will ask the gatherer to install a watcher again
         //But it doesn't re-fetch everything
-        d->node(rootPath())->populatedChildren = false;
+        d->node(rootId())->populatedChildren = false;
     }
 
     // We have a new valid root path
-    d->rootDir = newPathDir;
-    QModelIndex newRootIndex;
-    if (showDrives) {
-        // otherwise dir will become '.'
-        d->rootDir.setPath(QLatin1String(""));
-    } else {
-        newRootIndex = d->index(newPathDir.path());
-    }
+    d->rootId = rootInfo.id();
+    QModelIndex newRootIndex = d->index(rootId());
     fetchMore(newRootIndex);
-    emit rootPathChanged(longNewPath);
+    emit rootPathChanged(rootId());
     d->forceSort = true;
     d->delayedSort();
     return newRootIndex;
@@ -1269,10 +1244,10 @@ QModelIndex DriveModel::setRootPath(const QString &newPath)
 
     \sa rootDirectory()
 */
-QString DriveModel::rootPath() const
+QString DriveModel::rootId() const
 {
     Q_D(const DriveModel);
-    return d->rootDir.path();
+    return d->rootId;
 }
 
 /*!
