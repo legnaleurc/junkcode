@@ -2,6 +2,7 @@
 #define DRIVESYSTEM_H
 
 #include "drivefileinfo.h"
+#include "drivenode.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -20,6 +21,8 @@ public:
     DriveSystem & operator = (const DriveSystem &) = delete;
 
     DriveFileInfo setBaseUrl(const QString & host, int port);
+    DriveNodeSP root() const;
+    DriveNodeSP node(const QString & id) const;
 
     DriveFileInfo info(const QString & idOrPath) const;
     QList<DriveFileInfo> list(const QString & idOrPath) const;

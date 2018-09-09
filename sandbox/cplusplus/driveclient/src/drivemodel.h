@@ -70,14 +70,14 @@ public:
         FileIconRole = Qt::DecorationRole,
         FilePathRole = Qt::UserRole + 1,
         FileNameRole = Qt::UserRole + 2,
-        FilePermissions = Qt::UserRole + 3
+        FilePermissions = Qt::UserRole + 3,
     };
 
     explicit DriveModel(QObject *parent = nullptr);
     ~DriveModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex index(const QString &path, int column = 0) const;
+    QModelIndex index(const QString & id, int column = 0) const;
     QModelIndex parent(const QModelIndex &child) const override;
     using QObject::parent;
     QModelIndex sibling(int row, int column, const QModelIndex &idx) const override;

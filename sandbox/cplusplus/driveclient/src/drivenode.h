@@ -3,6 +3,8 @@
 
 #include "drivefileinfo.h"
 
+#include <QtCore/QMetaType>
+
 #include <unordered_map>
 
 
@@ -33,6 +35,8 @@ public:
     DriveNode() = delete;
     DriveNode(const DriveNode &) = delete;
     DriveNode & operator ()(const DriveNode &) = delete;
+
+    DriveNodeSP child(const QString & id) const;
 
     // children shouldn't normally be accessed directly, use node()
     inline int visibleLocation(const QString &childName) {
