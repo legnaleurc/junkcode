@@ -23,8 +23,8 @@ public:
     DriveFileInfo setBaseUrl(const QString & host, int port);
     DriveNodeSP root() const;
     DriveNodeSP node(const QString & id) const;
-    DriveNodeSP upsertNode(const DriveFileInfo & info, DriveNodeSP parent);
-    DriveNodeSP deleteNode(const QString & info);
+    DriveNodeSP upsertNode(const DriveFileInfo & info);
+    DriveNodeSP deleteNode(const QString & id);
 
     DriveFileInfo info(const QString & idOrPath) const;
     QList<DriveFileInfo> list(const QString & idOrPath) const;

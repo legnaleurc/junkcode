@@ -164,7 +164,7 @@ QT_BEGIN_NAMESPACE
 DriveFileInfo DriveModel::fileInfo(const QModelIndex &index) const
 {
     Q_D(const DriveModel);
-    return d->node(index)->fileInfo();
+    return d->node(index)->info;
 }
 
 /*!
@@ -316,15 +316,15 @@ DriveNodeSP DriveModelPrivate::node(const QModelIndex &index) const
 DriveNodeSP DriveModelPrivate::node(const QString & id, bool fetch) const
 {
     if (id.isEmpty()) {
-        return this->driveSystem->root;
+        return this->driveSystem->root();
     }
 
     if (!fetch) {
-        return this->driveSystem->lazyInfo(id);
+        return this->driveSystem->node(id);
     }
 
     auto info = this->driveSystem->info(id);
-    return this->driveSystem->lazyInfo(id);
+    return this->driveSystem->upsertNode(info);
 }
 
 /*!
@@ -362,7 +362,7 @@ bool DriveModel::isDir(const QModelIndex &index) const
         return true;
     DriveNodeSP n = d->node(index);
     if (n->hasInformation())
-        return n->isDir();
+        return n->info.isDir();
     return fileInfo(index).isDir();
 }
 
@@ -374,7 +374,7 @@ qint64 DriveModel::size(const QModelIndex &index) const
     Q_D(const DriveModel);
     if (!index.isValid())
         return 0;
-    return d->node(index)->size();
+    return d->node(index)->info.size();
 }
 
 /*!
@@ -385,7 +385,7 @@ QString DriveModel::type(const QModelIndex &index) const
     Q_D(const DriveModel);
     if (!index.isValid())
         return QString();
-    return d->node(index)->type();
+    return d->node(index)->info.mimeType();
 }
 
 /*!
@@ -396,7 +396,7 @@ QDateTime DriveModel::lastModified(const QModelIndex &index) const
     Q_D(const DriveModel);
     if (!index.isValid())
         return QDateTime();
-    return d->node(index)->lastModified();
+    return d->node(index)->info.lastModified();
 }
 
 /*!
@@ -437,7 +437,7 @@ QModelIndex DriveModelPrivate::index(DriveNodeCSP node, int column) const
 {
     Q_Q(const DriveModel);
 
-    if (!node || node == this->driveSystem->root) {
+    if (!node || node == this->driveSystem->root()) {
         return QModelIndex();
     }
     DriveNodeSP parentNode = node->parent.lock();
@@ -504,7 +504,7 @@ void DriveModel::fetchMore(const QModelIndex &parent)
 
     indexNode->populatedChildren = true;
 #ifndef QT_NO_FILESYSTEMWATCHER
-    d->fileInfoGatherer.list(filePath(parent));
+    d->fileInfoGatherer.list(indexNode->info.id());
 #endif
 }
 
@@ -520,7 +520,7 @@ int DriveModel::rowCount(const QModelIndex &parent) const
     }
 
     if (!parent.isValid()) {
-        return d->driveSystem->root.visibleChildren.count();
+        return d->driveSystem->root()->visibleChildren.count();
     }
 
     DriveNodeCSP parentNode = d->node(parent);
@@ -562,7 +562,7 @@ QVariant DriveModel::data(const QModelIndex &index, int role) const
             QIcon icon = d->icon(index);
 #ifndef QT_NO_FILESYSTEMWATCHER
             if (icon.isNull()) {
-                if (d->node(index)->isDir())
+                if (d->node(index)->info.isDir())
                     icon = d->fileInfoGatherer.iconProvider()->icon(QFileIconProvider::Folder);
                 else
                     icon = d->fileInfoGatherer.iconProvider()->icon(QFileIconProvider::File);
@@ -581,13 +581,14 @@ QVariant DriveModel::data(const QModelIndex &index, int role) const
             return p;
         }
     case FilePathRole:
-        return filePath(index);
+        return "";
     case FileNameRole:
         return d->name(index);
     case NodeRole:
         {
             auto rawNode = static_cast<DriveNode *>(index.internalPointer());
-            return d->driveSystem->node(rawNode->info.id());
+            auto node = d->driveSystem->node(rawNode->info.id());
+            return QVariant::fromValue(node);
         }
     }
 
@@ -1414,7 +1415,7 @@ void DriveModelPrivate::_q_directoryChanged(const QString &directory, const QStr
 DriveNodeSP  DriveModelPrivate::addNode(DriveNodeSP parentNode, const DriveFileInfo& info)
 {
     // In the common case, itemLocation == count() so check there first
-    return this->driveSystem->upsertNode(info, parentNode);
+    return this->driveSystem->upsertNode(info);
 }
 
 /*!
