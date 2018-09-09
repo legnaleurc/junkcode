@@ -249,7 +249,7 @@ public:
     DriveModel * q_ptr;
 
     DriveSystem * driveSystem;
-    QString roodId;
+    QString rootId;
 #if QT_CONFIG(filesystemwatcher)
     FileInfoGatherer fileInfoGatherer;
 #endif // filesystemwatcher

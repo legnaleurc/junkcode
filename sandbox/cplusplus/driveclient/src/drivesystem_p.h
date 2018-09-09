@@ -2,38 +2,11 @@
 #define DRIVESYSTEM_H_
 
 #include "drivesystem.h"
+#include "drivenode.h"
 
 #include <QtWebSockets/QWebSocket>
 
 #include <memory>
-#include <unordered_map>
-
-
-namespace std {
-
-template<>
-struct hash<QString> {
-    using argument_type = QString;
-    using result_type = uint;
-    result_type operator ()(const argument_type & s) const noexcept {
-        return qHash(s);
-    }
-};
-
-}
-
-
-class Node {
-public:
-    Node(const DriveFileInfo & info, std::shared_ptr<Node> parent);
-    Node() = delete;
-    Node(const Node &) = delete;
-    Node & operator ()(const Node &) = delete;
-
-    DriveFileInfo info;
-    std::weak_ptr<Node> parent;
-    std::unordered_map<QString, std::shared_ptr<Node>> children;
-};
 
 
 class DriveSystemPrivate : public QObject {
@@ -60,8 +33,8 @@ public:
     DriveSystem * q;
     QUrl baseUrl;
     QWebSocket * socket;
-    std::shared_ptr<Node> root;
-    std::unordered_map<QString, std::weak_ptr<Node>> database;
+    DriveNodeSP root;
+    std::unordered_map<QString, DriveNodeWP> database;
 };
 
 
