@@ -926,35 +926,36 @@ void DriveModelPrivate::sortChildren(int column, const QModelIndex &parent)
         return;
     }
 
-    QVector<DriveNodeSP> values;
-
-    for (auto iterator = indexNode->children.constBegin(), cend = indexNode->children.constEnd(); iterator != cend; ++iterator) {
-        if (filtersAcceptsNode(iterator.value())) {
-            values.append(iterator.value());
+    std::vector<DriveNodeSP> values;
+    for (const auto & p : indexNode->children) {
+        if (filtersAcceptsNode(p.second)) {
+            values.push_back(p.second);
         } else {
-            iterator.value()->isVisible = false;
+            p.second->isVisible = false;
         }
     }
     DriveModelSorter ms(column);
     std::sort(values.begin(), values.end(), ms);
+
     // First update the new visible list
     indexNode->visibleChildren.clear();
     //No more dirty item we reset our internal dirty index
     indexNode->dirtyChildrenIndex = -1;
-    const int numValues = values.count();
+    const int numValues = values.size();
     indexNode->visibleChildren.reserve(numValues);
-    for (int i = 0; i < numValues; ++i) {
-        indexNode->visibleChildren.append(values.at(i)->fileName);
-        values.at(i)->isVisible = true;
+    for (auto childNode : values) {
+        indexNode->visibleChildren.push_back(childNode->info.id());
+        childNode->isVisible = true;
     }
 
     if (!disableRecursiveSort) {
         for (int i = 0; i < q->rowCount(parent); ++i) {
             const QModelIndex childIndex = q->index(i, 0, parent);
             DriveNodeSP indexNode = node(childIndex);
-            //Only do a recursive sort on visible nodes
-            if (indexNode->isVisible)
-                sortChildren(column, childIndex);
+            // Only do a recursive sort on visible nodes
+            if (indexNode->isVisible) {
+                this->sortChildren(column, childIndex);
+            }
         }
     }
 }
