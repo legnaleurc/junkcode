@@ -119,7 +119,7 @@ public:
     void setNameFilters(const QStringList &filters);
     QStringList nameFilters() const;
 
-    QString filePath(const QModelIndex &index) const;
+    // QString filePath(const QModelIndex &index) const;
     bool isDir(const QModelIndex &index) const;
     qint64 size(const QModelIndex &index) const;
     QString type(const QModelIndex &index) const;

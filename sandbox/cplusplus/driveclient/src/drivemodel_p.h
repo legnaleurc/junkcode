@@ -102,7 +102,7 @@ public:
     */
     inline bool isHiddenByFilter(DriveNodeSP indexNode, const QModelIndex &index) const
     {
-       return (indexNode != &root && !index.isValid());
+       return (indexNode != this->driveSystem->root() && !index.isValid());
     }
     DriveNodeSP node(const QModelIndex &index) const;
     DriveNodeSP node(const QString &path, bool fetch = true) const;
@@ -111,7 +111,7 @@ public:
     bool filtersAcceptsNode(DriveNodeCSP node) const;
     bool passNameFilters(DriveNodeCSP node) const;
     void removeNode(DriveNodeSP parentNode, const QString &name);
-    DriveNodeSP addNode(DriveNodeSP parentNode, const QString &fileName, const DriveFileInfo &info);
+    DriveNodeSP addNode(DriveNodeSP parentNode, const DriveFileInfo &info);
     void addVisibleFiles(DriveNodeSP parentNode, const QStringList &newFiles);
     void removeVisibleFile(DriveNodeSP parentNode, int visibleLocation);
     void sortChildren(int column, const QModelIndex &parent);
@@ -140,7 +140,7 @@ public:
     QIcon icon(const QModelIndex &index) const;
     QString name(const QModelIndex &index) const;
     QString displayName(const QModelIndex &index) const;
-    QString filePath(const QModelIndex &index) const;
+    // QString filePath(const QModelIndex &index) const;
     QString size(const QModelIndex &index) const;
     static QString size(qint64 bytes);
     QString type(const QModelIndex &index) const;

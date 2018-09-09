@@ -52,7 +52,7 @@ DriveFileInfo DriveSystem::setBaseUrl(const QString & host, int port) {
 
 DriveFileInfo DriveSystem::info(const QString & idOrPath) const {
     auto fileInfo = d->fetchInfo(idOrPath);
-    d->upsertNode(fileInfo);
+    // d->upsertNode(fileInfo);
     return fileInfo;
 }
 
@@ -71,7 +71,7 @@ QList<DriveFileInfo> DriveSystem::list(const QString & idOrPath) const {
     for (const auto & info : listData) {
         DriveFileInfo fileInfo(new DriveFileInfoPrivate(info.toMap()));
         rv.push_back(fileInfo);
-        d->upsertNode(fileInfo);
+        // d->upsertNode(fileInfo);
     }
     return rv;
 }
