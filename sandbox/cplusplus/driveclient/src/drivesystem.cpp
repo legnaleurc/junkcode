@@ -50,6 +50,37 @@ DriveFileInfo DriveSystem::setBaseUrl(const QString & host, int port) {
 }
 
 
+DriveNodeSP DriveSystem::deleteNode(const QString & id) {
+    auto wit = d->database.find(id);
+    if (wit == d->database.end()) {
+        return nullptr;
+    }
+    auto node = wit->second.lock();
+    if (!node) {
+        return nullptr;
+    }
+    // should not delete root node
+    auto parentNode = node->parent.lock();
+    if (!parentNode) {
+        return nullptr;
+    }
+    auto sit = parentNode->children.find(id);
+    if (sit == parentNode->children.end()) {
+        return nullptr;
+    }
+    parentNode->children.erase(sit);
+    return node;
+}
+
+
+DriveNodeSP DriveSystem::upsertNode(const DriveFileInfo & info) {
+    d->upsertNode(info);
+    auto wit = d->database.find(info.id());
+    assert(wit != d->database.end());
+    return wit->second.lock();
+}
+
+
 DriveFileInfo DriveSystem::info(const QString & idOrPath) const {
     auto fileInfo = d->fetchInfo(idOrPath);
     // d->upsertNode(fileInfo);
