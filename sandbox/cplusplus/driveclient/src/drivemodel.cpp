@@ -483,6 +483,9 @@ bool DriveModel::canFetchMore(const QModelIndex &parent) const
 {
     Q_D(const DriveModel);
     DriveNodeCSP indexNode = d->node(parent);
+    if (!indexNode) {
+        return false;
+    }
     return (!indexNode->populatedChildren);
 }
 
@@ -516,6 +519,10 @@ int DriveModel::rowCount(const QModelIndex &parent) const
     Q_D(const DriveModel);
 
     if (parent.column() > 0) {
+        return 0;
+    }
+
+    if (!d->driveSystem->root()) {
         return 0;
     }
 
