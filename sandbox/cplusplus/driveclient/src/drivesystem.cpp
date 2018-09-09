@@ -75,9 +75,19 @@ DriveNodeSP DriveSystem::deleteNode(const QString & id) {
 
 DriveNodeSP DriveSystem::upsertNode(const DriveFileInfo & info) {
     d->upsertNode(info);
-    auto wit = d->database.find(info.id());
+    return this->node(info.id());
+}
+
+
+DriveNodeSP DriveSystem::node(const QString & id) const {
+    auto wit = d->database.find(id);
     assert(wit != d->database.end());
     return wit->second.lock();
+}
+
+
+DriveNodeSP DriveSystem::root() const {
+    return d->root;
 }
 
 
