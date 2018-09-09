@@ -63,6 +63,7 @@
 
 #include "drivesystem.h"
 #include "fileinfogatherer_p.h"
+#include "drivenode.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -99,23 +100,23 @@ public:
 
       Return true if index which is owned by node is hidden by the filter.
     */
-    inline bool isHiddenByFilter(FileNode *indexNode, const QModelIndex &index) const
+    inline bool isHiddenByFilter(DriveNodeSP indexNode, const QModelIndex &index) const
     {
        return (indexNode != &root && !index.isValid());
     }
-    FileNode *node(const QModelIndex &index) const;
-    FileNode *node(const QString &path, bool fetch = true) const;
+    DriveNodeSP node(const QModelIndex &index) const;
+    DriveNodeSP node(const QString &path, bool fetch = true) const;
     inline QModelIndex index(const QString &path, int column = 0) { return index(node(path), column); }
-    QModelIndex index(const FileNode *node, int column = 0) const;
-    bool filtersAcceptsNode(const FileNode *node) const;
-    bool passNameFilters(const FileNode *node) const;
-    void removeNode(FileNode *parentNode, const QString &name);
-    FileNode* addNode(FileNode *parentNode, const QString &fileName, const DriveFileInfo &info);
-    void addVisibleFiles(FileNode *parentNode, const QStringList &newFiles);
-    void removeVisibleFile(FileNode *parentNode, int visibleLocation);
+    QModelIndex index(DriveNodeCSP node, int column = 0) const;
+    bool filtersAcceptsNode(DriveNodeCSP node) const;
+    bool passNameFilters(DriveNodeCSP node) const;
+    void removeNode(DriveNodeSP parentNode, const QString &name);
+    DriveNodeSP addNode(DriveNodeSP parentNode, const QString &fileName, const DriveFileInfo &info);
+    void addVisibleFiles(DriveNodeSP parentNode, const QStringList &newFiles);
+    void removeVisibleFile(DriveNodeSP parentNode, int visibleLocation);
     void sortChildren(int column, const QModelIndex &parent);
 
-    inline int translateVisibleLocation(FileNode *parent, int row) const {
+    inline int translateVisibleLocation(DriveNodeSP parent, int row) const {
         if (sortOrder != Qt::AscendingOrder) {
             if (parent->dirtyChildrenIndex == -1)
                 return parent->visibleChildren.count() - row - 1;
@@ -168,7 +169,7 @@ public:
     bool readOnly;
     bool setRootPath;
     QDir::Filters filters;
-    QHash<const FileNode*, bool> bypassFilters;
+    QHash<DriveNodeCSP, bool> bypassFilters;
     bool nameFilterDisables;
     //This flag is an optimization for the QFileDialog
     //It enable a sort which is not recursive, it means
@@ -178,13 +179,11 @@ public:
     QList<QRegExp> nameFilters;
 #endif
 
-    FileNode root;
-
     QBasicTimer fetchingTimer;
     struct Fetching {
         QString dir;
         QString file;
-        const FileNode *node;
+        DriveNodeCSP node;
     };
     QVector<Fetching> toFetch;
 

@@ -22,7 +22,9 @@ struct hash<QString> {
 
 class DriveNode;
 using DriveNodeSP = std::shared_ptr<DriveNode>;
+using DriveNodeCSP = std::shared_ptr<const DriveNode>;
 using DriveNodeWP = std::weak_ptr<DriveNode>;
+using DriveNodeCWP = std::weak_ptr<const DriveNode>;
 
 
 class DriveNode {
