@@ -169,7 +169,7 @@ public:
     bool readOnly;
     bool setRootPath;
     QDir::Filters filters;
-    QHash<DriveNodeCSP, bool> bypassFilters;
+    QHash<const DriveNode *, bool> bypassFilters;
     bool nameFilterDisables;
     //This flag is an optimization for the QFileDialog
     //It enable a sort which is not recursive, it means

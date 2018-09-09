@@ -75,4 +75,7 @@ public:
     int dirtyChildrenIndex;
 };
 
+
+Q_DECLARE_METATYPE(DriveNodeSP)
+
 #endif

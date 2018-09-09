@@ -1322,11 +1322,11 @@ void DriveModel::setNameFilters(const QStringList &filters)
         for (const auto &persistentIndex : persistentList) {
             DriveNodeSP node = d->node(persistentIndex);
             while (node) {
-                if (d->bypassFilters.contains(node)) {
+                if (d->bypassFilters.contains(node.get())) {
                     break;
                 }
                 if (node->info.isDir()) {
-                    d->bypassFilters[node] = true;
+                    d->bypassFilters[node.get()] = true;
                 }
                 node = node->parent.lock();
             }
@@ -1467,12 +1467,14 @@ void DriveModelPrivate::addVisibleFiles(DriveNodeSP parentNode, const QStringLis
     if (parentNode->dirtyChildrenIndex == -1)
         parentNode->dirtyChildrenIndex = parentNode->visibleChildren.count();
 
-    for (const auto &newFile : newFiles) {
-        parentNode->visibleChildren.append(newFile);
-        parentNode->children.value(newFile)->isVisible = true;
+    for (const auto & newId : newFiles) {
+        parentNode->visibleChildren.append(newId);
+        auto childNode = parentNode->child(newId);
+        childNode->isVisible = true;
     }
-    if (!indexHidden)
-      q->endInsertRows();
+    if (!indexHidden) {
+        q->endInsertRows();
+    }
 }
 
 /*!
@@ -1485,17 +1487,24 @@ void DriveModelPrivate::addVisibleFiles(DriveNodeSP parentNode, const QStringLis
 void DriveModelPrivate::removeVisibleFile(DriveNodeSP parentNode, int vLocation)
 {
     Q_Q(DriveModel);
-    if (vLocation == -1)
+
+    if (vLocation == -1) {
         return;
+    }
+
     QModelIndex parent = index(parentNode);
     bool indexHidden = isHiddenByFilter(parentNode, parent);
-    if (!indexHidden)
+    if (!indexHidden) {
         q->beginRemoveRows(parent, translateVisibleLocation(parentNode, vLocation),
-                                       translateVisibleLocation(parentNode, vLocation));
-    parentNode->children.value(parentNode->visibleChildren.at(vLocation))->isVisible = false;
+                                   translateVisibleLocation(parentNode, vLocation));
+    }
+    auto childId = parentNode->visibleChildren.at(vLocation);
+    auto childNode = parentNode->child(childId);
+    childNode->isVisible = false;
     parentNode->visibleChildren.removeAt(vLocation);
-    if (!indexHidden)
+    if (!indexHidden) {
         q->endRemoveRows();
+    }
 }
 
 /*!
@@ -1529,7 +1538,7 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString & id, const QVector<Q
         // FIXME this does not work anymore
         if (true || node->info != info) {
             node->populate(info);
-            bypassFilters.remove(node);
+            bypassFilters.remove(node.get());
             // brand new information.
             if (filtersAcceptsNode(node)) {
                 if (!node->isVisible) {
@@ -1570,8 +1579,8 @@ void DriveModelPrivate::_q_fileSystemChanged(const QString & id, const QVector<Q
         }
     }
 
-    if (newFiles.count() > 0) {
-        addVisibleFiles(parentNode, newFiles);
+    if (!newFiles.empty()) {
+        this->addVisibleFiles(parentNode, newFiles);
     }
 
     if (newFiles.count() > 0 || (sortColumn != 0 && rowsToUpdate.size() > 0)) {
@@ -1629,7 +1638,7 @@ void DriveModelPrivate::init()
 bool DriveModelPrivate::filtersAcceptsNode(DriveNodeCSP node) const
 {
     // always accept drives
-    if (node->parent.lock() == this->driveSystem->root() || bypassFilters.contains(node))
+    if (node->parent.lock() == this->driveSystem->root() || bypassFilters.contains(node.get()))
         return true;
 
     // If we don't know anything yet don't accept it
@@ -1680,10 +1689,10 @@ bool DriveModelPrivate::passNameFilters(DriveNodeCSP node) const
         return true;
 
     // Check the name regularexpression filters
-    if (!(node->isDir() && (filters & QDir::AllDirs))) {
+    if (!(node->info.isDir() && (filters & QDir::AllDirs))) {
         for (const auto &nameFilter : nameFilters) {
             QRegExp copy = nameFilter;
-            if (copy.exactMatch(node->fileName))
+            if (copy.exactMatch(node->info.fileName()))
                 return true;
         }
         return false;
