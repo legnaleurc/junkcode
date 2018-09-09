@@ -14,7 +14,7 @@
 // namespace {
 
 void dumpTree (DriveSystemPrivate * d) {
-    std::queue<std::shared_ptr<Node>> q;
+    std::queue<DriveNodeSP> q;
     q.push(d->root);
 
     while (!q.empty()) {

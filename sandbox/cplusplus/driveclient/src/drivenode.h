@@ -32,9 +32,41 @@ public:
     DriveNode(const DriveNode &) = delete;
     DriveNode & operator ()(const DriveNode &) = delete;
 
+    // children shouldn't normally be accessed directly, use node()
+    inline int visibleLocation(const QString &childName) {
+        return visibleChildren.indexOf(childName);
+    }
+
+    void populate(const DriveFileInfo &fileInfo) {
+        this->info = fileInfo;
+    }
+
+    inline bool operator <(const DriveNode &node) const {
+        return this->info.fileName() < node.info.fileName();
+    }
+    inline bool operator >(const QString &name) const {
+        return this->info.fileName() > name;
+    }
+    inline bool operator <(const QString &name) const {
+        return this->info.fileName() < name;
+    }
+    bool operator ==(const QString &name) const {
+        return this->info.fileName() == name;
+    }
+
+    inline bool hasInformation() const {
+        return this->info.isValid();
+    }
+
+    // basic
     DriveFileInfo info;
     DriveNodeWP parent;
     std::unordered_map<QString, DriveNodeSP> children;
+    // view
+    bool populatedChildren;
+    bool isVisible;
+    QList<QString> visibleChildren;
+    int dirtyChildrenIndex;
 };
 
 #endif
