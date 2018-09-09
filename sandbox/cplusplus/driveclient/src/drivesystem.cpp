@@ -68,6 +68,7 @@ DriveNodeSP DriveSystem::deleteNode(const QString & id) {
     if (sit == parentNode->children.end()) {
         return nullptr;
     }
+    d->database.erase(wit);
     parentNode->children.erase(sit);
     return node;
 }
