@@ -25,8 +25,7 @@ public slots:
     void onError(QAbstractSocket::SocketError error);
 
 signals:
-    void removed(const QString & id);
-    void updated(const DriveFileInfo & info);
+    void directoryUpdated(const QString & id);
 
 public:
     DriveSystem * q;

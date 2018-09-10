@@ -30,8 +30,7 @@ public:
     QList<DriveFileInfo> list(const QString & idOrPath) const;
 
 signals:
-    void removed(const QString & id);
-    void updated(const DriveFileInfo & info);
+    void directoryUpdated(const QString & id);
 
 private:
     using Private = DriveSystemPrivate;

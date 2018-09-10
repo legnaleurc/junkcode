@@ -129,8 +129,7 @@ DriveSystemPrivate::DriveSystemPrivate(DriveSystem * parent)
 {
     QObject::connect(this->socket, &QWebSocket::textMessageReceived, this, &DriveSystemPrivate::onMessage);
     QObject::connect(this->socket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error), this, &DriveSystemPrivate::onError);
-    QObject::connect(this, &DriveSystemPrivate::removed, q, &DriveSystem::removed);
-    QObject::connect(this, &DriveSystemPrivate::updated, q, &DriveSystem::updated);
+    QObject::connect(this, &DriveSystemPrivate::directoryUpdated, q, &DriveSystem::directoryUpdated);
 }
 
 
@@ -216,13 +215,20 @@ void DriveSystemPrivate::upsertNode(const DriveFileInfo & fileInfo) {
 
 void DriveSystemPrivate::applyChange(const QVariantMap & change) {
     auto removed = change.value("removed").toBool();
-    if (removed) {
-        auto id = change.value("id").toString();
-        emit this->removed(id);
-        return;
+    auto data = change;
+    if (!removed) {
+        data = data.value("node").toMap();
     }
-    auto mapInfo = change.value("node").toMap();
-    DriveFileInfo info(new DriveFileInfoPrivate(mapInfo));
+    auto id = data.value("id").toString();
+    auto node = q->node(id);
+    assert(node);
+    auto parent = node->parent.lock();
+    // node is probably the root node
+    if (parent) {
+        emit this->directoryUpdated(parent->info.id());
+    }
+    // TODO emit single file change
+    return;
 }
 
 

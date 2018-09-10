@@ -1390,20 +1390,20 @@ bool DriveModel::rmdir(const QModelIndex &aindex)
     Performed quick listing and see if any files have been added or removed,
     then fetch more information on visible files.
  */
-void DriveModelPrivate::_q_directoryChanged(const QString &directory, const QStringList &files)
+void DriveModelPrivate::_q_directoryChanged(const QString & parent_id, const QStringList & fileIdList)
 {
-    DriveNodeSP parentNode = node(directory, false);
+    DriveNodeSP parentNode = node(parent_id, false);
     if (parentNode->children.empty()) {
         return;
     }
 
     QStringList toRemove;
-    QStringList newFiles = files;
+    QStringList newFiles = fileIdList;
     std::sort(newFiles.begin(), newFiles.end());
     for (const auto & p : parentNode->children) {
-        const auto & fileName = p.second->info.fileName();
-        auto it = std::lower_bound(newFiles.begin(), newFiles.end(), fileName);
-        if ((it == newFiles.end()) || (fileName < *it)) {
+        const auto & id = p.second->info.id();
+        auto it = std::lower_bound(newFiles.begin(), newFiles.end(), id);
+        if ((it == newFiles.end()) || (id < *it)) {
             toRemove.append(p.second->info.id());
         }
     }
