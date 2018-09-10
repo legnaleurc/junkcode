@@ -60,7 +60,6 @@ FileInfoGatherer::FileInfoGatherer(QObject *parent)
     // connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(list(QString)));
     // connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateFile(QString)));
 #endif
-    QObject::connect(driveSystem, &DriveSystem::directoryUpdated, this, &FileInfoGatherer::list);
     start(LowPriority);
 }
 
@@ -244,6 +243,7 @@ void FileInfoGatherer::fetch(const DriveFileInfo &fileInfo, QElapsedTimer &base,
 
 void FileInfoGatherer::setDriveSystem(DriveSystem * driveSystem) {
     this->driveSystem = driveSystem;
+    QObject::connect(driveSystem, &DriveSystem::directoryUpdated, this, &FileInfoGatherer::list);
 }
 
 QT_END_NAMESPACE
