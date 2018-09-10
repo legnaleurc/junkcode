@@ -215,13 +215,13 @@ void DriveSystemPrivate::upsertNode(const DriveFileInfo & fileInfo) {
 
 
 void DriveSystemPrivate::applyChange(const QVariantMap & change) {
-    auto id = change.value("fileId").toString();
     auto removed = change.value("removed").toBool();
     if (removed) {
+        auto id = change.value("id").toString();
         emit this->removed(id);
         return;
     }
-    auto mapInfo = change.value("file").toMap();
+    auto mapInfo = change.value("node").toMap();
     DriveFileInfo info(new DriveFileInfoPrivate(mapInfo));
 }
 
@@ -233,10 +233,8 @@ void DriveSystemPrivate::onMessage(const QString & message) {
         qDebug() << error.errorString();
         return;
     }
-    auto listData = json.toVariant().toList();
-    for (const auto & data : listData) {
-        this->applyChange(data.toMap());
-    }
+    auto mapData = json.toVariant().toMap();
+    this->applyChange(mapData);
 }
 
 

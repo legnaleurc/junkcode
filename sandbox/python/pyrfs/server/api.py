@@ -92,9 +92,10 @@ def dict_from_node(node):
         'name': node.name,
         'trashed': node.trashed,
         'is_folder': node.is_folder,
-        'ctime': node.created.timestamp,
-        'mtime': node.modified.timestamp,
+        'created': node.created.timestamp,
+        'modified': node.modified.timestamp,
         'mime_type': node.mime_type,
+        'md5': node.md5,
         'size': node.size,
     }
 
