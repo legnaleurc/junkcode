@@ -82,8 +82,12 @@ DriveNodeSP DriveSystem::upsertNode(const DriveFileInfo & info) {
 
 DriveNodeSP DriveSystem::node(const QString & id) const {
     auto wit = d->database.find(id);
-    assert(wit != d->database.end());
-    return wit->second.lock();
+    if (wit == d->database.end()) {
+        return nullptr;
+    }
+    auto node = wit->second.lock();
+    assert(node);
+    return node;
 }
 
 
@@ -221,7 +225,10 @@ void DriveSystemPrivate::applyChange(const QVariantMap & change) {
     }
     auto id = data.value("id").toString();
     auto node = q->node(id);
-    assert(node);
+    if (!node) {
+        // not populated yet, no action needed
+        return;
+    }
     auto parent = node->parent.lock();
     // node is probably the root node
     if (parent) {
