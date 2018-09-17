@@ -5,6 +5,10 @@ DriveNode::DriveNode(const DriveFileInfo & info, DriveNodeSP parent)
     : info(info)
     , parent(parent)
     , children()
+    , populatedChildren(false)
+    , isVisible(false)
+    , visibleChildren()
+    , dirtyChildrenIndex(-1)
 {}
 
 
