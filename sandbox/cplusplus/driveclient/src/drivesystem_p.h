@@ -19,6 +19,7 @@ public:
     void applyChange(const QVariantMap & change);
     QUrl createSocketUrl() const;
     QUrl createApiUrl(const QString & path) const;
+    DriveNodeSP createNode(const DriveFileInfo & fileInfo, DriveNodeSP parent);
 
 public slots:
     void onMessage(const QString & message);
@@ -31,8 +32,9 @@ public:
     DriveSystem * q;
     QUrl baseUrl;
     QWebSocket * socket;
-    DriveNodeSP root;
+    // NOTE root depends on database
     std::unordered_map<QString, DriveNodeWP> database;
+    DriveNodeSP root;
 };
 
 

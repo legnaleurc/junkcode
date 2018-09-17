@@ -42,7 +42,7 @@ DriveFileInfo DriveSystem::setBaseUrl(const QString & host, int port) {
     d->socket->open(d->createSocketUrl());
 
     auto rootInfo = d->fetchInfo("/");
-    d->root = std::make_shared<DriveNode>(rootInfo, nullptr);
+    d->root = d->createNode(rootInfo, nullptr);
     d->database.clear();
     d->database.emplace(rootInfo.id(), d->root);
 
@@ -209,7 +209,7 @@ void DriveSystemPrivate::upsertNode(const DriveFileInfo & fileInfo) {
         hit = this->database.find(fileInfo.parentId());
         if (hit != this->database.end()) {
             auto parentNode = hit->second.lock();
-            auto node = std::make_shared<DriveNode>(fileInfo, parentNode);
+            auto node = this->createNode(fileInfo, parentNode);
             parentNode->children.emplace(fileInfo.id(), node);
             this->database.emplace(fileInfo.id(), node);
         }
@@ -269,4 +269,16 @@ QUrl DriveSystemPrivate::createApiUrl(const QString & path) const {
     url.setScheme("http");
     url.setPath(path);
     return url;
+}
+
+
+DriveNodeSP DriveSystemPrivate::createNode(const DriveFileInfo & fileInfo, DriveNodeSP parent) {
+    DriveNodeSP node(new DriveNode(fileInfo, parent), [this](DriveNode * p) -> void {
+        auto it = this->database.find(p->info.id());
+        if (it != this->database.end()) {
+            this->database.erase(it);
+        }
+        delete p;
+    });
+    return node;
 }
