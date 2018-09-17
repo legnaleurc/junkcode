@@ -869,8 +869,8 @@ public:
         case 0: {
 #ifndef Q_OS_MAC
             // place directories before files
-            bool left = l->isDir();
-            bool right = r->isDir();
+            bool left = l.isDir();
+            bool right = r.isDir();
             if (left ^ right)
                 return left;
 #endif
