@@ -93,6 +93,7 @@ def parse_args(args):
 def setup_api_path(app):
     app.router.add_view(r'/api/v1/list', api.list_)
     app.router.add_view(r'/api/v1/info', api.info)
+    app.router.add_view(r'/api/v1/file/{id}', api.file_)
     app.router.add_view(r'/api/v1/sync', api.sync)
 
 

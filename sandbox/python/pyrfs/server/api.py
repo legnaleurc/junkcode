@@ -65,6 +65,40 @@ async def info(request):
     return json_response(node)
 
 
+async def file_(request):
+    id_ = request.match_info.get('id', None)
+    if not id_:
+        return aw.Response(status=404)
+
+    drive = request.app['drive']
+    node = await drive.get_node_by_id(id_)
+    if not node:
+        return aw.Response(status=404)
+
+    range_ = request.http_range
+    offset = 0 if range_.start is None else range_.start
+    length = node.size - offset if not range_.stop else range_.stop + 1
+
+    response = aw.StreamResponse(status=206)
+    response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
+    response.content_length = length
+    response.content_type = node.mime_type
+    await response.prepare(request)
+
+    async with await drive.download(node) as stream:
+        await stream.seek(offset)
+        try:
+            while True:
+                chunk = await stream.read(65536)
+                if not chunk:
+                    break
+                await response.write(chunk)
+        finally:
+            await response.write_eof()
+    return response
+
+
 async def sync(request):
     drive = request.app['drive']
     sockets = request.app['changes']
