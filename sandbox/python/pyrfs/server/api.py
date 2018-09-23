@@ -74,6 +74,8 @@ async def file_(request):
     node = await drive.get_node_by_id(id_)
     if not node:
         return aw.Response(status=404)
+    if node.is_folder:
+        return aw.Response(status=404)
 
     range_ = request.http_range
     offset = 0 if range_.start is None else range_.start
