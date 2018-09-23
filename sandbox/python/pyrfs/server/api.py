@@ -91,10 +91,7 @@ async def file_(request):
     async with await drive.download(node) as stream:
         await stream.seek(offset)
         try:
-            while True:
-                chunk = await stream.read(65536)
-                if not chunk:
-                    break
+            async for chunk in stream:
                 await response.write(chunk)
         finally:
             await response.write_eof()
