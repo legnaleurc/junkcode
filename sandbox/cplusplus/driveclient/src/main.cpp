@@ -9,6 +9,7 @@ int main(int argc, char * argv[]) {
 
     DriveModel model;
     QTreeView view;
+    view.setSortingEnabled(true);
     view.show();
     view.setModel(&model);
     model.setRootPath("localhost", 8000);

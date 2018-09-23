@@ -976,8 +976,12 @@ void DriveModelPrivate::sortChildren(int column, const QModelIndex &parent)
 void DriveModel::sort(int column, Qt::SortOrder order)
 {
     Q_D(DriveModel);
-    if (d->sortOrder == order && d->sortColumn == column && !d->forceSort)
+    if (!d->setRootPath) {
         return;
+    }
+    if (d->sortOrder == order && d->sortColumn == column && !d->forceSort) {
+        return;
+    }
 
     emit layoutAboutToBeChanged();
     QModelIndexList oldList = persistentIndexList();
