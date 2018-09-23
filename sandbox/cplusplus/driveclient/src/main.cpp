@@ -1,18 +1,13 @@
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QTreeView>
 
-#include "drivemodel.h"
+#include "mainwindow.h"
 
 
 int main(int argc, char * argv[]) {
     QApplication app(argc, argv);
 
-    DriveModel model;
-    QTreeView view;
-    view.setSortingEnabled(true);
-    view.show();
-    view.setModel(&model);
-    model.setRootPath("localhost", 8000);
+    MainWindow window;
+    window.show();
 
     return app.exec();
 }
