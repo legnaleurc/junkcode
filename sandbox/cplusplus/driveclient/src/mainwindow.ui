@@ -16,42 +16,10 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QListView" name="leftView">
-      <property name="acceptDrops">
-       <bool>true</bool>
-      </property>
-      <property name="dragEnabled">
-       <bool>true</bool>
-      </property>
-      <property name="dragDropMode">
-       <enum>QAbstractItemView::DragDrop</enum>
-      </property>
-      <property name="defaultDropAction">
-       <enum>Qt::MoveAction</enum>
-      </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::MultiSelection</enum>
-      </property>
-     </widget>
+     <widget class="QTreeView" name="leftView"/>
     </item>
     <item>
-     <widget class="QListView" name="rightView">
-      <property name="acceptDrops">
-       <bool>true</bool>
-      </property>
-      <property name="dragEnabled">
-       <bool>true</bool>
-      </property>
-      <property name="dragDropMode">
-       <enum>QAbstractItemView::DragDrop</enum>
-      </property>
-      <property name="defaultDropAction">
-       <enum>Qt::MoveAction</enum>
-      </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::MultiSelection</enum>
-      </property>
-     </widget>
+     <widget class="QTreeView" name="rightView"/>
     </item>
    </layout>
   </widget>
