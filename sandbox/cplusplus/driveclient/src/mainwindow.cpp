@@ -7,8 +7,8 @@ MainWindow::MainWindow(QWidget * parent)
 {
     d->ui.setupUi(this);
     d->model->setRootPath("localhost", 8000);
-    d->ui.leftView->setModel(d->model);
-    d->ui.rightView->setModel(d->model);
+    d->setupTreeView(d->ui.leftView);
+    d->setupTreeView(d->ui.rightView);
 }
 
 
@@ -17,5 +17,22 @@ MainWindowPrivate::MainWindowPrivate(MainWindow * q)
     , q(q)
     , ui()
     , model(new DriveModel(this))
+    , contextMenu(new QMenu(q))
+    , copyUrl(new QAction("copy url", q))
 {
+    this->contextMenu->addAction(this->copyUrl);
+}
+
+
+void MainWindowPrivate::setupTreeView(QTreeView * view) {
+    view->setModel(this->model);
+    QObject::connect(view, &QTreeView::customContextMenuRequested, this, &MainWindowPrivate::showContextMenu);
+}
+
+
+void MainWindowPrivate::showContextMenu(const QPoint & pos) {
+    auto view = static_cast<QTreeView *>(this->sender());
+    auto index = view->indexAt(pos);
+    auto info = this->model->fileInfo(index);
+    qDebug() << QString("http://localhost:8000/api/v1/file/%1").arg(info.id());
 }
