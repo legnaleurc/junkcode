@@ -86,15 +86,14 @@ async def file_(request):
     response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
     response.content_length = length
     response.content_type = node.mime_type
-    await response.prepare(request)
-
-    async with await drive.download(node) as stream:
-        await stream.seek(offset)
-        try:
+    try:
+        await response.prepare(request)
+        async with await drive.download(node) as stream:
+            await stream.seek(offset)
             async for chunk in stream:
                 await response.write(chunk)
-        finally:
-            await response.write_eof()
+    finally:
+        await response.write_eof()
     return response
 
 
