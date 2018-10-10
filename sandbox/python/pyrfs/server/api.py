@@ -109,18 +109,20 @@ async def sync(request):
     lock = request.app['sync_lock']
     loop = asyncio.get_event_loop()
     loop.create_task(broadcast_changes(drive, lock, sockets))
-    return aw.Response(headers={
-                           'Access-Control-Allow-Origin': '*',
-                       })
+    return aw.Response(
+        headers={
+            'Access-Control-Allow-Origin': '*',
+        })
 
 
 def json_response(data):
     data = json.dumps(data)
-    return aw.Response(content_type='application/json',
-                       text=data + '\n',
-                       headers={
-                           'Access-Control-Allow-Origin': '*',
-                       })
+    return aw.Response(
+        content_type='application/json',
+        text=data + '\n',
+        headers={
+            'Access-Control-Allow-Origin': '*',
+        })
 
 
 def dict_from_node(node):
