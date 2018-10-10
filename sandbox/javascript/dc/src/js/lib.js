@@ -13,7 +13,7 @@ export class FileSystem {
   }
 
   async list (id) {
-    const children =  await this._get(`/api/v1/list/${id}`);
+    const children = await this._get(`/api/v1/list/${id}`);
     children.sort((l, r) => {
       if (l.name < r.name) {
         return -1;
@@ -24,6 +24,10 @@ export class FileSystem {
       return 0;
     });
     return children;
+  }
+
+  file (id) {
+    return `${this._baseURL}/api/v1/file/${id}`;
   }
 
   async _get (path, params) {

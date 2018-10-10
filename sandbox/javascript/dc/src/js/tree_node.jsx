@@ -19,7 +19,7 @@ class TreeNode extends React.Component {
     };
 
     this._toggle = this._toggle.bind(this);
-    this._renderIndicator = this._renderIndicator.bind(this);
+    this._openFile = this._openFile.bind(this);
   }
 
   render () {
@@ -28,7 +28,7 @@ class TreeNode extends React.Component {
       <div className='tree-node'>
         <div className='head'>
           {this._renderIndicator()}
-          <div>{name}</div>
+          <div onDoubleClick={this._openFile}>{name}</div>
         </div>
         {this._renderChildren()}
       </div>
@@ -76,6 +76,7 @@ class TreeNode extends React.Component {
     // flip
     this.setState({
       expended: !expended,
+      fetched: true,
     });
   }
 
@@ -87,6 +88,12 @@ class TreeNode extends React.Component {
     this.setState({
       children,
     });
+  }
+
+  _openFile () {
+    const { fileSystem } = this.props;
+    const { id } = this.state;
+    window.open(fileSystem.file(id), '_blank');
   }
 
 }
