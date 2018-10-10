@@ -49,6 +49,7 @@ class TreeNode extends React.Component {
     if (!children || children.length <= 0) {
       return null;
     }
+    const { fileSystem } = this.props;
     return (
       <div className={classNameFromObject({
         tail: true,
@@ -58,7 +59,7 @@ class TreeNode extends React.Component {
         <div>
           {children.map((node, index) => (
             <div key={index}>
-              <TreeNode node={node} />
+              <TreeNode fileSystem={fileSystem} node={node} />
             </div>
           ))}
         </div>

@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget * parent)
     , d(new MainWindowPrivate(this))
 {
     d->ui.setupUi(this);
-    d->model->setRootPath("localhost", 8000);
+    d->model->setRootPath("localhost", 8080);
     d->setupTreeView(d->ui.leftView);
     d->setupTreeView(d->ui.rightView);
 }
@@ -34,5 +34,5 @@ void MainWindowPrivate::showContextMenu(const QPoint & pos) {
     auto view = static_cast<QTreeView *>(this->sender());
     auto index = view->indexAt(pos);
     auto info = this->model->fileInfo(index);
-    qDebug() << QString("http://localhost:8000/api/v1/file/%1").arg(info.id());
+    qDebug() << QString("http://localhost:8080/api/v1/file/%1").arg(info.id());
 }
