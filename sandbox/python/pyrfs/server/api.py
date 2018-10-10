@@ -36,13 +36,19 @@ class ChangesChannel(object):
         return ws
 
 
+async def root(request):
+    drive = request.app['drive']
+    root_id = await drive.get_root_id()
+    return json_response(root_id)
+
+
 async def list_(request):
-    id_or_path = request.query.get('id_or_path', None)
-    if not id_or_path:
+    id_ = request.match_info.get('id', None)
+    if not id_:
         return aw.Response(status=400)
 
     drive = request.app['drive']
-    node = await get_node(drive, id_or_path)
+    node = await get_node(drive, id_)
     if not node:
         return aw.Response(status=404)
 
@@ -52,12 +58,12 @@ async def list_(request):
 
 
 async def info(request):
-    id_or_path = request.query.get('id_or_path', None)
-    if not id_or_path:
+    id_ = request.match_info.get('id', None)
+    if not id_:
         return aw.Response(status=400)
 
     drive = request.app['drive']
-    node = await get_node(drive, id_or_path)
+    node = await get_node(drive, id_)
     if not node:
         return aw.Response(status=404)
 
