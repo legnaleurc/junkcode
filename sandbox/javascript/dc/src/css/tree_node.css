@@ -1,0 +1,32 @@
+.tree-node {
+  font-family: monospace;
+  font-size: large;
+}
+
+.tree-node > .head > div {
+  display: inline-block;
+}
+
+.tree-node > .tail > div {
+  display: inline-block;
+}
+
+.tree-node .placeholder {
+  width: 16px;
+}
+
+.tree-node > .head > .indicator {
+  border-color: transparent transparent transparent gray;
+  border-width: 8px 0 8px 16px;
+  border-style: solid;
+}
+
+.tree-node > .head > .indicator.expended {
+  border-color: gray transparent transparent transparent;
+  border-width: 16px 8px 0px 8px;
+  border-style: solid;
+}
+
+.tree-node .hidden {
+  display: none;
+}
