@@ -13,13 +13,18 @@ export class FileSystem {
   }
 
   async list (id) {
-    const children = await this._get(`/api/v1/list/${id}`);
+    let children = await this._get(`/api/v1/list/${id}`);
+    children = children.map(node => {
+      node.created = Date.parse(node.created);
+      node.modified = Date.parse(node.modified);
+      return node;
+    });
     children.sort((l, r) => {
-      if (l.name < r.name) {
-        return -1;
-      }
-      if (l.name > r.name) {
+      if (l.modified < r.modified) {
         return 1;
+      }
+      if (l.modified > r.modified) {
+        return -1;
       }
       return 0;
     });
