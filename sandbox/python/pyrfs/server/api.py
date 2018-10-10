@@ -38,8 +38,8 @@ class ChangesChannel(object):
 
 async def root(request):
     drive = request.app['drive']
-    root_id = await drive.get_root_id()
-    return json_response(root_id)
+    root = await drive.get_root_node()
+    return json_response(root.id_)
 
 
 async def list_(request):
