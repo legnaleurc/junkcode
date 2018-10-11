@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import createSagaMiddleware from 'redux-saga';
 
 import MainFrame from './views/main_frame';
-import { FileSystem, createNode } from './lib';
+import { FileSystem } from './lib';
 import reduce from './states/reducers';
 import saga from './states/actions';
 

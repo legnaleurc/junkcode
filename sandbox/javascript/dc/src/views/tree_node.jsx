@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { createNode, classNameFromObject } from '../lib';
+import { classNameFromObject } from '../lib';
 import { getList } from '../states/file_system/actions';
 
 import './tree_node.css';
