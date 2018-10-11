@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { createNode, classNameFromObject } from './lib';
-import { getList } from './actions';
+import { createNode, classNameFromObject } from '../lib';
+import { getList } from '../states/actions';
 
-import '../css/tree_node.css';
+import './tree_node.css';
 
 
 class TreeNode extends React.Component {

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
 import FileExplorer from './file_explorer';
-import { getRootList } from './actions';
+import { getRootList } from '../states/actions';
 
 
 class MainFrame extends React.Component {

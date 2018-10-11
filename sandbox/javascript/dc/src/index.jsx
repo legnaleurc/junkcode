@@ -4,10 +4,10 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import createSagaMiddleware from 'redux-saga';
 
-import MainFrame from './main_frame';
+import MainFrame from './views/main_frame';
 import { FileSystem, createNode } from './lib';
-import reduce from './reducers';
-import { rootSaga } from './sagas';
+import reduce from './states/reducers';
+import { rootSaga } from './states/sagas';
 
 
 const fileSystem = new FileSystem('http://localhost:9000');

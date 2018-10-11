@@ -2,7 +2,7 @@ import HtmlWebPackPlugin from 'html-webpack-plugin';
 
 
 export default {
-  entry: './src/js/index.jsx',
+  entry: './src/index.jsx',
   module: {
     rules: [
       // js, jsx
