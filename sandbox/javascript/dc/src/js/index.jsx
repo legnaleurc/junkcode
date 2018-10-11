@@ -10,21 +10,16 @@ import reduce from './reducers';
 import { rootSaga } from './sagas';
 
 
-async function main () {
-  const fileSystem = new FileSystem('http://localhost:9000');
+const fileSystem = new FileSystem('http://localhost:9000');
 
-  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-  const sagaMiddleware = createSagaMiddleware();
-  const store = createStore(reduce, composeEnhancers(applyMiddleware(sagaMiddleware)));
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const sagaMiddleware = createSagaMiddleware();
+const store = createStore(reduce, composeEnhancers(applyMiddleware(sagaMiddleware)));
 
-  sagaMiddleware.run(rootSaga);
+sagaMiddleware.run(rootSaga);
 
-  ReactDOM.render(
-    <Provider store={store}>
-      <MainFrame fileSystem={fileSystem} />
-    </Provider>,
-    document.querySelector('#main-window'));
-}
-
-
-main();
+ReactDOM.render(
+  <Provider store={store}>
+    <MainFrame fileSystem={fileSystem} />
+  </Provider>,
+  document.querySelector('#main-window'));
