@@ -61,7 +61,7 @@ class TreeNode extends React.Component {
         <div>
           {children.map((node, index) => (
             <div key={index}>
-              <TreeNode fileSystem={fileSystem} node={node} />
+              <ConnectedTreeNode fileSystem={fileSystem} node={node} />
             </div>
           ))}
         </div>
@@ -70,10 +70,8 @@ class TreeNode extends React.Component {
   }
 
   _toggle () {
-    const { fileSystem, node, dispatch } = this.props;
-    if (!node.fetched) {
-      dispatch(getList(fileSystem, node.id));
-    }
+    const { getChildren } = this.props;
+    getChildren();
 
     const { expended } = this.state;
     // flip
@@ -111,4 +109,17 @@ function mapStateToProps (state, ownProps) {
 }
 
 
-export default connect(mapStateToProps)(TreeNode);
+function mapDispatchToProps (dispatch, ownProps) {
+  return {
+    getChildren () {
+      const { fileSystem, node } = ownProps;
+      if (!node.fetched) {
+        dispatch(getList(fileSystem, node.id));
+      }
+    }
+  };
+}
+
+
+const ConnectedTreeNode = connect(mapStateToProps, mapDispatchToProps)(TreeNode);
+export default ConnectedTreeNode;
