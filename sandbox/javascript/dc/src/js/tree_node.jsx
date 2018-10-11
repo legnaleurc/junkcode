@@ -83,9 +83,8 @@ class TreeNode extends React.Component {
   }
 
   _openFile () {
-    const { fileSystem } = this.props;
-    const { id } = this.state;
-    window.open(fileSystem.file(id), '_blank');
+    const { fileSystem, node } = this.props;
+    window.open(fileSystem.file(node.id), '_blank');
   }
 
 }
