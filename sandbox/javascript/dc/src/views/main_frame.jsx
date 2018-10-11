@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
 import FileExplorer from './file_explorer';
-import { getRootList } from '../states/actions';
+import { getRootList } from '../states/file_system/actions';
 
 
 class MainFrame extends React.Component {
@@ -31,8 +31,8 @@ class MainFrame extends React.Component {
 
 function mapStateToProps (state) {
   return {
-    root: state.roots.map(id => {
-      return state.nodes[id];
+    root: state.fileSystem.roots.map(id => {
+      return state.fileSystem.nodes[id];
     }),
   };
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { createNode, classNameFromObject } from '../lib';
-import { getList } from '../states/actions';
+import { getList } from '../states/file_system/actions';
 
 import './tree_node.css';
 
@@ -104,7 +104,7 @@ function Indicator (props) {
 function mapStateToProps (state, ownProps) {
   const { node } = ownProps;
   return {
-    children: node.children && node.children.map(id => state.nodes[id]),
+    children: node.children && node.children.map(id => state.fileSystem.nodes[id]),
   };
 }
 
