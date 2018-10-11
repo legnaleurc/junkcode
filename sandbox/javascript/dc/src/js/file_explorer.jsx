@@ -12,11 +12,11 @@ class FileExplorer extends React.Component {
   render () {
     const { fileSystem, root } = this.props;
     if (!Array.isArray(root)) {
-      return <TreeNode fileSystem={fileSystem} nodeId={root} />;
+      return <TreeNode fileSystem={fileSystem} node={root} />;
     }
     return root.map((node, index) => (
       <div key={index}>
-        <TreeNode fileSystem={fileSystem} nodeId={node} />
+        <TreeNode fileSystem={fileSystem} node={node} />
       </div>
     ));
   }

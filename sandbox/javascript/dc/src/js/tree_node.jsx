@@ -21,13 +21,12 @@ class TreeNode extends React.Component {
   }
 
   render () {
-    const { name } = this.props;
-    console.info('name', name);
+    const { node } = this.props;
     return (
       <div className='tree-node'>
         <div className='head'>
           {this._renderIndicator()}
-          <div onDoubleClick={this._openFile}>{name}</div>
+          <div onDoubleClick={this._openFile}>{node.name}</div>
         </div>
         {this._renderChildren()}
       </div>
@@ -60,9 +59,9 @@ class TreeNode extends React.Component {
       })}>
         <Placeholder />
         <div>
-          {children.map((nodeId, index) => (
+          {children.map((node, index) => (
             <div key={index}>
-              <TreeNode fileSystem={fileSystem} nodeId={nodeId} />
+              <TreeNode fileSystem={fileSystem} node={node} />
             </div>
           ))}
         </div>
@@ -71,25 +70,15 @@ class TreeNode extends React.Component {
   }
 
   _toggle () {
-    const { fileSystem, nodeId, fetched, dispatch } = this.props;
-    if (!fetched) {
-      dispatch(getList(fileSystem, nodeId));
+    const { fileSystem, node, dispatch } = this.props;
+    if (!node.fetched) {
+      dispatch(getList(fileSystem, node.id));
     }
 
     const { expended } = this.state;
     // flip
     this.setState({
       expended: !expended,
-    });
-  }
-
-  async _fetch () {
-    const { id } = this.state;
-    const { fileSystem } = this.props;
-    const nodeList = await fileSystem.list(id);
-    const children = nodeList.map(node => createNode(node));
-    this.setState({
-      children,
     });
   }
 
@@ -116,12 +105,9 @@ function Indicator (props) {
 
 
 function mapStateToProps (state, ownProps) {
-  const id = ownProps.nodeId;
-  const node = state.nodes[id];
+  const { node } = ownProps;
   return {
-    name: node.name,
-    children: node.children,
-    fetched: node.fetched,
+    children: node.children && node.children.map(id => state.nodes[id]),
   };
 }
 

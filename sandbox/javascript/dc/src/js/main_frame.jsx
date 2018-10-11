@@ -31,7 +31,9 @@ class MainFrame extends React.Component {
 
 function mapStateToProps (state) {
   return {
-    root: state.roots,
+    root: state.roots.map(id => {
+      return state.nodes[id];
+    }),
   };
 }
 
