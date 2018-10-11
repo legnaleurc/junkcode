@@ -42,4 +42,5 @@ export default {
       filename: 'index.html',
     }),
   ],
+  devtool: 'inline-source-map',
 };

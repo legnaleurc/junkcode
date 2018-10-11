@@ -1,6 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import { createNode, classNameFromObject } from './lib';
+import { getList } from './actions';
 
 import '../css/tree_node.css';
 
@@ -11,10 +13,6 @@ class TreeNode extends React.Component {
     super(props);
 
     this.state = {
-      id: props.node.id,
-      name: props.node.name,
-      children: props.node.children,
-      fetched: false,
       expended: false,
     };
 
@@ -23,7 +21,8 @@ class TreeNode extends React.Component {
   }
 
   render () {
-    const { name } = this.state;
+    const { name } = this.props;
+    console.info('name', name);
     return (
       <div className='tree-node'>
         <div className='head'>
@@ -36,7 +35,9 @@ class TreeNode extends React.Component {
   }
 
   _renderIndicator () {
-    const { children, expended } = this.state;
+    const { children } = this.props;
+    const { expended } = this.state;
+
     if (children) {
       return <Indicator expended={expended} onClick={this._toggle} />;
     } else {
@@ -45,11 +46,13 @@ class TreeNode extends React.Component {
   }
 
   _renderChildren () {
-    const { children, expended } = this.state;
+    const { children, fileSystem } = this.props;
+    const { expended } = this.state;
+
     if (!children || children.length <= 0) {
       return null;
     }
-    const { fileSystem } = this.props;
+
     return (
       <div className={classNameFromObject({
         tail: true,
@@ -57,9 +60,9 @@ class TreeNode extends React.Component {
       })}>
         <Placeholder />
         <div>
-          {children.map((node, index) => (
+          {children.map((nodeId, index) => (
             <div key={index}>
-              <TreeNode fileSystem={fileSystem} node={node} />
+              <TreeNode fileSystem={fileSystem} nodeId={nodeId} />
             </div>
           ))}
         </div>
@@ -67,16 +70,16 @@ class TreeNode extends React.Component {
     );
   }
 
-  async _toggle () {
-    const { fetched, expended } = this.state;
+  _toggle () {
+    const { fileSystem, nodeId, fetched, dispatch } = this.props;
     if (!fetched) {
-      await this._fetch();
+      dispatch(getList(fileSystem, nodeId));
     }
 
+    const { expended } = this.state;
     // flip
     this.setState({
       expended: !expended,
-      fetched: true,
     });
   }
 
@@ -112,4 +115,15 @@ function Indicator (props) {
 }
 
 
-export default TreeNode;
+function mapStateToProps (state, ownProps) {
+  const id = ownProps.nodeId;
+  const node = state.nodes[id];
+  return {
+    name: node.name,
+    children: node.children,
+    fetched: node.fetched,
+  };
+}
+
+
+export default connect(mapStateToProps)(TreeNode);

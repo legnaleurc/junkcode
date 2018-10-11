@@ -68,15 +68,6 @@ export class FileSystem {
 }
 
 
-export function createNode(node) {
-  return {
-    id: node.id,
-    name: node.name,
-    children: node.is_folder ? [] : null,
-  };
-}
-
-
 export function classNameFromObject(o) {
   const keys = Object.keys(o);
   const classList = [];
