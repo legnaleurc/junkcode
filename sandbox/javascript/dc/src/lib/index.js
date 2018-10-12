@@ -70,11 +70,6 @@ export class FileSystem {
 
 export function classNameFromObject(o) {
   const keys = Object.keys(o);
-  const classList = [];
-  for (const key of keys) {
-    if (o[key]) {
-      classList.push(key);
-    }
-  }
+  const classList = keys.filter(key => o[key]);
   return classList.join(' ');
 }
