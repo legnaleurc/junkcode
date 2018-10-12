@@ -35,8 +35,22 @@ export class FileSystem {
     return `${this._baseURL}/api/v1/file/${id}`;
   }
 
+  async sync () {
+    return await this._post('/api/v1/sync');
+  }
+
+  change () {
+    const base = this._baseURL.replace('http', 'ws');
+    const ws = new WebSocket(`${base}/socket/v1/changes`);
+    return ws;
+  }
+
   async _get (path, params) {
     return await this._ajax('GET', path, params);
+  }
+
+  async _post (path, params) {
+    return await this._ajax('POST', path, params);
   }
 
   async _ajax (method, path, params) {

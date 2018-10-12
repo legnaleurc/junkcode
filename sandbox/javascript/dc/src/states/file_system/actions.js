@@ -8,6 +8,8 @@ export const ROOT_LIST_GET_TRY = 'ROOT_LIST_GET_TRY';
 export const ROOT_LIST_GET_SUCCEED = 'ROOT_LIST_GET_SUCCEED';
 export const ROOT_LIST_GET_FAILED = 'ROOT_LIST_GET_FAILED';
 export const FILE_GET = 'FILE_GET';
+export const SYNC_POST = 'SYNC_POST';
+export const NODE_UPSERT = 'NODE_UPSERT';
 
 
 export function getList (id) {
@@ -111,4 +113,28 @@ export function * sagaGetFile (fileSystem) {
     const url = yield call(() => fileSystem.file(id));
     yield call(() => done(url));
   });
+}
+
+
+export function postSync () {
+  return {
+    type: SYNC_POST,
+  };
+}
+
+
+export function * sagaPostSync (fileSystem) {
+  yield takeEvery(SYNC_POST, function * () {
+    yield call(() => fileSystem.sync());
+  });
+}
+
+
+export function upsertNode (change) {
+  return {
+    type: NODE_UPSERT,
+    payload: {
+      change,
+    },
+  };
 }

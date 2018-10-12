@@ -1,6 +1,11 @@
 import { all } from 'redux-saga/effects';
 
-import { sagaGetList, sagaGetRootList, sagaGetFile } from './file_system/actions';
+import {
+  sagaGetList,
+  sagaGetRootList,
+  sagaGetFile,
+  sagaPostSync,
+} from './file_system/actions';
 
 
 export default function * ({ fileSystem }) {
@@ -8,5 +13,6 @@ export default function * ({ fileSystem }) {
     sagaGetList(fileSystem),
     sagaGetRootList(fileSystem),
     sagaGetFile(fileSystem),
+    sagaPostSync(fileSystem),
   ]);
 }
