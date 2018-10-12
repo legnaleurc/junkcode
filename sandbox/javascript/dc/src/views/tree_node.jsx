@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { classNameFromObject } from '../lib';
-import { getList } from '../states/file_system/actions';
+import { getList, getFile } from '../states/file_system/actions';
 
 import './tree_node.css';
 
@@ -70,8 +70,10 @@ class TreeNode extends React.Component {
   }
 
   _toggle () {
-    const { getChildren } = this.props;
-    getChildren();
+    const { node, getChildren } = this.props;
+    if (!node.fetched) {
+      getChildren(node.id);
+    }
 
     const { expended } = this.state;
     // flip
@@ -82,7 +84,7 @@ class TreeNode extends React.Component {
 
   _openFile () {
     const { getFileUrl, node } = this.props;
-    window.open(getFileUrl(node.id), '_blank');
+    getFileUrl(node.id, openUrl);
   }
 
 }
@@ -101,6 +103,11 @@ function Indicator (props) {
 }
 
 
+function openUrl (url) {
+  window.open(url, '_blank');
+}
+
+
 function mapStateToProps (state, ownProps) {
   const { node } = ownProps;
   return {
@@ -111,12 +118,12 @@ function mapStateToProps (state, ownProps) {
 
 function mapDispatchToProps (dispatch, ownProps) {
   return {
-    getChildren () {
-      const { node } = ownProps;
-      if (!node.fetched) {
-        dispatch(getList(node.id));
-      }
-    }
+    getChildren (id) {
+      dispatch(getList(id));
+    },
+    getFileUrl (id, done) {
+      dispatch(getFile(id, done));
+    },
   };
 }
 

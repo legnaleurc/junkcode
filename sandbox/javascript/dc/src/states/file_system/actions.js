@@ -7,6 +7,7 @@ export const LIST_GET_FAILED = 'LIST_GET_FAILED';
 export const ROOT_LIST_GET_TRY = 'ROOT_LIST_GET_TRY';
 export const ROOT_LIST_GET_SUCCEED = 'ROOT_LIST_GET_SUCCEED';
 export const ROOT_LIST_GET_FAILED = 'ROOT_LIST_GET_FAILED';
+export const FILE_GET = 'FILE_GET';
 
 
 export function getList (id) {
@@ -89,5 +90,25 @@ export function * sagaGetRootList (fileSystem) {
     } catch (e) {
       yield put(getRootListFailed(e.message));
     }
+  });
+}
+
+
+export function getFile (id, done) {
+  return {
+    type: FILE_GET,
+    payload: {
+      id,
+      done,
+    },
+  };
+}
+
+
+export function * sagaGetFile (fileSystem) {
+  yield takeEvery(FILE_GET, function * ({ payload }) {
+    const { id, done } = payload;
+    const url = yield call(() => fileSystem.file(id));
+    yield call(() => done(url));
   });
 }
