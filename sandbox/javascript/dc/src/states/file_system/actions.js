@@ -9,11 +9,10 @@ export const ROOT_LIST_GET_SUCCEED = 'ROOT_LIST_GET_SUCCEED';
 export const ROOT_LIST_GET_FAILED = 'ROOT_LIST_GET_FAILED';
 
 
-export function getList (fileSystem, id) {
+export function getList (id) {
   return {
     type: LIST_GET_TRY,
     payload: {
-      fileSystem,
       id,
     },
   };
@@ -41,9 +40,9 @@ function getListFailed (message) {
 }
 
 
-export function * sagaGetList() {
+export function * sagaGetList (fileSystem) {
   yield takeEvery(LIST_GET_TRY, function * ({ payload }) {
-    const { fileSystem, id } = payload;
+    const { id } = payload;
     try {
       const children = yield call(() => fileSystem.list(id));
       yield put(getListSucceed(id, children));
@@ -54,12 +53,9 @@ export function * sagaGetList() {
 }
 
 
-export function getRootList (fileSystem) {
+export function getRootList () {
   return {
     type: ROOT_LIST_GET_TRY,
-    payload: {
-      fileSystem,
-    },
   };
 }
 
@@ -84,9 +80,8 @@ function getRootListFailed (message) {
 }
 
 
-export function * sagaGetRootList() {
-  yield takeEvery(ROOT_LIST_GET_TRY, function * ({ payload }) {
-    const { fileSystem } = payload;
+export function * sagaGetRootList (fileSystem) {
+  yield takeEvery(ROOT_LIST_GET_TRY, function * () {
     try {
       const id = yield call(() => fileSystem.root());
       const children = yield call(() => fileSystem.list(id));

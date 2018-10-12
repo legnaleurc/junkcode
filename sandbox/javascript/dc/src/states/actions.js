@@ -3,9 +3,9 @@ import { all } from 'redux-saga/effects';
 import { sagaGetList, sagaGetRootList } from './file_system/actions';
 
 
-export default function * () {
+export default function * ({ fileSystem }) {
   yield all([
-    sagaGetList(),
-    sagaGetRootList(),
+    sagaGetList(fileSystem),
+    sagaGetRootList(fileSystem),
   ]);
 }

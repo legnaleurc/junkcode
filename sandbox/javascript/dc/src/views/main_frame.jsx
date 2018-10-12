@@ -13,15 +13,15 @@ class MainFrame extends React.Component {
   }
 
   componentDidMount() {
-    const { fileSystem, dispatch } = this.props;
-    dispatch(getRootList(fileSystem));
+    const { getRoots } = this.props;
+    getRoots();
   }
 
   render () {
-    const { fileSystem, root } = this.props;
+    const { root } = this.props;
     return (
       <div>
-        <FileExplorer fileSystem={fileSystem} root={root} />
+        <FileExplorer root={root} />
       </div>
     );
   }
@@ -38,4 +38,13 @@ function mapStateToProps (state) {
 }
 
 
-export default hot(module)(connect(mapStateToProps)(MainFrame));
+function mapDispatchToProps (dispatch) {
+  return {
+    getRoots () {
+      dispatch(getRootList());
+    }
+  };
+}
+
+
+export default hot(module)(connect(mapStateToProps, mapDispatchToProps)(MainFrame));

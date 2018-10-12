@@ -45,7 +45,7 @@ class TreeNode extends React.Component {
   }
 
   _renderChildren () {
-    const { children, fileSystem } = this.props;
+    const { children } = this.props;
     const { expended } = this.state;
 
     if (!children || children.length <= 0) {
@@ -61,7 +61,7 @@ class TreeNode extends React.Component {
         <div>
           {children.map((node, index) => (
             <div key={index}>
-              <ConnectedTreeNode fileSystem={fileSystem} node={node} />
+              <ConnectedTreeNode node={node} />
             </div>
           ))}
         </div>
@@ -81,8 +81,8 @@ class TreeNode extends React.Component {
   }
 
   _openFile () {
-    const { fileSystem, node } = this.props;
-    window.open(fileSystem.file(node.id), '_blank');
+    const { getFileUrl, node } = this.props;
+    window.open(getFileUrl(node.id), '_blank');
   }
 
 }
@@ -112,9 +112,9 @@ function mapStateToProps (state, ownProps) {
 function mapDispatchToProps (dispatch, ownProps) {
   return {
     getChildren () {
-      const { fileSystem, node } = ownProps;
+      const { node } = ownProps;
       if (!node.fetched) {
-        dispatch(getList(fileSystem, node.id));
+        dispatch(getList(node.id));
       }
     }
   };

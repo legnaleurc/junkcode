@@ -16,10 +16,12 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const sagaMiddleware = createSagaMiddleware();
 const store = createStore(reduce, composeEnhancers(applyMiddleware(sagaMiddleware)));
 
-sagaMiddleware.run(saga);
+sagaMiddleware.run(saga, {
+  fileSystem,
+});
 
 ReactDOM.render(
   <Provider store={store}>
-    <MainFrame fileSystem={fileSystem} />
+    <MainFrame />
   </Provider>,
   document.querySelector('#main-window'));
