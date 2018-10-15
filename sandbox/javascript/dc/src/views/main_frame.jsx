@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
 import FileExplorer from './file_explorer';
+import SearchList from './search_list';
 import { getRootList, postSync, upsertNode } from '../states/file_system/actions';
 
 
@@ -34,6 +35,7 @@ class MainFrame extends React.Component {
         <div>
           <button onClick={this._sync}>sync</button>
         </div>
+        <SearchList />
         <FileExplorer root={root} />
       </div>
     );
