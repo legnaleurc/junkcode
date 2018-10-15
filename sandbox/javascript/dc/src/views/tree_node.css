@@ -30,3 +30,7 @@
 .tree-node .hidden {
   display: none;
 }
+
+.tree-node .selected {
+  background-color: aqua;
+}

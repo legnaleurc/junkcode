@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { classNameFromObject } from '../lib';
 import { getList, getFile } from '../states/file_system/actions';
+import { toggleSelection } from '../states/selection/actions';
 
 import './tree_node.css';
 
@@ -15,18 +16,29 @@ class TreeNode extends React.Component {
     this.state = {
       expended: false,
     };
-
-    this._toggle = this._toggle.bind(this);
-    this._openFile = this._openFile.bind(this);
   }
 
   render () {
-    const { node } = this.props;
+    const { node, selected } = this.props;
     return (
       <div className='tree-node'>
-        <div className='head'>
+        <div className={classNameFromObject({
+          head: true,
+          selected,
+        })}>
           {this._renderIndicator()}
-          <div onDoubleClick={this._openFile}>{node.name}</div>
+          <div
+            onClick={event => {
+              event.preventDefault();
+              this._toggleSelection();
+            }}
+            onDoubleClick={event => {
+              event.preventDefault();
+              this._openFile();
+            }}
+          >
+            {node.name}
+          </div>
         </div>
         {this._renderChildren()}
       </div>
@@ -38,7 +50,13 @@ class TreeNode extends React.Component {
     const { expended } = this.state;
 
     if (children) {
-      return <Indicator expended={expended} onClick={this._toggle} />;
+      return <Indicator
+                expended={expended}
+                onClick={event => {
+                  event.preventDefault();
+                  this._toggle();
+                }}
+              />;
     } else {
       return <Placeholder />;
     }
@@ -87,6 +105,11 @@ class TreeNode extends React.Component {
     getFileUrl(node.id, openUrl);
   }
 
+  _toggleSelection () {
+    const { node, toggleSelection } = this.props;
+    toggleSelection(node.id);
+  }
+
 }
 
 
@@ -109,9 +132,12 @@ function openUrl (url) {
 
 
 function mapStateToProps (state, ownProps) {
+  const { fileSystem, selection} = state;
   const { node } = ownProps;
+
   return {
-    children: node.children && node.children.map(id => state.fileSystem.nodes[id]),
+    children: node.children && node.children.map(id => fileSystem.nodes[id]),
+    selected: !!selection.selection[node.id],
   };
 }
 
@@ -123,6 +149,9 @@ function mapDispatchToProps (dispatch, ownProps) {
     },
     getFileUrl (id, done) {
       dispatch(getFile(id, done));
+    },
+    toggleSelection (id) {
+      dispatch(toggleSelection(id));
     },
   };
 }
