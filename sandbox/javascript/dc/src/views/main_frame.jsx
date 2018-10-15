@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
 import FileExplorer from './file_explorer';
-import { getRootList, postSync, updateNode } from '../states/file_system/actions';
+import { getRootList, postSync, upsertNode } from '../states/file_system/actions';
 
 
 class MainFrame extends React.Component {
@@ -12,6 +12,7 @@ class MainFrame extends React.Component {
     super(props);
 
     this._sync = this._sync.bind(this);
+    this._onMessage = this._onMessage.bind(this);
   }
 
   componentDidMount() {
@@ -46,7 +47,8 @@ class MainFrame extends React.Component {
   _onMessage (event) {
     let message = event.data;
     message = JSON.parse(message);
-    console.info(message);
+    const { applyChange } = this.props;
+    applyChange(message);
   }
 
   _onClose (e) {
@@ -78,7 +80,7 @@ function mapDispatchToProps (dispatch) {
       dispatch(postSync());
     },
     applyChange (change) {
-      dispatch(updateNode(change));
+      dispatch(upsertNode(change));
     },
   };
 }

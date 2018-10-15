@@ -110,6 +110,7 @@ async def sync(request):
     loop = asyncio.get_event_loop()
     loop.create_task(broadcast_changes(drive, lock, sockets))
     return aw.Response(
+        status=204,
         headers={
             'Access-Control-Allow-Origin': '*',
         })

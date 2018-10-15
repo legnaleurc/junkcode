@@ -75,7 +75,9 @@ export class FileSystem {
       mode: 'cors',
     });
     let rv = await fetch(rqst);
-    rv = await rv.json();
+    if (rv.status !== 204) {
+      rv = await rv.json();
+    }
     return rv;
   }
 
