@@ -91,11 +91,12 @@ def parse_args(args):
 
 
 def setup_api_path(app):
-    app.router.add_view(r'/api/v1/root', api.root)
-    app.router.add_view(r'/api/v1/list/{id}', api.list_)
-    app.router.add_view(r'/api/v1/info/{id}', api.info)
-    app.router.add_view(r'/api/v1/file/{id}', api.file_)
-    app.router.add_view(r'/api/v1/sync', api.sync)
+    app.router.add_view(r'/api/v1/nodes', api.NodeListView)
+    app.router.add_view(r'/api/v1/nodes/{id}', api.NodeView)
+    app.router.add_view(r'/api/v1/nodes/{id}/children', api.NodeChildrenView)
+    app.router.add_view(r'/api/v1/nodes/{id}/stream', api.NodeStreamView)
+    app.router.add_view(r'/api/v1/nodes/{id}/download', api.NodeDownloadView)
+    app.router.add_view(r'/api/v1/changes', api.ChangesView)
 
 
 main = Daemon(sys.argv)

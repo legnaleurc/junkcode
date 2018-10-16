@@ -36,84 +36,133 @@ class ChangesChannel(object):
         return ws
 
 
-async def root(request):
-    drive = request.app['drive']
-    root = await drive.get_root_node()
-    return json_response(root.id_)
+class NodeView(aw.View):
+
+    async def get(self):
+        id_ = self.request.match_info.get('id', None)
+        if not id_:
+            return aw.Response(status=404)
+
+        drive = self.request.app['drive']
+        node = await get_node(drive, id_)
+        if not node:
+            return aw.Response(status=404)
+
+        node = dict_from_node(node)
+        return json_response(node)
 
 
-async def list_(request):
-    id_ = request.match_info.get('id', None)
-    if not id_:
-        return aw.Response(status=400)
+class NodeListView(aw.View):
 
-    drive = request.app['drive']
-    node = await get_node(drive, id_)
-    if not node:
-        return aw.Response(status=404)
+    async def get(self):
+        name_filter = self.request.query.get('name', None)
+        if not name_filter:
+            return aw.Response(status=400)
 
-    children = await drive.get_children(node)
-    children = [dict_from_node(_) for _ in children]
-    return json_response(children)
+        drive = self.request.app['drive']
+        nodes = await drive.find_nodes_by_regex(name_filter)
+        nodes = [dict_from_node(_) for _ in nodes]
+        return json_response(nodes)
 
 
-async def info(request):
-    id_ = request.match_info.get('id', None)
-    if not id_:
-        return aw.Response(status=400)
+class NodeChildrenView(aw.View):
 
-    drive = request.app['drive']
-    node = await get_node(drive, id_)
-    if not node:
-        return aw.Response(status=404)
+    async def get(self):
+        id_ = self.request.match_info.get('id', None)
+        if not id_:
+            return aw.Response(status=404)
 
-    node = dict_from_node(node)
-    return json_response(node)
+        drive = self.request.app['drive']
+        node = await get_node(drive, id_)
+        if not node:
+            return aw.Response(status=404)
 
-
-async def file_(request):
-    id_ = request.match_info.get('id', None)
-    if not id_:
-        return aw.Response(status=404)
-
-    drive = request.app['drive']
-    node = await drive.get_node_by_id(id_)
-    if not node:
-        return aw.Response(status=404)
-    if node.is_folder:
-        return aw.Response(status=404)
-
-    range_ = request.http_range
-    offset = 0 if range_.start is None else range_.start
-    length = node.size - offset if not range_.stop else range_.stop + 1
-
-    response = aw.StreamResponse(status=206)
-    response.headers['Accept-Ranges'] = 'bytes'
-    response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
-    response.content_length = length
-    response.content_type = node.mime_type
-    try:
-        await response.prepare(request)
-        async with await drive.download(node) as stream:
-            await stream.seek(offset)
-            async for chunk in stream:
-                await response.write(chunk)
-    finally:
-        await response.write_eof()
-    return response
+        children = await drive.get_children(node)
+        children = [dict_from_node(_) for _ in children]
+        return json_response(children)
 
 
-async def sync(request):
-    drive = request.app['drive']
-    sockets = request.app['changes']
-    lock = request.app['sync_lock']
-    loop = asyncio.get_event_loop()
-    loop.create_task(broadcast_changes(drive, lock, sockets))
-    return aw.Response(
-        status=204,
-        headers={
-            'Access-Control-Allow-Origin': '*',
-        })
+class NodeStreamView(aw.View):
+
+    async def get(self):
+        id_ = self.request.match_info.get('id', None)
+        if not id_:
+            return aw.Response(status=404)
+
+        drive = self.request.app['drive']
+        node = await drive.get_node_by_id(id_)
+        if not node:
+            return aw.Response(status=404)
+        if node.is_folder:
+            return aw.Response(status=400)
+
+        range_ = self.request.http_range
+        offset = 0 if range_.start is None else range_.start
+        length = node.size - offset if not range_.stop else range_.stop + 1
+
+        response = aw.StreamResponse(status=206)
+        response.headers['Accept-Ranges'] = 'bytes'
+        response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
+        response.content_length = length
+        response.content_type = node.mime_type
+        try:
+            await response.prepare(self.request)
+            async with await drive.download(node) as stream:
+                await stream.seek(offset)
+                async for chunk in stream:
+                    await response.write(chunk)
+        finally:
+            await response.write_eof()
+        return response
+
+
+class NodeDownloadView(aw.View):
+
+    async def get(self):
+        id_ = self.request.match_info.get('id', None)
+        if not id_:
+            return aw.Response(status=404)
+
+        drive = self.request.app['drive']
+        node = await drive.get_node_by_id(id_)
+        if not node:
+            return aw.Response(status=404)
+        if node.is_folder:
+            return aw.Response(status=400)
+
+        range_ = self.request.http_range
+        offset = 0 if range_.start is None else range_.start
+        length = node.size - offset if not range_.stop else range_.stop + 1
+
+        response = aw.StreamResponse(status=206)
+        response.headers['Accept-Ranges'] = 'bytes'
+        response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
+        response.content_length = length
+        response.content_type = node.mime_type
+        try:
+            await response.prepare(self.request)
+            async with await drive.download(node) as stream:
+                await stream.seek(offset)
+                async for chunk in stream:
+                    await response.write(chunk)
+        finally:
+            await response.write_eof()
+        return response
+
+
+class ChangesView(aw.View):
+
+    async def post(self):
+        drive = self.request.app['drive']
+        sockets = self.request.app['changes']
+        lock = self.request.app['sync_lock']
+        loop = asyncio.get_event_loop()
+        loop.create_task(broadcast_changes(drive, lock, sockets))
+        return aw.Response(
+            status=204,
+            headers={
+                'Access-Control-Allow-Origin': '*',
+            })
 
 
 def json_response(data):
@@ -141,11 +190,11 @@ def dict_from_node(node):
     }
 
 
-async def get_node(drive, id_or_path):
-    if id_or_path.startswith('/'):
-        return await drive.get_node_by_path(id_or_path)
+async def get_node(drive, id_or_root):
+    if id_or_root == 'root':
+        return await drive.get_root_node()
     else:
-        return await drive.get_node_by_id(id_or_path)
+        return await drive.get_node_by_id(id_or_root)
 
 
 async def broadcast_changes(drive, lock, socket_set):
