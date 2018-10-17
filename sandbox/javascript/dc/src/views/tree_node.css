@@ -9,6 +9,7 @@
 
 .tree-node > .tail > div {
   display: inline-block;
+  padding-left: 16px;
 }
 
 .tree-node .placeholder {

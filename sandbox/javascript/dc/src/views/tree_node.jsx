@@ -75,7 +75,6 @@ class TreeNode extends React.Component {
         tail: true,
         hidden: !expended,
       })}>
-        <Placeholder />
         <div>
           {children.map((node, index) => (
             <div key={index}>
