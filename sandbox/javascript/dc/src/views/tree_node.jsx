@@ -19,7 +19,7 @@ class TreeNode extends React.Component {
   }
 
   render () {
-    const { node, selected } = this.props;
+    const { node, children, selected } = this.props;
     return (
       <div className='tree-node'>
         <div className={classNameFromObject({
@@ -28,6 +28,9 @@ class TreeNode extends React.Component {
         })}>
           {this._renderIndicator()}
           <div
+            className={classNameFromObject({
+              shift: !children,
+            })}
             onClick={event => {
               event.preventDefault();
               this._toggleSelection();
@@ -49,17 +52,18 @@ class TreeNode extends React.Component {
     const { children } = this.props;
     const { expended } = this.state;
 
-    if (children) {
-      return <Indicator
-                expended={expended}
-                onClick={event => {
-                  event.preventDefault();
-                  this._toggle();
-                }}
-              />;
-    } else {
-      return <Placeholder />;
+    if (!children) {
+      return null;
     }
+    return (
+      <Indicator
+        expended={expended}
+        onClick={event => {
+          event.preventDefault();
+          this._toggle();
+        }}
+      />
+    );
   }
 
   _renderChildren () {
