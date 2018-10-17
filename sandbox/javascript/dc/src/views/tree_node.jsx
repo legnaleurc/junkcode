@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { classNameFromObject } from '../lib';
-import { getList, getFile } from '../states/file_system/actions';
+import { getList, getStreamUrl } from '../states/file_system/actions';
 import { toggleSelection } from '../states/selection/actions';
 
 import './tree_node.css';
@@ -148,7 +148,7 @@ function mapDispatchToProps (dispatch, ownProps) {
       dispatch(getList(id));
     },
     getFileUrl (id, done) {
-      dispatch(getFile(id, done));
+      dispatch(getStreamUrl(id, done));
     },
     toggleSelection (id) {
       dispatch(toggleSelection(id));

@@ -7,7 +7,7 @@ export const LIST_GET_FAILED = 'LIST_GET_FAILED';
 export const ROOT_LIST_GET_TRY = 'ROOT_LIST_GET_TRY';
 export const ROOT_LIST_GET_SUCCEED = 'ROOT_LIST_GET_SUCCEED';
 export const ROOT_LIST_GET_FAILED = 'ROOT_LIST_GET_FAILED';
-export const FILE_GET = 'FILE_GET';
+export const FS_STREAM_URL = 'FS_STREAM_URL';
 export const SYNC_POST = 'SYNC_POST';
 export const NODE_UPSERT = 'NODE_UPSERT';
 
@@ -96,9 +96,9 @@ export function * sagaGetRootList (fileSystem) {
 }
 
 
-export function getFile (id, done) {
+export function getStreamUrl (id, done) {
   return {
-    type: FILE_GET,
+    type: FS_STREAM_URL,
     payload: {
       id,
       done,
@@ -107,10 +107,10 @@ export function getFile (id, done) {
 }
 
 
-export function * sagaGetFile (fileSystem) {
-  yield takeEvery(FILE_GET, function * ({ payload }) {
+export function * sagaGetStreamUrl (fileSystem) {
+  yield takeEvery(FS_STREAM_URL, function * ({ payload }) {
     const { id, done } = payload;
-    const url = yield call(() => fileSystem.file(id));
+    const url = yield call(() => fileSystem.stream(id));
     yield call(() => done(url));
   });
 }

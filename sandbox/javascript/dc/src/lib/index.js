@@ -5,15 +5,11 @@ export class FileSystem {
   }
 
   async root () {
-    return await this._get('/api/v1/root');
-  }
-
-  async info (id) {
-    return await this._get(`/api/v1/info/${id}`);
+    return await this._get('/api/v1/nodes/root/children');
   }
 
   async list (id) {
-    let children = await this._get(`/api/v1/list/${id}`);
+    let children = await this._get(`/api/v1/nodes/${id}/children`);
     children = children.map(node => {
       node.created = Date.parse(node.created);
       node.modified = Date.parse(node.modified);
@@ -31,12 +27,12 @@ export class FileSystem {
     return children;
   }
 
-  file (id) {
-    return `${this._baseURL}/api/v1/file/${id}`;
+  stream (id) {
+    return `${this._baseURL}/api/v1/nodes/${id}/stream`;
   }
 
   async sync () {
-    return await this._post('/api/v1/sync');
+    return await this._post('/api/v1/changes');
   }
 
   change () {
