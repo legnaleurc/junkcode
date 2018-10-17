@@ -189,6 +189,7 @@ class NodeStreamView(NodeObjectMixin, NodeRandomAccessMixin, aw.View):
 
 class NodeDownloadView(NodeObjectMixin, NodeRandomAccessMixin, aw.View):
 
+    @raise_404
     async def get(self):
         node = await self.get_object()
         if node.is_folder:
