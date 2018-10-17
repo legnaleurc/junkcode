@@ -91,7 +91,7 @@ class ChangesChannel(object):
 
 def raise_404(fn):
     @ft.wraps(fn)
-    def wrapper(self):
+    async def wrapper(self):
         try:
             return await fn(self)
         except NotFoundError:
@@ -182,8 +182,8 @@ class NodeStreamView(NodeObjectMixin, NodeRandomAccessMixin, aw.View):
         if node.is_folder:
             return aw.Response(status=400)
 
-        response = self.create_response()
-        self.feed(response, node)
+        response = await self.create_response()
+        await self.feed(response, node)
         return response
 
 
@@ -195,9 +195,9 @@ class NodeDownloadView(NodeObjectMixin, NodeRandomAccessMixin, aw.View):
         if node.is_folder:
             return aw.Response(status=400)
 
-        response = self.create_response()
+        response = await self.create_response()
         response.headers['Content-Disposition'] = f'attachment; filename="{node.name}"'
-        self.feed(response, node)
+        await self.feed(response, node)
         return response
 
 
