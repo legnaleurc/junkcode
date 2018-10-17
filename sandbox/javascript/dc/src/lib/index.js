@@ -5,7 +5,8 @@ export class FileSystem {
   }
 
   async root () {
-    return await this._get('/api/v1/nodes/root/children');
+    const node = await this._get('/api/v1/nodes/root');
+    return node.id;
   }
 
   async list (id) {
