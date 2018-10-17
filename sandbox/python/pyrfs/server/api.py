@@ -1,8 +1,61 @@
 import asyncio
+import functools as ft
 import json
 
 import aiohttp
 import aiohttp.web as aw
+
+
+class NotFoundError(Exception):
+
+    pass
+
+
+class ListViewMixin(object):
+
+    async def list_(self):
+        raise NotImplementedError
+
+
+class CreateViewMixin(object):
+
+    async def create(self):
+        raise NotImplementedError
+
+
+class RetrieveViewMixin(object):
+
+    async def retrieve(self):
+        raise NotImplementedError
+
+
+class APIView(object):
+
+    async def get_list(self):
+        return []
+
+    async def get_object(self):
+        return None
+
+
+class ListView(ListViewMixin, APIView):
+
+    async def get(self):
+        try:
+            list_ = await self.get_list()
+        except NotFoundError:
+            return aw.Response(status=404)
+        return json_response(list_)
+
+
+class RetriveView(RetrieveViewMixin, APIView):
+
+    async def get(self):
+        try:
+            object_ = await self.get_object()
+        except NotFoundError:
+            return aw.Response(status=404)
+        return json_response(object_)
 
 
 class ChangesChannel(object):
@@ -36,18 +89,63 @@ class ChangesChannel(object):
         return ws
 
 
-class NodeView(aw.View):
+def raise_404(fn):
+    @ft.wraps(fn)
+    def wrapper(self):
+        try:
+            return await fn(self)
+        except NotFoundError:
+            return aw.Response(status=404)
+    return wrapper
 
-    async def get(self):
+
+class NodeObjectMixin(object):
+
+    async def get_object(self):
         id_ = self.request.match_info.get('id', None)
         if not id_:
-            return aw.Response(status=404)
+            raise NotFoundError
 
         drive = self.request.app['drive']
         node = await get_node(drive, id_)
         if not node:
-            return aw.Response(status=404)
+            raise NotFoundError
 
+        return node
+
+
+class NodeRandomAccessMixin(object):
+
+    async def create_response(self):
+        return aw.StreamResponse(status=206)
+
+    async def feed(self, response, node):
+        range_ = self.request.http_range
+        offset = 0 if range_.start is None else range_.start
+        length = node.size - offset if not range_.stop else range_.stop + 1
+
+        response.headers['Accept-Ranges'] = 'bytes'
+        response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
+        response.content_length = length
+        response.content_type = node.mime_type
+
+        drive = self.request.app['drive']
+
+        try:
+            await response.prepare(self.request)
+            async with await drive.download(node) as stream:
+                await stream.seek(offset)
+                async for chunk in stream:
+                    await response.write(chunk)
+        finally:
+            await response.write_eof()
+
+
+class NodeView(NodeObjectMixin, aw.View):
+
+    @raise_404
+    async def get(self):
+        node = await self.get_object()
         node = dict_from_node(node)
         return json_response(node)
 
@@ -65,88 +163,40 @@ class NodeListView(aw.View):
         return json_response(nodes)
 
 
-class NodeChildrenView(aw.View):
+class NodeChildrenView(NodeObjectMixin, aw.View):
 
+    @raise_404
     async def get(self):
-        id_ = self.request.match_info.get('id', None)
-        if not id_:
-            return aw.Response(status=404)
-
+        node = await self.get_object()
         drive = self.request.app['drive']
-        node = await get_node(drive, id_)
-        if not node:
-            return aw.Response(status=404)
-
         children = await drive.get_children(node)
         children = [dict_from_node(_) for _ in children]
         return json_response(children)
 
 
-class NodeStreamView(aw.View):
+class NodeStreamView(NodeObjectMixin, NodeRandomAccessMixin, aw.View):
 
+    @raise_404
     async def get(self):
-        id_ = self.request.match_info.get('id', None)
-        if not id_:
-            return aw.Response(status=404)
-
-        drive = self.request.app['drive']
-        node = await drive.get_node_by_id(id_)
-        if not node:
-            return aw.Response(status=404)
+        node = await self.get_object()
         if node.is_folder:
             return aw.Response(status=400)
 
-        range_ = self.request.http_range
-        offset = 0 if range_.start is None else range_.start
-        length = node.size - offset if not range_.stop else range_.stop + 1
-
-        response = aw.StreamResponse(status=206)
-        response.headers['Accept-Ranges'] = 'bytes'
-        response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
-        response.content_length = length
-        response.content_type = node.mime_type
-        try:
-            await response.prepare(self.request)
-            async with await drive.download(node) as stream:
-                await stream.seek(offset)
-                async for chunk in stream:
-                    await response.write(chunk)
-        finally:
-            await response.write_eof()
+        response = self.create_response()
+        self.feed(response, node)
         return response
 
 
-class NodeDownloadView(aw.View):
+class NodeDownloadView(NodeObjectMixin, NodeRandomAccessMixin, aw.View):
 
     async def get(self):
-        id_ = self.request.match_info.get('id', None)
-        if not id_:
-            return aw.Response(status=404)
-
-        drive = self.request.app['drive']
-        node = await drive.get_node_by_id(id_)
-        if not node:
-            return aw.Response(status=404)
+        node = await self.get_object()
         if node.is_folder:
             return aw.Response(status=400)
 
-        range_ = self.request.http_range
-        offset = 0 if range_.start is None else range_.start
-        length = node.size - offset if not range_.stop else range_.stop + 1
-
-        response = aw.StreamResponse(status=206)
-        response.headers['Accept-Ranges'] = 'bytes'
-        response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
-        response.content_length = length
-        response.content_type = node.mime_type
-        try:
-            await response.prepare(self.request)
-            async with await drive.download(node) as stream:
-                await stream.seek(offset)
-                async for chunk in stream:
-                    await response.write(chunk)
-        finally:
-            await response.write_eof()
+        response = self.create_response()
+        response.headers['Content-Disposition'] = f'attachment; filename="{node.name}"'
+        self.feed(response, node)
         return response
 
 
