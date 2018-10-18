@@ -1,0 +1,169 @@
+From 68ed3cf014f6b2f3105bed2fb9ecf372246cb0b6 Mon Sep 17 00:00:00 2001
+From: Grzegorz Grzywacz <grzgrzgrz3@gmail.com>
+Date: Sun, 18 Jun 2017 23:17:31 +0200
+Subject: [PATCH] bpo-30698: asyncio shutdown the ssl layer cleanly.
+
+Asyncio on shutdown do not send shutdown confirmation to the other side.
+_SSLPipe after doing unwrap is calling shutdown calback where transport
+is closed and quit ssldata wont be sent. Having this callback in
+_SSLPipe feels wrong and its removed.
+
+Removing callback from _SSLPipe.shutdown should not break any api.
+---
+ Lib/asyncio/sslproto.py                | 18 +++++---
+ Lib/test/test_asyncio/test_sslproto.py | 64 +++++++++++++++++++++++++-
+ 2 files changed, 74 insertions(+), 8 deletions(-)
+
+diff --git a/Lib/asyncio/sslproto.py b/Lib/asyncio/sslproto.py
+index 12fdb0d1c5..4960369ba6 100644
+--- a/Lib/asyncio/sslproto.py
++++ b/Lib/asyncio/sslproto.py
+@@ -124,7 +124,7 @@ class _SSLPipe(object):
+         assert len(appdata) == 0
+         return ssldata
+ 
+-    def shutdown(self, callback=None):
++    def shutdown(self):
+         """Start the SSL shutdown sequence.
+ 
+         Return a list of ssldata. A ssldata element is a list of buffers
+@@ -139,7 +139,6 @@ class _SSLPipe(object):
+             raise RuntimeError('shutdown in progress')
+         assert self._state in (_WRAPPED, _DO_HANDSHAKE)
+         self._state = _SHUTDOWN
+-        self._shutdown_cb = callback
+         ssldata, appdata = self.feed_ssldata(b'')
+         assert appdata == [] or appdata == [b'']
+         return ssldata
+@@ -207,8 +206,6 @@ class _SSLPipe(object):
+                 self._sslobj.unwrap()
+                 self._sslobj = None
+                 self._state = _UNWRAPPED
+-                if self._shutdown_cb:
+-                    self._shutdown_cb()
+ 
+             elif self._state == _UNWRAPPED:
+                 # Drain possible plaintext data after close_notify.
+@@ -669,11 +666,14 @@ class SSLProtocol(protocols.Protocol):
+                         self._on_handshake_complete)
+                     offset = 1
+                 else:
+-                    ssldata = self._sslpipe.shutdown(self._finalize)
++                    try:
++                        ssldata = self._sslpipe.shutdown()
++                        self._feed_ssl_data(ssldata)
++                    finally:
++                        self._finalize()
+                     offset = 1
+ 
+-                for chunk in ssldata:
+-                    self._transport.write(chunk)
++                self._feed_ssl_data(ssldata)
+ 
+                 if offset < len(data):
+                     self._write_backlog[0] = (data, offset)
+@@ -695,6 +695,10 @@ class SSLProtocol(protocols.Protocol):
+             else:
+                 self._fatal_error(exc, 'Fatal error on SSL transport')
+ 
++    def _feed_ssl_data(self, ssldata):
++        for chunk in ssldata:
++            self._transport.write(chunk)
++
+     def _fatal_error(self, exc, message='Fatal error on transport'):
+         if isinstance(exc, base_events._FATAL_ERROR_IGNORE):
+             if self._loop.get_debug():
+diff --git a/Lib/test/test_asyncio/test_sslproto.py b/Lib/test/test_asyncio/test_sslproto.py
+index 46a1523ea1..a474c1c3cb 100644
+--- a/Lib/test/test_asyncio/test_sslproto.py
++++ b/Lib/test/test_asyncio/test_sslproto.py
+@@ -1,9 +1,13 @@
+ """Tests for asyncio/sslproto.py."""
+-
++import contextlib
+ import logging
++import os
+ import socket
++import threading
+ import unittest
+ from unittest import mock
++
++
+ try:
+     import ssl
+ except ImportError:
+@@ -17,6 +21,55 @@ from asyncio import tasks
+ from test.test_asyncio import utils as test_utils
+ from test.test_asyncio import functional as func_tests
+ 
++HOST = '127.0.0.1'
++
++
++def data_file(name):
++    return os.path.join(os.path.dirname(__file__), name)
++
++
++class DummySSLServer(threading.Thread):
++    class Protocol(asyncio.Protocol):
++        transport = None
++
++        def connection_lost(self, exc):
++            self.transport.close()
++
++        def connection_made(self, transport):
++            self.transport = transport
++
++    def __init__(self):
++        super().__init__()
++
++        self.loop = asyncio.new_event_loop()
++        context = ssl.SSLContext()
++        context.load_cert_chain(data_file('keycert3.pem'))
++        server_future = self.loop.create_server(
++            self.Protocol, *(HOST, 0),
++            ssl=context)
++        self.server = self.loop.run_until_complete(server_future)
++
++    def run(self):
++        self.loop.run_forever()
++        self.server.close()
++        self.loop.run_until_complete(self.server.wait_closed())
++        self.loop.close()
++
++    def stop(self):
++        self.loop.call_soon_threadsafe(self.loop.stop)
++
++
++@contextlib.contextmanager
++def run_test_ssl_server():
++    th = DummySSLServer()
++    th.start()
++    try:
++        yield th.server
++    finally:
++        th.stop()
++        th.join()
++
++
+ 
+ @unittest.skipIf(ssl is None, 'No ssl module')
+ class SslProtoHandshakeTests(test_utils.TestCase):
+@@ -148,6 +201,15 @@ class SslProtoHandshakeTests(test_utils.TestCase):
+         # should not raise
+         self.assertIsNone(transp.write(b'data'))
+ 
++    def test_ssl_shutdown(self):
++        # bpo-30698 Shutdown the ssl layer cleanly
++        with run_test_ssl_server() as server:
++            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
++            sock.connect(server.sockets[0].getsockname())
++            ssl_socket = test_utils.dummy_ssl_context().wrap_socket(sock)
++            with contextlib.closing(ssl_socket):
++                ssl_socket.unwrap()
++
+ 
+ ##############################################################################
+ # Start TLS Tests
+-- 
+2.17.1 (Apple Git-112)
+
