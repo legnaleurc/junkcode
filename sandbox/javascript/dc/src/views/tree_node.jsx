@@ -130,7 +130,13 @@ function Indicator (props) {
 
 
 function openUrl (url) {
-  window.open(url, '_blank');
+  function onCopy (event) {
+    event.preventDefault();
+    event.clipboardData.setData('text/plain', url);
+    document.removeEventListener('copy', onCopy);
+  }
+  document.addEventListener('copy', onCopy);
+  document.execCommand('copy');
 }
 
 
