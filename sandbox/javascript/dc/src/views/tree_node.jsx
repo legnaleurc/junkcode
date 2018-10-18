@@ -116,11 +116,6 @@ class TreeNode extends React.Component {
 }
 
 
-function Placeholder (props) {
-  return <div className="placeholder" />;
-}
-
-
 function Indicator (props) {
   return <div className={classNameFromObject({
     indicator: true,
