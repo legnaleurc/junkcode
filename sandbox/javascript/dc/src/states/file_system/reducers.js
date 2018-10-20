@@ -64,8 +64,8 @@ export default function reduceFileSystem (state = initialState, { type, payload 
         const node = createNode(change.node);
         // TODO update roots
         const parent = nodes[node.parent_id];
-        if (parent) {
-          parent.children = [...parent.children, node.id];
+        if (parent && parent.fetched) {
+          parent.children = [node.id, ...parent.children];
         }
         nodes[node.id] = node;
       }
