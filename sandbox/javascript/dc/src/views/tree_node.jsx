@@ -18,8 +18,28 @@ class TreeNode extends React.Component {
     };
   }
 
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    if (this.props.node !== nextProps.node) {
+      console.info('node', this.props.node.name);
+      return true;
+    }
+    if (this.props.node.children !== nextProps.node.children) {
+      console.info('childNodes', this.props.node.name);
+      return true;
+    }
+    if (this.props.selected !== nextProps.selected) {
+      console.info('selected', this.props.node.name);
+      return true;
+    }
+    if (this.state.expended !== nextState.expended) {
+      console.info('expended', this.props.node.name);
+      return true;
+    }
+    return false;
+  }
+
   render () {
-    const { node, children, selected } = this.props;
+    const { node, childNodes, selected } = this.props;
     return (
       <div className='tree-node'>
         <div className={classNameFromObject({
@@ -29,7 +49,7 @@ class TreeNode extends React.Component {
           {this._renderIndicator()}
           <div
             className={classNameFromObject({
-              shift: !children,
+              shift: !childNodes,
             })}
             onClick={event => {
               event.preventDefault();
@@ -49,10 +69,10 @@ class TreeNode extends React.Component {
   }
 
   _renderIndicator () {
-    const { children } = this.props;
+    const { childNodes } = this.props;
     const { expended } = this.state;
 
-    if (!children) {
+    if (!childNodes) {
       return null;
     }
     return (
@@ -67,10 +87,10 @@ class TreeNode extends React.Component {
   }
 
   _renderChildren () {
-    const { children } = this.props;
+    const { childNodes } = this.props;
     const { expended } = this.state;
 
-    if (!children || children.length <= 0) {
+    if (!childNodes || childNodes.length <= 0) {
       return null;
     }
 
@@ -80,7 +100,7 @@ class TreeNode extends React.Component {
         hidden: !expended,
       })}>
         <div>
-          {children.map((node, index) => (
+          {childNodes.map((node, index) => (
             <div key={index}>
               <ConnectedTreeNode node={node} />
             </div>
@@ -140,7 +160,7 @@ function mapStateToProps (state, ownProps) {
   const { node } = ownProps;
 
   return {
-    children: node.children && node.children.map(id => fileSystem.nodes[id]),
+    childNodes: node.children && node.children.map(id => fileSystem.nodes[id]),
     selected: !!selection.selection[node.id],
   };
 }
