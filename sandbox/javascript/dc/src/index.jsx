@@ -4,7 +4,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import createSagaMiddleware from 'redux-saga';
 
-import MainFrame from './views/main_frame';
+import Application from './views/application';
 import { FileSystem } from './lib';
 import reduce from './states/reducers';
 import saga from './states/actions';
@@ -22,7 +22,7 @@ sagaMiddleware.run(saga, {
 
 ReactDOM.render(
   <Provider store={store}>
-    <MainFrame connectSocket={({ onMessage, onClose, onError }) => {
+    <Application connectSocket={({ onMessage, onClose, onError }) => {
       const connection = fileSystem.change();
       connection.addEventListener('message', onMessage);
       connection.addEventListener('close', onClose);

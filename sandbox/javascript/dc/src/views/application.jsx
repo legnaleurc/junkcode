@@ -7,7 +7,7 @@ import SearchList from './search_list';
 import { getRootList, postSync, upsertNode } from '../states/file_system/actions';
 
 
-class MainFrame extends React.Component {
+class Application extends React.Component {
 
   constructor (props) {
     super(props);
@@ -86,4 +86,4 @@ function mapDispatchToProps (dispatch) {
 }
 
 
-export default hot(module)(connect(mapStateToProps, mapDispatchToProps)(MainFrame));
+export default hot(module)(connect(mapStateToProps, mapDispatchToProps)(Application));
