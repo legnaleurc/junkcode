@@ -42,8 +42,10 @@ export default function reduceFileSystem (state = initialState, { type, payload 
         nodes[node.id] = createNode(node);
       }
       const parent = nodes[id];
-      parent.fetched = true;
-      parent.children = children.map(node => node.id);
+      nodes[id] = Object.assign({}, parent, {
+        fetched: true,
+        children: children.map(node => node.id),
+      });
       return {
         nodes: Object.assign({}, nodes),
         roots,
