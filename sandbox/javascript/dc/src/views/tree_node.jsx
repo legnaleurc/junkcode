@@ -29,7 +29,7 @@ class TreeNode extends React.Component {
           {this._renderIndicator()}
           <div
             className={classNameFromObject({
-              shift: !childNodes,
+              shift: !node.children,
             })}
             onClick={event => {
               event.preventDefault();
@@ -49,10 +49,11 @@ class TreeNode extends React.Component {
   }
 
   _renderIndicator () {
-    const { childNodes } = this.props;
+    const { node } = this.props;
     const { expended } = this.state;
+    const { children } = node;
 
-    if (!childNodes) {
+    if (!children) {
       return null;
     }
     return (
@@ -142,7 +143,7 @@ function mapStateToProps (state, ownProps) {
 
   return {
     node: fileSystem.nodes[nodeId],
-    selected: !!selection.selection[node.id],
+    selected: !!selection.selection[nodeId],
   };
 }
 
