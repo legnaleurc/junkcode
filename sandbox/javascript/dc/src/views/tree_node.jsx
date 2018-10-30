@@ -18,28 +18,8 @@ class TreeNode extends React.Component {
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (this.props.node !== nextProps.node) {
-      console.info('node', this.props.node.name);
-      return true;
-    }
-    if (this.props.node.children !== nextProps.node.children) {
-      console.info('childNodes', this.props.node.name);
-      return true;
-    }
-    if (this.props.selected !== nextProps.selected) {
-      console.info('selected', this.props.node.name);
-      return true;
-    }
-    if (this.state.expended !== nextState.expended) {
-      console.info('expended', this.props.node.name);
-      return true;
-    }
-    return false;
-  }
-
   render () {
-    const { node, childNodes, selected } = this.props;
+    const { node, selected } = this.props;
     return (
       <div className='tree-node'>
         <div className={classNameFromObject({
@@ -87,10 +67,11 @@ class TreeNode extends React.Component {
   }
 
   _renderChildren () {
-    const { childNodes } = this.props;
+    const { node } = this.props;
     const { expended } = this.state;
+    const { children } = node;
 
-    if (!childNodes || childNodes.length <= 0) {
+    if (!children || children.length <= 0) {
       return null;
     }
 
@@ -100,9 +81,9 @@ class TreeNode extends React.Component {
         hidden: !expended,
       })}>
         <div>
-          {childNodes.map((node, index) => (
+          {children.map((nodeId, index) => (
             <div key={index}>
-              <ConnectedTreeNode node={node} />
+              <ConnectedTreeNode nodeId={nodeId} />
             </div>
           ))}
         </div>
@@ -156,11 +137,11 @@ function openUrl (url) {
 
 
 function mapStateToProps (state, ownProps) {
-  const { fileSystem, selection} = state;
-  const { node } = ownProps;
+  const { fileSystem, selection } = state;
+  const { nodeId } = ownProps;
 
   return {
-    childNodes: node.children && node.children.map(id => fileSystem.nodes[id]),
+    node: fileSystem.nodes[nodeId],
     selected: !!selection.selection[node.id],
   };
 }

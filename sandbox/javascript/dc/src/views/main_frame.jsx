@@ -29,14 +29,14 @@ class MainFrame extends React.Component {
   }
 
   render () {
-    const { root } = this.props;
+    const { rootList } = this.props;
     return (
       <div>
         <div>
           <button onClick={this._sync}>sync</button>
         </div>
         <SearchList />
-        <FileExplorer root={root} />
+        <FileExplorer root={rootList} />
       </div>
     );
   }
@@ -66,9 +66,7 @@ class MainFrame extends React.Component {
 
 function mapStateToProps (state) {
   return {
-    root: state.fileSystem.roots.map(id => {
-      return state.fileSystem.nodes[id];
-    }),
+    rootList: state.fileSystem.roots,
   };
 }
 
