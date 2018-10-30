@@ -16,35 +16,39 @@ class TreeNode extends React.Component {
     this.state = {
       expended: false,
     };
+
+    this._onDragStart = this._onDragStart.bind(this);
   }
 
   render () {
     const { node, selected } = this.props;
     return (
-      <div className='tree-node'>
-        <div className={classNameFromObject({
-          head: true,
-          selected,
-        })}>
-          {this._renderIndicator()}
-          <div
-            className={classNameFromObject({
-              shift: !node.children,
-            })}
-            onClick={event => {
-              event.preventDefault();
-              this._toggleSelection();
-            }}
-            onDoubleClick={event => {
-              event.preventDefault();
-              this._openFile();
-            }}
-          >
-            {node.name}
+      <Dragable enabled={selected} onDragStart={this._onDragStart}>
+        <div className='tree-node'>
+          <div className={classNameFromObject({
+            head: true,
+            selected,
+          })}>
+            {this._renderIndicator()}
+            <div
+              className={classNameFromObject({
+                shift: !node.children,
+              })}
+              onClick={event => {
+                event.preventDefault();
+                this._toggleSelection();
+              }}
+              onDoubleClick={event => {
+                event.preventDefault();
+                this._openFile();
+              }}
+            >
+              {node.name}
+            </div>
           </div>
+          {this._renderChildren()}
         </div>
-        {this._renderChildren()}
-      </div>
+      </Dragable>
     );
   }
 
@@ -115,6 +119,10 @@ class TreeNode extends React.Component {
     toggleSelection(node.id);
   }
 
+  _onDragStart (event) {
+    console.info('drag start', event);
+  }
+
 }
 
 
@@ -134,6 +142,24 @@ function openUrl (url) {
   }
   document.addEventListener('copy', onCopy);
   document.execCommand('copy');
+}
+
+
+class Dragable extends React.Component {
+
+  constructor (props) {
+    super(props);
+  }
+
+  render() {
+    const { enabled, children, onDragStart } = this.props;
+    return (
+      <div draggable={enabled} onDragStart={onDragStart}>
+        {children}
+      </div>
+    );
+  }
+
 }
 
 
