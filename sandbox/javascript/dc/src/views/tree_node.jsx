@@ -3,7 +3,10 @@ import { connect } from 'react-redux';
 
 import { classNameFromObject } from '../lib';
 import { getList, getStreamUrl } from '../states/file_system/actions';
-import { toggleSelection } from '../states/selection/actions';
+import {
+  toggleSelection,
+  moveSelectedNodesTo,
+} from '../states/selection/actions';
 
 import './tree_node.css';
 
@@ -15,23 +18,32 @@ class TreeNode extends React.Component {
 
     this.state = {
       expended: false,
+      dragOver: false,
     };
 
     this._onDragStart = this._onDragStart.bind(this);
+    this._onDragEnter = this._onDragEnter.bind(this);
     this._onDragOver = this._onDragOver.bind(this);
+    this._onDragExit = this._onDragExit.bind(this);
     this._onDrop = this._onDrop.bind(this);
   }
 
   render () {
     const { node, selected } = this.props;
+    const { dragOver } = this.state;
     return (
       <Dragable
         enabled={selected}
         onDragStart={this._onDragStart}
+        onDragEnter={this._onDragEnter}
         onDragOver={this._onDragOver}
+        onDragExit={this._onDragExit}
         onDrop={this._onDrop}
       >
-        <div className='tree-node'>
+        <div className={classNameFromObject({
+          'tree-node': true,
+          'drag-over': dragOver,
+        })}>
           <div className={classNameFromObject({
             head: true,
             selected,
@@ -127,21 +139,40 @@ class TreeNode extends React.Component {
   }
 
   _onDragStart (event) {
-    console.info('drag start', event.dataTransfer);
+    const { node } = this.props;
     event.dataTransfer.dropEffect = 'copy';
-    event.dataTransfer.setData('text/plain', '?');
+    event.dataTransfer.setData('text/plain', node.id);
+  }
+
+  _onDragEnter (event) {
+    event.preventDefault();
+    this.setState({
+      dragOver: true,
+    });
+  }
+
+  _onDragExit (event) {
+    event.preventDefault();
+    this.setState({
+      dragOver: false,
+    });
   }
 
   _onDragOver (event) {
-    const { node } = this.props;
-    console.info('drag over', node.name);
     event.preventDefault();
   }
 
   _onDrop (event) {
-    const { node } = this.props;
-    console.info('drop', node.name);
     event.preventDefault();
+    this.setState({
+      dragOver: false,
+    });
+    const { node, moveSelectedNodesTo } = this.props;
+    if (node.children) {
+      moveSelectedNodesTo(node.id);
+    } else {
+      moveSelectedNodesTo(node.parent_id);
+    }
   }
 
 }
@@ -173,12 +204,22 @@ class Dragable extends React.Component {
   }
 
   render() {
-    const { enabled, children, onDragStart, onDragOver, onDrop } = this.props;
+    const {
+      enabled,
+      children,
+      onDragStart,
+      onDragEnter,
+      onDragOver,
+      onDragExit,
+      onDrop,
+    } = this.props;
     return (
       <div
         draggable={enabled}
         onDragStart={onDragStart}
+        onDragEnter={onDragEnter}
         onDragOver={onDragOver}
+        onDragExit={onDragExit}
         onDrop={onDrop}
       >
         {children}
@@ -210,6 +251,9 @@ function mapDispatchToProps (dispatch, ownProps) {
     },
     toggleSelection (id) {
       dispatch(toggleSelection(id));
+    },
+    moveSelectedNodesTo (id) {
+      dispatch(moveSelectedNodesTo(id));
     },
   };
 }

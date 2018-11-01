@@ -1,6 +1,14 @@
 .tree-node {
   font-family: monospace;
   font-size: large;
+
+  border-width: 1px;
+  border-style: solid;
+  border-color: white;
+}
+
+.tree-node.drag-over {
+  border-color: blue;
 }
 
 .tree-node > .head > div {
