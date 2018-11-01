@@ -19,6 +19,7 @@ class TreeNode extends React.Component {
 
     this._onDragStart = this._onDragStart.bind(this);
     this._onDragOver = this._onDragOver.bind(this);
+    this._onDrop = this._onDrop.bind(this);
   }
 
   render () {
@@ -28,6 +29,7 @@ class TreeNode extends React.Component {
         enabled={selected}
         onDragStart={this._onDragStart}
         onDragOver={this._onDragOver}
+        onDrop={this._onDrop}
       >
         <div className='tree-node'>
           <div className={classNameFromObject({
@@ -136,6 +138,12 @@ class TreeNode extends React.Component {
     event.preventDefault();
   }
 
+  _onDrop (event) {
+    const { node } = this.props;
+    console.info('drop', node.name);
+    event.preventDefault();
+  }
+
 }
 
 
@@ -165,12 +173,13 @@ class Dragable extends React.Component {
   }
 
   render() {
-    const { enabled, children, onDragStart, onDragOver } = this.props;
+    const { enabled, children, onDragStart, onDragOver, onDrop } = this.props;
     return (
       <div
         draggable={enabled}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
+        onDrop={onDrop}
       >
         {children}
       </div>
