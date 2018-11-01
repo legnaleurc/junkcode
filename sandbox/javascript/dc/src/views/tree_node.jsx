@@ -139,6 +139,7 @@ class TreeNode extends React.Component {
   }
 
   _onDragStart (event) {
+    event.stopPropagation();
     const { node } = this.props;
     event.dataTransfer.dropEffect = 'copy';
     event.dataTransfer.setData('text/plain', node.id);
@@ -146,6 +147,7 @@ class TreeNode extends React.Component {
 
   _onDragEnter (event) {
     event.preventDefault();
+    event.stopPropagation();
     this.setState({
       dragOver: true,
     });
@@ -153,6 +155,7 @@ class TreeNode extends React.Component {
 
   _onDragExit (event) {
     event.preventDefault();
+    event.stopPropagation();
     this.setState({
       dragOver: false,
     });
@@ -160,10 +163,12 @@ class TreeNode extends React.Component {
 
   _onDragOver (event) {
     event.preventDefault();
+    event.stopPropagation();
   }
 
   _onDrop (event) {
     event.preventDefault();
+    event.stopPropagation();
     this.setState({
       dragOver: false,
     });

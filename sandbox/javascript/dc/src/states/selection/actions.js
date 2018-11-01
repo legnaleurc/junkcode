@@ -53,7 +53,7 @@ export function * sagaMoveSelectedNodesTo (fileSystem) {
   yield takeEvery(SELECT_MOVE_TRY, function * ({ payload }) {
     const { id } = payload;
     try {
-      const selection = yield select(getLocalState);
+      const { selection } = yield select(getLocalState);
       const srcList = Object.keys(selection);
       yield call(() => fileSystem.move(srcList, id));
       yield put(moveSelectedNodesToSucceed());

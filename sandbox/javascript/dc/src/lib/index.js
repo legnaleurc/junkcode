@@ -28,6 +28,10 @@ export class FileSystem {
     return children;
   }
 
+  async move (srcList, id) {
+    console.info('file system move', srcList, id);
+  }
+
   stream (id) {
     return `${this._baseURL}/api/v1/nodes/${id}/stream`;
   }
