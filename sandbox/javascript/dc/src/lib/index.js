@@ -57,6 +57,10 @@ export class FileSystem {
     return await this._ajax('POST', path, params);
   }
 
+  async _patch (path, params) {
+    return await this._ajax('PATCH', path, params);
+  }
+
   async _ajax (method, path, params) {
     const url = new URL(`${this._baseURL}${path}`);
     let body = null;
@@ -66,10 +70,7 @@ export class FileSystem {
           url.searchParams.append(k, v);
         }
       } else {
-        body = new URLSearchParams();
-        for (const [k, v] of params) {
-          body.append(k, v);
-        }
+        body = JSON.stringify(params);
       }
     }
     const rqst = new Request(url, {

@@ -157,7 +157,23 @@ class NodeView(NodeObjectMixin, aw.View):
         if 'parent_id' in kwargs:
             path = await drive.get_path_by_id(kwargs['parent_id'])
             await drive.rename_node(node, path)
-        return aw.Response(status=204)
+        return aw.Response(
+            status=204,
+            headers={
+                'Access-Control-Allow-Origin': '*',
+            })
+
+    async def options(self):
+        return aw.Response(
+            status=204,
+            headers={
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ', '.join([
+                    'GET',
+                    'PATCH',
+                    'OPTIONS',
+                ]),
+            })
 
 
 class NodeListView(aw.View):
