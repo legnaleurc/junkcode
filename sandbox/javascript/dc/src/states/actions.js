@@ -8,6 +8,7 @@ import {
 } from './file_system/actions';
 import {
   sagaMoveSelectedNodesTo,
+  sagaContinuouslySelect,
 } from './selection/actions';
 
 
@@ -18,5 +19,6 @@ export default function * ({ fileSystem }) {
     sagaGetStreamUrl(fileSystem),
     sagaPostSync(fileSystem),
     sagaMoveSelectedNodesTo(fileSystem),
+    sagaContinuouslySelect(),
   ]);
 }

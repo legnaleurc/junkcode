@@ -5,6 +5,7 @@ import { classNameFromObject } from '../lib';
 import { getList, getStreamUrl } from '../states/file_system/actions';
 import {
   toggleSelection,
+  continuouslySelect,
   moveSelectedNodesTo,
 } from '../states/selection/actions';
 
@@ -55,7 +56,11 @@ class TreeNode extends React.Component {
               })}
               onClick={event => {
                 event.preventDefault();
-                this._toggleSelection();
+                if (event.shiftKey) {
+                  this._continuouslySelect();
+                } else {
+                  this._toggleSelection();
+                }
               }}
               onDoubleClick={event => {
                 event.preventDefault();
@@ -136,6 +141,11 @@ class TreeNode extends React.Component {
   _toggleSelection () {
     const { node, toggleSelection } = this.props;
     toggleSelection(node.id);
+  }
+
+  _continuouslySelect() {
+    const { node, continuouslySelect } = this.props;
+    continuouslySelect(node.id);
   }
 
   _onDragStart (event) {
@@ -256,6 +266,9 @@ function mapDispatchToProps (dispatch, ownProps) {
     },
     toggleSelection (id) {
       dispatch(toggleSelection(id));
+    },
+    continuouslySelect (id) {
+      dispatch(continuouslySelect(id));
     },
     moveSelectedNodesTo (id) {
       dispatch(moveSelectedNodesTo(id));
