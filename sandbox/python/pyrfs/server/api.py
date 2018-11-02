@@ -149,6 +149,16 @@ class NodeView(NodeObjectMixin, aw.View):
         node = dict_from_node(node)
         return json_response(node)
 
+    @raise_404
+    async def patch(self):
+        node = await self.get_object()
+        drive = self.request.app['drive']
+        kwargs = await self.request.json()
+        if 'parent_id' in kwargs:
+            path = await drive.get_path_by_id(kwargs['parent_id'])
+            await drive.rename_node(node, path)
+        return aw.Response(status=204)
+
 
 class NodeListView(aw.View):
 
