@@ -3,8 +3,9 @@ import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
 import FileExplorer from './file_explorer';
-import SearchList from './search_list';
 import { getRootList, postSync, upsertNode } from '../states/file_system/actions';
+
+import './application.css';
 
 
 class Application extends React.Component {
@@ -35,8 +36,10 @@ class Application extends React.Component {
         <div>
           <button onClick={this._sync}>sync</button>
         </div>
-        <SearchList />
-        <FileExplorer root={rootList} />
+        <div className="file-explorer-pane">
+          <FileExplorer root={rootList} />
+          <FileExplorer root={rootList} />
+        </div>
       </div>
     );
   }

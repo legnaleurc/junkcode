@@ -14,11 +14,15 @@ class FileExplorer extends React.Component {
     if (!Array.isArray(root)) {
       return <TreeNode nodeId={root} />;
     }
-    return root.map((nodeId, index) => (
-      <div key={index}>
-        <TreeNode nodeId={nodeId} />
+    return (
+      <div>
+        {root.map((nodeId, index) => (
+          <div key={index}>
+            <TreeNode nodeId={nodeId} />
+          </div>
+        ))}
       </div>
-    ));
+    );
   }
 
 }
