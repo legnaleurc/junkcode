@@ -66,16 +66,28 @@ export default function reduceFileSystem (state = initialState, { type, payload 
         }
         delete nodes[change.id];
       } else {
-        const node = createNode(change.node);
-        // TODO update roots
-        let parent = nodes[node.parent_id];
-        if (parent && parent.fetched) {
-          parent = Object.assign({}, parent, {
-            children: [node.id, ...parent.children],
-          });
-          nodes[node.parent_id] = parent;
+        const node = nodes[change.node.id];
+        const newNode = createNode(change.node);
+        if (node && node.parent_id !== newNode.parent_id) {
+          // remove child from old parent
+          let parent = nodes[node.parent_id];
+          if (parent && parent.fetched) {
+            parent = Object.assign({}, parent, {
+              children: parent.children.filter(id => id !== node.id),
+            });
+            nodes[node.parent_id] = parent;
+          }
+          // insert to new parent
+          parent = nodes[newNode.parent_id];
+          if (parent && parent.fetched) {
+            parent = Object.assign({}, parent, {
+              children: [newNode.id, ...parent.children],
+            });
+            nodes[newNode.parent_id] = parent;
+          }
         }
-        nodes[node.id] = node;
+        // TODO update roots
+        nodes[node.id] = newNode;
       }
       return {
         nodes: Object.assign({}, nodes),
