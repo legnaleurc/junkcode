@@ -87,7 +87,7 @@ export default function reduceFileSystem (state = initialState, { type, payload 
           }
         }
         // TODO update roots
-        nodes[node.id] = newNode;
+        nodes[newNode.id] = newNode;
       }
       return {
         nodes: Object.assign({}, nodes),

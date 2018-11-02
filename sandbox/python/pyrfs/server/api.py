@@ -72,7 +72,9 @@ class ChangesChannel(object):
         wss = set(self._app['changes'])
         fs = [ws.close(code=aiohttp.WSCloseCode.GOING_AWAY) for ws in wss]
         if fs:
+            print('shuting down')
             done, pending = await asyncio.wait(fs)
+            print('done')
         del self._app['changes']
 
     async def __call__(self, request):
