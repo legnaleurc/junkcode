@@ -29,7 +29,10 @@ export class FileSystem {
   }
 
   async move (srcList, id) {
-    console.info('file system move', srcList, id);
+    const requestList = srcList.map(src => this._patch(`/api/v1/nodes/${src}`, {
+      parent_id: id,
+    }));
+    await Promise.all(requestList);
   }
 
   stream (id) {

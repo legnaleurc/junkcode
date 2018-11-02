@@ -60,5 +60,6 @@ export function * sagaMoveSelectedNodesTo (fileSystem) {
     } catch (e) {
       yield put(moveSelectedNodesToFailed(e.message));
     }
+    yield call(() => fileSystem.sync());
   });
 }
