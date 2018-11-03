@@ -9,6 +9,8 @@ import { FileSystem } from './lib';
 import reduce from './states/reducers';
 import saga from './states/actions';
 
+import './index.css';
+
 
 const fileSystem = new FileSystem('http://localhost:9000');
 
