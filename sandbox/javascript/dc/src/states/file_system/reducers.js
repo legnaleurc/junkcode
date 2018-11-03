@@ -36,7 +36,7 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       };
     }
     case LIST_GET_SUCCEED: {
-      const { nodes, roots } = state;
+      const { nodes } = state;
       const { id, children } = payload;
       for (const node of children) {
         nodes[node.id] = createNode(node);
@@ -46,10 +46,9 @@ export default function reduceFileSystem (state = initialState, { type, payload 
         fetched: true,
         children: children.map(node => node.id),
       });
-      return {
+      return Object.assign({}, state, {
         nodes: Object.assign({}, nodes),
-        roots,
-      };
+      });
     }
     case SYNC_POST_SUCCEED: {
       const { nodes, roots } = state;
