@@ -51,49 +51,80 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       });
     }
     case SYNC_POST_SUCCEED: {
-      const { nodes, roots } = state;
-      const { change } = payload;
-      if (change.removed) {
-        roots = roots.filter(id => id !== change.id);
-        const node = nodes[change.id];
-        let parent = nodes[node.parent_id];
-        if (parent) {
-          parent = Object.assign({}, parent, {
-            children: parent.children.filter(id => id !== change.id),
-          });
-          nodes[node.parent_id] = parent;
-        }
-        delete nodes[change.id];
-      } else {
-        const node = nodes[change.node.id];
-        const newNode = createNode(change.node);
-        if (node && node.parent_id !== newNode.parent_id) {
-          // remove child from old parent
-          let parent = nodes[node.parent_id];
-          if (parent && parent.fetched) {
-            parent = Object.assign({}, parent, {
-              children: parent.children.filter(id => id !== node.id),
-            });
-            nodes[node.parent_id] = parent;
-          }
-          // insert to new parent
-          parent = nodes[newNode.parent_id];
-          if (parent && parent.fetched) {
-            parent = Object.assign({}, parent, {
-              children: [newNode.id, ...parent.children],
-            });
-            nodes[newNode.parent_id] = parent;
-          }
-        }
-        // TODO update roots
-        nodes[newNode.id] = newNode;
+      const { nodes } = state;
+      const { changeList } = payload;
+      for (const change of changeList) {
+        applyChange(nodes, change);
       }
-      return {
+      return Object.assign({}, state, {
         nodes: Object.assign({}, nodes),
-        roots,
-      };
+      });
     }
     default:
       return state;
+  }
+}
+
+
+function applyChange (nodes, change) {
+  if (change.removed) {
+    removeNode(nodes, change.id);
+  } else {
+    upsertNode(nodes, change.node);
+  }
+}
+
+
+function removeNode (nodes, nodeId) {
+  const node = nodes[nodeId];
+  let parent = nodes[node.parent_id];
+  if (parent) {
+    parent = Object.assign({}, parent, {
+      children: parent.children.filter(id => id !== nodeId),
+    });
+    nodes[node.parent_id] = parent;
+  }
+  delete nodes[nodeId];
+}
+
+
+// TODO update roots
+function upsertNode (nodes, node) {
+  const newNode = createNode(node);
+  node = nodes[node.id];
+
+  // this is a new node
+  if (!node) {
+    // if have parent and already fetched chilidren, need to update the list
+    let parent = nodes[newNode.parent_id];
+    if (parent && parent.fetched) {
+      parent = Object.assign({}, parent, {
+        children: [newNode.id, ...parent.children],
+      });
+    }
+    nodes[newNode.id] = newNode;
+    return;
+  }
+
+  // this is an existing node
+  if (node.parent_id !== newNode.parent_id) {
+    // remove child from old parent
+    let parent = nodes[node.parent_id];
+    if (parent && parent.fetched) {
+      parent = Object.assign({}, parent, {
+        children: parent.children.filter(id => id !== node.id),
+      });
+      nodes[node.parent_id] = parent;
+    }
+    // insert to new parent
+    parent = nodes[newNode.parent_id];
+    if (parent && parent.fetched) {
+      parent = Object.assign({}, parent, {
+        children: [newNode.id, ...parent.children],
+      });
+      nodes[newNode.parent_id] = parent;
+    }
+    nodes[newNode.id] = newNode;
+    return;
   }
 }
