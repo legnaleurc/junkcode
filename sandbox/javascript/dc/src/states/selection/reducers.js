@@ -1,4 +1,8 @@
-import { SELECT_TOGGLE, SELECT_CONTINUOUSLY_SUCCEED } from './actions';
+import {
+  SELECT_TOGGLE,
+  SELECT_MOVE_SUCCEED,
+  SELECT_CONTINUOUSLY_SUCCEED,
+} from './actions';
 
 
 const initialState = {
@@ -23,6 +27,12 @@ export default function reduceSelection (state = initialState, action) {
       return {
         selection: Object.assign({}, selection),
         last,
+      };
+    }
+    case SELECT_MOVE_SUCCEED: {
+      return {
+        selection: {},
+        last: null,
       };
     }
     case SELECT_CONTINUOUSLY_SUCCEED: {
