@@ -124,7 +124,6 @@ function upsertNode (nodes, node) {
       });
       nodes[newNode.parent_id] = parent;
     }
-    nodes[newNode.id] = newNode;
-    return;
   }
+  nodes[newNode.id] = newNode;
 }
