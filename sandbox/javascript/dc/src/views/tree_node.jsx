@@ -187,6 +187,7 @@ class TreeNode extends React.Component {
   _onDrop (event) {
     event.preventDefault();
     event.stopPropagation();
+    this._dragCounter = 0;
     this.setState({
       dragOver: false,
     });
