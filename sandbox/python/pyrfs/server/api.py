@@ -2,7 +2,6 @@ import asyncio
 import functools as ft
 import json
 
-import aiohttp
 import aiohttp.web as aw
 
 
@@ -56,39 +55,6 @@ class RetriveView(RetrieveViewMixin, APIView):
         except NotFoundError:
             return aw.Response(status=404)
         return json_response(object_)
-
-
-class ChangesChannel(object):
-
-    def __init__(self, app):
-        self._app = app
-
-    async def __aenter__(self):
-        self._app['changes'] = set()
-        self._queue = asyncio.Queue()
-        return self
-
-    async def __aexit__(self, type_, exc, tb):
-        wss = set(self._app['changes'])
-        fs = [ws.close(code=aiohttp.WSCloseCode.GOING_AWAY) for ws in wss]
-        if fs:
-            print('shuting down')
-            done, pending = await asyncio.wait(fs)
-            print('done')
-        del self._app['changes']
-
-    async def __call__(self, request):
-        ws = aw.WebSocketResponse()
-        await ws.prepare(request)
-        request.app['changes'].add(ws)
-
-        try:
-            async for message in ws:
-                pass
-        finally:
-            request.app['changes'].discard(ws)
-
-        return ws
 
 
 def raise_404(fn):
@@ -233,15 +199,10 @@ class ChangesView(aw.View):
 
     async def post(self):
         drive = self.request.app['drive']
-        sockets = self.request.app['changes']
         lock = self.request.app['sync_lock']
-        loop = asyncio.get_event_loop()
-        loop.create_task(broadcast_changes(drive, lock, sockets))
-        return aw.Response(
-            status=204,
-            headers={
-                'Access-Control-Allow-Origin': '*',
-            })
+        async with lock:
+            changes = [_ async for _ in drive.sync()]
+        return json_response(changes)
 
 
 def json_response(data):
@@ -274,12 +235,3 @@ async def get_node(drive, id_or_root):
         return await drive.get_root_node()
     else:
         return await drive.get_node_by_id(id_or_root)
-
-
-async def broadcast_changes(drive, lock, socket_set):
-    async with lock:
-        async for changes in drive.sync():
-            data = json.dumps(changes)
-            fs = [ws.send_str(data + '\n') for ws in socket_set]
-            if fs:
-                done, pending = await asyncio.wait(fs)
