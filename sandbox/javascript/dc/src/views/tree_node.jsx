@@ -25,8 +25,10 @@ class TreeNode extends React.Component {
     this._onDragStart = this._onDragStart.bind(this);
     this._onDragEnter = this._onDragEnter.bind(this);
     this._onDragOver = this._onDragOver.bind(this);
-    this._onDragExit = this._onDragExit.bind(this);
+    this._onDragLeave = this._onDragLeave.bind(this);
     this._onDrop = this._onDrop.bind(this);
+
+    this._dragCounter = 0;
   }
 
   render () {
@@ -38,7 +40,7 @@ class TreeNode extends React.Component {
         onDragStart={this._onDragStart}
         onDragEnter={this._onDragEnter}
         onDragOver={this._onDragOver}
-        onDragExit={this._onDragExit}
+        onDragLeave={this._onDragLeave}
         onDrop={this._onDrop}
       >
         <div className={classNameFromObject({
@@ -158,17 +160,23 @@ class TreeNode extends React.Component {
   _onDragEnter (event) {
     event.preventDefault();
     event.stopPropagation();
-    this.setState({
-      dragOver: true,
-    });
+    if (this._dragCounter === 0) {
+      this.setState({
+        dragOver: true,
+      });
+    }
+    this._dragCounter += 1;
   }
 
-  _onDragExit (event) {
+  _onDragLeave (event) {
     event.preventDefault();
     event.stopPropagation();
-    this.setState({
-      dragOver: false,
-    });
+    this._dragCounter -= 1;
+    if (this._dragCounter === 0) {
+      this.setState({
+        dragOver: false,
+      });
+    }
   }
 
   _onDragOver (event) {
@@ -225,7 +233,7 @@ class Dragable extends React.Component {
       onDragStart,
       onDragEnter,
       onDragOver,
-      onDragExit,
+      onDragLeave,
       onDrop,
     } = this.props;
     return (
@@ -234,7 +242,7 @@ class Dragable extends React.Component {
         onDragStart={onDragStart}
         onDragEnter={onDragEnter}
         onDragOver={onDragOver}
-        onDragExit={onDragExit}
+        onDragLeave={onDragLeave}
         onDrop={onDrop}
       >
         {children}
