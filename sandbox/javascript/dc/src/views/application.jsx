@@ -14,7 +14,6 @@ class Application extends React.Component {
     super(props);
 
     this._sync = this._sync.bind(this);
-    this._onMessage = this._onMessage.bind(this);
   }
 
   componentDidMount() {
