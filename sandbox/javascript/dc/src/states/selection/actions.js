@@ -1,5 +1,7 @@
 import { call, put, takeEvery, select } from 'redux-saga/effects';
 
+import { postSync } from '../file_system/actions';
+
 
 export const SELECT_TOGGLE = 'SELECT_TOGGLE';
 export const SELECT_MOVE_TRY = 'SELECT_MOVE_TRY';
@@ -62,7 +64,7 @@ export function * sagaMoveSelectedNodesTo (fileSystem) {
     } catch (e) {
       yield put(moveSelectedNodesToFailed(e.message));
     }
-    yield call(() => fileSystem.sync());
+    yield put(postSync());
   });
 }
 

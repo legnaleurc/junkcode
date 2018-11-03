@@ -45,12 +45,6 @@ export class FileSystem {
     return await this._post('/api/v1/changes');
   }
 
-  change () {
-    const base = this._baseURL.replace('http', 'ws');
-    const ws = new WebSocket(`${base}/socket/v1/changes`);
-    return ws;
-  }
-
   async _get (path, params) {
     return await this._ajax('GET', path, params);
   }
