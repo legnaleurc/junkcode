@@ -29,10 +29,12 @@ export class FileSystem {
   }
 
   async move (srcList, id) {
-    const requestList = srcList.map(src => this._patch(`/api/v1/nodes/${src}`, {
-      parent_id: id,
-    }));
-    await Promise.all(requestList);
+    for (const chunk of chunksOf(srcList, 10)) {
+      const requestList = chunk.map(src => this._patch(`/api/v1/nodes/${src}`, {
+        parent_id: id,
+      }));
+      await Promise.all(requestList);
+    }
   }
 
   stream (id) {
@@ -93,4 +95,11 @@ export function classNameFromObject(o) {
   const keys = Object.keys(o);
   const classList = keys.filter(key => o[key]);
   return classList.join(' ');
+}
+
+
+function * chunksOf (array, size) {
+  for (let i = 0; i < array.length; i += size) {
+    yield array.slice(i, i + size);
+  }
 }
