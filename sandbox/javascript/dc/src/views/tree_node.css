@@ -11,8 +11,11 @@
   border-color: blue;
 }
 
-.tree-node > .head > div {
-  display: inline-block;
+.tree-node > .head {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
 }
 
 .tree-node > .head > .shift {
@@ -29,15 +32,14 @@
 }
 
 .tree-node > .head > .indicator {
-  border-color: transparent transparent transparent gray;
-  border-width: 8px 0 8px 16px;
-  border-style: solid;
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  background-color: black;
 }
 
 .tree-node > .head > .indicator.expended {
-  border-color: gray transparent transparent transparent;
-  border-width: 16px 8px 0px 8px;
-  border-style: solid;
+  background-color: gray;
 }
 
 .tree-node .hidden {
