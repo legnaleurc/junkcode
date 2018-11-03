@@ -1,7 +1,7 @@
 import {
   ROOT_LIST_GET_SUCCEED,
   LIST_GET_SUCCEED,
-  NODE_UPSERT,
+  SYNC_POST_SUCCEED,
 } from './actions';
 
 
@@ -51,7 +51,7 @@ export default function reduceFileSystem (state = initialState, { type, payload 
         roots,
       };
     }
-    case NODE_UPSERT: {
+    case SYNC_POST_SUCCEED: {
       const { nodes, roots } = state;
       const { change } = payload;
       if (change.removed) {

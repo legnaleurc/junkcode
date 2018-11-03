@@ -22,12 +22,6 @@ sagaMiddleware.run(saga, {
 
 ReactDOM.render(
   <Provider store={store}>
-    <Application connectSocket={({ onMessage, onClose, onError }) => {
-      const connection = fileSystem.change();
-      connection.addEventListener('message', onMessage);
-      connection.addEventListener('close', onClose);
-      connection.addEventListener('error', onError);
-      return connection;
-    }} />
+    <Application />
   </Provider>,
   document.querySelector('#main-window'));

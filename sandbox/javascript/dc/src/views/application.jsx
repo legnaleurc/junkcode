@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
 import FileExplorer from './file_explorer';
-import { getRootList, postSync, upsertNode } from '../states/file_system/actions';
+import { getRootList, postSync } from '../states/file_system/actions';
 
 import './application.css';
 
@@ -18,15 +18,9 @@ class Application extends React.Component {
   }
 
   componentDidMount() {
-    const { getRoots, connectSocket } = this.props;
+    const { getRoots } = this.props;
 
     getRoots();
-
-    this._connection = connectSocket({
-      onMessage: this._onMessage,
-      onClose: this._onClose,
-      onError: this._onError,
-    });
   }
 
   render () {
@@ -45,23 +39,8 @@ class Application extends React.Component {
   }
 
   _sync () {
-    const { startSync } = this.props;
-    startSync();
-  }
-
-  _onMessage (event) {
-    let message = event.data;
-    message = JSON.parse(message);
-    const { applyChange } = this.props;
-    applyChange(message);
-  }
-
-  _onClose (e) {
-    console.info(e);
-  }
-
-  _onError (e) {
-    console.info(e);
+    const { sync } = this.props;
+    sync();
   }
 
 }
@@ -79,11 +58,8 @@ function mapDispatchToProps (dispatch) {
     getRoots () {
       dispatch(getRootList());
     },
-    startSync () {
+    sync () {
       dispatch(postSync());
-    },
-    applyChange (change) {
-      dispatch(upsertNode(change));
     },
   };
 }
