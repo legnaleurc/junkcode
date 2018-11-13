@@ -17,10 +17,10 @@ export class FileSystem {
       return node;
     });
     children.sort((l, r) => {
-      if (l.name > r.name) {
+      if (l.modified < r.modified) {
         return 1;
       }
-      if (l.name < r.name) {
+      if (l.modified > r.modified) {
         return -1;
       }
       return 0;
