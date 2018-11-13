@@ -25,11 +25,11 @@ class Application extends React.Component {
   render () {
     const { rootList } = this.props;
     return (
-      <div>
+      <div className="flex-container flex-vertical full-width full-height">
         <div>
           <button onClick={this._sync}>sync</button>
         </div>
-        <div className="file-explorer-pane">
+        <div className="flex-container tmp">
           <FileExplorer root={rootList} />
           <FileExplorer root={rootList} />
         </div>

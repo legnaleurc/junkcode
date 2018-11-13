@@ -1,15 +1,15 @@
-.file-explorer-pane {
+.flex-container {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-
-  max-height: 100%;
-  position: absolute;
 }
 
-.file-explorer-pane > div {
-  flex-grow: 1;
-  overflow: scroll;
-  width: 50%;
+.flex-container.flex-vertical {
+  flex-direction: column;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.full-height {
+  height: 100%;
 }
