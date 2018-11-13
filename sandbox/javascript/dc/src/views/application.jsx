@@ -29,9 +29,9 @@ class Application extends React.Component {
         <div>
           <button onClick={this._sync}>sync</button>
         </div>
-        <div className="flex-container tmp">
-          <FileExplorer root={rootList} />
-          <FileExplorer root={rootList} />
+        <div className="flex-container full-width full-height">
+          <FileExplorer className="tmp" root={rootList} />
+          <FileExplorer className="tmp" root={rootList} />
         </div>
       </div>
     );
