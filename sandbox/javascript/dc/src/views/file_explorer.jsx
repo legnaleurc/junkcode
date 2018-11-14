@@ -10,12 +10,12 @@ class FileExplorer extends React.Component {
   }
 
   render () {
-    const { root, className } = this.props;
+    const { root } = this.props;
     if (!Array.isArray(root)) {
       return <TreeNode nodeId={root} />;
     }
     return (
-      <div className={className}>
+      <div>
         {root.map((nodeId, index) => (
           <div key={index}>
             <TreeNode nodeId={nodeId} />
