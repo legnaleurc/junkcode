@@ -1,31 +1,32 @@
-.flex-container {
+@mixin hbox {
   display: flex;
 }
 
-.flex-container.flex-vertical {
+@mixin vbox {
+  display: flex;
   flex-direction: column;
 }
 
-.flex-child-auto {
+@mixin size-auto {
   flex: auto;
 }
 
-.min-height-zero {
+@mixin mh-0 {
   min-height: 0;
 }
 
-.full-width {
+@mixin w-100 {
   width: 100%;
 }
 
-.half-width {
+@mixin w-50 {
   width: 50%;
 }
 
-.full-height {
+@mixin h-100 {
   height: 100%;
 }
 
-.scroll {
+@mixin scrollable {
   overflow: scroll;
 }

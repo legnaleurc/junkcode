@@ -5,7 +5,7 @@ import { hot } from 'react-hot-loader';
 import FileExplorer from './file_explorer';
 import { getRootList, postSync } from '../states/file_system/actions';
 
-import './application.css';
+import './application.scss';
 
 
 class Application extends React.Component {
@@ -25,15 +25,15 @@ class Application extends React.Component {
   render () {
     const { rootList } = this.props;
     return (
-      <div className="flex-container flex-vertical full-width full-height">
-        <div>
+      <div className="application">
+        <div className="header">
           <button onClick={this._sync}>sync</button>
         </div>
-        <div className="flex-container full-width flex-child-auto min-height-zero">
-          <div className="half-width scroll">
+        <div className="content">
+          <div className="half-panel">
             <FileExplorer root={rootList} />
           </div>
-          <div className="half-width scroll">
+          <div className="half-panel">
             <FileExplorer root={rootList} />
           </div>
         </div>
