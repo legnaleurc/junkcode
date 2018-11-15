@@ -15,7 +15,7 @@ class FileExplorer extends React.Component {
       return <TreeNode nodeId={root} />;
     }
     return (
-      <div>
+      <div className="file-explorer">
         {root.map((nodeId, index) => (
           <div key={index}>
             <TreeNode nodeId={nodeId} />
