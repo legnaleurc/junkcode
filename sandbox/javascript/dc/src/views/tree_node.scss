@@ -1,6 +1,9 @@
 @import '../lib/index';
 
 
+$indicator-size: 16px;
+
+
 .tree-node {
   font: {
     family: monospace;
@@ -24,13 +27,13 @@
     flex-wrap: nowrap;
 
     > .shift {
-      margin-left: 16px;
+      margin-left: $indicator-size;
     }
 
     > .indicator {
-      width: 16px;
-      min-width: 16px;
-      height: 16px;
+      width: $indicator-size;
+      min-width: $indicator-size;
+      height: $indicator-size;
       background-color: black;
 
       &.expended {
@@ -40,12 +43,13 @@
   }
 
   > .tail {
+    padding-left: $indicator-size;
+
     @include vbox;
-    padding-left: 16px;
   }
 
   .placeholder {
-    width: 16px;
+    width: $indicator-size;
   }
 
   .hidden {
