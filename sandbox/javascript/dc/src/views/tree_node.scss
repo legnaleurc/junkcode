@@ -1,0 +1,54 @@
+@import '../lib/index';
+
+
+.tree-node {
+  font-family: monospace;
+  font-size: large;
+
+  border-width: 1px;
+  border-style: solid;
+  border-color: white;
+
+  @include vbox;
+
+  &.drag-over {
+    border-color: blue;
+  }
+
+  > .head {
+    @include hbox;
+    flex-wrap: nowrap;
+
+    > .shift {
+      margin-left: 16px;
+    }
+
+    > .indicator {
+      width: 16px;
+      min-width: 16px;
+      height: 16px;
+      background-color: black;
+
+      &.expended {
+        background-color: gray;
+      }
+    }
+  }
+
+  > .tail {
+    @include vbox;
+    padding-left: 16px;
+  }
+
+  .placeholder {
+    width: 16px;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .selected {
+    background-color: aqua;
+  }
+}

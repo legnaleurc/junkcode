@@ -9,7 +9,7 @@ import {
   moveSelectedNodesTo,
 } from '../states/selection/actions';
 
-import './tree_node.css';
+import './tree_node.scss';
 
 
 class TreeNode extends React.Component {
@@ -111,13 +111,11 @@ class TreeNode extends React.Component {
         tail: true,
         hidden: !expended,
       })}>
-        <div>
-          {children.map((nodeId, index) => (
-            <div key={index}>
-              <ConnectedTreeNode nodeId={nodeId} />
-            </div>
-          ))}
-        </div>
+        {children.map((nodeId, index) => (
+          <div key={index}>
+            <ConnectedTreeNode nodeId={nodeId} />
+          </div>
+        ))}
       </div>
     );
   }
