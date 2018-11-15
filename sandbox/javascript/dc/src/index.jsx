@@ -26,4 +26,4 @@ ReactDOM.render(
   <Provider store={store}>
     <Application />
   </Provider>,
-  document.querySelector('body'));
+  document.querySelector('body > .body'));
