@@ -22,12 +22,11 @@ export default {
       },
       // css
       {
-        test: /\.css$/,
+        test: /\.s?css$/,
         use: [
           'style-loader',
-          {
-            loader: 'css-loader',
-          },
+          'css-loader',
+          'sass-loader',
         ],
       },
     ],
