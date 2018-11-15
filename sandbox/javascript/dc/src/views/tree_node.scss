@@ -2,12 +2,16 @@
 
 
 .tree-node {
-  font-family: monospace;
-  font-size: large;
+  font: {
+    family: monospace;
+    size: large;
+  }
 
-  border-width: 1px;
-  border-style: solid;
-  border-color: white;
+  border: {
+    width: 1px;
+    style: solid;
+    color: white;
+  }
 
   @include vbox;
 
