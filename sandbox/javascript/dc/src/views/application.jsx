@@ -70,7 +70,7 @@ function NormalView (props) {
         <ActionBar />
       </div>
       <div className="content">
-        <div className="whole-panel">
+        <div className="pane">
           <FileExplorer root={rootList} />
         </div>
       </div>
@@ -82,15 +82,15 @@ function NormalView (props) {
 function TwoPaneView (props) {
   const { rootList } = props;
   return (
-    <div className="normal-view">
+    <div className="two-pane-view">
       <div className="header">
         <ActionBar />
       </div>
       <div className="content">
-        <div className="half-panel">
+        <div className="pane">
           <FileExplorer root={rootList} />
         </div>
-        <div className="half-panel">
+        <div className="pane">
           <FileExplorer root={rootList} />
         </div>
       </div>

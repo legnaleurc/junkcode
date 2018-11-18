@@ -5,20 +5,53 @@
   @include w-100;
   @include h-100;
 
-  @include vbox;
+  @include hbox;
 
-  .content {
+  > .content {
     @include size-auto;
 
-    @include w-100;
+    @include h-100;
     // IMPORTANT set min-height to have scroll for children
-    @include mh-0;
+    // @include mh-0;
 
     @include hbox;
 
-    .half-panel {
-      @include w-50;
-      @include scrollable;
+    .normal-view {
+      @include vbox;
+
+      > .content {
+        @include size-auto;
+
+        @include w-100;
+        // IMPORTANT set min-height to have scroll for children
+        @include mh-0;
+
+        @include hbox;
+
+        > .pane {
+          @include w-100;
+          @include scrollable;
+        }
+      }
+    }
+
+    .two-pane-view {
+      @include vbox;
+
+      > .content {
+        @include size-auto;
+
+        @include w-100;
+        // IMPORTANT set min-height to have scroll for children
+        @include mh-0;
+
+        @include hbox;
+
+        > .pane {
+          @include w-50;
+          @include scrollable;
+        }
+      }
     }
   }
 }
