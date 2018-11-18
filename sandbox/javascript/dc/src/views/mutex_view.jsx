@@ -2,28 +2,23 @@ import React from 'react';
 
 import { classNameFromObject } from '../lib';
 
+import './mutex_view.scss';
+
 
 const Context = React.createContext();
 
 
-class SwitchBar extends React.Component {
+class MutexView extends React.Component {
 
   constructor (props) {
     super(props);
-
-    this.state = {
-      selected: null,
-    };
-
-    this._select = this._select.bind(this);
   }
 
   render () {
     return (
-      <div className="switch-bar">
+      <div className="mutex-view">
         <Context.Provider value={{
-            selected: this.state.selected,
-            select: this._select,
+            selected: this.props.selected,
           }}
         >
           {this.props.children}
@@ -32,17 +27,10 @@ class SwitchBar extends React.Component {
     );
   }
 
-  _select (name) {
-    this.setState({
-      selected: name,
-    });
-    this.props.onSwitch(name);
-  }
-
 }
 
 
-SwitchBar.Switch = class Switch extends React.Component {
+MutexView.Mutex = class Mutex extends React.Component {
 
   constructor (props) {
     super(props);
@@ -54,12 +42,9 @@ SwitchBar.Switch = class Switch extends React.Component {
         {(value) => (
           <div
             className={classNameFromObject({
-              switch: true,
+              mutex: true,
               active: value.selected === this.props.name,
             })}
-            onClick={event => {
-              value.select(this.props.name);
-            }}
           >
             {this.props.children}
           </div>
@@ -71,4 +56,4 @@ SwitchBar.Switch = class Switch extends React.Component {
 }
 
 
-export default SwitchBar;
+export default MutexView;

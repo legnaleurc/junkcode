@@ -4,6 +4,8 @@ import { hot } from 'react-hot-loader';
 
 import ActionBar from './action_bar';
 import FileExplorer from './file_explorer';
+import SwitchBar from './switch_bar';
+import MutexView from './mutex_view';
 import { getRootList } from '../states/file_system/actions';
 
 import './application.scss';
@@ -13,6 +15,10 @@ class Application extends React.Component {
 
   constructor (props) {
     super(props);
+
+    this.state = {
+      selected: 'normal',
+    };
   }
 
   componentDidMount() {
@@ -25,21 +31,71 @@ class Application extends React.Component {
     const { rootList } = this.props;
     return (
       <div className="application">
-        <div className="header">
-          <ActionBar />
+        <div className="side-bar">
+          <SwitchBar onSwitch={(key) => {
+            this.setState({
+              selected: key,
+            });
+          }}>
+            <SwitchBar.Switch name="normal" default>
+              <span>normal</span>
+            </SwitchBar.Switch>
+            <SwitchBar.Switch name="two-pane">
+              <span>two-pane</span>
+            </SwitchBar.Switch>
+          </SwitchBar>
         </div>
         <div className="content">
-          <div className="half-panel">
-            <FileExplorer root={rootList} />
-          </div>
-          <div className="half-panel">
-            <FileExplorer root={rootList} />
-          </div>
+          <MutexView selected={this.state.selected}>
+            <MutexView.Mutex name="normal">
+              <NormalView rootList={rootList} />
+            </MutexView.Mutex>
+            <MutexView.Mutex name="two-pane">
+              <TwoPaneView rootList={rootList} />
+            </MutexView.Mutex>
+          </MutexView>
         </div>
       </div>
     );
   }
 
+}
+
+
+function NormalView (props) {
+  const { rootList } = props;
+  return (
+    <div className="normal-view">
+      <div className="header">
+        <ActionBar />
+      </div>
+      <div className="content">
+        <div className="whole-panel">
+          <FileExplorer root={rootList} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+function TwoPaneView (props) {
+  const { rootList } = props;
+  return (
+    <div className="normal-view">
+      <div className="header">
+        <ActionBar />
+      </div>
+      <div className="content">
+        <div className="half-panel">
+          <FileExplorer root={rootList} />
+        </div>
+        <div className="half-panel">
+          <FileExplorer root={rootList} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 

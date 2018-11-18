@@ -1,0 +1,11 @@
+.mutex-view {
+
+  .mutex {
+    display: none;
+  }
+
+  .mutex.active {
+    display: initial;
+  }
+
+}
