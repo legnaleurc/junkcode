@@ -2,8 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
+import ActionBar from './action_bar';
 import FileExplorer from './file_explorer';
-import { getRootList, postSync } from '../states/file_system/actions';
+import { getRootList } from '../states/file_system/actions';
 
 import './application.scss';
 
@@ -12,8 +13,6 @@ class Application extends React.Component {
 
   constructor (props) {
     super(props);
-
-    this._sync = this._sync.bind(this);
   }
 
   componentDidMount() {
@@ -27,7 +26,7 @@ class Application extends React.Component {
     return (
       <div className="application">
         <div className="header">
-          <button onClick={this._sync}>sync</button>
+          <ActionBar />
         </div>
         <div className="content">
           <div className="half-panel">
@@ -39,11 +38,6 @@ class Application extends React.Component {
         </div>
       </div>
     );
-  }
-
-  _sync () {
-    const { sync } = this.props;
-    sync();
   }
 
 }
@@ -60,9 +54,6 @@ function mapDispatchToProps (dispatch) {
   return {
     getRoots () {
       dispatch(getRootList());
-    },
-    sync () {
-      dispatch(postSync());
     },
   };
 }
