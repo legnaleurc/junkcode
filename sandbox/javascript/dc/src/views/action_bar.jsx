@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import Button from './button';
 import { postSync } from '../states/file_system/actions';
 
 
@@ -15,7 +16,7 @@ class ActionBar extends React.Component {
   render () {
     return (
       <div className="action-bar">
-        <button onClick={this._sync}>sync</button>
+        <Button onClick={this._sync}>sync</Button>
       </div>
     );
   }
