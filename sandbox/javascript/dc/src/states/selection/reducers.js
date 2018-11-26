@@ -2,6 +2,7 @@ import {
   SELECT_TOGGLE,
   SELECT_MOVE_SUCCEED,
   SELECT_CONTINUOUSLY_SUCCEED,
+  SELECT_DELETE_SUCCEED,
 } from './actions';
 
 
@@ -44,6 +45,12 @@ export default function reduceSelection (state = initialState, action) {
       return {
         selection: Object.assign({}, selection),
         last,
+      };
+    }
+    case SELECT_DELETE_SUCCEED: {
+      return {
+        selection: {},
+        last: null,
       };
     }
     default:

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import Button from './button';
 import { postSync } from '../states/file_system/actions';
+import { deleteSelectedNodes } from '../states/selection/actions';
 
 
 class ActionBar extends React.Component {
@@ -11,12 +12,14 @@ class ActionBar extends React.Component {
     super(props);
 
     this._sync = this._sync.bind(this);
+    this._trash = this._trash.bind(this);
   }
 
   render () {
     return (
       <div className="action-bar">
         <Button onClick={this._sync}>sync</Button>
+        <Button onClick={this._trash}>trash</Button>
       </div>
     );
   }
@@ -26,6 +29,11 @@ class ActionBar extends React.Component {
     sync();
   }
 
+  _trash () {
+    const { trash } = this.props;
+    trash();
+  }
+
 }
 
 
@@ -33,6 +41,9 @@ function mapDispatchToProps (dispatch) {
   return {
     sync () {
       dispatch(postSync());
+    },
+    trash () {
+      dispatch(deleteSelectedNodes());
     },
   };
 }

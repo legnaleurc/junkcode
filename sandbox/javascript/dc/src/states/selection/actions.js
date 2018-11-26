@@ -9,6 +9,9 @@ export const SELECT_MOVE_SUCCEED = 'SELECT_MOVE_SUCCEED';
 export const SELECT_MOVE_FAILED = 'SELECT_MOVE_FAILED';
 export const SELECT_CONTINUOUSLY_TRY = 'SELECT_CONTINUOUSLY_TRY';
 export const SELECT_CONTINUOUSLY_SUCCEED = 'SELECT_CONTINUOUSLY_SUCCEED';
+export const SELECT_DELETE_TRY = 'SELECT_DELETE_TRY';
+export const SELECT_DELETE_SUCCEED = 'SELECT_DELETE_SUCCEED';
+export const SELECT_DELETE_FAILED = 'SELECT_DELETE_FAILED';
 
 
 function getLocalState (state) {
@@ -115,5 +118,44 @@ export function * sagaContinuouslySelect () {
     }
     const list = parent.children.slice(fromIndex, toIndex + 1);
     yield put(continuouslySelectSucceed(list));
+  });
+}
+
+
+export function deleteSelectedNodes () {
+  return {
+    type: SELECT_DELETE_TRY,
+  };
+}
+
+
+function deleteSelectedNodesSucceed () {
+  return {
+    type: SELECT_DELETE_SUCCEED,
+  };
+}
+
+
+function deleteSelectedNodesFailed (message) {
+  return {
+    type: SELECT_DELETE_FAILED,
+    payload: {
+      message,
+    },
+  };
+}
+
+
+export function * sagaDeleteSelectedNodes (fileSystem) {
+  yield takeEvery(SELECT_DELETE_TRY, function * () {
+    try {
+      const { selection } = yield select(getLocalState);
+      const srcList = Object.keys(selection);
+      yield call(() => fileSystem.trash(srcList));
+      yield put(deleteSelectedNodesSucceed());
+    } catch (e) {
+      yield put(deleteSelectedNodesFailed(e.message));
+    }
+    yield put(postSync());
   });
 }

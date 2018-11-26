@@ -37,6 +37,13 @@ export class FileSystem {
     }
   }
 
+  async trash (srcList) {
+    for (const chunk of chunksOf(srcList, 10)) {
+      const requestList = chunk.map(src => this._delete(`/api/v1/nodes/${src}`));
+      await Promise.all(requestList);
+    }
+  }
+
   stream (id) {
     return `${this._baseURL}/api/v1/nodes/${id}/stream`;
   }
@@ -55,6 +62,10 @@ export class FileSystem {
 
   async _patch (path, params) {
     return await this._ajax('PATCH', path, params);
+  }
+
+  async _delete (path, params) {
+    return await this._ajax('DELETE', path, params);
   }
 
   async _ajax (method, path, params) {
