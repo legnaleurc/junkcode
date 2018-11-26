@@ -38,14 +38,14 @@ class Application extends React.Component {
             });
           }}>
             <SwitchBar.Switch name="normal" default>
-              <span>normal</span>
+              <div className="switch normal"></div>
             </SwitchBar.Switch>
             <SwitchBar.Switch name="two-pane">
-              <span>two-pane</span>
+              <div className="switch two-pane"></div>
             </SwitchBar.Switch>
           </SwitchBar>
         </div>
-        <div className="content">
+        <div className="side-content">
           <MutexView selected={this.state.selected}>
             <MutexView.Mutex name="normal">
               <NormalView rootList={rootList} />
@@ -65,16 +65,16 @@ class Application extends React.Component {
 function NormalView (props) {
   const { rootList } = props;
   return (
-    <div className="normal-view">
+    <>
       <div className="header">
         <ActionBar />
       </div>
       <div className="content">
-        <div className="pane">
+        <div className="pane full">
           <FileExplorer root={rootList} />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -82,19 +82,19 @@ function NormalView (props) {
 function TwoPaneView (props) {
   const { rootList } = props;
   return (
-    <div className="two-pane-view">
+    <>
       <div className="header">
         <ActionBar />
       </div>
       <div className="content">
-        <div className="pane">
+        <div className="pane half">
           <FileExplorer root={rootList} />
         </div>
-        <div className="pane">
+        <div className="pane half">
           <FileExplorer root={rootList} />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -1,11 +1,13 @@
 .mutex-view {
 
+  display: contents;
+
   .mutex {
     display: none;
   }
 
   .mutex.active {
-    display: initial;
+    display: contents;
   }
 
 }
