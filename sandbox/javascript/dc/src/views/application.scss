@@ -30,7 +30,7 @@
 
     .content {
       @include size-auto;
-  
+
       @include w-100;
       // IMPORTANT set min-height to have scroll for children
       @include mh-0;
