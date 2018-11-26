@@ -131,6 +131,17 @@ class NodeView(NodeObjectMixin, aw.View):
                 'Access-Control-Allow-Origin': '*',
             })
 
+    @raise_404
+    async def delete(self):
+        node = await self.get_object()
+        drive = self.request.app['drive']
+        await drive.trash_node(node)
+        return aw.Response(
+            status=204,
+            headers={
+                'Access-Control-Allow-Origin': '*',
+            })
+
     async def options(self):
         return aw.Response(
             status=204,
