@@ -169,11 +169,11 @@ export function getSearchName (name) {
 }
 
 
-function getSearchNameSucceed (pathMap) {
+function getSearchNameSucceed (pathList) {
   return {
     type: FS_SEARCH_NAME_SUCCEED,
     payload: {
-      pathMap,
+      pathList,
     },
   };
 }
@@ -193,8 +193,8 @@ export function * sagaGetSearchName (fileSystem) {
   yield takeEvery(FS_SEARCH_NAME_TRY, function * ({ payload }) {
     try {
       const { name } = payload;
-      const pathMap = yield call(() => fileSystem.searchByName(name));
-      yield put(getSearchNameSucceed(pathMap));
+      const pathList = yield call(() => fileSystem.searchByName(name));
+      yield put(getSearchNameSucceed(pathList));
     } catch (e) {
       yield put(getSearchNameFailed(e.message));
     }

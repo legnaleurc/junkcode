@@ -29,10 +29,10 @@ export class FileSystem {
   }
 
   async searchByName (name) {
-    const pathMap = await this._get('/api/v1/nodes', {
+    const pathList = await this._get('/api/v1/nodes', {
       name,
     });
-    return pathMap;
+    return pathList;
   }
 
   async move (srcList, id) {
@@ -80,10 +80,9 @@ export class FileSystem {
     let body = null;
     if (params) {
       if (method === 'GET') {
-        for (const k of Object.keys(params)) {
-          const v = params[k];
-          url.searchParams.append(k, v);
-        }
+        Object.keys(params).forEach(k => {
+          url.searchParams.append(k, params[k]);
+        });
       } else {
         body = JSON.stringify(params);
       }

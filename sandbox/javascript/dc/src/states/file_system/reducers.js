@@ -68,17 +68,9 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       });
     }
     case FS_SEARCH_NAME_SUCCEED: {
-      const { pathMap } = payload;
-      const matched = [];
-      for (const k of Object.keys(pathMap)) {
-        const v = pathMap[k];
-        matched.push({
-          id: k,
-          path: v,
-        });
-      }
+      const { pathList } = payload;
       return Object.assign({}, state, {
-        matched,
+        matched: pathList,
       });
     }
     default:
