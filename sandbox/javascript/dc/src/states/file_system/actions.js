@@ -169,11 +169,11 @@ export function getSearchName (name) {
 }
 
 
-function getSearchNameSucceed (changeList) {
+function getSearchNameSucceed (pathMap) {
   return {
     type: FS_SEARCH_NAME_SUCCEED,
     payload: {
-      changeList,
+      pathMap,
     },
   };
 }

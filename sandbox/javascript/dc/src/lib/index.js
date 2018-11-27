@@ -80,7 +80,8 @@ export class FileSystem {
     let body = null;
     if (params) {
       if (method === 'GET') {
-        for (const [k, v] of params) {
+        for (const k of Object.keys(params)) {
+          const v = params[k];
           url.searchParams.append(k, v);
         }
       } else {

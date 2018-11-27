@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { getSearchName } from '../states/file_system/actions';
+
 
 class SearchList extends React.Component {
 
@@ -14,7 +16,7 @@ class SearchList extends React.Component {
 
   render () {
     return (
-      <div>
+      <div className="search-list">
         <input type="text" onKeyPress={event => {
           if (event.key !== 'Enter') {
             return;
@@ -27,10 +29,27 @@ class SearchList extends React.Component {
   }
 
   _search (text) {
-    console.info('text', text);
+    this.props.searchName(text);
   }
 
 };
 
 
-export default connect()(SearchList);
+function mapStateToProps (state) {
+  const { fileSystem } = state;
+  return {
+    matched: fileSystem.matched,
+  };
+}
+
+
+function mapDispatchToProps (dispatch) {
+  return {
+    searchName (name) {
+      dispatch(getSearchName(name));
+    }
+  };
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchList);

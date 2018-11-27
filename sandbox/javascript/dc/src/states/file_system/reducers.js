@@ -2,6 +2,7 @@ import {
   ROOT_LIST_GET_SUCCEED,
   LIST_GET_SUCCEED,
   SYNC_POST_SUCCEED,
+  FS_SEARCH_NAME_SUCCEED,
 } from './actions';
 
 
@@ -26,15 +27,18 @@ function createNode (node) {
 export default function reduceFileSystem (state = initialState, { type, payload }) {
   switch (type) {
     case ROOT_LIST_GET_SUCCEED: {
-      const { nodes, roots } = state;
+      // root changes means all data need reinitialize
+      const nodes = {};
+      const roots = [];
       for (const node of payload.children) {
         roots.push(node.id);
         nodes[node.id] = createNode(node);
       }
-      return {
-        nodes: Object.assign({}, nodes),
-        roots: [...roots],
-      };
+      return Object.assign({}, state, {
+        nodes,
+        roots,
+        matched: {},
+      });
     }
     case LIST_GET_SUCCEED: {
       const { nodes } = state;
@@ -61,6 +65,12 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       console.info('apply ok');
       return Object.assign({}, state, {
         nodes: Object.assign({}, nodes),
+      });
+    }
+    case FS_SEARCH_NAME_SUCCEED: {
+      const { pathMap } = payload;
+      return Object.assign({}, state, {
+        matched: pathMap,
       });
     }
     default:
