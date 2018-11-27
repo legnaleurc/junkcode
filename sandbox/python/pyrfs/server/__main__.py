@@ -48,7 +48,6 @@ class Daemon(object):
 
         async with wdg.Drive() as drive:
             app['drive'] = drive
-            app['sync_lock'] = asyncio.Lock()
             async with ServerContext(app, self._kwargs.listen):
                 await self._until_finished()
 

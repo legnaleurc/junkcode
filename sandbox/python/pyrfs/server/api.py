@@ -210,9 +210,7 @@ class ChangesView(aw.View):
 
     async def post(self):
         drive = self.request.app['drive']
-        lock = self.request.app['sync_lock']
-        async with lock:
-            changes = [_ async for _ in drive.sync()]
+        changes = [_ async for _ in drive.sync()]
         return json_response(changes)
 
 
