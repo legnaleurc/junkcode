@@ -11,6 +11,9 @@ export const FS_STREAM_URL = 'FS_STREAM_URL';
 export const SYNC_POST_TRY = 'SYNC_POST_TRY';
 export const SYNC_POST_SUCCEED = 'SYNC_POST_SUCCEED';
 export const SYNC_POST_FAILED = 'SYNC_POST_FAILED';
+export const FS_SEARCH_NAME_TRY = 'FS_SEARCH_NAME_TRY';
+export const FS_SEARCH_NAME_SUCCEED = 'FS_SEARCH_NAME_SUCCEED';
+export const FS_SEARCH_NAME_FAILED = 'FS_SEARCH_NAME_FAILED';
 
 
 export function getList (id) {
@@ -151,6 +154,49 @@ export function * sagaPostSync (fileSystem) {
       yield put(postSyncSucceed(changeList));
     } catch (e) {
       yield put(postSyncFailed(e.message));
+    }
+  });
+}
+
+
+export function getSearchName (name) {
+  return {
+    type: FS_SEARCH_NAME_TRY,
+    payload: {
+      name,
+    },
+  };
+}
+
+
+function getSearchNameSucceed (changeList) {
+  return {
+    type: FS_SEARCH_NAME_SUCCEED,
+    payload: {
+      changeList,
+    },
+  };
+}
+
+
+function getSearchNameFailed (message) {
+  return {
+    type: FS_SEARCH_NAME_FAILED,
+    payload: {
+      message,
+    },
+  };
+}
+
+
+export function * sagaGetSearchName (fileSystem) {
+  yield takeEvery(FS_SEARCH_NAME_TRY, function * ({ payload }) {
+    try {
+      const { name } = payload;
+      const pathMap = yield call(() => fileSystem.searchByName(name));
+      yield put(getSearchNameSucceed(pathMap));
+    } catch (e) {
+      yield put(getSearchNameFailed(e.message));
     }
   });
 }

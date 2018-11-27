@@ -28,7 +28,7 @@ export class FileSystem {
     return children;
   }
 
-  async search_by_name (name) {
+  async searchByName (name) {
     const pathMap = await this._get('/api/v1/nodes', {
       name,
     });
