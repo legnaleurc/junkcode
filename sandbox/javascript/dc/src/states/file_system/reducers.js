@@ -8,6 +8,7 @@ import {
 const initialState = {
   nodes: {},
   roots: [],
+  matched: {},
 };
 
 
