@@ -9,7 +9,7 @@ from aiohttp import web as aw
 import wcpan.drive.google as wdg
 from wcpan.logger import setup as setup_logger, INFO, EXCEPTION
 
-from . import api
+from . import api, util
 
 
 class Daemon(object):
@@ -48,6 +48,7 @@ class Daemon(object):
 
         async with wdg.Drive() as drive:
             app['drive'] = drive
+            app['se'] = util.SearchEngine(drive)
             async with ServerContext(app, self._kwargs.listen):
                 await self._until_finished()
 
