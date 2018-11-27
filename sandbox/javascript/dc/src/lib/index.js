@@ -28,6 +28,13 @@ export class FileSystem {
     return children;
   }
 
+  async search_by_name (name) {
+    const pathMap = await this._get('/api/v1/nodes', {
+      name,
+    });
+    return pathMap;
+  }
+
   async move (srcList, id) {
     for (const chunk of chunksOf(srcList, 10)) {
       const requestList = chunk.map(src => this._patch(`/api/v1/nodes/${src}`, {
