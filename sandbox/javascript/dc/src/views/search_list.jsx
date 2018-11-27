@@ -24,6 +24,11 @@ class SearchList extends React.Component {
           event.preventDefault();
           this._search(event.target.value);
         }} />
+        <div>
+          {this.props.matched.map(({id, path}) => (
+            <p key={id}><code>{path}</code></p>
+          ))}
+        </div>
       </div>
     );
   }

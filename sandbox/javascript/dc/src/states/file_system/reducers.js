@@ -9,7 +9,7 @@ import {
 const initialState = {
   nodes: {},
   roots: [],
-  matched: {},
+  matched: [],
 };
 
 
@@ -37,7 +37,7 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       return Object.assign({}, state, {
         nodes,
         roots,
-        matched: {},
+        matched: [],
       });
     }
     case LIST_GET_SUCCEED: {
@@ -69,8 +69,16 @@ export default function reduceFileSystem (state = initialState, { type, payload 
     }
     case FS_SEARCH_NAME_SUCCEED: {
       const { pathMap } = payload;
+      const matched = [];
+      for (const k of Object.keys(pathMap)) {
+        const v = pathMap[k];
+        matched.push({
+          id: k,
+          path: v,
+        });
+      }
       return Object.assign({}, state, {
-        matched: pathMap,
+        matched,
       });
     }
     default:
