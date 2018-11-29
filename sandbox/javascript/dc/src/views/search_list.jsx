@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { getSearchName } from '../states/file_system/actions';
+import { getSearchName, getStreamUrl } from '../states/file_system/actions';
 
 
 class SearchList extends React.Component {
@@ -26,7 +26,15 @@ class SearchList extends React.Component {
         }} />
         <div>
           {this.props.matched.map(({id, path}) => (
-            <p key={id}><code>{path}</code></p>
+            <p
+              key={id}
+              onDoubleClick={event => {
+                event.preventDefault();
+                this._openFile(id);
+              }}
+            >
+              <code>{path}</code>
+            </p>
           ))}
         </div>
       </div>
@@ -37,7 +45,23 @@ class SearchList extends React.Component {
     this.props.searchName(text);
   }
 
+  _openFile (nodeId) {
+    const { getFileUrl } = this.props;
+    getFileUrl(nodeId, openUrl);
+  }
+
 };
+
+
+function openUrl (url) {
+  function onCopy (event) {
+    event.preventDefault();
+    event.clipboardData.setData('text/plain', url);
+    document.removeEventListener('copy', onCopy);
+  }
+  document.addEventListener('copy', onCopy);
+  document.execCommand('copy');
+}
 
 
 function mapStateToProps (state) {
@@ -52,7 +76,10 @@ function mapDispatchToProps (dispatch) {
   return {
     searchName (name) {
       dispatch(getSearchName(name));
-    }
+    },
+    getFileUrl (id, done) {
+      dispatch(getStreamUrl(id, done));
+    },
   };
 }
 
