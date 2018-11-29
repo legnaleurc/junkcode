@@ -139,6 +139,9 @@ class NodeView(NodeObjectMixin, aw.View):
     async def delete(self):
         node = await self.get_object()
         drive = self.request.app['drive']
+        se = self.request.app['se']
+        path = await drive.get_path(node)
+        se.drop_value(path)
         await drive.trash_node(node)
         return aw.Response(
             status=204,
@@ -221,6 +224,8 @@ class ChangesView(aw.View):
 
     async def post(self):
         drive = self.request.app['drive']
+        se = self.request.app['se']
+        await se.clear_cache()
         changes = [_ async for _ in drive.sync()]
         return json_response(changes)
 
