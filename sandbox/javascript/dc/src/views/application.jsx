@@ -5,6 +5,7 @@ import { hot } from 'react-hot-loader';
 import ActionBar from './action_bar';
 import FileExplorer from './file_explorer';
 import SearchList from './search_list';
+import ComicView from './comic_view';
 import SwitchBar from './switch_bar';
 import MutexView from './mutex_view';
 import { getRootList } from '../states/file_system/actions';
@@ -47,6 +48,9 @@ class Application extends React.Component {
             <SwitchBar.Switch name="two-pane">
               <div className="switch two-pane"></div>
             </SwitchBar.Switch>
+            <SwitchBar.Switch name="comic">
+              <div className="switch comic"></div>
+            </SwitchBar.Switch>
           </SwitchBar>
         </div>
         <div className="side-content">
@@ -59,6 +63,9 @@ class Application extends React.Component {
             </MutexView.Mutex>
             <MutexView.Mutex name="two-pane">
               <TwoPaneView rootList={rootList} />
+            </MutexView.Mutex>
+            <MutexView.Mutex name="comic">
+              <ComicView />
             </MutexView.Mutex>
           </MutexView>
         </div>
