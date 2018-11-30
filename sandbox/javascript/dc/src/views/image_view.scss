@@ -1,0 +1,13 @@
+.image-view {
+  width: 200px;
+  height: 200px;
+
+  background-color: aqua;
+  border-width: 10px;
+  border-color: black;
+  border-style: solid;
+
+  &.active {
+    background-color: pink;
+  }
+}
