@@ -1,5 +1,5 @@
 import {
-  ROOT_LIST_GET_SUCCEED,
+  FS_ROOT_GET_SUCCEED,
   LIST_GET_SUCCEED,
   SYNC_POST_SUCCEED,
   FS_SEARCH_NAME_SUCCEED,
@@ -8,7 +8,7 @@ import {
 
 const initialState = {
   nodes: {},
-  roots: [],
+  rootId: null,
   matched: [],
 };
 
@@ -26,17 +26,14 @@ function createNode (node) {
 
 export default function reduceFileSystem (state = initialState, { type, payload }) {
   switch (type) {
-    case ROOT_LIST_GET_SUCCEED: {
+    case FS_ROOT_GET_SUCCEED: {
+      const { node } = payload;
       // root changes means all data need reinitialize
-      const nodes = {};
-      const roots = [];
-      for (const node of payload.children) {
-        roots.push(node.id);
-        nodes[node.id] = createNode(node);
-      }
       return Object.assign({}, state, {
-        nodes,
-        roots,
+        nodes: {
+          [node.id]: createNode(node),
+        },
+        rootId: node.id,
         matched: [],
       });
     }

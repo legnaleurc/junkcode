@@ -2,7 +2,7 @@ import { all } from 'redux-saga/effects';
 
 import {
   sagaGetList,
-  sagaGetRootList,
+  sagaGetRoot,
   sagaGetStreamUrl,
   sagaPostSync,
   sagaGetSearchName,
@@ -16,7 +16,7 @@ import {
 export default function * ({ fileSystem }) {
   yield all([
     sagaGetList(fileSystem),
-    sagaGetRootList(fileSystem),
+    sagaGetRoot(fileSystem),
     sagaGetStreamUrl(fileSystem),
     sagaPostSync(fileSystem),
     sagaGetSearchName(fileSystem),

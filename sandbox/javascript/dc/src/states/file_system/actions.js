@@ -4,9 +4,9 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 export const LIST_GET_TRY = 'LIST_GET_TRY';
 export const LIST_GET_SUCCEED = 'LIST_GET_SUCCEED';
 export const LIST_GET_FAILED = 'LIST_GET_FAILED';
-export const ROOT_LIST_GET_TRY = 'ROOT_LIST_GET_TRY';
-export const ROOT_LIST_GET_SUCCEED = 'ROOT_LIST_GET_SUCCEED';
-export const ROOT_LIST_GET_FAILED = 'ROOT_LIST_GET_FAILED';
+export const FS_ROOT_GET_TRY = 'FS_ROOT_GET_TRY';
+export const FS_ROOT_GET_SUCCEED = 'FS_ROOT_GET_SUCCEED';
+export const FS_ROOT_GET_FAILED = 'FS_ROOT_GET_FAILED';
 export const FS_STREAM_URL = 'FS_STREAM_URL';
 export const SYNC_POST_TRY = 'SYNC_POST_TRY';
 export const SYNC_POST_SUCCEED = 'SYNC_POST_SUCCEED';
@@ -60,26 +60,26 @@ export function * sagaGetList (fileSystem) {
 }
 
 
-export function getRootList () {
+export function getRoot () {
   return {
-    type: ROOT_LIST_GET_TRY,
+    type: FS_ROOT_GET_TRY,
   };
 }
 
 
-function getRootListSucceed (children) {
+function getRootSucceed (node) {
   return {
-    type: ROOT_LIST_GET_SUCCEED,
+    type: FS_ROOT_GET_SUCCEED,
     payload: {
-      children,
+      node,
     },
   };
 }
 
 
-function getRootListFailed (message) {
+function getRootFailed (message) {
   return {
-    type: ROOT_LIST_GET_FAILED,
+    type: FS_ROOT_GET_FAILED,
     payload: {
       message,
     },
@@ -87,14 +87,13 @@ function getRootListFailed (message) {
 }
 
 
-export function * sagaGetRootList (fileSystem) {
-  yield takeEvery(ROOT_LIST_GET_TRY, function * () {
+export function * sagaGetRoot (fileSystem) {
+  yield takeEvery(FS_ROOT_GET_TRY, function * () {
     try {
-      const id = yield call(() => fileSystem.root());
-      const children = yield call(() => fileSystem.list(id));
-      yield put(getRootListSucceed(children));
+      const node = yield call(() => fileSystem.root());
+      yield put(getRootSucceed(node));
     } catch (e) {
-      yield put(getRootListFailed(e.message));
+      yield put(getRootFailed(e.message));
     }
   });
 }

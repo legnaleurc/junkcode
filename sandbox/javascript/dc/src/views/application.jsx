@@ -8,7 +8,7 @@ import SearchList from './search_list';
 import ComicView from './comic_view';
 import SwitchBar from './switch_bar';
 import MutexView from './mutex_view';
-import { getRootList } from '../states/file_system/actions';
+import { getRoot } from '../states/file_system/actions';
 
 import './application.scss';
 
@@ -24,13 +24,13 @@ class Application extends React.Component {
   }
 
   componentDidMount() {
-    const { getRoots } = this.props;
+    const { getRoot } = this.props;
 
-    getRoots();
+    getRoot();
   }
 
   render () {
-    const { rootList } = this.props;
+    const { rootId } = this.props;
     return (
       <div className="application">
         <div className="side-bar">
@@ -56,13 +56,13 @@ class Application extends React.Component {
         <div className="side-content">
           <MutexView selected={this.state.selected}>
             <MutexView.Mutex name="normal">
-              <NormalView rootList={rootList} />
+              <NormalView rootId={rootId} />
             </MutexView.Mutex>
             <MutexView.Mutex name="search">
               <SearchList />
             </MutexView.Mutex>
             <MutexView.Mutex name="two-pane">
-              <TwoPaneView rootList={rootList} />
+              <TwoPaneView rootId={rootId} />
             </MutexView.Mutex>
             <MutexView.Mutex name="comic">
               <ComicView />
@@ -77,7 +77,7 @@ class Application extends React.Component {
 
 
 function NormalView (props) {
-  const { rootList } = props;
+  const { rootId } = props;
   return (
     <>
       <div className="header">
@@ -85,7 +85,7 @@ function NormalView (props) {
       </div>
       <div className="content">
         <div className="pane full">
-          <FileExplorer root={rootList} />
+          <FileExplorer rootId={rootId} />
         </div>
       </div>
     </>
@@ -94,7 +94,7 @@ function NormalView (props) {
 
 
 function TwoPaneView (props) {
-  const { rootList } = props;
+  const { rootId } = props;
   return (
     <>
       <div className="header">
@@ -102,10 +102,10 @@ function TwoPaneView (props) {
       </div>
       <div className="content">
         <div className="pane half">
-          <FileExplorer root={rootList} />
+          <FileExplorer rootId={rootId} />
         </div>
         <div className="pane half">
-          <FileExplorer root={rootList} />
+          <FileExplorer rootId={rootId} />
         </div>
       </div>
     </>
@@ -115,15 +115,15 @@ function TwoPaneView (props) {
 
 function mapStateToProps (state) {
   return {
-    rootList: state.fileSystem.roots,
+    rootId: state.fileSystem.rootId,
   };
 }
 
 
 function mapDispatchToProps (dispatch) {
   return {
-    getRoots () {
-      dispatch(getRootList());
+    getRoot () {
+      dispatch(getRoot());
     },
   };
 }

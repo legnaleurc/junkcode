@@ -10,6 +10,8 @@ class FileExplorer extends React.Component {
   }
 
   render () {
+    const { rootId } = this.props;
+    return rootId ? <TreeNode nodeId={rootId} /> : null;
     const { root } = this.props;
     if (!Array.isArray(root)) {
       return <TreeNode nodeId={root} />;
