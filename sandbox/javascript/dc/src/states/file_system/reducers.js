@@ -13,17 +13,6 @@ const initialState = {
 };
 
 
-function createNode (node) {
-  return {
-    id: node.id,
-    name: node.name,
-    parentId: getParentId(node),
-    children: node.is_folder ? [] : null,
-    fetched: false,
-  };
-}
-
-
 export default function reduceFileSystem (state = initialState, { type, payload }) {
   switch (type) {
     case FS_ROOT_GET_SUCCEED: {
@@ -84,6 +73,17 @@ export default function reduceFileSystem (state = initialState, { type, payload 
     default:
       return state;
   }
+}
+
+
+function createNode (node) {
+  return {
+    id: node.id,
+    name: node.name,
+    parentId: getParentId(node),
+    children: node.is_folder ? [] : null,
+    fetched: false,
+  };
 }
 
 
