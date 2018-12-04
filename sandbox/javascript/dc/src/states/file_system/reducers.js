@@ -123,6 +123,7 @@ function upsertNode (nodes, node) {
       parent = Object.assign({}, parent, {
         children: [newNode.id, ...parent.children],
       });
+      nodes[newNode.parentId] = parent;
     }
     nodes[newNode.id] = newNode;
     return;
