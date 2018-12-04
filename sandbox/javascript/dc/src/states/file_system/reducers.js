@@ -55,11 +55,9 @@ export default function reduceFileSystem (state = initialState, { type, payload 
     case SYNC_POST_SUCCEED: {
       const { nodes } = state;
       const { changeList } = payload;
-      console.info('apply start');
       for (const change of changeList) {
         applyChange(nodes, change);
       }
-      console.info('apply ok');
       return Object.assign({}, state, {
         nodes: Object.assign({}, nodes),
       });
