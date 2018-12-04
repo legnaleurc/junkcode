@@ -17,7 +17,7 @@ function createNode (node) {
   return {
     id: node.id,
     name: node.name,
-    parent_id: node.parent_id,
+    parentId: getParentId(node),
     children: node.is_folder ? [] : null,
     fetched: false,
   };
@@ -98,12 +98,13 @@ function applyChange (nodes, change) {
 
 function removeNode (nodes, nodeId) {
   const node = nodes[nodeId];
-  let parent = nodes[node.parent_id];
+  const parentId = getParentId(node);
+  let parent = nodes[parentId];
   if (parent) {
     parent = Object.assign({}, parent, {
       children: parent.children.filter(id => id !== nodeId),
     });
-    nodes[node.parent_id] = parent;
+    nodes[parentId] = parent;
   }
   delete nodes[nodeId];
 }
@@ -117,7 +118,7 @@ function upsertNode (nodes, node) {
   // this is a new node
   if (!node) {
     // if have parent and already fetched chilidren, need to update the list
-    let parent = nodes[newNode.parent_id];
+    let parent = nodes[newNode.parentId];
     if (parent && parent.fetched) {
       parent = Object.assign({}, parent, {
         children: [newNode.id, ...parent.children],
@@ -128,23 +129,36 @@ function upsertNode (nodes, node) {
   }
 
   // this is an existing node
-  if (node.parent_id !== newNode.parent_id) {
+  if (node.parentId !== newNode.parentId) {
     // remove child from old parent
-    let parent = nodes[node.parent_id];
+    let parent = nodes[node.parentId];
     if (parent && parent.fetched) {
       parent = Object.assign({}, parent, {
         children: parent.children.filter(id => id !== node.id),
       });
-      nodes[node.parent_id] = parent;
+      nodes[node.parentId] = parent;
     }
     // insert to new parent
-    parent = nodes[newNode.parent_id];
+    parent = nodes[newNode.parentId];
     if (parent && parent.fetched) {
       parent = Object.assign({}, parent, {
         children: [newNode.id, ...parent.children],
       });
-      nodes[newNode.parent_id] = parent;
+      nodes[newNode.parentId] = parent;
     }
   }
   nodes[newNode.id] = newNode;
+}
+
+
+function getParentId (rawNode) {
+  let p = rawNode.parent_id;
+  if (p) {
+    return p;
+  }
+  p = rawNode.parent_list;
+  if (!p || p.length <= 0) {
+    return null;
+  }
+  return p[0];
 }
