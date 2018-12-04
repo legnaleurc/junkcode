@@ -1,9 +1,9 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 
 
-export const LIST_GET_TRY = 'LIST_GET_TRY';
-export const LIST_GET_SUCCEED = 'LIST_GET_SUCCEED';
-export const LIST_GET_FAILED = 'LIST_GET_FAILED';
+export const FS_LIST_GET_TRY = 'FS_LIST_GET_TRY';
+export const FS_LIST_GET_SUCCEED = 'FS_LIST_GET_SUCCEED';
+export const FS_LIST_GET_FAILED = 'FS_LIST_GET_FAILED';
 export const FS_ROOT_GET_TRY = 'FS_ROOT_GET_TRY';
 export const FS_ROOT_GET_SUCCEED = 'FS_ROOT_GET_SUCCEED';
 export const FS_ROOT_GET_FAILED = 'FS_ROOT_GET_FAILED';
@@ -18,7 +18,7 @@ export const FS_SEARCH_NAME_FAILED = 'FS_SEARCH_NAME_FAILED';
 
 export function getList (id) {
   return {
-    type: LIST_GET_TRY,
+    type: FS_LIST_GET_TRY,
     payload: {
       id,
     },
@@ -28,7 +28,7 @@ export function getList (id) {
 
 function getListSucceed (id, children) {
   return {
-    type: LIST_GET_SUCCEED,
+    type: FS_LIST_GET_SUCCEED,
     payload: {
       id,
       children,
@@ -39,7 +39,7 @@ function getListSucceed (id, children) {
 
 function getListFailed (message) {
   return {
-    type: LIST_GET_FAILED,
+    type: FS_LIST_GET_FAILED,
     payload: {
       message,
     },
@@ -48,7 +48,7 @@ function getListFailed (message) {
 
 
 export function * sagaGetList (fileSystem) {
-  yield takeEvery(LIST_GET_TRY, function * ({ payload }) {
+  yield takeEvery(FS_LIST_GET_TRY, function * ({ payload }) {
     const { id } = payload;
     try {
       const children = yield call(() => fileSystem.list(id));

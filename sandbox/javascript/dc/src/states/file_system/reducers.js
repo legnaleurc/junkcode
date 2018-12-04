@@ -1,6 +1,6 @@
 import {
   FS_ROOT_GET_SUCCEED,
-  LIST_GET_SUCCEED,
+  FS_LIST_GET_SUCCEED,
   SYNC_POST_SUCCEED,
   FS_SEARCH_NAME_SUCCEED,
 } from './actions';
@@ -37,7 +37,7 @@ export default function reduceFileSystem (state = initialState, { type, payload 
         matched: [],
       });
     }
-    case LIST_GET_SUCCEED: {
+    case FS_LIST_GET_SUCCEED: {
       const { nodes } = state;
       const { id, children } = payload;
       for (const node of children) {
