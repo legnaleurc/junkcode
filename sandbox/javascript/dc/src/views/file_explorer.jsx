@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { getList } from '../states/file_system/actions';
 import TreeNode from './tree_node';
 
 
@@ -42,13 +41,4 @@ function mapStateToProps (state, ownProps) {
 }
 
 
-function mapDispatchToProps (dispatch) {
-  return {
-    getChildren (id) {
-      dispatch(getList(id));
-    },
-  };
-}
-
-
-export default connect(mapStateToProps, mapDispatchToProps)(FileExplorer);
+export default connect(mapStateToProps)(FileExplorer);
