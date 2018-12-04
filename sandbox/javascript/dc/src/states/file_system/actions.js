@@ -67,11 +67,12 @@ export function getRoot () {
 }
 
 
-function getRootSucceed (node) {
+function getRootSucceed (node, children) {
   return {
     type: FS_ROOT_GET_SUCCEED,
     payload: {
       node,
+      children,
     },
   };
 }
@@ -91,7 +92,8 @@ export function * sagaGetRoot (fileSystem) {
   yield takeEvery(FS_ROOT_GET_TRY, function * () {
     try {
       const node = yield call(() => fileSystem.root());
-      yield put(getRootSucceed(node));
+      const children = yield call(() => fileSystem.list(node.id));
+      yield put(getRootSucceed(node, children));
     } catch (e) {
       yield put(getRootFailed(e.message));
     }

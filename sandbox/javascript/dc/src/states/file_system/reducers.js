@@ -27,12 +27,23 @@ function createNode (node) {
 export default function reduceFileSystem (state = initialState, { type, payload }) {
   switch (type) {
     case FS_ROOT_GET_SUCCEED: {
-      const { node } = payload;
+      let { node } = payload;
+      const { children } = payload;
+
+      node = createNode(node);
+      node.fetched = true;
+      node.children = children.map(node => node.id);
+      const nodes = {
+        [node.id]: node,
+      };
+
+      for (const node of children) {
+        nodes[node.id] = createNode(node);
+      }
+
       // root changes means all data need reinitialize
       return Object.assign({}, state, {
-        nodes: {
-          [node.id]: createNode(node),
-        },
+        nodes,
         rootId: node.id,
         matched: [],
       });

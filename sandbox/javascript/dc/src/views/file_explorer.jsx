@@ -11,13 +11,6 @@ class FileExplorer extends React.Component {
     super(props);
   }
 
-  componentDidUpdate () {
-    const { root, getChildren } = this.props;
-    if (root && !root.fetched) {
-      getChildren(root.id);
-    }
-  }
-
   render () {
     const { root } = this.props;
     if (!root) {
