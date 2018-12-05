@@ -10,17 +10,7 @@ $indicator-size: 16px;
     size: large;
   }
 
-  border: {
-    width: 1px;
-    style: solid;
-    color: white;
-  }
-
   @include vbox;
-
-  &.drag-over {
-    border-color: blue;
-  }
 
   > .head {
     @include hbox;

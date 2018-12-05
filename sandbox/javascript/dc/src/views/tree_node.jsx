@@ -8,6 +8,7 @@ import {
   continuouslySelect,
   moveSelectedNodesTo,
 } from '../states/selection/actions';
+import DragDrop from './dragdrop';
 
 import './tree_node.scss';
 
@@ -19,62 +20,52 @@ class TreeNode extends React.Component {
 
     this.state = {
       expended: false,
-      dragOver: false,
     };
 
     this._onDragStart = this._onDragStart.bind(this);
-    this._onDragEnter = this._onDragEnter.bind(this);
-    this._onDragOver = this._onDragOver.bind(this);
-    this._onDragLeave = this._onDragLeave.bind(this);
     this._onDrop = this._onDrop.bind(this);
-
-    this._dragCounter = 0;
   }
 
   render () {
     const { node, selected } = this.props;
-    const { dragOver } = this.state;
     return (
-      <Dragable
+      <DragDrop.Dragable
         enabled={selected}
         onDragStart={this._onDragStart}
-        onDragEnter={this._onDragEnter}
-        onDragOver={this._onDragOver}
-        onDragLeave={this._onDragLeave}
-        onDrop={this._onDrop}
       >
-        <div className={classNameFromObject({
-          'tree-node': true,
-          'drag-over': dragOver,
-        })}>
-          <div className={classNameFromObject({
-            head: true,
-            selected,
-          })}>
-            {this._renderIndicator()}
-            <div
-              className={classNameFromObject({
-                shift: !node.children,
-              })}
-              onClick={event => {
-                event.preventDefault();
-                if (event.shiftKey) {
-                  this._continuouslySelect();
-                } else {
-                  this._toggleSelection();
-                }
-              }}
-              onDoubleClick={event => {
-                event.preventDefault();
-                this._openFile();
-              }}
-            >
-              {node.name}
+        <DragDrop.Dropable
+          onDrop={this._onDrop}
+        >
+          <div className="tree-node">
+            <div className={classNameFromObject({
+              head: true,
+              selected,
+            })}>
+              {this._renderIndicator()}
+              <div
+                className={classNameFromObject({
+                  shift: !node.children,
+                })}
+                onClick={event => {
+                  event.preventDefault();
+                  if (event.shiftKey) {
+                    this._continuouslySelect();
+                  } else {
+                    this._toggleSelection();
+                  }
+                }}
+                onDoubleClick={event => {
+                  event.preventDefault();
+                  this._openFile();
+                }}
+              >
+                {node.name}
+              </div>
             </div>
+            {this._renderChildren()}
           </div>
-          {this._renderChildren()}
-        </div>
-      </Dragable>
+        </DragDrop.Dropable>
+      </DragDrop.Dragable>
     );
   }
 
@@ -149,46 +140,12 @@ class TreeNode extends React.Component {
   }
 
   _onDragStart (event) {
-    event.stopPropagation();
     const { node } = this.props;
     event.dataTransfer.dropEffect = 'copy';
     event.dataTransfer.setData('text/plain', node.id);
   }
 
-  _onDragEnter (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (this._dragCounter === 0) {
-      this.setState({
-        dragOver: true,
-      });
-    }
-    this._dragCounter += 1;
-  }
-
-  _onDragLeave (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this._dragCounter -= 1;
-    if (this._dragCounter === 0) {
-      this.setState({
-        dragOver: false,
-      });
-    }
-  }
-
-  _onDragOver (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
   _onDrop (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this._dragCounter = 0;
-    this.setState({
-      dragOver: false,
-    });
     const { node, moveSelectedNodesTo } = this.props;
     if (node.children) {
       moveSelectedNodesTo(node.id);
@@ -216,39 +173,6 @@ function openUrl (url) {
   }
   document.addEventListener('copy', onCopy);
   document.execCommand('copy');
-}
-
-
-class Dragable extends React.Component {
-
-  constructor (props) {
-    super(props);
-  }
-
-  render() {
-    const {
-      enabled,
-      children,
-      onDragStart,
-      onDragEnter,
-      onDragOver,
-      onDragLeave,
-      onDrop,
-    } = this.props;
-    return (
-      <div
-        draggable={enabled}
-        onDragStart={onDragStart}
-        onDragEnter={onDragEnter}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-      >
-        {children}
-      </div>
-    );
-  }
-
 }
 
 

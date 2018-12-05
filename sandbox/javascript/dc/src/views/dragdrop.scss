@@ -1,0 +1,11 @@
+.dropable {
+  border: {
+    width: 1px;
+    style: solid;
+    color: white;
+  }
+
+  &.drag-over {
+    border-color: blue;
+  }
+}
