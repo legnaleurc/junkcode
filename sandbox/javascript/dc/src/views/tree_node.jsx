@@ -29,14 +29,14 @@ class TreeNode extends React.Component {
   render () {
     const { node, selected } = this.props;
     return (
-      <DragDrop.Dragable
-        enabled={selected}
-        onDragStart={this._onDragStart}
-      >
-        <DragDrop.Dropable
-          onDrop={this._onDrop}
+      <div className="tree-node">
+        <DragDrop.Dragable
+          enabled={selected}
+          onDragStart={this._onDragStart}
         >
-          <div className="tree-node">
+          <DragDrop.Dropable
+            onDrop={this._onDrop}
+          >
             <div className={classNameFromObject({
               head: true,
               selected,
@@ -63,9 +63,9 @@ class TreeNode extends React.Component {
               </div>
             </div>
             {this._renderChildren()}
-          </div>
-        </DragDrop.Dropable>
-      </DragDrop.Dragable>
+          </DragDrop.Dropable>
+        </DragDrop.Dragable>
+      </div>
     );
   }
 

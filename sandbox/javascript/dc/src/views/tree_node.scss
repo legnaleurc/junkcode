@@ -12,7 +12,7 @@ $indicator-size: 16px;
 
   @include vbox;
 
-  > .head {
+  .head {
     @include hbox;
     flex-wrap: nowrap;
 
@@ -32,7 +32,7 @@ $indicator-size: 16px;
     }
   }
 
-  > .tail {
+  .tail {
     padding-left: $indicator-size;
 
     @include vbox;
