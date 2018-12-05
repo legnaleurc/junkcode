@@ -4,11 +4,10 @@ import { connect } from 'react-redux';
 import { classNameFromObject } from '../lib';
 import { getList, getStreamUrl } from '../states/file_system/actions';
 import {
-  toggleSelection,
-  continuouslySelect,
   moveSelectedNodesTo,
 } from '../states/selection/actions';
 import DragDrop from './dragdrop';
+import Selectable from './selectable';
 
 import './tree_node.scss';
 
@@ -46,20 +45,14 @@ class TreeNode extends React.Component {
                 className={classNameFromObject({
                   shift: !node.children,
                 })}
-                onClick={event => {
-                  event.preventDefault();
-                  if (event.shiftKey) {
-                    this._continuouslySelect();
-                  } else {
-                    this._toggleSelection();
-                  }
-                }}
                 onDoubleClick={event => {
                   event.preventDefault();
                   this._openFile();
                 }}
               >
-                {node.name}
+                <Selectable nodeId={node.id}>
+                  {node.name}
+                </Selectable>
               </div>
             </div>
             {this._renderChildren()}
@@ -129,16 +122,6 @@ class TreeNode extends React.Component {
     getFileUrl(node.id, openUrl);
   }
 
-  _toggleSelection () {
-    const { node, toggleSelection } = this.props;
-    toggleSelection(node.id);
-  }
-
-  _continuouslySelect() {
-    const { node, continuouslySelect } = this.props;
-    continuouslySelect(node.id);
-  }
-
   _onDragStart (event) {
     const { node } = this.props;
     event.dataTransfer.dropEffect = 'copy';
@@ -194,12 +177,6 @@ function mapDispatchToProps (dispatch, ownProps) {
     },
     getFileUrl (id, done) {
       dispatch(getStreamUrl(id, done));
-    },
-    toggleSelection (id) {
-      dispatch(toggleSelection(id));
-    },
-    continuouslySelect (id) {
-      dispatch(continuouslySelect(id));
     },
     moveSelectedNodesTo (id) {
       dispatch(moveSelectedNodesTo(id));
