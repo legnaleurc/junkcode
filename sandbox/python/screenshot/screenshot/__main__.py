@@ -59,7 +59,7 @@ def drive_open():
 def main():
     loop = aio.get_event_loop()
     with drive_open() as drive:
-        f = drive.get_node_by_path('/tmp/0511star910/star910-5.mp4')
+        f = drive.get_node_by_path('xxx')
         node = loop.run_until_complete(f)
         f = drive.download(node)
         stream = loop.run_until_complete(f)
