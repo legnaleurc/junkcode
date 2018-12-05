@@ -150,7 +150,7 @@ class TreeNode extends React.Component {
     if (node.children) {
       moveSelectedNodesTo(node.id);
     } else {
-      moveSelectedNodesTo(node.parent_id);
+      moveSelectedNodesTo(node.parentId);
     }
   }
 
