@@ -2,9 +2,11 @@
 
 #include <Python.h>
 
+#include "unpack.h"
+
 
 static PyObject *
-unpack_to(PyObject * self, PyObject * args) {
+py_unpack_to(PyObject * self, PyObject * args) {
     int port = 0;
     const char * http_path = NULL;
     const char * output_path = NULL;
@@ -13,14 +15,14 @@ unpack_to(PyObject * self, PyObject * args) {
         return NULL;
     }
 
-    printf("%d, %s, %s\n", port, http_path, output_path);
+    unpack_to(port, http_path, output_path);
 
     Py_RETURN_NONE;
 }
 
 
 static PyMethodDef unpack_methods[] = {
-    {"unpack_to",  unpack_to, METH_VARARGS,
+    {"unpack_to",  py_unpack_to, METH_VARARGS,
      "Extract archive online."},
     {NULL, NULL, 0, NULL},
 };

@@ -6,7 +6,11 @@ from setuptools import setup, Extension
 unpack = Extension(
     '_unpack',
     sources=[
-        'unpack/unpack.c',
+        'unpack/glue.c',
+        'unpack/unpack.cpp',
+    ],
+    libraries=[
+        'archive',
     ],
 )
 
