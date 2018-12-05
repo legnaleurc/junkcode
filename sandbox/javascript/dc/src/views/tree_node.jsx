@@ -141,10 +141,15 @@ class TreeNode extends React.Component {
 
 
 function Indicator (props) {
-  return <div className={classNameFromObject({
-    indicator: true,
-    expended: props.expended,
-  })} onClick={props.onClick} />;
+  return (
+    <div
+      className={classNameFromObject({
+        indicator: true,
+        expended: props.expended,
+      })}
+      onClick={props.onClick}
+    />
+  );
 }
 
 
