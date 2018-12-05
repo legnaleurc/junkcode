@@ -3,6 +3,13 @@ import re
 
 from wcpan.logger import EXCEPTION
 
+try:
+    import _unpack
+    print(_unpack.unpack_to)
+    _unpack.unpack_to(9000, '/api/v1/<id>/stream', '/tmp/_xxxx')
+except Exception as e:
+    print(e)
+
 
 class InvalidPatternError(Exception):
 
