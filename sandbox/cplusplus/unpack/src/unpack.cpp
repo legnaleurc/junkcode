@@ -8,10 +8,17 @@
 #include <cassert>
 
 
-struct Context {
+class Context {
+public:
+    Context (const std::string & url);
+
+    web::http::http_response & getResponse ();
+
+private:
     std::string url;
-    std::string path;
-    web::http::http_response & getResponse();
+    web::http::http_response response;
+    uint64_t offset;
+    uint64_t length;
 };
 
 
@@ -32,7 +39,7 @@ la_int64_t seekCallback (struct archive * handle, void * context,
 
 
 void unpack_to (const std::string & url, const std::string & path) {
-    ContextHandle context = std::make_shared<Context>();
+    ContextHandle context = std::make_shared<Context>(url);
     auto reader = createArchiveReader(context);
     auto writer = createDiskWriter();
 
@@ -145,4 +152,33 @@ la_int64_t seekCallback (struct archive * handle, void * context,
 {
     printf("seek %lld %d\n", offset, whence);
     return 0;
+}
+
+
+Context::Context (const std::string & url)
+    : url(url)
+    , response()
+    , offset(0)
+    , length(0)
+{}
+
+
+web::http::http_response &
+Context::getResponse () {
+    auto status = this->response.status_code();
+    if (status == web::http::status_codes::OK) {
+        return this->response;
+    }
+
+    web::http::http_request request;
+    request.set_method(web::http::methods::GET);
+    request.set_request_uri(this->url);
+    if (this->length > 0) {
+        request.headers().add("Range", "");
+    }
+
+    web::http::client::http_client client(this->url);
+    this->response = client.request(request).get();
+    this->length = this->response.headers().content_length();
+    return this->response;
 }
