@@ -1,17 +1,12 @@
 #include "unpack.hpp"
 
-#include <string>
-
 
 int main (int argc, char * argv[]) {
     if (argc != 3) {
         return 1;
     }
 
-    std::string url = argv[1];
-    std::string path = argv[2];
-
-    ;
+    unpack_to(argv[1], argv[2]);
 
     return 0;
 }
