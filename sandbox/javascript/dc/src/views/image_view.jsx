@@ -31,7 +31,7 @@ class ImageView extends React.Component {
 
   componentDidMount () {
     // this._observer.observe(this._root.current);
-    const { nodeId, index } = this.props;
+    const { getImageUrl, nodeId, index } = this.props;
     getImageUrl(nodeId, index, this._setImageUrl);
   }
 
@@ -40,7 +40,7 @@ class ImageView extends React.Component {
   }
 
   render () {
-    const { index, width, height } = this.props;
+    const { width, height } = this.props;
     return (
       <div
         className="image-view"
