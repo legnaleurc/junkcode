@@ -36,7 +36,7 @@ using ArchiveHandle = std::shared_ptr<struct archive>;
 
 ArchiveHandle createArchiveReader (ContextHandle context);
 ArchiveHandle createDiskWriter ();
-std::string resolvePath (const std::string & localPath,
+std::string resolvePath (const std::string & localPath, const std::string & id,
                          const std::string & entryName);
 void extractArchive (ArchiveHandle reader, ArchiveHandle writer);
 web::uri makeBase (uint16_t port);
@@ -70,7 +70,7 @@ unpackTo (uint16_t port, const std::string & id,
         const char * entryName = archive_entry_pathname(entry);
         assert(entryName || "archive_entry_pathname");
 
-        auto entryPath = resolvePath(localPath, entryName);
+        auto entryPath = resolvePath(localPath, id, entryName);
         rv = archive_entry_update_pathname_utf8(entry, entryPath.c_str());
         assert(rv == ARCHIVE_OK || !"archive_entry_update_pathname");
 
@@ -208,10 +208,11 @@ web::uri makePath (const std::string & id) {
 }
 
 
-std::string resolvePath (const std::string & localPath,
+std::string resolvePath (const std::string & localPath, const std::string & id,
                          const std::string & entryName)
 {
     boost::filesystem::path path = localPath;
+    path /= id;
     path /= entryName;
     return path.string();
 }
