@@ -19,7 +19,7 @@ using ArchiveHandle = std::shared_ptr<struct archive>;
 
 ArchiveHandle createArchiveReader (ContextHandle context);
 ArchiveHandle createDiskWriter ();
-void extractArchive(ArchiveHandle reader, ArchiveHandle writer);
+void extractArchive (ArchiveHandle reader, ArchiveHandle writer);
 
 int openCallback (struct archive * handle, void * context);
 int	closeCallback (struct archive * handle, void * context);
@@ -80,4 +80,23 @@ ArchiveHandle createDiskWriter () {
     });
 
     return handle;
+}
+
+
+void extractArchive (ArchiveHandle reader, ArchiveHandle writer) {
+    for (;;) {
+        int rv = 0;
+        const void * chunk = nullptr;
+        size_t length = 0;
+        la_int64_t offset = 0;
+
+        rv = archive_read_data_block(reader.get(), &chunk, &length, &offset);
+        if (rv == ARCHIVE_EOF) {
+            break;
+        }
+        assert(rv == ARCHIVE_OK || !"archive_read_data_block");
+
+        rv = archive_write_data_block(writer.get(), chunk, length, offset);
+        assert(rv == ARCHIVE_OK || !"archive_write_data_block");
+    }
 }
