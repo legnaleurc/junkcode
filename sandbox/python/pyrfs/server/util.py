@@ -168,6 +168,8 @@ class UnpackEngine(object):
                 width, height = image.size
                 rv.append({
                     'path': path,
+                    'type': type_,
+                    'size': op.getsize(path),
                     'width': width,
                     'height': height,
                 })

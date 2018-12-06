@@ -246,6 +246,49 @@ class NodeImageListView(NodeObjectMixin, aw.View):
         return json_response(manifest)
 
 
+class NodeImageView(NodeObjectMixin, aw.View):
+
+    @raise_404
+    async def get(self):
+        node = await self.get_object()
+        if node.is_folder:
+            # TODO support folder
+            return aw.Response(status=404)
+
+        image_id = self.request.match_info.get('image_id', None)
+        if not image_id:
+            return aw.Response(status=404)
+        image_id = int(image_id)
+
+        ue = self.request.app['ue']
+        try:
+            manifest = await ue.get_manifest(node.id_)
+        except u.InvalidPatternError:
+            return aw.Response(status=400)
+        except u.SearchFailedError:
+            return aw.Response(status=503)
+
+        try:
+            data = manifest[image_id]
+        except IndexError:
+            return aw.Response(status=404)
+
+        response = StreamResponse(status=200)
+        response.content_type = data['type']
+        response.content_length = data['size']
+        try:
+            await response.prepare(self.request)
+            with open(data['path'], 'rb') as fin:
+                while True:
+                    chunk = fin.read(65536)
+                    if not chunk:
+                        break
+                    await response.write(chunk)
+        finally:
+            await response.write_eof()
+        return response
+
+
 class ChangesView(aw.View):
 
     async def post(self):
