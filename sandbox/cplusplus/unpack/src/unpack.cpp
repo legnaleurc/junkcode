@@ -188,7 +188,9 @@ web::uri makeBase (uint16_t port) {
 
 
 std::string resolvePath(const std::string & localPath, const std::string & entryName) {
-    return "";
+    boost::filesystem::path path = localPath;
+    path /= entryName;
+    return path.string();
 }
 
 
