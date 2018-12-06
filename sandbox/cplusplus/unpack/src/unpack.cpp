@@ -39,6 +39,8 @@ ArchiveHandle createDiskWriter ();
 std::string resolvePath (const std::string & localPath,
                          const std::string & entryName);
 void extractArchive (ArchiveHandle reader, ArchiveHandle writer);
+web::uri makeBase (uint16_t port);
+web::uri makePath (const std::string & id);
 
 int openCallback (struct archive * handle, void * context);
 int	closeCallback (struct archive * handle, void * context);
@@ -47,11 +49,9 @@ la_ssize_t readCallback (struct archive * handle, void * context,
 la_int64_t seekCallback (struct archive * handle, void * context,
                          la_int64_t offset, int whence);
 
-web::uri makeBase (uint16_t port);
-
 
 void
-unpack_to (uint16_t port, const std::string & id,
+unpackTo (uint16_t port, const std::string & id,
            const std::string & localPath)
 {
     ContextHandle context = std::make_shared<Context>(port, id);
@@ -188,6 +188,15 @@ web::uri makeBase (uint16_t port) {
 }
 
 
+web::uri makePath (const std::string & id) {
+    std::ostringstream sout;
+    sout << "/api/v1/nodes/" << id << "/stream";
+    web::uri_builder builder;
+    builder.set_path(sout.str());
+    return builder.to_uri();
+}
+
+
 std::string resolvePath (const std::string & localPath,
                          const std::string & entryName)
 {
@@ -199,7 +208,7 @@ std::string resolvePath (const std::string & localPath,
 
 Context::Context (uint16_t port, const std::string & id)
     : base(makeBase(port))
-    , path(remotePath)
+    , path(makePath(id))
     , response()
     , offset(0)
     , length(-1)
