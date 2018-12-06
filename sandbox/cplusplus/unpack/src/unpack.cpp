@@ -186,7 +186,7 @@ Context::Context (uint16_t port, const std::string & remote_path)
 web::http::http_response &
 Context::getResponse () {
     auto status = this->response.status_code();
-    if (status == web::http::status_codes::OK) {
+    if (status == web::http::status_codes::OK || status == web::http::status_codes::PartialContent) {
         return this->response;
     }
 
@@ -201,7 +201,9 @@ Context::getResponse () {
 
     web::http::client::http_client client(this->base);
     this->response = client.request(request).get();
-    this->length = this->response.headers().content_length();
+    if (status == web::http::status_codes::OK) {
+        this->length = this->response.headers().content_length();
+    }
     return this->response;
 }
 

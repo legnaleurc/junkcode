@@ -89,6 +89,9 @@ class NodeObjectMixin(object):
 class NodeRandomAccessMixin(object):
 
     async def create_response(self):
+        range_ = self.request.http_range
+        if range_.start is None and range_.stop is None:
+            return aw.StreamResponse(status=200)
         return aw.StreamResponse(status=206)
 
     async def feed(self, response, node):
@@ -96,9 +99,12 @@ class NodeRandomAccessMixin(object):
         offset = 0 if range_.start is None else range_.start
         length = node.size - offset if not range_.stop else range_.stop + 1
 
-        response.headers['Accept-Ranges'] = 'bytes'
-        response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
+        if range_.start is not None or range_.stop is not None:
+            response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
+
         response.content_length = length
+
+        response.headers['Accept-Ranges'] = 'bytes'
         response.content_type = node.mime_type
 
         drive = self.request.app['drive']
