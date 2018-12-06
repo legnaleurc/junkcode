@@ -13,7 +13,8 @@ public:
     Context (const std::string & url);
 
     web::http::http_response & getResponse ();
-    bool seek(int64_t offset, int whence);
+    bool seek (int64_t offset, int whence);
+    void reset ();
 
 private:
     std::string url;
@@ -124,13 +125,15 @@ void extractArchive (ArchiveHandle reader, ArchiveHandle writer) {
 
 
 int openCallback (struct archive * handle, void * context) {
-    printf("open\n");
+    auto ctx = static_cast<Context *>(context);
+    ctx->reset();
     return ARCHIVE_OK;
 }
 
 
 int	closeCallback (struct archive * handle, void * context) {
-    printf("close\n");
+    auto ctx = static_cast<Context *>(context);
+    ctx->reset();
     return ARCHIVE_OK;
 }
 
@@ -203,4 +206,11 @@ bool Context::seek (int64_t offset, int whence) {
     }
 
     return this->offset >= 0;
+}
+
+
+void Context::reset () {
+    this->response = web::http::http_response();
+    this->offset = 0;
+    this->length = -1;
 }
