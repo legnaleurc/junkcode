@@ -2,6 +2,7 @@
 
 #include <archive.h>
 #include <cpprest/http_client.h>
+#include <cpprest/rawptrstream.h>
 
 #include <memory>
 #include <cassert>
@@ -10,6 +11,7 @@
 struct Context {
     std::string url;
     std::string path;
+    web::http::http_response & getResponse();
 };
 
 
@@ -128,8 +130,13 @@ int	closeCallback (struct archive * handle, void * context) {
 la_ssize_t readCallback (struct archive * handle, void * context,
                          const void ** buffer)
 {
-    printf("read %p\n", buffer);
-    return 0;
+    auto ctx = static_cast<Context *>(context);
+
+    auto & response = ctx->getResponse();
+    *buffer = malloc(65536);
+    Concurrency::streams::rawptr_buffer<uint8_t> chunk(static_cast<const uint8_t *>(*buffer), 65536);
+    auto length = response.body().read(chunk, 65536).get();
+    return length;
 }
 
 
