@@ -3,12 +3,14 @@ import {
   SELECT_MOVE_SUCCEED,
   SELECT_CONTINUOUSLY_SUCCEED,
   SELECT_DELETE_SUCCEED,
+  SELECT_COMIC_SUCCEED,
 } from './actions';
 
 
 const initialState = {
   selection: {},
   last: null,
+  comic: [],
 };
 
 
@@ -25,16 +27,16 @@ export default function reduceSelection (state = initialState, action) {
         selection[id] = true;
         last = id;
       }
-      return {
+      return Object.assign({}, state, {
         selection: Object.assign({}, selection),
         last,
-      };
+      });
     }
     case SELECT_MOVE_SUCCEED: {
-      return {
+      return Object.assign({}, state, {
         selection: {},
         last: null,
-      };
+      });
     }
     case SELECT_CONTINUOUSLY_SUCCEED: {
       const { selection, last } = state;
@@ -42,16 +44,23 @@ export default function reduceSelection (state = initialState, action) {
       for (const id of list) {
         selection[id] = true;
       }
-      return {
+      return Object.assign({}, state, {
         selection: Object.assign({}, selection),
         last,
-      };
+      });
     }
     case SELECT_DELETE_SUCCEED: {
-      return {
+      return Object.assign({}, state, {
         selection: {},
         last: null,
-      };
+      });
+    }
+    case SELECT_COMIC_SUCCEED: {
+      return Object.assign({}, state, {
+        selection: {},
+        last: null,
+        comic: action.payload.manifest,
+      });
     }
     default:
       return state;

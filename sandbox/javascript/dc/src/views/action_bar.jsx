@@ -3,7 +3,10 @@ import { connect } from 'react-redux';
 
 import Button from './button';
 import { postSync } from '../states/file_system/actions';
-import { deleteSelectedNodes } from '../states/selection/actions';
+import {
+  deleteSelectedNodes,
+  viewSelectedNode,
+} from '../states/selection/actions';
 
 
 class ActionBar extends React.Component {
@@ -13,6 +16,7 @@ class ActionBar extends React.Component {
 
     this._sync = this._sync.bind(this);
     this._trash = this._trash.bind(this);
+    this._comic = this._comic.bind(this);
   }
 
   render () {
@@ -20,6 +24,7 @@ class ActionBar extends React.Component {
       <div className="action-bar">
         <Button onClick={this._sync}>sync</Button>
         <Button onClick={this._trash}>trash</Button>
+        <Button onClick={this._comic}>comic</Button>
       </div>
     );
   }
@@ -34,6 +39,11 @@ class ActionBar extends React.Component {
     trash();
   }
 
+  _comic () {
+    const { comic } = this.props;
+    comic();
+  }
+
 }
 
 
@@ -44,6 +54,9 @@ function mapDispatchToProps (dispatch) {
     },
     trash () {
       dispatch(deleteSelectedNodes());
+    },
+    comic () {
+      dispatch(viewSelectedNode());
     },
   };
 }

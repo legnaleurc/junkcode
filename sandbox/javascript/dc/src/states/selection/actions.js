@@ -12,6 +12,9 @@ export const SELECT_CONTINUOUSLY_SUCCEED = 'SELECT_CONTINUOUSLY_SUCCEED';
 export const SELECT_DELETE_TRY = 'SELECT_DELETE_TRY';
 export const SELECT_DELETE_SUCCEED = 'SELECT_DELETE_SUCCEED';
 export const SELECT_DELETE_FAILED = 'SELECT_DELETE_FAILED';
+export const SELECT_COMIC_TRY = 'SELECT_COMIC_TRY';
+export const SELECT_COMIC_SUCCEED = 'SELECT_COMIC_SUCCEED';
+export const SELECT_COMIC_FAILED = 'SELECT_COMIC_FAILED';
 
 
 function getLocalState (state) {
@@ -157,5 +160,50 @@ export function * sagaDeleteSelectedNodes (fileSystem) {
       yield put(deleteSelectedNodesFailed(e.message));
     }
     yield put(postSync());
+  });
+}
+
+
+export function viewSelectedNode () {
+  return {
+    type: SELECT_COMIC_TRY,
+  };
+}
+
+
+function viewSelectedNodeSucceed () {
+  return {
+    type: SELECT_COMIC_SUCCEED,
+    payload: {
+      manifest,
+    },
+  };
+}
+
+
+function viewSelectedNodeFailed (message) {
+  return {
+    type: SELECT_COMIC_FAILED,
+    payload: {
+      message,
+    },
+  };
+}
+
+
+export function * sagaViewSelectedNode (fileSystem) {
+  yield takeEvery(SELECT_COMIC_TRY, function * () {
+    try {
+      const { selection } = yield select(getLocalState);
+      let srcList = Object.keys(selection);
+      if (srcList.length !== 1) {
+        yield put(viewSelectedNodeFailed('SELECTED_MULTIPLE_OR_NONE'));
+        return;
+      }
+      srcList = yield call(() => fileSystem.imageList(srcList[0]));
+      yield put(viewSelectedNodeSucceed(srcList));
+    } catch (e) {
+      yield put(viewSelectedNodeFailed(e.message));
+    }
   });
 }
