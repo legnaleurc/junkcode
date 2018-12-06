@@ -18,6 +18,7 @@ public:
     Context (uint16_t port, const std::string & id);
 
     web::http::http_response & getResponse ();
+    int64_t readChunk (const void ** buffer);
     bool seek (int64_t offset, int whence);
     void reset ();
 
@@ -27,6 +28,7 @@ private:
     web::http::http_response response;
     int64_t offset;
     int64_t length;
+    std::array<uint8_t, CHUNK_SIZE> chunk;
 };
 
 
@@ -72,7 +74,7 @@ unpackTo (uint16_t port, const std::string & id,
 
         auto entryPath = resolvePath(localPath, id, entryName);
         rv = archive_entry_update_pathname_utf8(entry, entryPath.c_str());
-        assert(rv == ARCHIVE_OK || !"archive_entry_update_pathname");
+        assert(rv || !"archive_entry_update_pathname");
 
         rv = archive_write_header(writer.get(), entry);
         assert(rv == ARCHIVE_OK || !"archive_write_header");
@@ -165,15 +167,7 @@ la_ssize_t readCallback (struct archive * handle, void * context,
 
     auto ctx = static_cast<Context *>(context);
     try {
-        auto & response = ctx->getResponse();
-        auto deleter = [](uint8_t * p) -> void {
-            free(p);
-        };
-        std::unique_ptr<uint8_t, decltype(deleter)> chunk(static_cast<uint8_t *>(malloc(CHUNK_SIZE)), deleter);
-        Buffer glue(chunk.get(), CHUNK_SIZE);
-        auto length = response.body().read(glue, CHUNK_SIZE).get();
-        *buffer = chunk.release();
-        return length;
+        return ctx->readChunk(buffer);
     } catch (std::exception & e) {
         printf("readCallback %s\n", e.what());
         return ARCHIVE_FATAL;
@@ -224,6 +218,7 @@ Context::Context (uint16_t port, const std::string & id)
     , response()
     , offset(0)
     , length(-1)
+    , chunk()
 {}
 
 
@@ -245,10 +240,23 @@ Context::getResponse () {
 
     web::http::client::http_client client(this->base);
     this->response = client.request(request).get();
+    status = this->response.status_code();
     if (status == web::http::status_codes::OK) {
         this->length = this->response.headers().content_length();
     }
     return this->response;
+}
+
+
+int64_t Context::readChunk (const void ** buffer) {
+    using Buffer = Concurrency::streams::rawptr_buffer<uint8_t>;
+
+    auto & response = this->getResponse();
+    Buffer glue(&this->chunk[0], CHUNK_SIZE);
+    auto length = response.body().read(glue, CHUNK_SIZE).get();
+    *buffer = &this->chunk[0];
+    this->offset += length;
+    return length;
 }
 
 
@@ -258,13 +266,16 @@ bool Context::seek (int64_t offset, int whence) {
     switch (whence) {
     case SEEK_SET:
         this->offset = offset;
+        break;
     case SEEK_CUR:
         this->offset += offset;
+        break;
     case SEEK_END:
         if (this->length < 0) {
             return false;
         }
         this->offset = this->length + offset;
+        break;
     default:
         return false;
     }
