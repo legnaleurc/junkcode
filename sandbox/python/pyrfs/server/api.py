@@ -243,6 +243,10 @@ class NodeImageListView(NodeObjectMixin, aw.View):
         except u.SearchFailedError:
             return aw.Response(status=503)
 
+        manifest = [{
+            'width': _['width'],
+            'height': _['height'],
+        } for _ in manifest]
         return json_response(manifest)
 
 
