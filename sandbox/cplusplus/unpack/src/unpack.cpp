@@ -21,11 +21,11 @@ ArchiveHandle createArchiveReader (ContextHandle context);
 ArchiveHandle createDiskWriter ();
 void extractArchive(ArchiveHandle reader, ArchiveHandle writer);
 
-int open_callback (struct archive * handle, void * context);
-int	close_callback (struct archive * handle, void * context);
-la_ssize_t read_callback (struct archive * handle, void * context,
+int openCallback (struct archive * handle, void * context);
+int	closeCallback (struct archive * handle, void * context);
+la_ssize_t readCallback (struct archive * handle, void * context,
                           const void ** buffer);
-la_int64_t seek_callback (struct archive * handle, void * context,
+la_int64_t seekCallback (struct archive * handle, void * context,
                           la_int64_t offset, int whence);
 
 
@@ -63,10 +63,10 @@ ArchiveHandle createArchiveReader (ContextHandle context) {
     archive_read_support_filter_all(handle.get());
     archive_read_support_format_all(handle.get());
 
-    archive_read_set_open_callback(handle.get(), open_callback);
-    archive_read_set_close_callback(handle.get(), close_callback);
-    archive_read_set_read_callback(handle.get(), read_callback);
-    archive_read_set_seek_callback(handle.get(), seek_callback);
+    archive_read_set_open_callback(handle.get(), openCallback);
+    archive_read_set_close_callback(handle.get(), closeCallback);
+    archive_read_set_read_callback(handle.get(), readCallback);
+    archive_read_set_seek_callback(handle.get(), seekCallback);
 
     archive_read_set_callback_data(handle.get(), context.get());
 
