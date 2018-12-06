@@ -6,7 +6,7 @@ import os.path as op
 import re
 import tempfile
 
-import PIL
+from PIL import Image
 from wcpan.logger import EXCEPTION
 
 
@@ -130,7 +130,7 @@ class UnpackEngine(object):
         lock = self._unpacking[node_id]
         try:
             p = await asyncio.create_subprocess_exec('unpack',
-                                                     self._port,
+                                                     str(self._port),
                                                      node_id,
                                                      self._tmp)
             out, err = await p.communicate()
@@ -164,7 +164,7 @@ class UnpackEngine(object):
                     continue
                 if not type_.startswith('image/'):
                     continue
-                image = PIL.Image.open(path)
+                image = Image.open(path)
                 width, height = image.size
                 rv.append({
                     'path': path,
