@@ -74,12 +74,10 @@ unpackTo (uint16_t port, const std::string & id,
         assert(entryName || !"archive_entry_pathname");
 
         auto entryPath = resolvePath(localPath, id, entryName);
-        printf("%s\n", entryPath.c_str());
         rv = archive_entry_update_pathname_utf8(entry, entryPath.c_str());
         assert(rv || !"archive_entry_update_pathname_utf8");
 
         rv = archive_write_header(writer.get(), entry);
-        printf("%s\n", archive_error_string(writer.get()));
         assert(rv == ARCHIVE_OK || !"archive_write_header");
 
         extractArchive(reader, writer);
@@ -216,7 +214,7 @@ std::string resolvePath (const std::string & localPath, const std::string & id,
         if (isalnum(c) || c == '.' || c == ' ' || c == '/') {
             sout << c;
         } else {
-            sout << std::setfill('0') << std::setw(2) << std::hex << (int)c;
+            sout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(c);
         }
     }
     boost::filesystem::path path = localPath;
@@ -272,7 +270,6 @@ int64_t Context::readChunk (const void ** buffer) {
     auto length = response.body().read(glue, CHUNK_SIZE).get();
     *buffer = &this->chunk[0];
     this->offset += length;
-    printf("read %lu %lld\n", length, this->offset);
     return length;
 }
 
@@ -296,8 +293,6 @@ bool Context::seek (int64_t offset, int whence) {
     default:
         return false;
     }
-
-    printf("seek %lld %lld\n", this->length, this->offset);
 
     return this->offset >= 0;
 }
