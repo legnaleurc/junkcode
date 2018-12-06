@@ -29,6 +29,7 @@ class ImageView extends React.Component {
 
   componentDidMount () {
     this._observer.observe(this._root.current);
+    this._fetchImageUrl();
   }
 
   componentWillUnmount () {
