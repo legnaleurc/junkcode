@@ -8,6 +8,9 @@
 #include <cassert>
 
 
+const uint64_t CHUNK_SIZE = 65536;
+
+
 class Context {
 public:
     Context (uint16_t port, const std::string & remote_path);
@@ -149,9 +152,9 @@ la_ssize_t readCallback (struct archive * handle, void * context,
 {
     auto ctx = static_cast<Context *>(context);
     auto & response = ctx->getResponse();
-    *buffer = malloc(65536);
-    Concurrency::streams::rawptr_buffer<uint8_t> chunk(static_cast<const uint8_t *>(*buffer), 65536);
-    auto length = response.body().read(chunk, 65536).get();
+    *buffer = malloc(CHUNK_SIZE);
+    Concurrency::streams::rawptr_buffer<uint8_t> chunk(static_cast<const uint8_t *>(*buffer), CHUNK_SIZE);
+    auto length = response.body().read(chunk, CHUNK_SIZE).get();
     return length;
 }
 
