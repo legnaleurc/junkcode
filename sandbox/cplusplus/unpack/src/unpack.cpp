@@ -34,5 +34,12 @@ ArchiveHandle createArchiveHandle () {
     archive_read_support_filter_all(handle.get());
     archive_read_support_format_all(handle.get());
 
+    archive_read_set_open_callback(handle.get(), open_callback);
+    archive_read_set_close_callback(handle.get(), close_callback);
+    archive_read_set_read_callback(handle.get(), read_callback);
+    archive_read_set_seek_callback(handle.get(), seek_callback);
+
+    archive_read_set_callback_data(handle.get(), NULL);
+
     return handle;
 }
