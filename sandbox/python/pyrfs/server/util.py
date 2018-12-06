@@ -1,6 +1,12 @@
 import asyncio
+import contextlib as cl
+import mimetypes as mt
+import os
+import os.path as op
 import re
+import tempfile
 
+import PIL
 from wcpan.logger import EXCEPTION
 
 
@@ -82,6 +88,90 @@ class SearchEngine(object):
             return self._cache[pattern]
         except KeyError:
             raise SearchFailedError(f'{pattern} canceled search')
+
+
+class UnpackEngine(object):
+
+    def __init__(self, port):
+        super(UnpackEngine, self).__init__()
+        self._loop = asyncio.get_event_loop()
+        self._port = port
+        self._cache = {}
+        self._unpacking = {}
+        self._tmp = None
+        self._raii = None
+
+    async def __aenter__(self):
+        async with cl.AsyncExitStack() as stack:
+            self._tmp = stack.enter_context(tempfile.TemporaryDirectory())
+            self._raii = stack.pop_all()
+        return self
+
+    async def __aexit__(self, exc, type_, tb):
+        await self._raii.aclose()
+        self._raii = None
+        self._tmp = None
+
+    async def get_manifest(self, node_id):
+        manifest = self._cache.get(node_id, None)
+        if manifest is not None:
+            return manifest
+
+        if node_id in self._unpacking:
+            lock = self._unpacking[node_id]
+            return await self._wait_for_result(lock, node_id)
+
+        lock = asyncio.Condition()
+        self._unpacking[node_id] = lock
+        self._loop.create_task(self._unpack(node_id))
+        return await self._wait_for_result(lock, node_id)
+
+    async def _unpack(self, node_id):
+        lock = self._unpacking[node_id]
+        try:
+            p = await asyncio.create_subprocess_exec('unpack',
+                                                     self._port,
+                                                     node_id,
+                                                     self._tmp)
+            out, err = await p.communicate()
+            self._cache[node_id] = self._scan(node_id)
+        except Exception as e:
+            EXCEPTION('server', e) << 'search failed, abort'
+            raise SearchFailedError(str(e))
+        finally:
+            del self._unpacking[node_id]
+            async with lock:
+                lock.notify_all()
+
+    async def _wait_for_result(self, lock, node_id):
+        async with lock:
+            await lock.wait()
+        try:
+            return self._cache[node_id]
+        except KeyError:
+            raise SearchFailedError(f'{pattern} canceled search')
+
+    def _scan(self, node_id):
+        rv = []
+        top = op.join(self._tmp, node_id)
+        for dirpath, dirnames, filenames in os.walk(top):
+            dirnames.sort()
+            filenames.sort()
+            for filename in filenames:
+                path = op.join(dirpath, filename)
+                type_, encoding = mt.guess_type(path)
+                if type_ is None:
+                    continue
+                if not type_.startswith('image/'):
+                    continue
+                image = PIL.Image.open(path)
+                width, height = image.size
+                rv.append({
+                    'path': path,
+                    'width': width,
+                    'height': height,
+                })
+        return rv
 
 
 def normalize_search_pattern(raw):

@@ -42,6 +42,7 @@ class Daemon(object):
         return 1
 
     async def _main(self):
+        port = self._kwargs.listen
         app = aw.Application()
 
         setup_api_path(app)
@@ -49,8 +50,10 @@ class Daemon(object):
         async with wdg.Drive() as drive:
             app['drive'] = drive
             app['se'] = util.SearchEngine(drive)
-            async with ServerContext(app, self._kwargs.listen):
-                await self._until_finished()
+            async with util.UnpackEngine(port) as ue:
+                app['ue'] = ue
+                async with ServerContext(app, port):
+                    await self._until_finished()
 
         return 0
 
