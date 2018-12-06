@@ -171,11 +171,12 @@ export function viewSelectedNode () {
 }
 
 
-function viewSelectedNodeSucceed () {
+function viewSelectedNodeSucceed (id, imageList) {
   return {
     type: SELECT_COMIC_SUCCEED,
     payload: {
-      manifest,
+      id,
+      imageList,
     },
   };
 }
@@ -200,8 +201,9 @@ export function * sagaViewSelectedNode (fileSystem) {
         yield put(viewSelectedNodeFailed('SELECTED_MULTIPLE_OR_NONE'));
         return;
       }
-      srcList = yield call(() => fileSystem.imageList(srcList[0]));
-      yield put(viewSelectedNodeSucceed(srcList));
+      const id = srcList[0];
+      srcList = yield call(() => fileSystem.imageList(id));
+      yield put(viewSelectedNodeSucceed(id, srcList));
     } catch (e) {
       yield put(viewSelectedNodeFailed(e.message));
     }

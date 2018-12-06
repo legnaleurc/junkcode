@@ -10,6 +10,7 @@ import {
 const initialState = {
   selection: {},
   last: null,
+  viewingId: null,
   imageList: [],
 };
 
@@ -59,7 +60,8 @@ export default function reduceSelection (state = initialState, action) {
       return Object.assign({}, state, {
         selection: {},
         last: null,
-        imageList: action.payload.manifest,
+        viewingId: action.payload.id,
+        imageList: action.payload.imageList,
       });
     }
     default:
