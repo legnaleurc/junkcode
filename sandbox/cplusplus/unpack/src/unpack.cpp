@@ -1,8 +1,10 @@
 #include "unpack.hpp"
 
 #include <archive.h>
+#include <archive_entry.h>
 #include <cpprest/http_client.h>
 #include <cpprest/rawptrstream.h>
+#include <boost/filesystem.hpp>
 
 #include <memory>
 #include <cassert>
@@ -13,7 +15,7 @@ const uint64_t CHUNK_SIZE = 65536;
 
 class Context {
 public:
-    Context (uint16_t port, const std::string & remote_path);
+    Context (uint16_t port, const std::string & remotePath);
 
     web::http::http_response & getResponse ();
     bool seek (int64_t offset, int whence);
@@ -34,6 +36,7 @@ using ArchiveHandle = std::shared_ptr<struct archive>;
 
 ArchiveHandle createArchiveReader (ContextHandle context);
 ArchiveHandle createDiskWriter ();
+std::string resolvePath(const std::string & localPath, const std::string & entryName);
 void extractArchive (ArchiveHandle reader, ArchiveHandle writer);
 
 int openCallback (struct archive * handle, void * context);
@@ -47,10 +50,10 @@ web::uri makeBase (uint16_t port);
 
 
 void
-unpack_to (uint16_t port, const std::string & remote_path,
-           const std::string & local_path)
+unpack_to (uint16_t port, const std::string & remotePath,
+           const std::string & localPath)
 {
-    ContextHandle context = std::make_shared<Context>(port, remote_path);
+    ContextHandle context = std::make_shared<Context>(port, remotePath);
     auto reader = createArchiveReader(context);
     auto writer = createDiskWriter();
 
@@ -62,6 +65,13 @@ unpack_to (uint16_t port, const std::string & remote_path,
             break;
         }
         assert(rv == ARCHIVE_OK || !"archive_read_next_header");
+
+        const char * entryName = archive_entry_pathname(entry);
+        assert(entryName || "archive_entry_pathname");
+
+        auto entryPath = resolvePath(localPath, entryName);
+        rv = archive_entry_update_pathname_utf8(entry, entryPath.c_str());
+        assert(rv == ARCHIVE_OK || !"archive_entry_update_pathname");
 
         rv = archive_write_header(writer.get(), entry);
         assert(rv == ARCHIVE_OK || !"archive_write_header");
@@ -177,9 +187,14 @@ web::uri makeBase (uint16_t port) {
 }
 
 
-Context::Context (uint16_t port, const std::string & remote_path)
+std::string resolvePath(const std::string & localPath, const std::string & entryName) {
+    return "";
+}
+
+
+Context::Context (uint16_t port, const std::string & remotePath)
     : base(makeBase(port))
-    , path(remote_path)
+    , path(remotePath)
     , response()
     , offset(0)
     , length(-1)
