@@ -6,10 +6,12 @@ import {
   sagaGetStreamUrl,
   sagaPostSync,
   sagaGetSearchName,
+  sagaGetImageUrl,
 } from './file_system/actions';
 import {
   sagaMoveSelectedNodesTo,
   sagaContinuouslySelect,
+  sagaViewSelectedNode,
 } from './selection/actions';
 
 
