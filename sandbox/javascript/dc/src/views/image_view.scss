@@ -1,5 +1,10 @@
 .image-view {
-  background-color: gray;
+  max-width: 100%;
+
+  .image {
+    max-width: 100%;
+    height: auto;
+  }
 
   &.active {
     background-color: pink;

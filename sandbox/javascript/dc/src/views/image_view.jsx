@@ -6,13 +6,16 @@ import { getImageUrl } from '../states/file_system/actions';
 import './image_view.scss';
 
 
+const DUMMY_IMAGE_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
+
 class ImageView extends React.Component {
 
   constructor (props) {
     super(props);
 
     this.state = {
-      url: '',
+      url: DUMMY_IMAGE_URL,
     };
 
     this._root = React.createRef();
@@ -44,13 +47,9 @@ class ImageView extends React.Component {
     return (
       <div
         className="image-view"
-        style={{
-          width: `${width}px`,
-          height: `${height}px`,
-        }}
         ref={this._root}
       >
-        <img src={this.state.url} />
+        <img className="image" src={this.state.url} width={width} height={height} />
       </div>
     );
   }
