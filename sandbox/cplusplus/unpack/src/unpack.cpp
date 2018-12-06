@@ -162,11 +162,16 @@ la_ssize_t readCallback (struct archive * handle, void * context,
                          const void ** buffer)
 {
     auto ctx = static_cast<Context *>(context);
-    auto & response = ctx->getResponse();
-    *buffer = malloc(CHUNK_SIZE);
-    Concurrency::streams::rawptr_buffer<uint8_t> chunk(static_cast<const uint8_t *>(*buffer), CHUNK_SIZE);
-    auto length = response.body().read(chunk, CHUNK_SIZE).get();
-    return length;
+    try {
+        auto & response = ctx->getResponse();
+        *buffer = malloc(CHUNK_SIZE);
+        Concurrency::streams::rawptr_buffer<uint8_t> chunk(static_cast<const uint8_t *>(*buffer), CHUNK_SIZE);
+        auto length = response.body().read(chunk, CHUNK_SIZE).get();
+        return length;
+    } catch (std::exception & e) {
+        printf("readCallback %s\n", e.what());
+        return ARCHIVE_FATAL;
+    }
 }
 
 
