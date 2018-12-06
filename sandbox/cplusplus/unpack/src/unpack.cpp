@@ -7,6 +7,7 @@
 #include <boost/filesystem.hpp>
 
 #include <memory>
+#include <iomanip>
 #include <cassert>
 
 
@@ -75,9 +76,10 @@ unpackTo (uint16_t port, const std::string & id,
         auto entryPath = resolvePath(localPath, id, entryName);
         printf("%s\n", entryPath.c_str());
         rv = archive_entry_update_pathname_utf8(entry, entryPath.c_str());
-        assert(rv || !"archive_entry_update_pathname");
+        assert(rv || !"archive_entry_update_pathname_utf8");
 
         rv = archive_write_header(writer.get(), entry);
+        printf("%s\n", archive_error_string(writer.get()));
         assert(rv == ARCHIVE_OK || !"archive_write_header");
 
         extractArchive(reader, writer);
@@ -206,9 +208,20 @@ web::uri makePath (const std::string & id) {
 std::string resolvePath (const std::string & localPath, const std::string & id,
                          const std::string & entryName)
 {
+    std::ostringstream sout;
+    for (auto c : entryName) {
+        if (c < 0) {
+            continue;
+        }
+        if (isalnum(c) || c == '.' || c == ' ' || c == '/') {
+            sout << c;
+        } else {
+            sout << std::setfill('0') << std::setw(2) << std::hex << (int)c;
+        }
+    }
     boost::filesystem::path path = localPath;
     path /= id;
-    path /= entryName;
+    path /= sout.str();
     return path.string();
 }
 
