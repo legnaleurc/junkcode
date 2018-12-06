@@ -2,11 +2,12 @@
 
 
 int main (int argc, char * argv[]) {
-    if (argc != 3) {
+    if (argc != 4) {
         return 1;
     }
 
-    unpack_to(argv[1], argv[2]);
+    auto port = std::stoul(argv[1]);
+    unpack_to(port, argv[2], argv[3]);
 
     return 0;
 }

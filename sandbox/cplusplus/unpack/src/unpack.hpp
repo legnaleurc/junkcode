@@ -3,6 +3,8 @@
 
 #include <string>
 
-void unpack_to (const std::string & url, const std::string & path);
+void
+unpack_to (uint16_t port, const std::string & remote_path,
+           const std::string & local_path);
 
 #endif

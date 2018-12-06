@@ -10,14 +10,15 @@
 
 class Context {
 public:
-    Context (const std::string & url);
+    Context (uint16_t port, const std::string & remote_path);
 
     web::http::http_response & getResponse ();
     bool seek (int64_t offset, int whence);
     void reset ();
 
 private:
-    std::string url;
+    web::uri base;
+    web::uri path;
     web::http::http_response response;
     int64_t offset;
     int64_t length;
@@ -39,9 +40,14 @@ la_ssize_t readCallback (struct archive * handle, void * context,
 la_int64_t seekCallback (struct archive * handle, void * context,
                          la_int64_t offset, int whence);
 
+web::uri makeBase (uint16_t port);
 
-void unpack_to (const std::string & url, const std::string & path) {
-    ContextHandle context = std::make_shared<Context>(url);
+
+void
+unpack_to (uint16_t port, const std::string & remote_path,
+           const std::string & local_path)
+{
+    ContextHandle context = std::make_shared<Context>(port, remote_path);
     auto reader = createArchiveReader(context);
     auto writer = createDiskWriter();
 
@@ -159,8 +165,18 @@ la_int64_t seekCallback (struct archive * handle, void * context,
 }
 
 
-Context::Context (const std::string & url)
-    : url(url)
+web::uri makeBase (uint16_t port) {
+    web::uri_builder builder;
+    builder.set_scheme("http");
+    builder.set_host("localhost");
+    builder.set_port(port);
+    return builder.to_uri();
+}
+
+
+Context::Context (uint16_t port, const std::string & remote_path)
+    : base(makeBase(port))
+    , path(remote_path)
     , response()
     , offset(0)
     , length(-1)
@@ -176,12 +192,12 @@ Context::getResponse () {
 
     web::http::http_request request;
     request.set_method(web::http::methods::GET);
-    request.set_request_uri(this->url);
+    request.set_request_uri(this->path);
     if (this->length >= 0) {
         request.headers().add("Range", "");
     }
 
-    web::http::client::http_client client(this->url);
+    web::http::client::http_client client(this->base);
     this->response = client.request(request).get();
     this->length = this->response.headers().content_length();
     return this->response;
