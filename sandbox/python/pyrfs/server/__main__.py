@@ -97,6 +97,7 @@ def setup_api_path(app):
     app.router.add_view(r'/api/v1/nodes/{id}/children', api.NodeChildrenView)
     app.router.add_view(r'/api/v1/nodes/{id}/stream', api.NodeStreamView)
     app.router.add_view(r'/api/v1/nodes/{id}/download', api.NodeDownloadView)
+    app.router.add_view(r'/api/v1/nodes/{id}/images', api.NodeImageListView)
     app.router.add_view(r'/api/v1/changes', api.ChangesView)
 
 

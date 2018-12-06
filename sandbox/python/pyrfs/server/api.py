@@ -226,6 +226,26 @@ class NodeDownloadView(NodeObjectMixin, NodeRandomAccessMixin, aw.View):
         return response
 
 
+class NodeImageListView(NodeObjectMixin, aw.View):
+
+    @raise_404
+    async def get(self):
+        node = await self.get_object()
+        if node.is_folder:
+            # TODO support folder
+            return aw.Response(status=404)
+
+        ue = self.request.app['ue']
+        try:
+            manifest = await ue.get_manifest(node.id_)
+        except u.InvalidPatternError:
+            return aw.Response(status=400)
+        except u.SearchFailedError:
+            return aw.Response(status=503)
+
+        return json_response(manifest)
+
+
 class ChangesView(aw.View):
 
     async def post(self):
