@@ -51,8 +51,16 @@ export class FileSystem {
     }
   }
 
+  async imageList (id) {
+    return await this._get(`/api/v1/nodes/${id}/images`);
+  }
+
   stream (id) {
     return `${this._baseURL}/api/v1/nodes/${id}/stream`;
+  }
+
+  image (id, imageId) {
+    return `${this._baseURL}/api/v1/nodes/${id}/images/${imageId}`;
   }
 
   async sync () {
