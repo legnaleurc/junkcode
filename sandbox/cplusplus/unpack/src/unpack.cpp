@@ -24,9 +24,9 @@ void extractArchive (ArchiveHandle reader, ArchiveHandle writer);
 int openCallback (struct archive * handle, void * context);
 int	closeCallback (struct archive * handle, void * context);
 la_ssize_t readCallback (struct archive * handle, void * context,
-                          const void ** buffer);
+                         const void ** buffer);
 la_int64_t seekCallback (struct archive * handle, void * context,
-                          la_int64_t offset, int whence);
+                         la_int64_t offset, int whence);
 
 
 void unpack_to (const std::string & url, const std::string & path) {
@@ -78,6 +78,9 @@ ArchiveHandle createArchiveReader (ContextHandle context) {
     rv = archive_read_set_callback_data(handle.get(), context.get());
     assert(rv == ARCHIVE_OK || !"archive_read_set_callback_data");
 
+    rv = archive_read_open1(handle.get());
+    assert(rv == ARCHIVE_OK || !"archive_read_open1");
+
     return handle;
 }
 
@@ -107,4 +110,32 @@ void extractArchive (ArchiveHandle reader, ArchiveHandle writer) {
         rv = archive_write_data_block(writer.get(), chunk, length, offset);
         assert(rv == ARCHIVE_OK || !"archive_write_data_block");
     }
+}
+
+
+int openCallback (struct archive * handle, void * context) {
+    printf("open\n");
+    return ARCHIVE_OK;
+}
+
+
+int	closeCallback (struct archive * handle, void * context) {
+    printf("close\n");
+    return ARCHIVE_OK;
+}
+
+
+la_ssize_t readCallback (struct archive * handle, void * context,
+                         const void ** buffer)
+{
+    printf("read %p\n", buffer);
+    return 0;
+}
+
+
+la_int64_t seekCallback (struct archive * handle, void * context,
+                         la_int64_t offset, int whence)
+{
+    printf("seek %lld %d\n", offset, whence);
+    return 0;
 }
