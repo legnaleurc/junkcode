@@ -22,5 +22,6 @@ export default function * ({ fileSystem }) {
     sagaGetSearchName(fileSystem),
     sagaMoveSelectedNodesTo(fileSystem),
     sagaContinuouslySelect(),
+    sagaViewSelectedNode(fileSystem),
   ]);
 }
