@@ -30,7 +30,6 @@ la_int64_t seekCallback (struct archive * handle, void * context,
 
 
 void unpack_to (const std::string & url, const std::string & path) {
-    int rv = 0;
     ContextHandle context = std::make_shared<Context>();
     auto reader = createArchiveReader(context);
     auto writer = createDiskWriter();
@@ -56,19 +55,28 @@ void unpack_to (const std::string & url, const std::string & path) {
 
 
 ArchiveHandle createArchiveReader (ContextHandle context) {
+    int rv = 0;
+
     ArchiveHandle handle(archive_read_new(), [](ArchiveHandle::element_type * p) -> void {
         archive_read_free(p);
     });
 
-    archive_read_support_filter_all(handle.get());
-    archive_read_support_format_all(handle.get());
+    rv = archive_read_support_filter_all(handle.get());
+    assert(rv == ARCHIVE_OK || !"archive_read_support_filter_all");
+    rv = archive_read_support_format_all(handle.get());
+    assert(rv == ARCHIVE_OK || !"archive_read_support_format_all");
 
-    archive_read_set_open_callback(handle.get(), openCallback);
-    archive_read_set_close_callback(handle.get(), closeCallback);
-    archive_read_set_read_callback(handle.get(), readCallback);
-    archive_read_set_seek_callback(handle.get(), seekCallback);
+    rv = archive_read_set_open_callback(handle.get(), openCallback);
+    assert(rv == ARCHIVE_OK || !"archive_read_set_open_callback");
+    rv = archive_read_set_close_callback(handle.get(), closeCallback);
+    assert(rv == ARCHIVE_OK || !"archive_read_set_close_callback");
+    rv = archive_read_set_read_callback(handle.get(), readCallback);
+    assert(rv == ARCHIVE_OK || !"archive_read_set_read_callback");
+    rv = archive_read_set_seek_callback(handle.get(), seekCallback);
+    assert(rv == ARCHIVE_OK || !"archive_read_set_seek_callback");
 
-    archive_read_set_callback_data(handle.get(), context.get());
+    rv = archive_read_set_callback_data(handle.get(), context.get());
+    assert(rv == ARCHIVE_OK || !"archive_read_set_callback_data");
 
     return handle;
 }
