@@ -39,7 +39,7 @@ class ImageView extends React.Component {
         }}
         ref={this._root}
       >
-        <img />
+        <img src={``} />
       </div>
     );
   }

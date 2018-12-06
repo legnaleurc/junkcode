@@ -14,6 +14,7 @@ export const SYNC_POST_FAILED = 'SYNC_POST_FAILED';
 export const FS_SEARCH_NAME_TRY = 'FS_SEARCH_NAME_TRY';
 export const FS_SEARCH_NAME_SUCCEED = 'FS_SEARCH_NAME_SUCCEED';
 export const FS_SEARCH_NAME_FAILED = 'FS_SEARCH_NAME_FAILED';
+export const FS_IMAGE_URL = 'FS_IMAGE_URL';
 
 
 export function getList (id) {
@@ -199,5 +200,26 @@ export function * sagaGetSearchName (fileSystem) {
     } catch (e) {
       yield put(getSearchNameFailed(e.message));
     }
+  });
+}
+
+
+export function getImageUrl (id, imageId, done) {
+  return {
+    type: FS_IMAGE_URL,
+    payload: {
+      id,
+      imageId,
+      done,
+    },
+  };
+}
+
+
+export function * sagaGetImageUrl (fileSystem) {
+  yield takeEvery(FS_IMAGE_URL, function * ({ payload }) {
+    const { id, imageId, done } = payload;
+    const url = yield call(() => fileSystem.image(id, imageId));
+    yield call(() => done(url));
   });
 }

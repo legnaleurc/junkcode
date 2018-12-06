@@ -23,5 +23,6 @@ export default function * ({ fileSystem }) {
     sagaMoveSelectedNodesTo(fileSystem),
     sagaContinuouslySelect(),
     sagaViewSelectedNode(fileSystem),
+    sagaGetImageUrl(fileSystem),
   ]);
 }
