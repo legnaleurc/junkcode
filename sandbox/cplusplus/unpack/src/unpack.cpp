@@ -13,12 +13,13 @@ public:
     Context (const std::string & url);
 
     web::http::http_response & getResponse ();
+    bool seek(int64_t offset, int whence);
 
 private:
     std::string url;
     web::http::http_response response;
-    uint64_t offset;
-    uint64_t length;
+    int64_t offset;
+    int64_t length;
 };
 
 
@@ -138,7 +139,6 @@ la_ssize_t readCallback (struct archive * handle, void * context,
                          const void ** buffer)
 {
     auto ctx = static_cast<Context *>(context);
-
     auto & response = ctx->getResponse();
     *buffer = malloc(65536);
     Concurrency::streams::rawptr_buffer<uint8_t> chunk(static_cast<const uint8_t *>(*buffer), 65536);
@@ -150,8 +150,9 @@ la_ssize_t readCallback (struct archive * handle, void * context,
 la_int64_t seekCallback (struct archive * handle, void * context,
                          la_int64_t offset, int whence)
 {
-    printf("seek %lld %d\n", offset, whence);
-    return 0;
+    auto ctx = static_cast<Context *>(context);
+    auto ok = ctx->seek(offset, whence);
+    return ok ? offset : ARCHIVE_FATAL;
 }
 
 
@@ -159,7 +160,7 @@ Context::Context (const std::string & url)
     : url(url)
     , response()
     , offset(0)
-    , length(0)
+    , length(-1)
 {}
 
 
@@ -173,7 +174,7 @@ Context::getResponse () {
     web::http::http_request request;
     request.set_method(web::http::methods::GET);
     request.set_request_uri(this->url);
-    if (this->length > 0) {
+    if (this->length >= 0) {
         request.headers().add("Range", "");
     }
 
@@ -181,4 +182,25 @@ Context::getResponse () {
     this->response = client.request(request).get();
     this->length = this->response.headers().content_length();
     return this->response;
+}
+
+
+bool Context::seek (int64_t offset, int whence) {
+    this->response = web::http::http_response();
+
+    switch (whence) {
+    case SEEK_SET:
+        this->offset = offset;
+    case SEEK_CUR:
+        this->offset += offset;
+    case SEEK_END:
+        if (this->length < 0) {
+            return false;
+        }
+        this->offset = this->length + offset;
+    default:
+        return false;
+    }
+
+    return this->offset >= 0;
 }
