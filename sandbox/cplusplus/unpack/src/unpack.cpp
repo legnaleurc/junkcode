@@ -70,9 +70,10 @@ unpackTo (uint16_t port, const std::string & id,
         assert(rv == ARCHIVE_OK || !"archive_read_next_header");
 
         const char * entryName = archive_entry_pathname(entry);
-        assert(entryName || "archive_entry_pathname");
+        assert(entryName || !"archive_entry_pathname");
 
         auto entryPath = resolvePath(localPath, id, entryName);
+        printf("%s\n", entryPath.c_str());
         rv = archive_entry_update_pathname_utf8(entry, entryPath.c_str());
         assert(rv || !"archive_entry_update_pathname");
 
@@ -238,7 +239,9 @@ Context::getResponse () {
         request.headers().add("Range", sout.str());
     }
 
-    web::http::client::http_client client(this->base);
+    web::http::client::http_client_config cfg;
+    cfg.set_timeout(std::chrono::minutes(1));
+    web::http::client::http_client client(this->base, cfg);
     this->response = client.request(request).get();
     status = this->response.status_code();
     if (status == web::http::status_codes::OK) {
@@ -280,6 +283,8 @@ bool Context::seek (int64_t offset, int whence) {
     default:
         return false;
     }
+
+    printf("seek %lld %lld\n", this->length, this->offset);
 
     return this->offset >= 0;
 }
