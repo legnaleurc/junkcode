@@ -161,12 +161,18 @@ int	closeCallback (struct archive * handle, void * context) {
 la_ssize_t readCallback (struct archive * handle, void * context,
                          const void ** buffer)
 {
+    using Buffer = Concurrency::streams::rawptr_buffer<uint8_t>;
+
     auto ctx = static_cast<Context *>(context);
     try {
         auto & response = ctx->getResponse();
-        *buffer = malloc(CHUNK_SIZE);
-        Concurrency::streams::rawptr_buffer<uint8_t> chunk(static_cast<const uint8_t *>(*buffer), CHUNK_SIZE);
-        auto length = response.body().read(chunk, CHUNK_SIZE).get();
+        auto deleter = [](uint8_t * p) -> void {
+            free(p);
+        };
+        std::unique_ptr<uint8_t, decltype(deleter)> chunk(static_cast<uint8_t *>(malloc(CHUNK_SIZE)), deleter);
+        Buffer glue(chunk.get(), CHUNK_SIZE);
+        auto length = response.body().read(glue, CHUNK_SIZE).get();
+        *buffer = chunk.release();
         return length;
     } catch (std::exception & e) {
         printf("readCallback %s\n", e.what());
