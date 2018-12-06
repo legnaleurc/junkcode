@@ -21,16 +21,26 @@ class ImageView extends React.Component {
   }
 
   componentDidMount () {
-    this._observer.observe(this._root.current);
+    // this._observer.observe(this._root.current);
   }
 
   componentWillUnmount () {
-    this._observer.disconnect();
+    // this._observer.disconnect();
   }
 
   render () {
+    const { index, width, height } = this.props;
     return (
-      <div className="image-view" ref={this._root}></div>
+      <div
+        className="image-view"
+        style={{
+          width: `${width}px`,
+          height: `${height}px`,
+        }}
+        ref={this._root}
+      >
+        <img />
+      </div>
     );
   }
 
