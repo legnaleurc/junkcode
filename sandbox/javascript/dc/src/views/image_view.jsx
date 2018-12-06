@@ -52,6 +52,11 @@ class ImageView extends React.Component {
     );
   }
 
+  _fetchImageUrl () {
+    const { getImageUrl, nodeId, index } = this.props;
+    getImageUrl(nodeId, index, this._setImageUrl);
+  }
+
   _setImageUrl (url) {
     this.setState({
       url,
