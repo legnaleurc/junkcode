@@ -5,6 +5,6 @@
 
 void
 unpackTo (uint16_t port, const std::string & id,
-           const std::string & localPath);
+          const std::string & localPath);
 
 #endif

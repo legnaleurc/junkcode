@@ -52,7 +52,7 @@ la_int64_t seekCallback (struct archive * handle, void * context,
 
 void
 unpackTo (uint16_t port, const std::string & id,
-           const std::string & localPath)
+          const std::string & localPath)
 {
     ContextHandle context = std::make_shared<Context>(port, id);
     auto reader = createArchiveReader(context);
