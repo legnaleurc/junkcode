@@ -194,7 +194,9 @@ Context::getResponse () {
     request.set_method(web::http::methods::GET);
     request.set_request_uri(this->path);
     if (this->length >= 0) {
-        request.headers().add("Range", "");
+        std::ostringstream sout;
+        sout << "bytes=" << this->offset << "-" << (this->length - 1);
+        request.headers().add("Range", sout.str());
     }
 
     web::http::client::http_client client(this->base);
