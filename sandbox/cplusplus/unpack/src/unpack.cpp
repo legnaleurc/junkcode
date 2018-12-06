@@ -15,7 +15,7 @@ const uint64_t CHUNK_SIZE = 65536;
 
 class Context {
 public:
-    Context (uint16_t port, const std::string & remotePath);
+    Context (uint16_t port, const std::string & id);
 
     web::http::http_response & getResponse ();
     bool seek (int64_t offset, int whence);
@@ -36,7 +36,8 @@ using ArchiveHandle = std::shared_ptr<struct archive>;
 
 ArchiveHandle createArchiveReader (ContextHandle context);
 ArchiveHandle createDiskWriter ();
-std::string resolvePath(const std::string & localPath, const std::string & entryName);
+std::string resolvePath (const std::string & localPath,
+                         const std::string & entryName);
 void extractArchive (ArchiveHandle reader, ArchiveHandle writer);
 
 int openCallback (struct archive * handle, void * context);
@@ -50,10 +51,10 @@ web::uri makeBase (uint16_t port);
 
 
 void
-unpack_to (uint16_t port, const std::string & remotePath,
+unpack_to (uint16_t port, const std::string & id,
            const std::string & localPath)
 {
-    ContextHandle context = std::make_shared<Context>(port, remotePath);
+    ContextHandle context = std::make_shared<Context>(port, id);
     auto reader = createArchiveReader(context);
     auto writer = createDiskWriter();
 
@@ -187,14 +188,16 @@ web::uri makeBase (uint16_t port) {
 }
 
 
-std::string resolvePath(const std::string & localPath, const std::string & entryName) {
+std::string resolvePath (const std::string & localPath,
+                         const std::string & entryName)
+{
     boost::filesystem::path path = localPath;
     path /= entryName;
     return path.string();
 }
 
 
-Context::Context (uint16_t port, const std::string & remotePath)
+Context::Context (uint16_t port, const std::string & id)
     : base(makeBase(port))
     , path(remotePath)
     , response()

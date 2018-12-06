@@ -4,7 +4,7 @@
 #include <string>
 
 void
-unpack_to (uint16_t port, const std::string & remote_path,
-           const std::string & local_path);
+unpack_to (uint16_t port, const std::string & id,
+           const std::string & localPath);
 
 #endif
