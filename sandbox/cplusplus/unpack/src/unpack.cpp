@@ -256,6 +256,7 @@ int64_t Context::readChunk (const void ** buffer) {
     auto length = response.body().read(glue, CHUNK_SIZE).get();
     *buffer = &this->chunk[0];
     this->offset += length;
+    printf("read %lu %lld\n", length, this->offset);
     return length;
 }
 

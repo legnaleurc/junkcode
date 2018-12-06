@@ -273,7 +273,7 @@ class NodeImageView(NodeObjectMixin, aw.View):
         except IndexError:
             return aw.Response(status=404)
 
-        response = StreamResponse(status=200)
+        response = aw.StreamResponse(status=200)
         response.content_type = data['type']
         response.content_length = data['size']
         try:
