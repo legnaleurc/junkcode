@@ -88,17 +88,24 @@ function createNode (node) {
 function applyChange (nodes, change) {
   if (change.removed) {
     removeNode(nodes, change.id);
-  } else {
-    upsertNode(nodes, change.node);
+    return;
   }
+  if (change.node.trashed) {
+    removeNode(nodes, change.node.id);
+    return;
+  }
+  upsertNode(nodes, change.node);
 }
 
 
 function removeNode (nodes, nodeId) {
   const node = nodes[nodeId];
-  const parentId = getParentId(node);
+  if (!node) {
+    return;
+  }
+  const parentId = node.parentId;
   let parent = nodes[parentId];
-  if (parent) {
+  if (parent && parent.fetched) {
     parent = Object.assign({}, parent, {
       children: parent.children.filter(id => id !== nodeId),
     });
@@ -108,7 +115,6 @@ function removeNode (nodes, nodeId) {
 }
 
 
-// TODO update roots
 function upsertNode (nodes, node) {
   const newNode = createNode(node);
   node = nodes[node.id];
