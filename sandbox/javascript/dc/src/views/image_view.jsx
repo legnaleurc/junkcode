@@ -29,7 +29,6 @@ class ImageView extends React.Component {
 
   componentDidMount () {
     this._observer.observe(this._root.current);
-    this._fetchImageUrl();
   }
 
   componentWillUnmount () {
@@ -51,11 +50,6 @@ class ImageView extends React.Component {
         />
       </div>
     );
-  }
-
-  _fetchImageUrl () {
-    const { getImageUrl, nodeId, index } = this.props;
-    getImageUrl(nodeId, index, this._setImageUrl);
   }
 
   _setImageUrl (url) {
