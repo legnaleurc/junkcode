@@ -3,4 +3,8 @@
 
 .action-bar {
   @include hbox;
+
+  .group {
+    @include size-auto;
+  }
 }
