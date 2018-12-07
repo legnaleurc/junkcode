@@ -8,6 +8,8 @@ import {
   viewSelectedNode,
 } from '../states/selection/actions';
 
+import './action_bar.scss';
+
 
 class ActionBar extends React.Component {
 
