@@ -232,9 +232,6 @@ class NodeImageListView(NodeObjectMixin, aw.View):
     @raise_404
     async def get(self):
         node = await self.get_object()
-        if node.is_folder:
-            # TODO support folder
-            return aw.Response(status=404)
 
         ue = self.request.app['ue']
         try:
