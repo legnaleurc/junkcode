@@ -18,28 +18,24 @@ class ImageView extends React.Component {
       url: DUMMY_IMAGE_URL,
     };
 
+    this._handleIntersect = this._handleIntersect.bind(this);
+    this._setImageUrl = this._setImageUrl.bind(this);
+
     this._root = React.createRef();
     const options = {
       root: null,
-      rootMargin: '0px',
-      threshold: buildThresholdList(),
+      rootMargin: '400% 0px 400% 0px',
+      threshold: 0,
     };
-    this._observer = new IntersectionObserver(this._handleIntersect.bind(this), options);
-    this._prevRatio = 0.0;
-    this._increasingColor = 'rgba(40, 40, 190, ratio)';
-    this._decreasingColor = 'rgba(190, 40, 40, ratio)';
-
-    this._setImageUrl = this._setImageUrl.bind(this);
+    this._observer = new IntersectionObserver(this._handleIntersect, options);
   }
 
   componentDidMount () {
-    // this._observer.observe(this._root.current);
-    const { getImageUrl, nodeId, index } = this.props;
-    getImageUrl(nodeId, index, this._setImageUrl);
+    this._observer.observe(this._root.current);
   }
 
   componentWillUnmount () {
-    // this._observer.disconnect();
+    this._observer.disconnect();
   }
 
   render () {
@@ -49,7 +45,12 @@ class ImageView extends React.Component {
         className="image-view"
         ref={this._root}
       >
-        <img className="image" src={this.state.url} width={width} height={height} />
+        <img
+          className="image"
+          src={this.state.url}
+          width={width}
+          height={height}
+        />
       </div>
     );
   }
@@ -61,15 +62,8 @@ class ImageView extends React.Component {
   }
 
   _handleIntersect (entries) {
-    entries.forEach((entry) => {
-      if (entry.intersectionRatio > this._prevRatio) {
-        entry.target.style.backgroundColor = this._increasingColor.replace("ratio", entry.intersectionRatio);
-      } else {
-        entry.target.style.backgroundColor = this._decreasingColor.replace("ratio", entry.intersectionRatio);
-      }
-
-      this._prevRatio = entry.intersectionRatio;
-    });
+    const { getImageUrl, nodeId, index } = this.props;
+    getImageUrl(nodeId, index, this._setImageUrl);
   }
 
 }
