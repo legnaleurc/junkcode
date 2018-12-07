@@ -251,7 +251,7 @@ Context::getResponse () {
     }
 
     web::http::client::http_client_config cfg;
-    cfg.set_timeout(std::chrono::minutes(1));
+    // cfg.set_timeout(std::chrono::minutes(1));
     web::http::client::http_client client(this->base, cfg);
     this->response = client.request(request).get();
     status = this->response.status_code();
@@ -267,9 +267,15 @@ int64_t Context::readChunk (const void ** buffer) {
 
     auto & response = this->getResponse();
     Buffer glue(&this->chunk[0], CHUNK_SIZE);
-    auto length = response.body().read(glue, CHUNK_SIZE).get();
+    int64_t length = this->length - this->offset;
+    if (length >= 0 && length < CHUNK_SIZE) {
+        length = response.body().read_to_end(glue).get();
+    } else {
+        length = response.body().read(glue, CHUNK_SIZE).get();
+    }
     *buffer = &this->chunk[0];
     this->offset += length;
+    printf("read %lld %lld %lld\n", length, this->offset, this->length);
     return length;
 }
 
@@ -294,6 +300,7 @@ bool Context::seek (int64_t offset, int whence) {
         return false;
     }
 
+    printf("seek %lld %lld\n", this->length, this->offset);
     return this->offset >= 0;
 }
 

@@ -96,6 +96,7 @@ class NodeRandomAccessMixin(object):
         return aw.StreamResponse(status=206)
 
     async def feed(self, response, node):
+        print(self.request.headers)
         range_ = self.request.http_range
         offset = 0 if range_.start is None else range_.start
         length = node.size - offset if not range_.stop else range_.stop + 1
@@ -118,6 +119,8 @@ class NodeRandomAccessMixin(object):
                     await response.write(chunk)
         finally:
             await response.write_eof()
+            response.force_close()
+        print('pipe end')
 
 
 class NodeView(NodeObjectMixin, aw.View):
