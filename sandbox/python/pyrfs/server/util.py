@@ -194,7 +194,7 @@ class UnpackEngine(object):
             for f in files:
                 if f.is_image:
                     rv.append({
-                        'path': f.id,
+                        'path': f.id_,
                         'type': f.mime_type,
                         'size': f.size,
                         'width': f.image_width,
