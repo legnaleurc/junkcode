@@ -191,6 +191,8 @@ class UnpackEngine(object):
     async def _scan_remote(self, node):
         rv = []
         async for root, folders, files in self._drive.walk(node):
+            folders.sort(key=lambda _: _.name)
+            files.sort(key=lambda _: _.name)
             for f in files:
                 if f.is_image:
                     rv.append({
