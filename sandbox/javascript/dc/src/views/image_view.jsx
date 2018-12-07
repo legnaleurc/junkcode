@@ -20,7 +20,7 @@ class ImageView extends React.Component {
 
     this._root = React.createRef();
     const options = {
-      root: null,
+      root: props.rootRef.current,
       rootMargin: '2048px 0px 2048px 0px',
       threshold: 0.1,
     };

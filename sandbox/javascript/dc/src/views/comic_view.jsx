@@ -10,14 +10,17 @@ class ComicView extends React.Component {
 
   constructor (props) {
     super(props);
+
+    this._root = React.createRef();
   }
 
   render () {
     return (
-      <div className="comic-view">
+      <div className="comic-view" ref={this._root}>
         {this.props.imageList.map((d, index) => (
           <React.Fragment key={index}>
             <ImageView
+              rootRef={this._root}
               width={d.width}
               height={d.height}
               url={d.url}
