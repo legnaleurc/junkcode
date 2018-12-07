@@ -22,7 +22,7 @@ class ImageView extends React.Component {
     const options = {
       root: null,
       rootMargin: '2048px 0px 2048px 0px',
-      threshold: 0,
+      threshold: 0.1,
     };
     this._observer = new IntersectionObserver(this._handleIntersect, options);
   }
@@ -59,7 +59,11 @@ class ImageView extends React.Component {
   }
 
   _handleIntersect (entries) {
-    this._setImageUrl(this.props.url);
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        this._setImageUrl(this.props.url);
+      }
+    });
   }
 
 }
