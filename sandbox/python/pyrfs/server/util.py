@@ -131,12 +131,10 @@ class UnpackEngine(object):
     async def _unpack(self, node):
         lock = self._unpacking[node.id_]
         try:
-            p = await asyncio.create_subprocess_exec('unpack',
-                                                     str(self._port),
-                                                     node.id_,
-                                                     self._tmp)
-            out, err = await p.communicate()
-            self._cache[node.id_] = self._scan(node.id_)
+            if node.is_folder:
+                pass
+            else:
+                await self._unpack_local(node.id_)
         except Exception as e:
             EXCEPTION('server', e) << 'search failed, abort'
             raise SearchFailedError(str(e))
@@ -153,7 +151,17 @@ class UnpackEngine(object):
         except KeyError:
             raise SearchFailedError(f'{node_id} canceled search')
 
-    def _scan(self, node_id):
+    async def _unpack_local(self, node_id):
+        p = await asyncio.create_subprocess_exec('unpack',
+                                                str(self._port),
+                                                node_id,
+                                                self._tmp)
+        out, err = await p.communicate()
+        if p.returncode != 0:
+            raise Exception('unpack failed')
+        self._cache[node_id] = self._scan_local(node_id)
+
+    def _scan_local(self, node_id):
         rv = []
         top = op.join(self._tmp, node_id)
         for dirpath, dirnames, filenames in os.walk(top):
