@@ -50,7 +50,7 @@ class Daemon(object):
         async with wdg.Drive() as drive:
             app['drive'] = drive
             app['se'] = util.SearchEngine(drive)
-            async with util.UnpackEngine(port) as ue:
+            async with util.UnpackEngine(drive, port) as ue:
                 app['ue'] = ue
                 async with ServerContext(app, port):
                     await self._until_finished()

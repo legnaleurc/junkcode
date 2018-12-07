@@ -238,7 +238,7 @@ class NodeImageListView(NodeObjectMixin, aw.View):
 
         ue = self.request.app['ue']
         try:
-            manifest = await ue.get_manifest(node.id_)
+            manifest = await ue.get_manifest(node)
         except u.InvalidPatternError:
             return aw.Response(status=400)
         except u.SearchFailedError:

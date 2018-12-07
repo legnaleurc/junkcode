@@ -92,9 +92,11 @@ class SearchEngine(object):
 
 class UnpackEngine(object):
 
-    def __init__(self, port):
+    def __init__(self, drive, port):
         super(UnpackEngine, self).__init__()
         self._loop = asyncio.get_event_loop()
+        # NOTE only takes a reference, not owning
+        self._drive = drive
         self._port = port
         self._cache = {}
         self._unpacking = {}
@@ -112,34 +114,34 @@ class UnpackEngine(object):
         self._raii = None
         self._tmp = None
 
-    async def get_manifest(self, node_id):
-        manifest = self._cache.get(node_id, None)
+    async def get_manifest(self, node):
+        manifest = self._cache.get(node.id_, None)
         if manifest is not None:
             return manifest
 
-        if node_id in self._unpacking:
-            lock = self._unpacking[node_id]
-            return await self._wait_for_result(lock, node_id)
+        if node.id_ in self._unpacking:
+            lock = self._unpacking[node.id_]
+            return await self._wait_for_result(lock, node.id_)
 
         lock = asyncio.Condition()
-        self._unpacking[node_id] = lock
-        self._loop.create_task(self._unpack(node_id))
-        return await self._wait_for_result(lock, node_id)
+        self._unpacking[node.id_] = lock
+        self._loop.create_task(self._unpack(node))
+        return await self._wait_for_result(lock, node.id_)
 
-    async def _unpack(self, node_id):
-        lock = self._unpacking[node_id]
+    async def _unpack(self, node):
+        lock = self._unpacking[node.id_]
         try:
             p = await asyncio.create_subprocess_exec('unpack',
                                                      str(self._port),
-                                                     node_id,
+                                                     node.id_,
                                                      self._tmp)
             out, err = await p.communicate()
-            self._cache[node_id] = self._scan(node_id)
+            self._cache[node.id_] = self._scan(node.id_)
         except Exception as e:
             EXCEPTION('server', e) << 'search failed, abort'
             raise SearchFailedError(str(e))
         finally:
-            del self._unpacking[node_id]
+            del self._unpacking[node.id_]
             async with lock:
                 lock.notify_all()
 
@@ -149,7 +151,7 @@ class UnpackEngine(object):
         try:
             return self._cache[node_id]
         except KeyError:
-            raise SearchFailedError(f'{pattern} canceled search')
+            raise SearchFailedError(f'{node_id} canceled search')
 
     def _scan(self, node_id):
         rv = []
