@@ -161,6 +161,7 @@ class NodeView(NodeObjectMixin, aw.View):
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': ', '.join([
                     'GET',
+                    'DELETE',
                     'PATCH',
                     'OPTIONS',
                 ]),

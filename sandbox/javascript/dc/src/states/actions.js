@@ -10,6 +10,7 @@ import {
 import {
   sagaMoveSelectedNodesTo,
   sagaContinuouslySelect,
+  sagaDeleteSelectedNodes,
   sagaViewSelectedNode,
 } from './selection/actions';
 
@@ -23,6 +24,7 @@ export default function * ({ fileSystem }) {
     sagaGetSearchName(fileSystem),
     sagaMoveSelectedNodesTo(fileSystem),
     sagaContinuouslySelect(),
+    sagaDeleteSelectedNodes(fileSystem),
     sagaViewSelectedNode(fileSystem),
   ]);
 }
