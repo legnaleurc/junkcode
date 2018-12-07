@@ -253,9 +253,6 @@ class NodeImageView(NodeObjectMixin, aw.View):
     @raise_404
     async def get(self):
         node = await self.get_object()
-        if node.is_folder:
-            # TODO support folder
-            return aw.Response(status=404)
 
         image_id = self.request.match_info.get('image_id', None)
         if not image_id:
@@ -264,7 +261,7 @@ class NodeImageView(NodeObjectMixin, aw.View):
 
         ue = self.request.app['ue']
         try:
-            manifest = await ue.get_manifest(node.id_)
+            manifest = await ue.get_manifest(node)
         except u.InvalidPatternError:
             return aw.Response(status=400)
         except u.SearchFailedError:
@@ -275,17 +272,24 @@ class NodeImageView(NodeObjectMixin, aw.View):
         except IndexError:
             return aw.Response(status=404)
 
+        drive = self.request.app['drive']
         response = aw.StreamResponse(status=200)
         response.content_type = data['type']
         response.content_length = data['size']
         try:
             await response.prepare(self.request)
-            with open(data['path'], 'rb') as fin:
-                while True:
-                    chunk = fin.read(65536)
-                    if not chunk:
-                        break
-                    await response.write(chunk)
+            if node.is_folder:
+                child = await get_node(drive, data['path'])
+                async with await drive.download(child) as stream:
+                    async for chunk in stream:
+                        await response.write(chunk)
+            else:
+                with open(data['path'], 'rb') as fin:
+                    while True:
+                        chunk = fin.read(65536)
+                        if not chunk:
+                            break
+                        await response.write(chunk)
         finally:
             await response.write_eof()
         return response
