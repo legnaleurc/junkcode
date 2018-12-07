@@ -325,6 +325,13 @@ def dict_from_node(node):
         'mime_type': node.mime_type,
         'md5': node.md5,
         'size': node.size,
+        'is_image': node.is_image,
+        'image_width': node.image_width,
+        'image_height': node.image_height,
+        'is_video': node.is_video,
+        'video_width': node.video_width,
+        'video_height': node.video_height,
+        'video_ms_duration': node.video_ms_duration,
     }
 
 
