@@ -132,7 +132,7 @@ class UnpackEngine(object):
         lock = self._unpacking[node.id_]
         try:
             if node.is_folder:
-                pass
+                await self._unpack_remote(node)
             else:
                 await self._unpack_local(node.id_)
         except Exception as e:
@@ -183,6 +183,23 @@ class UnpackEngine(object):
                     'width': width,
                     'height': height,
                 })
+        return rv
+
+    async def _unpack_remote(self, node):
+        self._cache[node.id_] = await self._scan_remote(node)
+
+    async def _scan_remote(self, node):
+        rv = []
+        async for root, folders, files in self._drive.walk(node):
+            for f in files:
+                if f.is_image:
+                    rv.append({
+                        'path': f.id,
+                        'type': f.mime_type,
+                        'size': f.size,
+                        'width': f.image_width,
+                        'height': f.image_height,
+                    })
         return rv
 
 
