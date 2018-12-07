@@ -96,13 +96,13 @@ class NodeRandomAccessMixin(object):
         return aw.StreamResponse(status=206)
 
     async def feed(self, response, node):
-        print(self.request.headers)
         range_ = self.request.http_range
         offset = 0 if range_.start is None else range_.start
-        length = node.size - offset if not range_.stop else range_.stop + 1
+        length = node.size - offset if not range_.stop else range_.stop
+        stop = range_.stop if range_.stop else node.size - 1
 
         if range_.start is not None or range_.stop is not None:
-            response.headers['Content-Range'] = f'bytes {offset}-{offset + length - 1}/{node.size}'
+            response.headers['Content-Range'] = f'bytes {offset}-{stop}/{node.size}'
 
         response.content_length = length
 
@@ -111,16 +111,11 @@ class NodeRandomAccessMixin(object):
 
         drive = self.request.app['drive']
 
-        try:
-            await response.prepare(self.request)
-            async with await drive.download(node) as stream:
-                await stream.seek(offset)
-                async for chunk in stream:
-                    await response.write(chunk)
-        finally:
-            await response.write_eof()
-            response.force_close()
-        print('pipe end')
+        await response.prepare(self.request)
+        async with await drive.download(node) as stream:
+            await stream.seek(offset)
+            async for chunk in stream:
+                await response.write(chunk)
 
 
 class NodeView(NodeObjectMixin, aw.View):
@@ -279,22 +274,20 @@ class NodeImageView(NodeObjectMixin, aw.View):
         response = aw.StreamResponse(status=200)
         response.content_type = data['type']
         response.content_length = data['size']
-        try:
-            await response.prepare(self.request)
-            if node.is_folder:
-                child = await get_node(drive, data['path'])
-                async with await drive.download(child) as stream:
-                    async for chunk in stream:
-                        await response.write(chunk)
-            else:
-                with open(data['path'], 'rb') as fin:
-                    while True:
-                        chunk = fin.read(65536)
-                        if not chunk:
-                            break
-                        await response.write(chunk)
-        finally:
-            await response.write_eof()
+
+        await response.prepare(self.request)
+        if node.is_folder:
+            child = await get_node(drive, data['path'])
+            async with await drive.download(child) as stream:
+                async for chunk in stream:
+                    await response.write(chunk)
+        else:
+            with open(data['path'], 'rb') as fin:
+                while True:
+                    chunk = fin.read(65536)
+                    if not chunk:
+                        break
+                    await response.write(chunk)
         return response
 
 
