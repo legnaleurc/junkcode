@@ -6,7 +6,6 @@ import {
   sagaGetStreamUrl,
   sagaPostSync,
   sagaGetSearchName,
-  sagaGetImageUrl,
 } from './file_system/actions';
 import {
   sagaMoveSelectedNodesTo,
@@ -25,6 +24,5 @@ export default function * ({ fileSystem }) {
     sagaMoveSelectedNodesTo(fileSystem),
     sagaContinuouslySelect(),
     sagaViewSelectedNode(fileSystem),
-    sagaGetImageUrl(fileSystem),
   ]);
 }

@@ -15,7 +15,11 @@ class ComicView extends React.Component {
       <div className="comic-view">
         {this.props.imageList.map((d, index) => (
           <React.Fragment key={index}>
-            <ImageView index={index} width={d.width} height={d.height} />
+            <ImageView
+              width={d.width}
+              height={d.height}
+              url={d.url}
+            />
           </React.Fragment>
         ))}
       </div>

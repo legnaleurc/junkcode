@@ -1,7 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
-
-import { getImageUrl } from '../states/file_system/actions';
 
 import './image_view.scss';
 
@@ -62,42 +59,9 @@ class ImageView extends React.Component {
   }
 
   _handleIntersect (entries) {
-    const { getImageUrl, nodeId, index } = this.props;
-    getImageUrl(nodeId, index, this._setImageUrl);
+    this._setImageUrl(this.props.url);
   }
 
 }
 
-
-function buildThresholdList () {
-  const thresholds = [];
-  const numSteps = 20;
-
-  for (let i = 1.0; i <= numSteps; ++i) {
-    const ratio = i / numSteps;
-    thresholds.push(ratio);
-  }
-
-  thresholds.push(0);
-  return thresholds;
-}
-
-
-function mapStateToProps (state) {
-  const { viewingId } = state.selection;
-  return {
-    nodeId: viewingId,
-  };
-}
-
-
-function mapDispatchToProps (dispatch) {
-  return {
-    getImageUrl (id, imageId, done) {
-      return dispatch(getImageUrl(id, imageId, done));
-    },
-  };
-}
-
-
-export default connect(mapStateToProps, mapDispatchToProps)(ImageView);
+export default ImageView;

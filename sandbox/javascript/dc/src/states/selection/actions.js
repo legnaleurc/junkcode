@@ -203,6 +203,10 @@ export function * sagaViewSelectedNode (fileSystem) {
       }
       const id = srcList[0];
       srcList = yield call(() => fileSystem.imageList(id));
+      srcList = srcList.map((data, index) => {
+        data.url = fileSystem.image(id, index);
+        return data;
+      });
       yield put(viewSelectedNodeSucceed(id, srcList));
     } catch (e) {
       yield put(viewSelectedNodeFailed(e.message));
