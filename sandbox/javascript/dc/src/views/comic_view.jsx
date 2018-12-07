@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 
 import ImageView from './image_view';
 
+import './comic_view.scss';
+
 
 class ComicView extends React.Component {
 
