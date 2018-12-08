@@ -1,7 +1,7 @@
 import {
   SELECT_TOGGLE,
   SELECT_MOVE_SUCCEED,
-  SELECT_CONTINUOUSLY_SUCCEED,
+  SELECT_SIBLING_LIST_SUCCEED,
   SELECT_DELETE_SUCCEED,
   SELECT_COMIC_TRY,
   SELECT_COMIC_SUCCEED,
@@ -39,7 +39,7 @@ export default function reduceSelection (state = initialState, action) {
         last: null,
       });
     }
-    case SELECT_CONTINUOUSLY_SUCCEED: {
+    case SELECT_SIBLING_LIST_SUCCEED: {
       const { selection, last } = state;
       const { list } = action.payload;
       for (const id of list) {

@@ -7,8 +7,9 @@ export const SELECT_TOGGLE = 'SELECT_TOGGLE';
 export const SELECT_MOVE_TRY = 'SELECT_MOVE_TRY';
 export const SELECT_MOVE_SUCCEED = 'SELECT_MOVE_SUCCEED';
 export const SELECT_MOVE_FAILED = 'SELECT_MOVE_FAILED';
-export const SELECT_CONTINUOUSLY_TRY = 'SELECT_CONTINUOUSLY_TRY';
-export const SELECT_CONTINUOUSLY_SUCCEED = 'SELECT_CONTINUOUSLY_SUCCEED';
+export const SELECT_SIBLING_LIST_TRY = 'SELECT_SIBLING_LIST_TRY';
+export const SELECT_SIBLING_LIST_SUCCEED = 'SELECT_SIBLING_LIST_SUCCEED';
+export const SELECT_SIBLING_LIST_FAILED = 'SELECT_SIBLING_LIST_FAILED';
 export const SELECT_DELETE_TRY = 'SELECT_DELETE_TRY';
 export const SELECT_DELETE_SUCCEED = 'SELECT_DELETE_SUCCEED';
 export const SELECT_DELETE_FAILED = 'SELECT_DELETE_FAILED';
@@ -75,9 +76,9 @@ export function * sagaMoveSelectedNodesTo (fileSystem) {
 }
 
 
-export function continuouslySelect (id) {
+export function selectSiblingList (id) {
   return {
-    type: SELECT_CONTINUOUSLY_TRY,
+    type: SELECT_SIBLING_LIST_TRY,
     payload: {
       id,
     },
@@ -85,9 +86,9 @@ export function continuouslySelect (id) {
 }
 
 
-function continuouslySelectSucceed (list) {
+function selectSiblingListSucceed (list) {
   return {
-    type: SELECT_CONTINUOUSLY_SUCCEED,
+    type: SELECT_SIBLING_LIST_SUCCEED,
     payload: {
       list,
     },
@@ -95,24 +96,38 @@ function continuouslySelectSucceed (list) {
 }
 
 
-export function * sagaContinuouslySelect () {
-  yield takeEvery(SELECT_CONTINUOUSLY_TRY, function * ({ payload }) {
+function selectSiblingListFailed (message) {
+  return {
+    type: SELECT_SIBLING_LIST_FAILED,
+    payload: {
+      message,
+    },
+  };
+}
+
+
+export function * sagaSelectSiblingList () {
+  yield takeEvery(SELECT_SIBLING_LIST_TRY, function * ({ payload }) {
     const { id } = payload;
     const { last } = yield select(getLocalState);
     if (!last) {
-      // TODO fallback to toggleSelect?
+      yield put(selectSiblingListFailed('NO_LATEST_SELECTION'));
       return;
     }
     const { nodes } = yield select(state => state.fileSystem);
     const node = nodes[last];
-    const parent = nodes[node.parent_id];
+    if (!node.parentId) {
+      yield put(selectSiblingListFailed('NO_SIBLING'));
+      return;
+    }
+    const parent = nodes[node.parentId];
     if (!parent) {
-      // FIXME root problem
+      yield put(selectSiblingListFailed('NO_PARENT'));
       return;
     }
     const toIndex = parent.children.indexOf(id);
     if (toIndex < 0) {
-      // should not cross folder
+      yield put(selectSiblingListFailed('NO_SUCH_SIBLING'));
       return;
     }
     const fromIndex = parent.children.indexOf(last);
