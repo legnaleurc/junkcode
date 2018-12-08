@@ -32,6 +32,7 @@ class SearchList extends React.Component {
           />
         </div>
         <div>
+          {this._renderEmpty()}
           {this.props.matched.map(({id, path}) => (
             <div
               key={id}
@@ -50,6 +51,14 @@ class SearchList extends React.Component {
     );
   }
 
+  _renderEmpty () {
+    const { matched } = this.props;
+    if (!matched || matched.length <= 0) {
+      return <EmptyBlock />;
+    }
+    return null;
+  }
+
   _search (text) {
     this.props.searchName(text);
   }
@@ -60,6 +69,13 @@ class SearchList extends React.Component {
   }
 
 };
+
+
+function EmptyBlock (props) {
+  return (
+    <div className="empty-block">EMPTY</div>
+  );
+}
 
 
 function openUrl (url) {
