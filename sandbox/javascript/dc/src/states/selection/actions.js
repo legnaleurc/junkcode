@@ -4,6 +4,7 @@ import { postSync } from '../file_system/actions';
 
 
 export const SELECT_TOGGLE = 'SELECT_TOGGLE';
+export const SELECT_CLEAR = 'SELECT_CLEAR';
 export const SELECT_MOVE_TRY = 'SELECT_MOVE_TRY';
 export const SELECT_MOVE_SUCCEED = 'SELECT_MOVE_SUCCEED';
 export const SELECT_MOVE_FAILED = 'SELECT_MOVE_FAILED';
@@ -32,6 +33,13 @@ export function toggleSelection (id) {
     payload: {
       id,
     },
+  };
+}
+
+
+export function clearSelection () {
+  return {
+    type: SELECT_CLEAR,
   };
 }
 

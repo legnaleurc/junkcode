@@ -1,5 +1,6 @@
 import {
   SELECT_TOGGLE,
+  SELECT_CLEAR,
   SELECT_MOVE_SUCCEED,
   SELECT_SIBLING_LIST_SUCCEED,
   SELECT_MATCHED_LIST_SUCCEED,
@@ -34,6 +35,11 @@ export default function reduceSelection (state = initialState, action) {
         last,
       });
     }
+    case SELECT_CLEAR:
+      return Object.assign({}, state, {
+        table: {},
+        last: null,
+      });
     case SELECT_MOVE_SUCCEED: {
       return Object.assign({}, state, {
         table: {},

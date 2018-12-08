@@ -9,6 +9,7 @@ import ComicView from './comic_view';
 import SwitchBar from './switch_bar';
 import MutexView from './mutex_view';
 import { getRoot } from '../states/file_system/actions';
+import { clearSelection } from '../states/selection/actions';
 
 import './application.scss';
 
@@ -30,7 +31,7 @@ class Application extends React.Component {
   }
 
   render () {
-    const { rootId } = this.props;
+    const { rootId, clearSelection } = this.props;
     return (
       <div className="application">
         <div className="side-bar">
@@ -38,6 +39,7 @@ class Application extends React.Component {
             this.setState({
               selected: key,
             });
+            clearSelection();
           }}>
             <SwitchBar.Switch name="normal" default>
               <div className="switch normal"></div>
@@ -124,6 +126,9 @@ function mapDispatchToProps (dispatch) {
   return {
     getRoot () {
       dispatch(getRoot());
+    },
+    clearSelection () {
+      dispatch(clearSelection());
     },
   };
 }
