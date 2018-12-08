@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { getSearchName, getStreamUrl } from '../states/file_system/actions';
+import Input from './input';
 
 
 class SearchList extends React.Component {
@@ -17,13 +18,18 @@ class SearchList extends React.Component {
   render () {
     return (
       <div className="search-list">
-        <input type="text" onKeyPress={event => {
-          if (event.key !== 'Enter') {
-            return;
-          }
-          event.preventDefault();
-          this._search(event.target.value);
-        }} />
+        <div className="input-group">
+          <Input
+            type="text"
+            onKeyPress={event => {
+              if (event.key !== 'Enter') {
+                return;
+              }
+              event.preventDefault();
+              this._search(event.target.value);
+            }}
+          />
+        </div>
         <div>
           {this.props.matched.map(({id, path}) => (
             <p
