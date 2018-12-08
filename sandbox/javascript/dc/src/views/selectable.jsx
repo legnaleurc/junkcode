@@ -1,10 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import {
-  toggleSelection,
-  continuouslySelect,
-} from '../states/selection/actions';
+import { toggleSelection } from '../states/selection/actions';
 
 
 class Selectable extends React.Component {
@@ -21,7 +18,7 @@ class Selectable extends React.Component {
         onClick={event => {
           event.preventDefault();
           if (event.shiftKey) {
-            this._continuouslySelect();
+            this._multiSelect();
           } else {
             this._toggleSelection();
           }
@@ -37,9 +34,11 @@ class Selectable extends React.Component {
     toggleSelection(nodeId);
   }
 
-  _continuouslySelect() {
-    const { nodeId, continuouslySelect } = this.props;
-    continuouslySelect(nodeId);
+  _multiSelect() {
+    const { nodeId, onMultiSelect } = this.props;
+    if (onMultiSelect) {
+      onMultiSelect(nodeId);
+    }
   }
 
 }
@@ -49,9 +48,6 @@ function mapDispatchToProps (dispatch) {
   return {
     toggleSelection (id) {
       dispatch(toggleSelection(id));
-    },
-    continuouslySelect (id) {
-      dispatch(continuouslySelect(id));
     },
   };
 }

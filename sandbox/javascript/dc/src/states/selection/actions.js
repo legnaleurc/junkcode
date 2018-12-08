@@ -135,7 +135,7 @@ export function * sagaSelectSiblingList () {
       [fromIndex, toIndex] = [toIndex, fromIndex];
     }
     const list = parent.children.slice(fromIndex, toIndex + 1);
-    yield put(continuouslySelectSucceed(list));
+    yield put(selectSiblingListSucceed(list));
   });
 }
 

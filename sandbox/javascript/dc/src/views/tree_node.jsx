@@ -5,6 +5,7 @@ import { classNameFromObject } from '../lib';
 import { getList, getStreamUrl } from '../states/file_system/actions';
 import {
   moveSelectedNodesTo,
+  selectSiblingList,
 } from '../states/selection/actions';
 import DragDrop from './dragdrop';
 import Selectable from './selectable';
@@ -26,7 +27,7 @@ class TreeNode extends React.Component {
   }
 
   render () {
-    const { node, selected } = this.props;
+    const { node, selected, selectSiblingList } = this.props;
     return (
       <div className="tree-node">
         <DragDrop.Dragable
@@ -50,7 +51,10 @@ class TreeNode extends React.Component {
                   this._openFile();
                 }}
               >
-                <Selectable nodeId={node.id}>
+                <Selectable
+                  nodeId={node.id}
+                  onMultiSelect={selectSiblingList}
+                >
                   {node.name}
                 </Selectable>
               </div>
@@ -185,6 +189,9 @@ function mapDispatchToProps (dispatch, ownProps) {
     },
     moveSelectedNodesTo (id) {
       dispatch(moveSelectedNodesTo(id));
+    },
+    selectSiblingList (id) {
+      dispatch(selectSiblingList(id));
     },
   };
 }
