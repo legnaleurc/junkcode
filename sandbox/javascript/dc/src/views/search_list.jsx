@@ -6,6 +6,8 @@ import { selectMatchedList } from '../states/selection/actions';
 import Input from './input';
 import Selectable from './selectable';
 
+import './search_list.scss';
+
 
 class SearchList extends React.Component {
 
