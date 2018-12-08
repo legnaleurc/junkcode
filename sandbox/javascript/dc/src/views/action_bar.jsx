@@ -25,13 +25,13 @@ class ActionBar extends React.Component {
     return (
       <div className="action-bar">
         <div className="group">
-          <Button onClick={this._sync}>sync</Button>
+          <Button onClick={this._sync}>SYNC</Button>
         </div>
         <div className="group">
-          <Button onClick={this._comic}>comic</Button>
+          <Button onClick={this._comic}>MPV</Button>
         </div>
         <div className="group">
-          <Button onClick={this._trash}>trash</Button>
+          <Button onClick={this._trash}>TRASH</Button>
         </div>
       </div>
     );
