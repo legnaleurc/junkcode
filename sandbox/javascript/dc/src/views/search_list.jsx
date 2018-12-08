@@ -42,12 +42,14 @@ class SearchList extends React.Component {
                 this._openFile(id);
               }}
             >
-              <Selectable
-                nodeId={id}
-                onMultiSelect={selectMatchedList}
-              >
-                <code>{path}</code>
-              </Selectable>
+              <Selectable.Area nodeId={id}>
+                <Selectable.Trigger
+                  nodeId={id}
+                  onMultiSelect={selectMatchedList}
+                >
+                  <code>{path}</code>
+                </Selectable.Trigger>
+              </Selectable.Area>
             </div>
           ))}
         </div>

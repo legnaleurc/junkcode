@@ -37,28 +37,27 @@ class TreeNode extends React.Component {
           <DragDrop.Dropable
             onDrop={this._onDrop}
           >
-            <div className={classNameFromObject({
-              head: true,
-              selected,
-            })}>
-              {this._renderIndicator()}
-              <div
-                className={classNameFromObject({
-                  shift: !node.children,
-                })}
-                onDoubleClick={event => {
-                  event.preventDefault();
-                  this._openFile();
-                }}
-              >
-                <Selectable
-                  nodeId={node.id}
-                  onMultiSelect={selectSiblingList}
+            <Selectable.Area nodeId={node.id}>
+              <div className="head">
+                {this._renderIndicator()}
+                <div
+                  className={classNameFromObject({
+                    shift: !node.children,
+                  })}
+                  onDoubleClick={event => {
+                    event.preventDefault();
+                    this._openFile();
+                  }}
                 >
-                  {node.name}
-                </Selectable>
+                  <Selectable.Trigger
+                    nodeId={node.id}
+                    onMultiSelect={selectSiblingList}
+                  >
+                    {node.name}
+                  </Selectable.Trigger>
+                </div>
               </div>
-            </div>
+            </Selectable.Area>
             {this._renderChildren()}
           </DragDrop.Dropable>
         </DragDrop.Dragable>

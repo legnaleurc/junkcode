@@ -1,10 +1,32 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { classNameFromObject } from '../lib/index';
 import { toggleSelection } from '../states/selection/actions';
 
 
-class Selectable extends React.Component {
+class Area extends React.Component {
+
+  constructor (props) {
+    super(props);
+  }
+
+  render () {
+    const { children, selected } = this.props;
+    return (
+      <div className={classNameFromObject({
+        'selectable-area': true,
+        selected,
+      })}>
+        {children}
+      </div>
+    );
+  }
+
+}
+
+
+class Trigger extends React.Component {
 
   constructor (props) {
     super(props);
@@ -14,7 +36,7 @@ class Selectable extends React.Component {
     const { children } = this.props;
     return (
       <div
-        className="selectable"
+        className="selectable-trigger"
         onClick={event => {
           event.preventDefault();
           if (event.shiftKey) {
@@ -44,6 +66,15 @@ class Selectable extends React.Component {
 }
 
 
+function mapStateToProps (state, ownProps) {
+  const { selection } = state;
+  const { nodeId } = ownProps;
+  return {
+    selected: !!selection.table[nodeId],
+  };
+}
+
+
 function mapDispatchToProps (dispatch) {
   return {
     toggleSelection (id) {
@@ -53,4 +84,7 @@ function mapDispatchToProps (dispatch) {
 }
 
 
-export default connect(undefined, mapDispatchToProps)(Selectable);
+export default {
+  Area: connect(mapStateToProps, undefined)(Area),
+  Trigger: connect(undefined, mapDispatchToProps)(Trigger),
+};
