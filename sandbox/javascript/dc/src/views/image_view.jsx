@@ -21,8 +21,8 @@ class ImageView extends React.Component {
     this._root = React.createRef();
     const options = {
       root: props.rootRef.current,
-      rootMargin: '2048px 0px 2048px 0px',
-      threshold: 0.1,
+      rootMargin: '400% 0px 400% 0px',
+      threshold: 0,
     };
     this._observer = new IntersectionObserver(this._handleIntersect, options);
   }
