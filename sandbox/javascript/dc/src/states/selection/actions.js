@@ -171,11 +171,10 @@ export function viewSelectedNode () {
 }
 
 
-function viewSelectedNodeSucceed (id, imageList) {
+function viewSelectedNodeSucceed (imageList) {
   return {
     type: SELECT_COMIC_SUCCEED,
     payload: {
-      id,
       imageList,
     },
   };
@@ -207,7 +206,7 @@ export function * sagaViewSelectedNode (fileSystem) {
         data.url = fileSystem.image(id, index);
         return data;
       });
-      yield put(viewSelectedNodeSucceed(id, srcList));
+      yield put(viewSelectedNodeSucceed(srcList));
     } catch (e) {
       yield put(viewSelectedNodeFailed(e.message));
     }

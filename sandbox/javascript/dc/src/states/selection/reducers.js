@@ -3,6 +3,7 @@ import {
   SELECT_MOVE_SUCCEED,
   SELECT_CONTINUOUSLY_SUCCEED,
   SELECT_DELETE_SUCCEED,
+  SELECT_COMIC_TRY,
   SELECT_COMIC_SUCCEED,
 } from './actions';
 
@@ -10,7 +11,6 @@ import {
 const initialState = {
   selection: {},
   last: null,
-  viewingId: null,
   imageList: [],
 };
 
@@ -56,11 +56,15 @@ export default function reduceSelection (state = initialState, action) {
         last: null,
       });
     }
+    case SELECT_COMIC_TRY: {
+      return Object.assign({}, state, {
+        imageList: [],
+      });
+    }
     case SELECT_COMIC_SUCCEED: {
       return Object.assign({}, state, {
         selection: {},
         last: null,
-        viewingId: action.payload.id,
         imageList: action.payload.imageList,
       });
     }
