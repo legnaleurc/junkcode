@@ -170,7 +170,7 @@ function mapStateToProps (state, ownProps) {
 
   return {
     node: fileSystem.nodes[nodeId],
-    selected: !!selection.selection[nodeId],
+    selected: !!selection.table[nodeId],
   };
 }
 

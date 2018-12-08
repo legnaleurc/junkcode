@@ -9,7 +9,7 @@ import {
 
 
 const initialState = {
-  selection: {},
+  table: {},
   last: null,
   imageList: [],
 };
@@ -18,41 +18,41 @@ const initialState = {
 export default function reduceSelection (state = initialState, action) {
   switch (action.type) {
     case SELECT_TOGGLE: {
-      const { selection } = state;
+      const { table } = state;
       let { last } = state;
       const id = action.payload.id;
-      if (selection[id]) {
-        delete selection[id];
+      if (table[id]) {
+        delete table[id];
         last = null;
       } else {
-        selection[id] = true;
+        table[id] = true;
         last = id;
       }
       return Object.assign({}, state, {
-        selection: Object.assign({}, selection),
+        table: Object.assign({}, table),
         last,
       });
     }
     case SELECT_MOVE_SUCCEED: {
       return Object.assign({}, state, {
-        selection: {},
+        table: {},
         last: null,
       });
     }
     case SELECT_SIBLING_LIST_SUCCEED: {
-      const { selection, last } = state;
+      const { table, last } = state;
       const { list } = action.payload;
       for (const id of list) {
-        selection[id] = true;
+        table[id] = true;
       }
       return Object.assign({}, state, {
-        selection: Object.assign({}, selection),
+        table: Object.assign({}, table),
         last,
       });
     }
     case SELECT_DELETE_SUCCEED: {
       return Object.assign({}, state, {
-        selection: {},
+        table: {},
         last: null,
       });
     }
@@ -63,7 +63,7 @@ export default function reduceSelection (state = initialState, action) {
     }
     case SELECT_COMIC_SUCCEED: {
       return Object.assign({}, state, {
-        selection: {},
+        table: {},
         last: null,
         imageList: action.payload.imageList,
       });

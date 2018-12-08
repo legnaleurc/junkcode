@@ -64,8 +64,8 @@ export function * sagaMoveSelectedNodesTo (fileSystem) {
   yield takeEvery(SELECT_MOVE_TRY, function * ({ payload }) {
     const { id } = payload;
     try {
-      const { selection } = yield select(getLocalState);
-      const srcList = Object.keys(selection);
+      const { table } = yield select(getLocalState);
+      const srcList = Object.keys(table);
       yield call(() => fileSystem.move(srcList, id));
       yield put(moveSelectedNodesToSucceed());
     } catch (e) {
@@ -167,8 +167,8 @@ function deleteSelectedNodesFailed (message) {
 export function * sagaDeleteSelectedNodes (fileSystem) {
   yield takeEvery(SELECT_DELETE_TRY, function * () {
     try {
-      const { selection } = yield select(getLocalState);
-      const srcList = Object.keys(selection);
+      const { table } = yield select(getLocalState);
+      const srcList = Object.keys(table);
       yield call(() => fileSystem.trash(srcList));
       yield put(deleteSelectedNodesSucceed());
     } catch (e) {
@@ -209,8 +209,8 @@ function viewSelectedNodeFailed (message) {
 export function * sagaViewSelectedNode (fileSystem) {
   yield takeEvery(SELECT_COMIC_TRY, function * () {
     try {
-      const { selection } = yield select(getLocalState);
-      let srcList = Object.keys(selection);
+      const { table } = yield select(getLocalState);
+      let srcList = Object.keys(table);
       if (srcList.length !== 1) {
         yield put(viewSelectedNodeFailed('SELECTED_MULTIPLE_OR_NONE'));
         return;
