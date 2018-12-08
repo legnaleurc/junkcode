@@ -1,5 +1,6 @@
 import asyncio
 import contextlib as cl
+import itertools as it
 import mimetypes as mt
 import os
 import os.path as op
@@ -165,8 +166,8 @@ class UnpackEngine(object):
         rv = []
         top = op.join(self._tmp, node_id)
         for dirpath, dirnames, filenames in os.walk(top):
-            dirnames.sort()
-            filenames.sort()
+            dirnames.sort(key=FuzzyName)
+            filenames.sort(key=FuzzyName)
             for filename in filenames:
                 path = op.join(dirpath, filename)
                 type_, encoding = mt.guess_type(path)
@@ -191,8 +192,8 @@ class UnpackEngine(object):
     async def _scan_remote(self, node):
         rv = []
         async for root, folders, files in self._drive.walk(node):
-            folders.sort(key=lambda _: _.name)
-            files.sort(key=lambda _: _.name)
+            folders.sort(key=lambda _: FuzzyName(_.name))
+            files.sort(key=lambda _: FuzzyName(_.name))
             for f in files:
                 if f.is_image:
                     rv.append({
@@ -203,6 +204,31 @@ class UnpackEngine(object):
                         'height': f.image_height,
                     })
         return rv
+
+
+class FuzzyName(object):
+
+    def __init__(self, name):
+        seg_list = re.findall(r'\d+|\D+', name)
+        seg_list = [int(_) if _.isdigit() else _ for _ in seg_list]
+        self._seg_list = seg_list
+
+    def __lt__(self, that):
+        for l, r in it.zip_longest(self._seg_list, that._seg_list):
+            # compare length: shorter first
+            if l is None:
+                return True
+            if r is None:
+                return False
+
+            # compare type: number first
+            if type(l) != type(r):
+                return not isinstance(l, int)
+
+            # compare value: lower first
+            if l != r:
+                return l < r
+        return False
 
 
 def normalize_search_pattern(raw):
