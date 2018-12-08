@@ -60,6 +60,18 @@ private:
 };
 
 
+class HttpError : public std::exception {
+public:
+    HttpError (web::http::status_code status,
+               const web::http::reason_phrase & reason) noexcept;
+
+    const char * what () const noexcept override;
+
+private:
+    std::string msg;
+};
+
+
 ArchiveHandle createArchiveReader (ContextHandle context);
 ArchiveHandle createDiskWriter ();
 std::string resolvePath (const std::string & localPath, const std::string & id,
@@ -309,7 +321,7 @@ Context::getResponse () {
     if (status == web::http::status_codes::OK) {
         this->length = this->response.headers().content_length();
     } else if (status != web::http::status_codes::PartialContent) {
-        assert(!"atest");
+        throw HttpError(status, this->response.reason_phrase());
     }
     return this->response;
 }
@@ -385,5 +397,21 @@ EntryError::EntryError (const std::string & name,
 
 
 const char * EntryError::what () const noexcept {
+    return this->msg.c_str();
+}
+
+
+HttpError::HttpError (web::http::status_code status,
+                      const web::http::reason_phrase & reason) noexcept
+    : std::exception()
+    , msg()
+{
+    std::ostringstream sout;
+    sout << status << " " << reason;
+    msg = sout.str();
+}
+
+
+const char * HttpError::what () const noexcept {
     return this->msg.c_str();
 }
