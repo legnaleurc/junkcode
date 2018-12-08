@@ -20,6 +20,7 @@ class SearchList extends React.Component {
   }
 
   render () {
+    const { matched, selectMatchedList } = this.props;
     return (
       <div className="search-list">
         <div className="input-group">
@@ -36,7 +37,7 @@ class SearchList extends React.Component {
         </div>
         <div>
           {this._renderEmpty()}
-          {this.props.matched.map(({id, path}) => (
+          {matched.map(({id, path}) => (
             <div
               key={id}
               onDoubleClick={event => {
