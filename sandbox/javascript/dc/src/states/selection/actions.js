@@ -10,6 +10,9 @@ export const SELECT_MOVE_FAILED = 'SELECT_MOVE_FAILED';
 export const SELECT_SIBLING_LIST_TRY = 'SELECT_SIBLING_LIST_TRY';
 export const SELECT_SIBLING_LIST_SUCCEED = 'SELECT_SIBLING_LIST_SUCCEED';
 export const SELECT_SIBLING_LIST_FAILED = 'SELECT_SIBLING_LIST_FAILED';
+export const SELECT_MATCHED_LIST_TRY = 'SELECT_MATCHED_LIST_TRY';
+export const SELECT_MATCHED_LIST_SUCCEED = 'SELECT_MATCHED_LIST_SUCCEED';
+export const SELECT_MATCHED_LIST_FAILED = 'SELECT_MATCHED_LIST_FAILED';
 export const SELECT_DELETE_TRY = 'SELECT_DELETE_TRY';
 export const SELECT_DELETE_SUCCEED = 'SELECT_DELETE_SUCCEED';
 export const SELECT_DELETE_FAILED = 'SELECT_DELETE_FAILED';
@@ -136,6 +139,68 @@ export function * sagaSelectSiblingList () {
     }
     const list = parent.children.slice(fromIndex, toIndex + 1);
     yield put(selectSiblingListSucceed(list));
+  });
+}
+
+
+export function selectMatchedList (id) {
+  return {
+    type: SELECT_MATCHED_LIST_TRY,
+    payload: {
+      id,
+    },
+  };
+}
+
+
+function selectMatchedListSucceed (list) {
+  return {
+    type: SELECT_MATCHED_LIST_SUCCEED,
+    payload: {
+      list,
+    },
+  };
+}
+
+
+function selectMatchedListFailed (message) {
+  return {
+    type: SELECT_MATCHED_LIST_FAILED,
+    payload: {
+      message,
+    },
+  };
+}
+
+
+export function * sagaSelectMatchedList () {
+  yield takeEvery(SELECT_MATCHED_LIST_TRY, function * ({ payload }) {
+    const { last } = yield select(getLocalState);
+    if (!last) {
+      yield put(selectMatchedListFailed('NO_LATEST_SELECTION'));
+      return;
+    }
+    const { matched } = yield select(state => state.fileSystem);
+    if (!matched) {
+      yield put(selectMatchedListFailed('NOTHING_MATCHED'));
+      return;
+    }
+    const fromIndex = matched.findIndex(({ id }) => (id === last));
+    if (fromIndex < 0) {
+      yield put(selectMatchedListFailed('NO_SUCH_ID'));
+      return;
+    }
+    const toIndex = matched.findIndex(({ id }) => (id === payload.id));
+    if (toIndex < 0) {
+      yield put(selectMatchedListFailed('NO_SUCH_ID'));
+      return;
+    }
+    if (toIndex < fromIndex) {
+      [fromIndex, toIndex] = [toIndex, fromIndex];
+    }
+    let list = matched.slice(fromIndex, toIndex + 1);
+    list = list.map(({ id }) => id);
+    yield put(selectMatchedListSucceed(list));
   });
 }
 

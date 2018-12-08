@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { getSearchName, getStreamUrl } from '../states/file_system/actions';
+import { selectMatchedList } from '../states/selection/actions';
 import Input from './input';
 import Selectable from './selectable';
 
@@ -41,7 +42,10 @@ class SearchList extends React.Component {
                 this._openFile(id);
               }}
             >
-              <Selectable nodeId={id}>
+              <Selectable
+                nodeId={id}
+                onMultiSelect={selectMatchedList}
+              >
                 <code>{path}</code>
               </Selectable>
             </div>
@@ -104,6 +108,9 @@ function mapDispatchToProps (dispatch) {
     },
     getFileUrl (id, done) {
       dispatch(getStreamUrl(id, done));
+    },
+    selectMatchedList (id) {
+      dispatch(selectMatchedList(id));
     },
   };
 }

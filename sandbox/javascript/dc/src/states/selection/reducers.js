@@ -2,6 +2,7 @@ import {
   SELECT_TOGGLE,
   SELECT_MOVE_SUCCEED,
   SELECT_SIBLING_LIST_SUCCEED,
+  SELECT_MATCHED_LIST_SUCCEED,
   SELECT_DELETE_SUCCEED,
   SELECT_COMIC_TRY,
   SELECT_COMIC_SUCCEED,
@@ -40,6 +41,17 @@ export default function reduceSelection (state = initialState, action) {
       });
     }
     case SELECT_SIBLING_LIST_SUCCEED: {
+      const { table, last } = state;
+      const { list } = action.payload;
+      for (const id of list) {
+        table[id] = true;
+      }
+      return Object.assign({}, state, {
+        table: Object.assign({}, table),
+        last,
+      });
+    }
+    case SELECT_MATCHED_LIST_SUCCEED: {
       const { table, last } = state;
       const { list } = action.payload;
       for (const id of list) {
