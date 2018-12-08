@@ -49,6 +49,17 @@ private:
 };
 
 
+class EntryError : public std::exception {
+public:
+    EntryError (const std::string & name, const std::string & detail) noexcept;
+
+    const char * what () const noexcept override;
+
+private:
+    std::string msg;
+};
+
+
 ArchiveHandle createArchiveReader (ContextHandle context);
 ArchiveHandle createDiskWriter ();
 std::string resolvePath (const std::string & localPath, const std::string & id,
@@ -84,11 +95,15 @@ unpackTo (uint16_t port, const std::string & id,
         }
 
         const char * entryName = archive_entry_pathname(entry);
-        assert(entryName || !"archive_entry_pathname");
+        if (!entryName) {
+            throw new EntryError("archive_entry_pathname", "nullptr");
+        }
 
         auto entryPath = resolvePath(localPath, id, entryName);
         rv = archive_entry_update_pathname_utf8(entry, entryPath.c_str());
-        assert(rv || !"archive_entry_update_pathname_utf8");
+        if (!rv) {
+            throw new EntryError("archive_entry_update_pathname_utf8", entryPath);
+        }
 
         rv = archive_write_header(writer.get(), entry);
         if (rv != ARCHIVE_OK) {
@@ -354,5 +369,21 @@ ArchiveError::ArchiveError (ArchiveHandle handle,
 
 
 const char * ArchiveError::what () const noexcept {
+    return this->msg.c_str();
+}
+
+
+EntryError::EntryError (const std::string & name,
+                        const std::string & detail) noexcept
+    : std::exception()
+    , msg()
+{
+    std::ostringstream sout;
+    sout << name << ": " << detail;
+    msg = sout.str();
+}
+
+
+const char * EntryError::what () const noexcept {
     return this->msg.c_str();
 }
