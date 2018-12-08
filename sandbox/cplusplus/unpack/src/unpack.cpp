@@ -8,7 +8,6 @@
 
 #include <memory>
 #include <iomanip>
-#include <cassert>
 
 
 
@@ -233,7 +232,7 @@ la_ssize_t readCallback (struct archive * handle, void * context,
     try {
         return ctx->readChunk(buffer);
     } catch (std::exception & e) {
-        printf("readCallback %s\n", e.what());
+        fprintf(stderr, "readCallback %s\n", e.what());
         return ARCHIVE_FATAL;
     }
 }
