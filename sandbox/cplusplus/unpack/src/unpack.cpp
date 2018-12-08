@@ -11,6 +11,10 @@
 #include <cassert>
 
 
+
+using ArchiveHandle = std::shared_ptr<struct archive>;
+
+
 const uint64_t CHUNK_SIZE = 65536;
 
 
@@ -31,10 +35,18 @@ private:
     int64_t length;
     std::array<uint8_t, CHUNK_SIZE> chunk;
 };
-
-
 using ContextHandle = std::shared_ptr<Context>;
-using ArchiveHandle = std::shared_ptr<struct archive>;
+
+
+class ArchiveError : public std::exception {
+public:
+    ArchiveError (ArchiveHandle handle, const std::string & name) noexcept;
+
+    const char * what () const noexcept override;
+
+private:
+    std::string msg;
+};
 
 
 ArchiveHandle createArchiveReader (ContextHandle context);
@@ -64,11 +76,12 @@ unpackTo (uint16_t port, const std::string & id,
     for (;;) {
         struct archive_entry * entry = nullptr;
         int rv = archive_read_next_header(reader.get(), &entry);
-
         if (rv == ARCHIVE_EOF) {
             break;
         }
-        assert(rv == ARCHIVE_OK || !"archive_read_next_header");
+        if (rv != ARCHIVE_OK) {
+            throw ArchiveError(reader, "archive_read_next_header");
+        }
 
         const char * entryName = archive_entry_pathname(entry);
         assert(entryName || !"archive_entry_pathname");
@@ -78,12 +91,16 @@ unpackTo (uint16_t port, const std::string & id,
         assert(rv || !"archive_entry_update_pathname_utf8");
 
         rv = archive_write_header(writer.get(), entry);
-        assert(rv == ARCHIVE_OK || !"archive_write_header");
+        if (rv != ARCHIVE_OK) {
+            throw ArchiveError(writer, "archive_write_header");
+        }
 
         extractArchive(reader, writer);
 
         rv = archive_write_finish_entry(writer.get());
-        assert(rv == ARCHIVE_OK || !"archive_write_finish_entry");
+        if (rv != ARCHIVE_OK) {
+            throw ArchiveError(writer, "archive_write_finish_entry");
+        }
     }
 }
 
@@ -96,24 +113,40 @@ ArchiveHandle createArchiveReader (ContextHandle context) {
     });
 
     rv = archive_read_support_filter_all(handle.get());
-    assert(rv == ARCHIVE_OK || !"archive_read_support_filter_all");
+    if (rv != ARCHIVE_OK) {
+        throw ArchiveError(handle, "archive_read_support_filter_all");
+    }
     rv = archive_read_support_format_all(handle.get());
-    assert(rv == ARCHIVE_OK || !"archive_read_support_format_all");
+    if (rv != ARCHIVE_OK) {
+        throw ArchiveError(handle, "archive_read_support_format_all");
+    }
 
     rv = archive_read_set_open_callback(handle.get(), openCallback);
-    assert(rv == ARCHIVE_OK || !"archive_read_set_open_callback");
+    if (rv != ARCHIVE_OK) {
+        throw ArchiveError(handle, "archive_read_set_open_callback");
+    }
     rv = archive_read_set_close_callback(handle.get(), closeCallback);
-    assert(rv == ARCHIVE_OK || !"archive_read_set_close_callback");
+    if (rv != ARCHIVE_OK) {
+        throw ArchiveError(handle, "archive_read_set_close_callback");
+    }
     rv = archive_read_set_read_callback(handle.get(), readCallback);
-    assert(rv == ARCHIVE_OK || !"archive_read_set_read_callback");
+    if (rv != ARCHIVE_OK) {
+        throw ArchiveError(handle, "archive_read_set_read_callback");
+    }
     rv = archive_read_set_seek_callback(handle.get(), seekCallback);
-    assert(rv == ARCHIVE_OK || !"archive_read_set_seek_callback");
+    if (rv != ARCHIVE_OK) {
+        throw ArchiveError(handle, "archive_read_set_seek_callback");
+    }
 
     rv = archive_read_set_callback_data(handle.get(), context.get());
-    assert(rv == ARCHIVE_OK || !"archive_read_set_callback_data");
+    if (rv != ARCHIVE_OK) {
+        throw ArchiveError(handle, "archive_read_set_callback_data");
+    }
 
     rv = archive_read_open1(handle.get());
-    assert(rv == ARCHIVE_OK || !"archive_read_open1");
+    if (rv != ARCHIVE_OK) {
+        throw ArchiveError(handle, "archive_read_open1");
+    }
 
     return handle;
 }
@@ -123,7 +156,6 @@ ArchiveHandle createDiskWriter () {
     ArchiveHandle handle(archive_write_disk_new(), [](ArchiveHandle::element_type * p) -> void {
         archive_write_free(p);
     });
-
     return handle;
 }
 
@@ -139,10 +171,14 @@ void extractArchive (ArchiveHandle reader, ArchiveHandle writer) {
         if (rv == ARCHIVE_EOF) {
             break;
         }
-        assert(rv == ARCHIVE_OK || !"archive_read_data_block");
+        if (rv != ARCHIVE_OK) {
+            throw ArchiveError(reader, "archive_read_data_block");
+        }
 
         rv = archive_write_data_block(writer.get(), chunk, length, offset);
-        assert(rv == ARCHIVE_OK || !"archive_write_data_block");
+        if (rv != ARCHIVE_OK) {
+            throw ArchiveError(writer, "archive_write_data_block");
+        }
     }
 }
 
@@ -303,4 +339,20 @@ void Context::reset () {
     this->response = web::http::http_response();
     this->offset = 0;
     this->length = -1;
+}
+
+
+ArchiveError::ArchiveError (ArchiveHandle handle,
+                            const std::string & name) noexcept
+    : std::exception()
+    , msg()
+{
+    std::ostringstream sout;
+    sout << name << ": " << archive_error_string(handle.get());
+    msg = sout.str();
+}
+
+
+const char * ArchiveError::what () const noexcept {
+    return this->msg.c_str();
 }
