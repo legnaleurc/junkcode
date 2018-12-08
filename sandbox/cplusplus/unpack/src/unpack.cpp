@@ -257,6 +257,8 @@ Context::getResponse () {
     status = this->response.status_code();
     if (status == web::http::status_codes::OK) {
         this->length = this->response.headers().content_length();
+    } else if (status != web::http::status_codes::PartialContent) {
+        assert(!"atest");
     }
     return this->response;
 }
@@ -270,7 +272,6 @@ int64_t Context::readChunk (const void ** buffer) {
     auto length = response.body().read(glue, CHUNK_SIZE).get();
     *buffer = &this->chunk[0];
     this->offset += length;
-    printf("read %lu %lld %lld\n", length, this->offset, this->length);
     return length;
 }
 
@@ -294,8 +295,6 @@ bool Context::seek (int64_t offset, int whence) {
     default:
         return false;
     }
-
-    printf("seek %lld %lld\n", this->length, this->offset);
     return this->offset >= 0;
 }
 
