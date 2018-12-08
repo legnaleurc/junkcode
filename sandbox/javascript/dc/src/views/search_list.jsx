@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { getSearchName, getStreamUrl } from '../states/file_system/actions';
 import Input from './input';
+import Selectable from './selectable';
 
 
 class SearchList extends React.Component {
@@ -32,15 +33,17 @@ class SearchList extends React.Component {
         </div>
         <div>
           {this.props.matched.map(({id, path}) => (
-            <p
+            <div
               key={id}
               onDoubleClick={event => {
                 event.preventDefault();
                 this._openFile(id);
               }}
             >
-              <code>{path}</code>
-            </p>
+              <Selectable nodeId={id}>
+                <code>{path}</code>
+              </Selectable>
+            </div>
           ))}
         </div>
       </div>
