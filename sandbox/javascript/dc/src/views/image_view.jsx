@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { classNameFromObject } from '../lib/index';
+
 import './image_view.scss';
 
 
@@ -13,6 +15,7 @@ class ImageView extends React.Component {
 
     this.state = {
       url: DUMMY_IMAGE_URL,
+      loaded: false,
     };
 
     this._handleIntersect = this._handleIntersect.bind(this);
@@ -37,14 +40,18 @@ class ImageView extends React.Component {
 
   render () {
     const { width, height } = this.props;
+    const { url, loaded } = this.state;
     return (
       <div
         className="image-view"
         ref={this._root}
       >
         <img
-          className="image"
-          src={this.state.url}
+          className={classNameFromObject({
+            image: true,
+            loaded,
+          })}
+          src={url}
           width={width}
           height={height}
         />
@@ -55,6 +62,7 @@ class ImageView extends React.Component {
   _setImageUrl (url) {
     this.setState({
       url,
+      loaded: true,
     });
   }
 
