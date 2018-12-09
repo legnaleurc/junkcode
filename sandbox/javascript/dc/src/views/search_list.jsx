@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { getSearchName, getStreamUrl } from '../states/file_system/actions';
-import { selectMatchedList } from '../states/selection/actions';
+import { selectMatchedList, clearSelection } from '../states/selection/actions';
 import Input from './input';
 import Selectable from './selectable';
 
@@ -69,7 +69,9 @@ class SearchList extends React.Component {
   }
 
   _search (text) {
-    this.props.searchName(text);
+    const { clearSelection, searchName } = this.props;
+    clearSelection();
+    searchName(text);
   }
 
   _openFile (nodeId) {
@@ -116,6 +118,9 @@ function mapDispatchToProps (dispatch) {
     },
     selectMatchedList (id) {
       dispatch(selectMatchedList(id));
+    },
+    clearSelection () {
+      dispatch(clearSelection());
     },
   };
 }
