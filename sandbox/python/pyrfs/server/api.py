@@ -195,6 +195,7 @@ class NodeChildrenView(NodeObjectMixin, aw.View):
         node = await self.get_object()
         drive = self.request.app['drive']
         children = await drive.get_children(node)
+        children = filter(lambda _: not _.trashed, children)
         children = [dict_from_node(_) for _ in children]
         return json_response(children)
 
