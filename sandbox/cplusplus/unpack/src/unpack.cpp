@@ -374,8 +374,12 @@ ArchiveError::ArchiveError (ArchiveHandle handle,
     , msg()
 {
     std::ostringstream sout;
-    sout << name << ": " << archive_error_string(handle.get());
-    msg = sout.str();
+    const char * msg = archive_error_string(handle.get());
+    if (!msg) {
+        msg = "(empty error message)";
+    }
+    sout << name << ": " << msg;
+    this->msg = sout.str();
 }
 
 
@@ -391,7 +395,7 @@ EntryError::EntryError (const std::string & name,
 {
     std::ostringstream sout;
     sout << name << ": " << detail;
-    msg = sout.str();
+    this->msg = sout.str();
 }
 
 
@@ -407,7 +411,7 @@ HttpError::HttpError (web::http::status_code status,
 {
     std::ostringstream sout;
     sout << status << " " << reason;
-    msg = sout.str();
+    this->msg = sout.str();
 }
 
 
