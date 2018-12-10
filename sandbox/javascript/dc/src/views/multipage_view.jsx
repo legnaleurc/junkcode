@@ -3,10 +3,10 @@ import { connect } from 'react-redux';
 
 import ImageView from './image_view';
 
-import './comic_view.scss';
+import './multipage_view.scss';
 
 
-class ComicView extends React.Component {
+class MultiPageView extends React.Component {
 
   constructor (props) {
     super(props);
@@ -16,7 +16,7 @@ class ComicView extends React.Component {
 
   render () {
     return (
-      <div className="comic-view" ref={this._root}>
+      <div className="multipage-view" ref={this._root}>
         {this.props.imageList.map((d, index) => (
           <React.Fragment key={index}>
             <ImageView
@@ -42,4 +42,4 @@ function mapStateToProps (state) {
 }
 
 
-export default connect(mapStateToProps)(ComicView);
+export default connect(mapStateToProps)(MultiPageView);

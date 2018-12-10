@@ -5,7 +5,7 @@ import { hot } from 'react-hot-loader';
 import ActionBar from './action_bar';
 import FileExplorer from './file_explorer';
 import SearchList from './search_list';
-import ComicView from './comic_view';
+import MultiPageView from './multipage_view';
 import SwitchBar from './switch_bar';
 import MutexView from './mutex_view';
 import { getRoot } from '../states/file_system/actions';
@@ -67,7 +67,7 @@ class Application extends React.Component {
               <TwoPaneView rootId={rootId} />
             </MutexView.Mutex>
             <MutexView.Mutex name="comic">
-              <ComicView />
+              <MultiPageView />
             </MutexView.Mutex>
           </MutexView>
         </div>
