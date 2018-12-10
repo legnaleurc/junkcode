@@ -56,7 +56,7 @@ class Trigger extends React.Component {
     toggleSelection(nodeId);
   }
 
-  _multiSelect() {
+  _multiSelect () {
     const { nodeId, onMultiSelect } = this.props;
     if (onMultiSelect) {
       onMultiSelect(nodeId);
