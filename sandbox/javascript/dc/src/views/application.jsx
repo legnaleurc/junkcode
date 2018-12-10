@@ -28,13 +28,16 @@ class Application extends React.Component {
     return (
       <div className="application">
         <div className="side-bar">
-          <SwitchBar onSwitch={(key) => {
-            this.setState({
-              selected: key,
-            });
-            clearSelection();
-          }}>
-            <SwitchBar.Switch name="normal" default>
+          <SwitchBar
+            selected={this.state.selected}
+            onSwitch={(key) => {
+              this.setState({
+                selected: key,
+              });
+              clearSelection();
+            }}
+          >
+            <SwitchBar.Switch name="normal">
               <div className="switch normal"></div>
             </SwitchBar.Switch>
             <SwitchBar.Switch name="search">

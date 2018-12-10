@@ -11,10 +11,6 @@ class SwitchBar extends React.Component {
   constructor (props) {
     super(props);
 
-    this.state = {
-      selected: null,
-    };
-
     this._select = this._select.bind(this);
   }
 
@@ -22,7 +18,7 @@ class SwitchBar extends React.Component {
     return (
       <div className="switch-bar">
         <Context.Provider value={{
-            selected: this.state.selected,
+            selected: this.props.selected,
             select: this._select,
           }}
         >
@@ -33,9 +29,6 @@ class SwitchBar extends React.Component {
   }
 
   _select (name) {
-    this.setState({
-      selected: name,
-    });
     this.props.onSwitch(name);
   }
 
