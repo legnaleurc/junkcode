@@ -2,14 +2,12 @@ import {
   FS_ROOT_GET_SUCCEED,
   FS_LIST_GET_SUCCEED,
   SYNC_POST_SUCCEED,
-  FS_SEARCH_NAME_SUCCEED,
 } from './actions';
 
 
 const initialState = {
   nodes: {},
   rootId: null,
-  matched: [],
 };
 
 
@@ -34,7 +32,6 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       return Object.assign({}, state, {
         nodes,
         rootId: node.id,
-        matched: [],
       });
     }
     case FS_LIST_GET_SUCCEED: {
@@ -60,12 +57,6 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       }
       return Object.assign({}, state, {
         nodes: Object.assign({}, nodes),
-      });
-    }
-    case FS_SEARCH_NAME_SUCCEED: {
-      const { pathList } = payload;
-      return Object.assign({}, state, {
-        matched: pathList,
       });
     }
     default:

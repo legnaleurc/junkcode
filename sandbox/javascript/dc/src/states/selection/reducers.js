@@ -5,15 +5,12 @@ import {
   SELECT_SIBLING_LIST_SUCCEED,
   SELECT_MATCHED_LIST_SUCCEED,
   SELECT_DELETE_SUCCEED,
-  SELECT_COMIC_TRY,
-  SELECT_COMIC_SUCCEED,
 } from './actions';
 
 
 const initialState = {
   table: {},
   last: null,
-  imageList: [],
 };
 
 
@@ -72,18 +69,6 @@ export default function reduceSelection (state = initialState, action) {
       return Object.assign({}, state, {
         table: {},
         last: null,
-      });
-    }
-    case SELECT_COMIC_TRY: {
-      return Object.assign({}, state, {
-        imageList: [],
-      });
-    }
-    case SELECT_COMIC_SUCCEED: {
-      return Object.assign({}, state, {
-        table: {},
-        last: null,
-        imageList: action.payload.imageList,
       });
     }
     default:

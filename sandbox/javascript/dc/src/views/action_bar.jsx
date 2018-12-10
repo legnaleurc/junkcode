@@ -3,10 +3,8 @@ import { connect } from 'react-redux';
 
 import Button from './button';
 import { postSync } from '../states/file_system/actions';
-import {
-  deleteSelectedNodes,
-  viewSelectedNode,
-} from '../states/selection/actions';
+import { deleteSelectedNodes } from '../states/selection/actions';
+import { loadMultiPageViewer } from '../states/multipage/actions';
 
 import './action_bar.scss';
 
@@ -18,7 +16,7 @@ class ActionBar extends React.Component {
 
     this._sync = this._sync.bind(this);
     this._trash = this._trash.bind(this);
-    this._comic = this._comic.bind(this);
+    this._mpv = this._mpv.bind(this);
   }
 
   render () {
@@ -28,7 +26,7 @@ class ActionBar extends React.Component {
           <Button onClick={this._sync}>SYNC</Button>
         </div>
         <div className="group">
-          <Button onClick={this._comic}>MPV</Button>
+          <Button onClick={this._mpv}>MPV</Button>
         </div>
         <div className="group">
           <Button onClick={this._trash}>TRASH</Button>
@@ -47,9 +45,9 @@ class ActionBar extends React.Component {
     trash();
   }
 
-  _comic () {
-    const { comic } = this.props;
-    comic();
+  _mpv () {
+    const { mpv } = this.props;
+    mpv();
   }
 
 }
@@ -63,8 +61,8 @@ function mapDispatchToProps (dispatch) {
     trash () {
       dispatch(deleteSelectedNodes());
     },
-    comic () {
-      dispatch(viewSelectedNode());
+    mpv () {
+      dispatch(loadMultiPageViewer());
     },
   };
 }

@@ -5,15 +5,15 @@ import {
   sagaGetRoot,
   sagaGetStreamUrl,
   sagaPostSync,
-  sagaGetSearchName,
 } from './file_system/actions';
+import { sagaGetSearchName } from './search/actions';
 import {
   sagaMoveSelectedNodesTo,
   sagaSelectSiblingList,
   sagaSelectMatchedList,
   sagaDeleteSelectedNodes,
-  sagaViewSelectedNode,
 } from './selection/actions';
+import { sagaLoadMultiPageViewer } from './multipage/actions';
 
 
 export default function * ({ fileSystem }) {
@@ -27,6 +27,6 @@ export default function * ({ fileSystem }) {
     sagaSelectSiblingList(),
     sagaSelectMatchedList(),
     sagaDeleteSelectedNodes(fileSystem),
-    sagaViewSelectedNode(fileSystem),
+    sagaLoadMultiPageViewer(fileSystem),
   ]);
 }

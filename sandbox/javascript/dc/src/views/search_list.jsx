@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { getSearchName, getStreamUrl } from '../states/file_system/actions';
+import { getStreamUrl } from '../states/file_system/actions';
+import { getSearchName } from '../states/search/actions';
 import { selectMatchedList, clearSelection } from '../states/selection/actions';
 import Input from './input';
 import Selectable from './selectable';
@@ -101,9 +102,9 @@ function openUrl (url) {
 
 
 function mapStateToProps (state) {
-  const { fileSystem } = state;
+  const { search } = state;
   return {
-    matched: fileSystem.matched,
+    matched: search.matched,
   };
 }
 

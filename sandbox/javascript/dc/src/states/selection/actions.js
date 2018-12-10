@@ -17,9 +17,6 @@ export const SELECT_MATCHED_LIST_FAILED = 'SELECT_MATCHED_LIST_FAILED';
 export const SELECT_DELETE_TRY = 'SELECT_DELETE_TRY';
 export const SELECT_DELETE_SUCCEED = 'SELECT_DELETE_SUCCEED';
 export const SELECT_DELETE_FAILED = 'SELECT_DELETE_FAILED';
-export const SELECT_COMIC_TRY = 'SELECT_COMIC_TRY';
-export const SELECT_COMIC_SUCCEED = 'SELECT_COMIC_SUCCEED';
-export const SELECT_COMIC_FAILED = 'SELECT_COMIC_FAILED';
 
 
 function getLocalState (state) {
@@ -188,7 +185,7 @@ export function * sagaSelectMatchedList () {
       yield put(selectMatchedListFailed('NO_LATEST_SELECTION'));
       return;
     }
-    const { matched } = yield select(state => state.fileSystem);
+    const { matched } = yield select(state => state.search);
     if (!matched) {
       yield put(selectMatchedListFailed('NOTHING_MATCHED'));
       return;
@@ -248,55 +245,5 @@ export function * sagaDeleteSelectedNodes (fileSystem) {
       yield put(deleteSelectedNodesFailed(e.message));
     }
     yield put(postSync());
-  });
-}
-
-
-export function viewSelectedNode () {
-  return {
-    type: SELECT_COMIC_TRY,
-  };
-}
-
-
-function viewSelectedNodeSucceed (imageList) {
-  return {
-    type: SELECT_COMIC_SUCCEED,
-    payload: {
-      imageList,
-    },
-  };
-}
-
-
-function viewSelectedNodeFailed (message) {
-  return {
-    type: SELECT_COMIC_FAILED,
-    payload: {
-      message,
-    },
-  };
-}
-
-
-export function * sagaViewSelectedNode (fileSystem) {
-  yield takeEvery(SELECT_COMIC_TRY, function * () {
-    try {
-      const { table } = yield select(getLocalState);
-      let srcList = Object.keys(table);
-      if (srcList.length !== 1) {
-        yield put(viewSelectedNodeFailed('SELECTED_MULTIPLE_OR_NONE'));
-        return;
-      }
-      const id = srcList[0];
-      srcList = yield call(() => fileSystem.imageList(id));
-      srcList = srcList.map((data, index) => {
-        data.url = fileSystem.image(id, index);
-        return data;
-      });
-      yield put(viewSelectedNodeSucceed(srcList));
-    } catch (e) {
-      yield put(viewSelectedNodeFailed(e.message));
-    }
   });
 }

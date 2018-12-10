@@ -35,7 +35,7 @@ class ComicView extends React.Component {
 
 
 function mapStateToProps (state) {
-  const { imageList } = state.selection;
+  const { imageList } = state.mpv;
   return {
     imageList,
   };
