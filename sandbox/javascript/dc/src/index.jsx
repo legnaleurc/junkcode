@@ -8,6 +8,7 @@ import Application from './views/application';
 import { FileSystem } from './lib';
 import reduce from './states/reducers';
 import saga from './states/actions';
+import { getRoot } from './states/file_system/actions';
 
 import './index.scss';
 
@@ -27,3 +28,5 @@ ReactDOM.render(
     <Application />
   </Provider>,
   document.querySelector('body > .body'));
+
+store.dispatch(getRoot());

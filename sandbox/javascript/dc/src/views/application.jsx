@@ -8,7 +8,6 @@ import SearchList from './search_list';
 import MultiPageView from './multipage_view';
 import SwitchBar from './switch_bar';
 import MutexView from './mutex_view';
-import { getRoot } from '../states/file_system/actions';
 import { clearSelection } from '../states/selection/actions';
 
 import './application.scss';
@@ -22,12 +21,6 @@ class Application extends React.Component {
     this.state = {
       selected: 'normal',
     };
-  }
-
-  componentDidMount() {
-    const { getRoot } = this.props;
-
-    getRoot();
   }
 
   render () {
@@ -124,9 +117,6 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    getRoot () {
-      dispatch(getRoot());
-    },
     clearSelection () {
       dispatch(clearSelection());
     },
