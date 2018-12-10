@@ -46,8 +46,8 @@ class Application extends React.Component {
             <SwitchBar.Switch name="two-pane">
               <div className="switch two-pane"></div>
             </SwitchBar.Switch>
-            <SwitchBar.Switch name="comic">
-              <div className="switch comic"></div>
+            <SwitchBar.Switch name="mpv">
+              <div className="switch mpv"></div>
             </SwitchBar.Switch>
           </SwitchBar>
         </div>
@@ -62,7 +62,7 @@ class Application extends React.Component {
             <MutexView.Mutex name="two-pane">
               <TwoPaneView rootId={rootId} />
             </MutexView.Mutex>
-            <MutexView.Mutex name="comic">
+            <MutexView.Mutex name="mpv">
               <MultiPageView />
             </MutexView.Mutex>
           </MutexView>
