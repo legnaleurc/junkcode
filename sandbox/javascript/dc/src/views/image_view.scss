@@ -3,10 +3,7 @@
 
   .image {
     max-width: 100%;
-
-    &.loaded {
-      height: auto;
-    }
+    height: auto;
   }
 
   &.active {

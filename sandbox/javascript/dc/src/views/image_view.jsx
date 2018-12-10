@@ -5,16 +5,13 @@ import { classNameFromObject } from '../lib/index';
 import './image_view.scss';
 
 
-const DUMMY_IMAGE_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-
-
 class ImageView extends React.Component {
 
   constructor (props) {
     super(props);
 
     this.state = {
-      url: DUMMY_IMAGE_URL,
+      url: createDummyImage(props.width, props.height, 'gray'),
       loaded: false,
     };
 
@@ -74,6 +71,16 @@ class ImageView extends React.Component {
     });
   }
 
+}
+
+
+function createDummyImage (width, height, color) {
+  const svg = [
+    `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`,
+      `<rect width="100%" height="100%" fill="${color}" />`,
+    '</svg>',
+  ].join('');
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
 
 export default ImageView;
