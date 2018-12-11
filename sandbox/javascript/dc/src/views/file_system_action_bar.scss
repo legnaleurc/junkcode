@@ -1,0 +1,10 @@
+@import '../lib/index';
+
+
+.file-system-action-bar {
+  @include hbox;
+
+  .expand {
+    @include size-auto;
+  }
+}
