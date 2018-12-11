@@ -3,7 +3,6 @@ import {
   FS_LIST_GET_SUCCEED,
   FS_SYNC_SUCCEED,
   FS_SET_SORT,
-  FS_EXPAND_TOGGLE,
 } from './actions';
 import {
   SORT_BY_MTIME_DES,
@@ -91,19 +90,6 @@ export default function reduceFileSystem (state = initialState, { type, payload 
         sortKey: key,
       });
     }
-    case FS_EXPAND_TOGGLE: {
-      const { nodes } = state;
-      const { id } = payload;
-      const node = nodes[id];
-
-      node.expanded = !node.expanded;
-
-      return Object.assign({}, state, {
-        nodes: Object.assign({}, nodes, {
-          [id]: Object.assign({}, node),
-        }),
-      });
-    }
     default:
       return state;
   }
@@ -118,7 +104,6 @@ function createNode (node) {
     children: node.is_folder ? [] : null,
     modified: node.modified,
     fetched: false,
-    expanded: false,
   };
 }
 
