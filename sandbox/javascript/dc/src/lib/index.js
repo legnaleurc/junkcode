@@ -16,15 +16,6 @@ export class FileSystem {
       node.modified = Date.parse(node.modified);
       return node;
     });
-    children.sort((l, r) => {
-      if (l.modified < r.modified) {
-        return 1;
-      }
-      if (l.modified > r.modified) {
-        return -1;
-      }
-      return 0;
-    });
     return children;
   }
 

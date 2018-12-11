@@ -73,6 +73,7 @@ function createNode (node) {
     name: node.name,
     parentId: getParentId(node),
     children: node.is_folder ? [] : null,
+    modified: node.modified,
     fetched: false,
   };
 }
