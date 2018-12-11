@@ -1,4 +1,31 @@
+@import '../lib/index';
+
+
 .search-list {
+
+  .input-group {
+    .input {
+      box-sizing: border-box;
+      width: 100%;
+    }
+  }
+
+  .action-group {
+    @include hbox;
+
+    .action {
+      @include size-auto;
+    }
+  }
+
+  .tail {
+    @include hbox;
+
+    .history {
+      width: 200px;
+    }
+  }
+
   .selected {
     background-color: aqua;
   }

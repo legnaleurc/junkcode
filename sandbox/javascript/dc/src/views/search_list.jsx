@@ -28,43 +28,53 @@ class SearchList extends React.Component {
     const { matched, history, selectMatchedList } = this.props;
     return (
       <div className="search-list">
-        <div className="input-group">
-          <Input
-            type="text"
-            onKeyPress={event => {
-              if (event.key !== 'Enter') {
-                return;
-              }
-              event.preventDefault();
-              this._search(event.target.value);
-            }}
-          />
-          <FileSystemActionBar />
-          <ContentActionBar />
-        </div>
         <div>
-          <HistoryList history={history} search={this._search} />
-        </div>
-        <div>
-          {this._renderEmpty()}
-          {matched.map(({id, path}) => (
-            <div
-              key={id}
-              onDoubleClick={event => {
+          <div className="input-group">
+            <Input
+              type="text"
+              onKeyPress={event => {
+                if (event.key !== 'Enter') {
+                  return;
+                }
                 event.preventDefault();
-                this._openFile(id);
+                this._search(event.target.value);
               }}
-            >
-              <Selectable.Area nodeId={id}>
-                <Selectable.Trigger
-                  nodeId={id}
-                  onMultiSelect={selectMatchedList}
-                >
-                  <code>{path}</code>
-                </Selectable.Trigger>
-              </Selectable.Area>
+            />
+          </div>
+          <div className="action-group">
+            <div className="action">
+              <FileSystemActionBar />
             </div>
-          ))}
+            <div className="action">
+              <ContentActionBar />
+            </div>
+          </div>
+        </div>
+        <div className="tail">
+          <div className="history">
+            <HistoryList history={history} search={this._search} />
+          </div>
+          <div className="list">
+            {this._renderEmpty()}
+            {matched.map(({id, path}) => (
+              <div
+                key={id}
+                onDoubleClick={event => {
+                  event.preventDefault();
+                  this._openFile(id);
+                }}
+              >
+                <Selectable.Area nodeId={id}>
+                  <Selectable.Trigger
+                    nodeId={id}
+                    onMultiSelect={selectMatchedList}
+                  >
+                    <code>{path}</code>
+                  </Selectable.Trigger>
+                </Selectable.Area>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
