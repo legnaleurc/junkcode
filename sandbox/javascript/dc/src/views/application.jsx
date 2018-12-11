@@ -2,7 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
-import ActionBar from './action_bar';
+import FileSystemActionBar from './file_system_action_bar';
+import ContentActionBar from './content_action_bar';
 import FileExplorer from './file_explorer';
 import SearchList from './search_list';
 import MultiPageView from './multipage_view';
@@ -79,7 +80,8 @@ function NormalView (props) {
   return (
     <>
       <div className="header">
-        <ActionBar />
+        <FileSystemActionBar />
+        <ContentActionBar />
       </div>
       <div className="content">
         <div className="pane full">
@@ -96,7 +98,8 @@ function TwoPaneView (props) {
   return (
     <>
       <div className="header">
-        <ActionBar />
+        <FileSystemActionBar />
+        <ContentActionBar />
       </div>
       <div className="content">
         <div className="pane half">

@@ -6,7 +6,8 @@ import { getSearchName } from '../states/search/actions';
 import { selectMatchedList, clearSelection } from '../states/selection/actions';
 import Input from './input';
 import Selectable from './selectable';
-import ActionBar from './action_bar';
+import FileSystemActionBar from './file_system_action_bar';
+import ContentActionBar from './content_action_bar';
 
 import './search_list.scss';
 
@@ -38,7 +39,8 @@ class SearchList extends React.Component {
               this._search(event.target.value);
             }}
           />
-          <ActionBar />
+          <FileSystemActionBar />
+          <ContentActionBar />
         </div>
         <div>
           <HistoryList history={history} search={this._search} />
