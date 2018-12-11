@@ -18,10 +18,12 @@ class SearchList extends React.Component {
     this.state = {
       loading: false,
     };
+
+    this._search = this._search.bind(this);
   }
 
   render () {
-    const { matched, selectMatchedList } = this.props;
+    const { matched, history, selectMatchedList } = this.props;
     return (
       <div className="search-list">
         <div className="input-group">
@@ -35,6 +37,9 @@ class SearchList extends React.Component {
               this._search(event.target.value);
             }}
           />
+        </div>
+        <div>
+          <HistoryList history={history} search={this._search} />
         </div>
         <div>
           {this._renderEmpty()}
@@ -90,6 +95,35 @@ function EmptyBlock (props) {
 }
 
 
+function HistoryList (props) {
+  return (
+    <div className="history-list">
+      {props.history.map((name, i) => (
+        <HistoryEntry
+          key={i}
+          name={name}
+          search={props.search}
+        />
+      ))}
+    </div>
+  );
+}
+
+
+function HistoryEntry (props) {
+  return (
+    <pre
+      className="history-entry"
+      onClick={event => {
+        props.search(props.name);
+      }}
+    >
+      {props.name}
+    </pre>
+  );
+}
+
+
 function openUrl (url) {
   function onCopy (event) {
     event.preventDefault();
@@ -105,6 +139,7 @@ function mapStateToProps (state) {
   const { search } = state;
   return {
     matched: search.matched,
+    history: search.history,
   };
 }
 
