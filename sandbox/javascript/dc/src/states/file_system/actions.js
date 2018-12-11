@@ -11,6 +11,7 @@ export const FS_STREAM_URL = 'FS_STREAM_URL';
 export const FS_SYNC_TRY = 'FS_SYNC_TRY';
 export const FS_SYNC_SUCCEED = 'FS_SYNC_SUCCEED';
 export const FS_SYNC_FAILED = 'FS_SYNC_FAILED';
+export const FS_SET_SORT = 'FS_SET_SORT';
 
 
 export function getList (id) {
@@ -154,4 +155,14 @@ export function * sagaPostSync (fileSystem) {
       yield put(postSyncFailed(e.message));
     }
   });
+}
+
+
+export function setSortFunction (key) {
+  return {
+    type: FS_SET_SORT,
+    payload: {
+      key,
+    },
+  };
 }

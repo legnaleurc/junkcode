@@ -2,6 +2,7 @@ import {
   FS_ROOT_GET_SUCCEED,
   FS_LIST_GET_SUCCEED,
   FS_SYNC_SUCCEED,
+  FS_SET_SORT,
 } from './actions';
 import {
   SORT_BY_MTIME_DES,
@@ -71,6 +72,22 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       }
       return Object.assign({}, state, {
         nodes: Object.assign({}, nodes),
+      });
+    }
+    case FS_SET_SORT: {
+      const { nodes, rootId } = state;
+      const { key } = payload;
+
+      if (key === state.sortKey) {
+        return state;
+      }
+
+      const cmp = getCompareFunction(key);
+      deepSort(nodes, rootId, cmp);
+
+      return Object.assign({}, state, {
+        nodes: Object.assign({}, nodes),
+        sortKey: key,
       });
     }
     default:
@@ -174,4 +191,24 @@ function getParentId (rawNode) {
     return null;
   }
   return p[0];
+}
+
+
+function deepSort (nodes, id, cmp) {
+  const node = nodes[id];
+  if (!node) {
+    return;
+  }
+  if (!node.fetched) {
+    return;
+  }
+  const children = node.children.map(id => nodes[id]);
+  children.sort(cmp);
+  nodes[id] = {
+    ...node,
+    children: children.map(node => node.id),
+  };
+  for (const node of children) {
+    deepSort(nodes, node.id, cmp);
+  }
 }

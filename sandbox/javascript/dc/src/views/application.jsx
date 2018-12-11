@@ -4,6 +4,7 @@ import { hot } from 'react-hot-loader';
 
 import FileSystemActionBar from './file_system_action_bar';
 import ContentActionBar from './content_action_bar';
+import SortActionBar from './sort_action_bar';
 import FileExplorer from './file_explorer';
 import SearchList from './search_list';
 import MultiPageView from './multipage_view';
@@ -81,6 +82,7 @@ function NormalView (props) {
     <>
       <div className="header">
         <FileSystemActionBar />
+        <SortActionBar />
         <ContentActionBar />
       </div>
       <div className="content">
@@ -99,6 +101,7 @@ function TwoPaneView (props) {
     <>
       <div className="header">
         <FileSystemActionBar />
+        <SortActionBar />
         <ContentActionBar />
       </div>
       <div className="content">
