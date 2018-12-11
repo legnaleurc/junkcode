@@ -12,6 +12,7 @@ export const FS_SYNC_TRY = 'FS_SYNC_TRY';
 export const FS_SYNC_SUCCEED = 'FS_SYNC_SUCCEED';
 export const FS_SYNC_FAILED = 'FS_SYNC_FAILED';
 export const FS_SET_SORT = 'FS_SET_SORT';
+export const FS_EXPAND_TOGGLE = 'FS_EXPAND_TOGGLE';
 
 
 export function getList (id) {
@@ -163,6 +164,16 @@ export function setSortFunction (key) {
     type: FS_SET_SORT,
     payload: {
       key,
+    },
+  };
+}
+
+
+export function toggleExpand (id) {
+  return {
+    type: FS_EXPAND_TOGGLE,
+    payload: {
+      id,
     },
   };
 }
