@@ -2,11 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { classNameFromObject } from '../lib';
-import {
-  getList,
-  getStreamUrl,
-  toggleExpand,
-} from '../states/file_system/actions';
+import { getList, getStreamUrl } from '../states/file_system/actions';
 import {
   moveSelectedNodesTo,
   selectSiblingList,
@@ -21,6 +17,10 @@ class TreeNode extends React.Component {
 
   constructor (props) {
     super(props);
+
+    this.state = {
+      expended: false,
+    };
 
     this._onDragStart = this._onDragStart.bind(this);
     this._onDrop = this._onDrop.bind(this);
@@ -67,6 +67,7 @@ class TreeNode extends React.Component {
 
   _renderIndicator () {
     const { node } = this.props;
+    const { expended } = this.state;
     const { children } = node;
 
     if (!children) {
@@ -74,7 +75,7 @@ class TreeNode extends React.Component {
     }
     return (
       <Indicator
-        expanded={node.expanded}
+        expended={expended}
         onClick={event => {
           event.preventDefault();
           this._toggle();
@@ -85,6 +86,7 @@ class TreeNode extends React.Component {
 
   _renderChildren () {
     const { node } = this.props;
+    const { expended } = this.state;
     const { children } = node;
 
     if (!children || children.length <= 0) {
@@ -94,7 +96,7 @@ class TreeNode extends React.Component {
     return (
       <div className={classNameFromObject({
         tail: true,
-        hidden: !node.expanded,
+        hidden: !expended,
       })}>
         {children.map((nodeId, index) => (
           <div key={index}>
@@ -106,13 +108,16 @@ class TreeNode extends React.Component {
   }
 
   _toggle () {
-    const { node, getChildren, toggleExpand } = this.props;
+    const { node, getChildren } = this.props;
     if (!node.fetched) {
       getChildren(node.id);
     }
 
+    const { expended } = this.state;
     // flip
-    toggleExpand(node.id);
+    this.setState({
+      expended: !expended,
+    });
   }
 
   _openFile () {
@@ -143,7 +148,7 @@ function Indicator (props) {
     <div
       className={classNameFromObject({
         indicator: true,
-        expanded: props.expanded,
+        expended: props.expended,
       })}
       onClick={props.onClick}
     />
@@ -186,9 +191,6 @@ function mapDispatchToProps (dispatch, ownProps) {
     },
     selectSiblingList (id) {
       dispatch(selectSiblingList(id));
-    },
-    toggleExpand (id) {
-      dispatch(toggleExpand(id));
     },
   };
 }
