@@ -2,14 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader';
 
-import FileSystemActionBar from './file_system_action_bar';
-import ContentActionBar from './content_action_bar';
-import SortActionBar from './sort_action_bar';
-import FileExplorer from './file_explorer';
 import SearchList from './search_list';
 import MultiPageView from './multipage_view';
 import SwitchBar from './switch_bar';
 import MutexView from './mutex_view';
+import SingleTreeView from './single_tree_view';
+import DoubleTreeView from './double_tree_view';
 import { clearSelection } from '../states/selection/actions';
 
 import './application.scss';
@@ -26,7 +24,7 @@ class Application extends React.Component {
   }
 
   render () {
-    const { rootId, clearSelection } = this.props;
+    const { clearSelection } = this.props;
     return (
       <div className="application">
         <div className="side-bar">
@@ -56,13 +54,13 @@ class Application extends React.Component {
         <div className="side-content">
           <MutexView selected={this.state.selected}>
             <MutexView.Mutex name="normal">
-              <NormalView rootId={rootId} />
+              <SingleTreeView />
             </MutexView.Mutex>
             <MutexView.Mutex name="search">
               <SearchList />
             </MutexView.Mutex>
             <MutexView.Mutex name="two-pane">
-              <TwoPaneView rootId={rootId} />
+              <DoubleTreeView />
             </MutexView.Mutex>
             <MutexView.Mutex name="mpv">
               <MultiPageView />
@@ -76,54 +74,6 @@ class Application extends React.Component {
 }
 
 
-function NormalView (props) {
-  const { rootId } = props;
-  return (
-    <>
-      <div className="header">
-        <FileSystemActionBar />
-        <SortActionBar />
-        <ContentActionBar />
-      </div>
-      <div className="content">
-        <div className="pane full">
-          <FileExplorer rootId={rootId} />
-        </div>
-      </div>
-    </>
-  );
-}
-
-
-function TwoPaneView (props) {
-  const { rootId } = props;
-  return (
-    <>
-      <div className="header">
-        <FileSystemActionBar />
-        <SortActionBar />
-        <ContentActionBar />
-      </div>
-      <div className="content">
-        <div className="pane half">
-          <FileExplorer rootId={rootId} />
-        </div>
-        <div className="pane half">
-          <FileExplorer rootId={rootId} />
-        </div>
-      </div>
-    </>
-  );
-}
-
-
-function mapStateToProps (state) {
-  return {
-    rootId: state.fileSystem.rootId,
-  };
-}
-
-
 function mapDispatchToProps (dispatch) {
   return {
     clearSelection () {
@@ -133,4 +83,4 @@ function mapDispatchToProps (dispatch) {
 }
 
 
-export default hot(module)(connect(mapStateToProps, mapDispatchToProps)(Application));
+export default hot(module)(connect(undefined, mapDispatchToProps)(Application));
