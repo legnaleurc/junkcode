@@ -3,7 +3,10 @@ import {
   FS_LIST_GET_SUCCEED,
   FS_SYNC_SUCCEED,
 } from './actions';
-import { SORT_BY_MTIME_DES } from './sort';
+import {
+  SORT_BY_MTIME_DES,
+  getCompareFunction,
+} from './sort';
 
 
 const initialState = {
@@ -18,6 +21,9 @@ export default function reduceFileSystem (state = initialState, { type, payload 
     case FS_ROOT_GET_SUCCEED: {
       let { node } = payload;
       const { children } = payload;
+
+      const cmp = getCompareFunction(state.sortKey);
+      children.sort(cmp);
 
       node = createNode(node);
       node.fetched = true;
@@ -39,14 +45,20 @@ export default function reduceFileSystem (state = initialState, { type, payload 
     case FS_LIST_GET_SUCCEED: {
       const { nodes } = state;
       const { id, children } = payload;
+
+      const cmp = getCompareFunction(state.sortKey);
+      children.sort(cmp);
+
       for (const node of children) {
         nodes[node.id] = createNode(node);
       }
+
       const parent = nodes[id];
       nodes[id] = Object.assign({}, parent, {
         fetched: true,
         children: children.map(node => node.id),
       });
+
       return Object.assign({}, state, {
         nodes: Object.assign({}, nodes),
       });
@@ -55,7 +67,7 @@ export default function reduceFileSystem (state = initialState, { type, payload 
       const { nodes } = state;
       const { changeList } = payload;
       for (const change of changeList) {
-        applyChange(nodes, change);
+        applyChange(nodes, state.sortKey, change);
       }
       return Object.assign({}, state, {
         nodes: Object.assign({}, nodes),
@@ -79,7 +91,7 @@ function createNode (node) {
 }
 
 
-function applyChange (nodes, change) {
+function applyChange (nodes, sortKey, change) {
   if (change.removed) {
     removeNode(nodes, change.id);
     return;
@@ -88,7 +100,7 @@ function applyChange (nodes, change) {
     removeNode(nodes, change.node.id);
     return;
   }
-  upsertNode(nodes, change.node);
+  upsertNode(nodes, sortKey, change.node);
 }
 
 
@@ -109,9 +121,11 @@ function removeNode (nodes, nodeId) {
 }
 
 
-function upsertNode (nodes, node) {
+function upsertNode (nodes, sortKey, node) {
   const newNode = createNode(node);
   node = nodes[node.id];
+
+  const cmp = getCompareFunction(sortKey);
 
   // this is a new node
   if (!node) {
@@ -119,7 +133,7 @@ function upsertNode (nodes, node) {
     let parent = nodes[newNode.parentId];
     if (parent && parent.fetched) {
       parent = Object.assign({}, parent, {
-        children: [newNode.id, ...parent.children],
+        children: [newNode.id, ...parent.children].sort(cmp),
       });
       nodes[newNode.parentId] = parent;
     }
@@ -141,7 +155,7 @@ function upsertNode (nodes, node) {
     parent = nodes[newNode.parentId];
     if (parent && parent.fetched) {
       parent = Object.assign({}, parent, {
-        children: [newNode.id, ...parent.children],
+        children: [newNode.id, ...parent.children].sort(cmp),
       });
       nodes[newNode.parentId] = parent;
     }
