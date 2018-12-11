@@ -54,29 +54,5 @@
   .side-content {
     @include w-100;
     @include h-100;
-  
-    @include vbox;
-
-    .content {
-      @include size-auto;
-
-      @include w-100;
-      // IMPORTANT set min-height to have scroll for children
-      @include mh-0;
-  
-      @include hbox;
-
-      .pane {
-        @include scrollable;
-
-        &.full {
-          @include w-100;
-        }
-
-        &.half {
-          @include w-50;
-        }
-      }
-    }
   }
 }

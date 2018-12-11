@@ -1,0 +1,33 @@
+@import '../lib/index';
+
+
+.single-tree-view {
+  @include w-100;
+  @include h-100;
+
+  @include vbox;
+
+  > .head {
+    @include hbox;
+
+    .group {
+      @include size-auto;
+    }
+  }
+
+  > .tail {
+    @include size-auto;
+
+    @include w-100;
+    // IMPORTANT set min-height to have scroll for children
+    @include mh-0;
+
+    @include hbox;
+
+    .group {
+      @include scrollable;
+
+      @include w-100;
+    }
+  }
+}

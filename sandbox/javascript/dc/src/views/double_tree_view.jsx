@@ -14,15 +14,21 @@ function DoubleTreeView (props) {
   return (
     <div className="double-tree-view">
       <div className="head">
-        <FileSystemActionBar />
-        <SortActionBar />
-        <ContentActionBar />
+        <div className="group">
+          <FileSystemActionBar />
+        </div>
+        <div className="group">
+          <SortActionBar />
+        </div>
+        <div className="group">
+          <ContentActionBar />
+        </div>
       </div>
       <div className="tail">
-        <div className="half">
+        <div className="group">
           <FileExplorer rootId={props.rootId} />
         </div>
-        <div className="half">
+        <div className="group">
           <FileExplorer rootId={props.rootId} />
         </div>
       </div>
