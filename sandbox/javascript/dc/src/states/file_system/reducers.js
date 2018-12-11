@@ -3,11 +3,13 @@ import {
   FS_LIST_GET_SUCCEED,
   FS_SYNC_SUCCEED,
 } from './actions';
+import { SORT_BY_MTIME_DES } from './sort';
 
 
 const initialState = {
   nodes: {},
   rootId: null,
+  sortKey: SORT_BY_MTIME_DES,
 };
 
 
