@@ -38,16 +38,16 @@ class Application extends React.Component {
             }}
           >
             <SwitchBar.Switch name="normal">
-              <div className="normal"></div>
+              <div className="block normal"></div>
             </SwitchBar.Switch>
             <SwitchBar.Switch name="search">
-              <div className="search"></div>
+              <div className="block search"></div>
             </SwitchBar.Switch>
             <SwitchBar.Switch name="two-pane">
-              <div className="two-pane"></div>
+              <div className="block two-pane"></div>
             </SwitchBar.Switch>
             <SwitchBar.Switch name="mpv">
-              <div className="mpv"></div>
+              <div className="block mpv"></div>
             </SwitchBar.Switch>
           </SwitchBar>
         </div>

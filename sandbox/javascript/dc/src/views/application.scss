@@ -16,37 +16,30 @@
       &.active {
         border: {
           width: 5px;
-          color: black;
+          color: white;
           style: solid;
         }
       }
 
-      .normal {
+      .block {
         @include w-100;
         @include h-100;
 
-        background-color: hsl(0, 100%, 50%);
-      }
+        &.normal {
+          background-color: hsl(0, 100%, 50%);
+        }
 
-      .search {
-        @include w-100;
-        @include h-100;
+        &.search {
+          background-color: hsl(120, 100%, 50%);
+        }
 
-        background-color: hsl(90, 100%, 50%);
-      }
+        &.two-pane {
+          background-color: hsl(180, 100%, 50%);
+        }
 
-      .two-pane {
-        @include w-100;
-        @include h-100;
-
-        background-color: hsl(180, 100%, 50%);
-      }
-
-      .mpv {
-        @include w-100;
-        @include h-100;
-
-        background-color: hsl(270, 100%, 50%);
+        &.mpv {
+          background-color: hsl(270, 100%, 50%);
+        }
       }
     }
   }
