@@ -8,9 +8,9 @@ export const FS_ROOT_GET_TRY = 'FS_ROOT_GET_TRY';
 export const FS_ROOT_GET_SUCCEED = 'FS_ROOT_GET_SUCCEED';
 export const FS_ROOT_GET_FAILED = 'FS_ROOT_GET_FAILED';
 export const FS_STREAM_URL = 'FS_STREAM_URL';
-export const SYNC_POST_TRY = 'SYNC_POST_TRY';
-export const SYNC_POST_SUCCEED = 'SYNC_POST_SUCCEED';
-export const SYNC_POST_FAILED = 'SYNC_POST_FAILED';
+export const FS_SYNC_TRY = 'FS_SYNC_TRY';
+export const FS_SYNC_SUCCEED = 'FS_SYNC_SUCCEED';
+export const FS_SYNC_FAILED = 'FS_SYNC_FAILED';
 
 
 export function getList (id) {
@@ -120,14 +120,14 @@ export function * sagaGetStreamUrl (fileSystem) {
 
 export function postSync () {
   return {
-    type: SYNC_POST_TRY,
+    type: FS_SYNC_TRY,
   };
 }
 
 
 function postSyncSucceed (changeList) {
   return {
-    type: SYNC_POST_SUCCEED,
+    type: FS_SYNC_SUCCEED,
     payload: {
       changeList,
     },
@@ -137,7 +137,7 @@ function postSyncSucceed (changeList) {
 
 function postSyncFailed (message) {
   return {
-    type: SYNC_POST_FAILED,
+    type: FS_SYNC_FAILED,
     payload: {
       message,
     },
@@ -146,7 +146,7 @@ function postSyncFailed (message) {
 
 
 export function * sagaPostSync (fileSystem) {
-  yield takeEvery(SYNC_POST_TRY, function * () {
+  yield takeEvery(FS_SYNC_TRY, function * () {
     try {
       const changeList = yield call(() => fileSystem.sync());
       yield put(postSyncSucceed(changeList));

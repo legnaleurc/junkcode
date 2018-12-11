@@ -1,7 +1,7 @@
 import {
   FS_ROOT_GET_SUCCEED,
   FS_LIST_GET_SUCCEED,
-  SYNC_POST_SUCCEED,
+  FS_SYNC_SUCCEED,
 } from './actions';
 
 
@@ -49,7 +49,7 @@ export default function reduceFileSystem (state = initialState, { type, payload 
         nodes: Object.assign({}, nodes),
       });
     }
-    case SYNC_POST_SUCCEED: {
+    case FS_SYNC_SUCCEED: {
       const { nodes } = state;
       const { changeList } = payload;
       for (const change of changeList) {
