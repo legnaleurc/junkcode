@@ -2,6 +2,10 @@
 
 
 .search-list {
+  @include w-100;
+  @include h-100;
+
+  @include vbox;
 
   .input-group {
     .input {
@@ -19,10 +23,20 @@
   }
 
   .tail {
+    @include size-auto;
+
     @include hbox;
+
+    @include mh-0;
 
     .history {
       width: 200px;
+
+      @include scrollable;
+    }
+
+    .list {
+      @include scrollable;
     }
   }
 
