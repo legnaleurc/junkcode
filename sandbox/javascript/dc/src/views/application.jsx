@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { hot } from 'react-hot-loader';
+import { hot } from 'react-hot-loader/root';
 
 import SearchList from './search_list';
 import MultiPageView from './multipage_view';
@@ -83,4 +83,5 @@ function mapDispatchToProps (dispatch) {
 }
 
 
-export default hot(module)(connect(undefined, mapDispatchToProps)(Application));
+const ConnectedApplication = connect(undefined, mapDispatchToProps)(Application);
+export default hot(ConnectedApplication);

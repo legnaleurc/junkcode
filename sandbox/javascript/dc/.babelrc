@@ -1,6 +1,7 @@
 {
   "plugins": [
-    "@babel/plugin-transform-modules-commonjs"
+    "@babel/plugin-transform-modules-commonjs",
+    "react-hot-loader/babel"
   ],
   "presets": [
     "@babel/preset-react"
