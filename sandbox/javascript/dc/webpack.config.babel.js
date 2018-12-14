@@ -5,6 +5,8 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 
+import CdnWebpackPlugin from './build/cdn.js';
+
 
 const devMode = process.env.NODE_ENV !== 'production'
 
@@ -55,6 +57,7 @@ export default {
       filename: devMode ? '[name].css' : '[name].css',
       chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
     }),
+    new CdnWebpackPlugin(),
   ],
   devtool: devMode ? 'inline-source-map' : 'source-map',
   optimization: {
