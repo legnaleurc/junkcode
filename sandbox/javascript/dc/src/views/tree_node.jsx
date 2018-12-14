@@ -99,9 +99,9 @@ class TreeNode extends React.Component {
         hidden: !expended,
       })}>
         {children.map((nodeId, index) => (
-          <div key={index}>
+          <React.Fragment key={index}>
             <ConnectedTreeNode nodeId={nodeId} />
-          </div>
+          </React.Fragment>
         ))}
       </div>
     );
