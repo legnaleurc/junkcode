@@ -17,15 +17,11 @@ class SearchList extends React.Component {
   constructor (props) {
     super(props);
 
-    this.state = {
-      loading: false,
-    };
-
     this._search = this._search.bind(this);
   }
 
   render () {
-    const { matched, history, selectMatchedList } = this.props;
+    const { history } = this.props;
     return (
       <div className="search-list">
         <div>
@@ -55,37 +51,43 @@ class SearchList extends React.Component {
             <HistoryList history={history} search={this._search} />
           </div>
           <div className="list">
-            {this._renderEmpty()}
-            {matched.map(({id, path}) => (
-              <div
-                key={id}
-                onDoubleClick={event => {
-                  event.preventDefault();
-                  this._openFile(id);
-                }}
-              >
-                <Selectable.Area nodeId={id}>
-                  <Selectable.Trigger
-                    nodeId={id}
-                    onMultiSelect={selectMatchedList}
-                  >
-                    <code>{path}</code>
-                  </Selectable.Trigger>
-                </Selectable.Area>
-              </div>
-            ))}
+            {this._renderList()}
           </div>
         </div>
       </div>
     );
   }
 
-  _renderEmpty () {
+  _renderList () {
+    const { loading } = this.props;
+    if (loading) {
+      return <LoadingBlock />;
+    }
+
     const { matched } = this.props;
     if (!matched || matched.length <= 0) {
       return <EmptyBlock />;
     }
-    return null;
+
+    const { selectMatchedList } = this.props;
+    return matched.map(({id, path}) => (
+      <div
+        key={id}
+        onDoubleClick={event => {
+          event.preventDefault();
+          this._openFile(id);
+        }}
+      >
+        <Selectable.Area nodeId={id}>
+          <Selectable.Trigger
+            nodeId={id}
+            onMultiSelect={selectMatchedList}
+          >
+            <code>{path}</code>
+          </Selectable.Trigger>
+        </Selectable.Area>
+      </div>
+    ));
   }
 
   _search (text) {
@@ -100,6 +102,11 @@ class SearchList extends React.Component {
   }
 
 };
+
+
+function LoadingBlock (props) {
+  return <div className="loading-block">SEARCHING</div>;
+}
 
 
 function EmptyBlock (props) {
@@ -152,6 +159,7 @@ function openUrl (url) {
 function mapStateToProps (state) {
   const { search } = state;
   return {
+    loading: search.loading,
     matched: search.matched,
     history: search.history,
   };
