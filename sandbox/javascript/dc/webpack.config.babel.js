@@ -1,6 +1,6 @@
 import process from 'process';
 
-import HtmlWebPackPlugin from 'html-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
@@ -46,7 +46,7 @@ export default {
     extensions: ['.js', '.jsx']
   },
   plugins: [
-    new HtmlWebPackPlugin({
+    new HtmlWebpackPlugin({
       template: './src/html/index.html',
       // this uses the path related to output directory, not source directory
       filename: 'index.html',
