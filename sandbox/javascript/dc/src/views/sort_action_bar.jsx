@@ -19,7 +19,7 @@ class SortActionBar extends React.Component {
   render () {
     const { setSortFunction } = this.props;
     return (
-      <div className="content action-bar">
+      <div className="sort-action-bar">
         <div className="group">
           <Button
             onClick={event => {

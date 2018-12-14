@@ -15,7 +15,7 @@ class ContentActionBar extends React.Component {
 
   render () {
     return (
-      <div className="content action-bar">
+      <div className="content-action-bar">
         <div className="group">
           <Button onClick={this._mpv}>MPV</Button>
         </div>
