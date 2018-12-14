@@ -56,7 +56,7 @@ export default {
       chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
     }),
   ],
-  devtool: 'inline-source-map',
+  devtool: devMode ? 'inline-source-map' : 'source-map',
   optimization: {
     minimizer: [
       new TerserPlugin({
@@ -64,6 +64,7 @@ export default {
         terserOptions: {
           ecma: 6,
         },
+        sourceMap: true,
       }),
       new OptimizeCSSAssetsPlugin({}),
     ],
