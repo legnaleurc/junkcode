@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
 import { hot } from 'react-hot-loader/root';
 
@@ -17,33 +18,27 @@ class Application extends React.Component {
 
   constructor (props) {
     super(props);
-
-    this.state = {
-      selected: 'normal',
-    };
   }
 
   render () {
-    const { clearSelection } = this.props;
+    const { clearSelection, match, history } = this.props;
     return (
       <div className="application">
         <div className="side-bar">
           <SwitchBar
-            selected={this.state.selected}
+            selected={match.params.tabId}
             onSwitch={(key) => {
-              this.setState({
-                selected: key,
-              });
               clearSelection();
+              history.push(`/${key}`);
             }}
           >
-            <SwitchBar.Switch name="normal">
+            <SwitchBar.Switch name="tree">
               <div className="block normal"></div>
             </SwitchBar.Switch>
             <SwitchBar.Switch name="search">
               <div className="block search"></div>
             </SwitchBar.Switch>
-            <SwitchBar.Switch name="two-pane">
+            <SwitchBar.Switch name="double-tree">
               <div className="block two-pane"></div>
             </SwitchBar.Switch>
             <SwitchBar.Switch name="mpv">
@@ -52,14 +47,14 @@ class Application extends React.Component {
           </SwitchBar>
         </div>
         <div className="side-content">
-          <MutexView selected={this.state.selected}>
-            <MutexView.Mutex name="normal">
+          <MutexView selected={match.params.tabId}>
+            <MutexView.Mutex name="tree">
               <SingleTreeView />
             </MutexView.Mutex>
             <MutexView.Mutex name="search">
               <SearchList />
             </MutexView.Mutex>
-            <MutexView.Mutex name="two-pane">
+            <MutexView.Mutex name="double-tree">
               <DoubleTreeView />
             </MutexView.Mutex>
             <MutexView.Mutex name="mpv">
@@ -83,5 +78,33 @@ function mapDispatchToProps (dispatch) {
 }
 
 
-const ConnectedApplication = connect(undefined, mapDispatchToProps)(Application);
-export default hot(ConnectedApplication);
+const ConnectedApplication = connect(
+  undefined,
+  mapDispatchToProps,
+)(Application);
+
+
+class RoutedApplication extends React.Component {
+
+  constructor (props) {
+    super(props);
+  }
+
+  render () {
+    return (
+      <BrowserRouter>
+        <Switch>
+          <Redirect exact from="/" to="/tree" />
+          <Route
+            path="/:tabId"
+            component={ConnectedApplication}
+          />
+        </Switch>
+      </BrowserRouter>
+    );
+  }
+
+}
+
+
+export default hot(RoutedApplication);
