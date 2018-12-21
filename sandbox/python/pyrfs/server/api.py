@@ -189,9 +189,7 @@ class NodeImageListView(NodeObjectMixin, aw.View):
         ue = self.request.app['ue']
         try:
             manifest = await ue.get_manifest(node)
-        except u.InvalidPatternError:
-            return aw.Response(status=400)
-        except u.SearchFailedError:
+        except u.UnpackFailedError:
             return aw.Response(status=503)
 
         manifest = [{
@@ -215,9 +213,7 @@ class NodeImageView(NodeObjectMixin, aw.View):
         ue = self.request.app['ue']
         try:
             manifest = await ue.get_manifest(node)
-        except u.InvalidPatternError:
-            return aw.Response(status=400)
-        except u.SearchFailedError:
+        except u.UnpackFailedError:
             return aw.Response(status=503)
 
         try:

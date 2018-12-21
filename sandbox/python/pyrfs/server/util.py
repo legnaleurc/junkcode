@@ -29,6 +29,15 @@ class SearchFailedError(Exception):
         return self._message
 
 
+class UnpackFailedError(Exception):
+
+    def __init__(self, message):
+        self._message = message
+
+    def __str__(self):
+        return self._message
+
+
 class SearchEngine(object):
 
     def __init__(self, drive):
@@ -136,9 +145,11 @@ class UnpackEngine(object):
                 await self._unpack_remote(node)
             else:
                 await self._unpack_local(node.id_)
+        except UnpackFailedError:
+            raise
         except Exception as e:
-            EXCEPTION('server', e) << 'search failed, abort'
-            raise SearchFailedError(str(e))
+            EXCEPTION('server', e) << 'unpack failed, abort'
+            raise UnpackFailedError(str(e))
         finally:
             del self._unpacking[node.id_]
             async with lock:
@@ -150,7 +161,7 @@ class UnpackEngine(object):
         try:
             return self._cache[node_id]
         except KeyError:
-            raise SearchFailedError(f'{node_id} canceled search')
+            raise UnpackFailedError(f'{node_id} canceled unpack')
 
     async def _unpack_local(self, node_id):
         p = await asyncio.create_subprocess_exec('unpack',
@@ -159,7 +170,7 @@ class UnpackEngine(object):
                                                 self._tmp)
         out, err = await p.communicate()
         if p.returncode != 0:
-            raise Exception('unpack failed')
+            raise UnpackFailedError(f'unpack failed code: {p.returncode}')
         self._cache[node_id] = self._scan_local(node_id)
 
     def _scan_local(self, node_id):
