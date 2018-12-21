@@ -5,7 +5,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 
-import CdnWebpackPlugin from './build/cdn.js';
+import CdnWebpackPlugin from './tools/cdn-webpack-plugin';
 
 
 const devMode = process.env.NODE_ENV !== 'production'
