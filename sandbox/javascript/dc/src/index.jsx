@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import createSagaMiddleware from 'redux-saga';
+import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 
 import Application from './views/application';
 import { FileSystem } from './lib';
@@ -15,9 +16,8 @@ import './index.scss';
 
 const fileSystem = new FileSystem('http://localhost:9000');
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const sagaMiddleware = createSagaMiddleware();
-const store = createStore(reduce, composeEnhancers(applyMiddleware(sagaMiddleware)));
+const store = createStore(reduce, composeWithDevTools(applyMiddleware(sagaMiddleware)));
 
 sagaMiddleware.run(saga, {
   fileSystem,
