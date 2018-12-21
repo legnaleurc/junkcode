@@ -15,53 +15,6 @@ class NotFoundError(Exception):
     pass
 
 
-class ListViewMixin(object):
-
-    async def list_(self):
-        raise NotImplementedError
-
-
-class CreateViewMixin(object):
-
-    async def create(self):
-        raise NotImplementedError
-
-
-class RetrieveViewMixin(object):
-
-    async def retrieve(self):
-        raise NotImplementedError
-
-
-class APIView(object):
-
-    async def get_list(self):
-        return []
-
-    async def get_object(self):
-        return None
-
-
-class ListView(ListViewMixin, APIView):
-
-    async def get(self):
-        try:
-            list_ = await self.get_list()
-        except NotFoundError:
-            return aw.Response(status=404)
-        return json_response(list_)
-
-
-class RetriveView(RetrieveViewMixin, APIView):
-
-    async def get(self):
-        try:
-            object_ = await self.get_object()
-        except NotFoundError:
-            return aw.Response(status=404)
-        return json_response(object_)
-
-
 def raise_404(fn):
     @ft.wraps(fn)
     async def wrapper(self):
