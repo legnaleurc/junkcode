@@ -8,15 +8,17 @@
   @include vbox;
 
   > .head {
+    @include size-shrink;
+
     @include hbox;
 
     .group {
-      @include size-auto;
+      @include size-grow;
     }
   }
 
   > .tail {
-    @include size-auto;
+    @include size-grow;
 
     @include w-100;
     // IMPORTANT set min-height to have scroll for children

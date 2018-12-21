@@ -18,12 +18,12 @@
     @include hbox;
 
     .action {
-      @include size-auto;
+      @include size-grow;
     }
   }
 
   .tail {
-    @include size-auto;
+    @include size-grow;
 
     @include hbox;
 

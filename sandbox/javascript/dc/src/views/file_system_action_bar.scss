@@ -5,6 +5,6 @@
   @include hbox;
 
   .expand {
-    @include size-auto;
+    @include size-grow;
   }
 }

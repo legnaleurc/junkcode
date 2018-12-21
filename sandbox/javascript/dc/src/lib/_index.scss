@@ -7,8 +7,12 @@
   flex-direction: column;
 }
 
-@mixin size-auto {
+@mixin size-grow {
   flex: auto;
+}
+
+@mixin size-shrink {
+  flex: 0 0 auto;
 }
 
 @mixin mh-0 {
