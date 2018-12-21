@@ -5,6 +5,7 @@ find_package(cpprestsdk REQUIRED)
 find_package(Boost REQUIRED thread filesystem)
 
 set(SOURCES
+    "src/exception.cpp"
     "src/unpack.cpp"
     "src/main.cpp")
 

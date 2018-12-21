@@ -1,17 +1,16 @@
 #include "unpack.hpp"
 
+#include <memory>
+#include <iomanip>
+
 #include <archive.h>
 #include <archive_entry.h>
 #include <cpprest/http_client.h>
 #include <cpprest/rawptrstream.h>
 #include <boost/filesystem.hpp>
 
-#include <memory>
-#include <iomanip>
-
-
-
-using ArchiveHandle = std::shared_ptr<struct archive>;
+#include "types.hpp"
+#include "exception.hpp"
 
 
 const uint64_t CHUNK_SIZE = 65536;
@@ -35,40 +34,6 @@ private:
     std::array<uint8_t, CHUNK_SIZE> chunk;
 };
 using ContextHandle = std::shared_ptr<Context>;
-
-
-class ArchiveError : public std::exception {
-public:
-    ArchiveError (ArchiveHandle handle, const std::string & name) noexcept;
-
-    const char * what () const noexcept override;
-
-private:
-    std::string msg;
-};
-
-
-class EntryError : public std::exception {
-public:
-    EntryError (const std::string & name, const std::string & detail) noexcept;
-
-    const char * what () const noexcept override;
-
-private:
-    std::string msg;
-};
-
-
-class HttpError : public std::exception {
-public:
-    HttpError (web::http::status_code status,
-               const web::http::reason_phrase & reason) noexcept;
-
-    const char * what () const noexcept override;
-
-private:
-    std::string msg;
-};
 
 
 ArchiveHandle createArchiveReader (ContextHandle context);
@@ -134,9 +99,11 @@ unpackTo (uint16_t port, const std::string & id,
 ArchiveHandle createArchiveReader (ContextHandle context) {
     int rv = 0;
 
-    ArchiveHandle handle(archive_read_new(), [](ArchiveHandle::element_type * p) -> void {
-        archive_read_free(p);
-    });
+    ArchiveHandle handle(
+        archive_read_new(),
+        [](ArchiveHandle::element_type * p) -> void {
+            archive_read_free(p);
+        });
 
     rv = archive_read_support_filter_all(handle.get());
     if (rv != ARCHIVE_OK) {
@@ -179,9 +146,11 @@ ArchiveHandle createArchiveReader (ContextHandle context) {
 
 
 ArchiveHandle createDiskWriter () {
-    ArchiveHandle handle(archive_write_disk_new(), [](ArchiveHandle::element_type * p) -> void {
-        archive_write_free(p);
-    });
+    ArchiveHandle handle(
+        archive_write_disk_new(),
+        [](ArchiveHandle::element_type * p) -> void {
+            archive_write_free(p);
+        });
     return handle;
 }
 
@@ -276,7 +245,8 @@ std::string resolvePath (const std::string & localPath, const std::string & id,
         if (isalnum(c) || c == '.' || c == ' ' || c == '/') {
             sout << c;
         } else {
-            sout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(c);
+            sout << std::setfill('0') << std::setw(2) << std::hex
+                 << static_cast<int>(c);
         }
     }
     boost::filesystem::path path = localPath;
@@ -299,7 +269,8 @@ Context::Context (uint16_t port, const std::string & id)
 web::http::http_response &
 Context::getResponse () {
     auto status = this->response.status_code();
-    if (status == web::http::status_codes::OK || status == web::http::status_codes::PartialContent) {
+    if (status == web::http::status_codes::OK ||
+        status == web::http::status_codes::PartialContent) {
         return this->response;
     }
 
@@ -365,56 +336,4 @@ void Context::reset () {
     this->response = web::http::http_response();
     this->offset = 0;
     this->length = -1;
-}
-
-
-ArchiveError::ArchiveError (ArchiveHandle handle,
-                            const std::string & name) noexcept
-    : std::exception()
-    , msg()
-{
-    std::ostringstream sout;
-    const char * msg = archive_error_string(handle.get());
-    if (!msg) {
-        msg = "(empty error message)";
-    }
-    sout << name << ": " << msg;
-    this->msg = sout.str();
-}
-
-
-const char * ArchiveError::what () const noexcept {
-    return this->msg.c_str();
-}
-
-
-EntryError::EntryError (const std::string & name,
-                        const std::string & detail) noexcept
-    : std::exception()
-    , msg()
-{
-    std::ostringstream sout;
-    sout << name << ": " << detail;
-    this->msg = sout.str();
-}
-
-
-const char * EntryError::what () const noexcept {
-    return this->msg.c_str();
-}
-
-
-HttpError::HttpError (web::http::status_code status,
-                      const web::http::reason_phrase & reason) noexcept
-    : std::exception()
-    , msg()
-{
-    std::ostringstream sout;
-    sout << status << " " << reason;
-    this->msg = sout.str();
-}
-
-
-const char * HttpError::what () const noexcept {
-    return this->msg.c_str();
 }
