@@ -1,4 +1,4 @@
-From 68ed3cf014f6b2f3105bed2fb9ecf372246cb0b6 Mon Sep 17 00:00:00 2001
+From 5bfca4e5e47459a9587cc1913dbdc4478b94dabb Mon Sep 17 00:00:00 2001
 From: Grzegorz Grzywacz <grzgrzgrz3@gmail.com>
 Date: Sun, 18 Jun 2017 23:17:31 +0200
 Subject: [PATCH] bpo-30698: asyncio shutdown the ssl layer cleanly.
@@ -11,8 +11,8 @@ _SSLPipe feels wrong and its removed.
 Removing callback from _SSLPipe.shutdown should not break any api.
 ---
  Lib/asyncio/sslproto.py                | 18 +++++---
- Lib/test/test_asyncio/test_sslproto.py | 64 +++++++++++++++++++++++++-
- 2 files changed, 74 insertions(+), 8 deletions(-)
+ Lib/test/test_asyncio/test_sslproto.py | 61 ++++++++++++++++++++++++++
+ 2 files changed, 72 insertions(+), 7 deletions(-)
 
 diff --git a/Lib/asyncio/sslproto.py b/Lib/asyncio/sslproto.py
 index 12fdb0d1c5..4960369ba6 100644
@@ -74,25 +74,22 @@ index 12fdb0d1c5..4960369ba6 100644
          if isinstance(exc, base_events._FATAL_ERROR_IGNORE):
              if self._loop.get_debug():
 diff --git a/Lib/test/test_asyncio/test_sslproto.py b/Lib/test/test_asyncio/test_sslproto.py
-index 46a1523ea1..a474c1c3cb 100644
+index 44ae3b67e0..c51f250c35 100644
 --- a/Lib/test/test_asyncio/test_sslproto.py
 +++ b/Lib/test/test_asyncio/test_sslproto.py
-@@ -1,9 +1,13 @@
+@@ -1,8 +1,11 @@
  """Tests for asyncio/sslproto.py."""
--
+ 
 +import contextlib
  import logging
 +import os
  import socket
+ import sys
 +import threading
  import unittest
  from unittest import mock
-+
-+
  try:
-     import ssl
- except ImportError:
-@@ -17,6 +21,55 @@ from asyncio import tasks
+@@ -18,6 +21,55 @@ from asyncio import tasks
  from test.test_asyncio import utils as test_utils
  from test.test_asyncio import functional as func_tests
  
@@ -100,7 +97,7 @@ index 46a1523ea1..a474c1c3cb 100644
 +
 +
 +def data_file(name):
-+    return os.path.join(os.path.dirname(__file__), name)
++    return os.path.join(os.path.dirname(__file__), '..', name)
 +
 +
 +class DummySSLServer(threading.Thread):
@@ -148,7 +145,7 @@ index 46a1523ea1..a474c1c3cb 100644
  
  @unittest.skipIf(ssl is None, 'No ssl module')
  class SslProtoHandshakeTests(test_utils.TestCase):
-@@ -148,6 +201,15 @@ class SslProtoHandshakeTests(test_utils.TestCase):
+@@ -149,6 +201,15 @@ class SslProtoHandshakeTests(test_utils.TestCase):
          # should not raise
          self.assertIsNone(transp.write(b'data'))
  
@@ -165,5 +162,5 @@ index 46a1523ea1..a474c1c3cb 100644
  ##############################################################################
  # Start TLS Tests
 -- 
-2.17.1 (Apple Git-112)
+2.20.1
 
