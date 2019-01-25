@@ -1,8 +1,0 @@
-@import '../lib/index';
-
-
-.multipage-view {
-  @include w-100;
-  @include h-100;
-  @include scrollable;
-}
