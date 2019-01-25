@@ -8,8 +8,6 @@ import functools as ft
 import sys
 import time
 
-import signal
-
 
 class Watcher(object):
 
@@ -139,6 +137,8 @@ def unix_ms():
 async def main(args=None):
     if args is None:
         args = sys.argv
+
+    import signal
 
     loop = aio.get_running_loop()
     stop_event = aio.Event()
