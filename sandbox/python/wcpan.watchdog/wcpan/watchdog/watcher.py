@@ -1,6 +1,7 @@
 import enum
 import os
 import re
+from typing import Dict, Pattern, Set, Tuple, Union
 
 
 __all__ = ('Change', 'AllWatcher', 'DefaultDirWatcher', 'DefaultWatcher',
@@ -14,19 +15,24 @@ class Change(enum.IntEnum):
     deleted = 3
 
 
+ChangeEntry = Tuple[Change, str]
+ChangeSet = Set[ChangeEntry]
+Snapshot = Dict[str, int]
+
+
 class AllWatcher(object):
 
-    def __init__(self, root_path):
+    def __init__(self, root_path: str):
         self.files = {}
         self.root_path = root_path
 
-    def should_watch_dir(self, entry):
+    def should_watch_dir(self, entry: os.DirEntry) -> bool:
         return True
 
-    def should_watch_file(self, entry):
+    def should_watch_file(self, entry: os.DirEntry) -> bool:
         return True
 
-    def _walk(self, dir_path, changes, new_files):
+    def _walk(self, dir_path: str, changes: ChangeSet, new_files: Snapshot):
         for entry in os.scandir(dir_path):
             if entry.is_dir():
                 if self.should_watch_dir(entry):
@@ -40,7 +46,7 @@ class AllWatcher(object):
                 elif old_mtime != mtime:
                     changes.add((Change.modified, entry.path))
 
-    def check(self):
+    def check(self) -> ChangeSet:
         changes = set()
         new_files = {}
         try:
@@ -63,7 +69,7 @@ class DefaultDirWatcher(AllWatcher):
     ignored_dirs = {'.git', '__pycache__', 'site-packages', '.idea',
                     'node_modules'}
 
-    def should_watch_dir(self, entry):
+    def should_watch_dir(self, entry: os.DirEntry) -> bool:
         return entry.name not in self.ignored_dirs
 
 
@@ -71,31 +77,35 @@ class DefaultWatcher(DefaultDirWatcher):
 
     ignored_file_regexes = (r'\.py[cod]$', r'\.___jb_...___$', r'\.sw.$', '~$')
 
-    def __init__(self, root_path):
+    def __init__(self, root_path: str):
         super().__init__(root_path)
 
         self._ignored_file_regexes = tuple(re.compile(r) for r in self.ignored_file_regexes)
 
-    def should_watch_file(self, entry):
+    def should_watch_file(self, entry: os.DirEntry) -> bool:
         return not any(r.search(entry.name) for r in self._ignored_file_regexes)
 
 
 class PythonWatcher(DefaultDirWatcher):
 
-    def should_watch_file(self, entry):
+    def should_watch_file(self, entry: os.DirEntry) -> bool:
         return entry.name.endswith(('.py', '.pyx', '.pyd'))
 
 
 class RegExpWatcher(AllWatcher):
 
-    def __init__(self, root_path, re_files=None, re_dirs=None):
+    def __init__(self,
+        root_path: str,
+        re_files: Union[Pattern, str] = None,
+        re_dirs: Union[Pattern, str] = None,
+    ):
         super().__init__(root_path)
 
         self.re_files = re.compile(re_files) if re_files is not None else re_files
         self.re_dirs = re.compile(re_dirs) if re_dirs is not None else re_dirs
 
-    def should_watch_file(self, entry):
+    def should_watch_file(self, entry: os.DirEntry) -> bool:
         return self.re_files.match(entry.path)
 
-    def should_watch_dir(self, entry):
+    def should_watch_dir(self, entry: os.DirEntry) -> bool:
         return self.re_dirs.match(entry.path)
