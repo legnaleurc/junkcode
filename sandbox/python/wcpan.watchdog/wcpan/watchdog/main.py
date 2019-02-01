@@ -1,4 +1,5 @@
 import asyncio as aio
+import signal
 import sys
 
 from .watcher import Watcher
@@ -7,8 +8,6 @@ from .watcher import Watcher
 async def main(args=None):
     if args is None:
         args = sys.argv
-
-    import signal
 
     loop = aio.get_running_loop()
     stop_event = aio.Event()
