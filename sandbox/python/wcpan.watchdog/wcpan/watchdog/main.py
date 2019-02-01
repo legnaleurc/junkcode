@@ -4,23 +4,31 @@ import signal
 import sys
 
 from .watcher import Watcher
+from .filters import DefaultFilter
 
 
 async def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
-    args = parse_args(args)
+    args, rest = parse_args(args)
+    Filter = create_filter_class(args)
 
     loop = aio.get_running_loop()
     stop_event = aio.Event()
     loop.add_signal_handler(signal.SIGINT, lambda: stop_event.set())
 
+    p = await spawn(rest)
+
     async with Watcher() as watcher:
-        async for changes in watcher('/tmp', stop_event=stop_event):
+        async for changes in watcher(args.path, stop_event=stop_event,
+                                     filter_class=Filter):
             print(changes)
 
-    print('leave')
+            await kill(p)
+            p = await spawn(rest)
+
+    await kill(p)
 
     return 0
 
@@ -42,3 +50,27 @@ def parse_args(args):
         args = parser.parse_args(args)
 
     return args, rest
+
+
+def create_filter_class(args):
+    if not args.include and not args.exclude:
+        return DefaultFilter
+
+
+async def spawn(args):
+    p = await aio.create_subprocess_exec(*args)
+    return p
+
+
+async def kill(p):
+    if p.returncode is not None:
+        return
+
+    p.terminate()
+    try:
+        return await aio.wait_for(p.wait(), timeout=2)
+    except aio.TimeoutError:
+        pass
+
+    p.kill()
+    return await p.wait()
