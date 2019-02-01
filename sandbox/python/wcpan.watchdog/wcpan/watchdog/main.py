@@ -30,6 +30,7 @@ def parse_args(args):
 
     parser.add_argument('--include', '-i', action='append')
     parser.add_argument('--exclude', '-e', action='append')
+    parser.add_argument('path', nargs='?', type=str, default='.')
 
     rest = None
     try:
