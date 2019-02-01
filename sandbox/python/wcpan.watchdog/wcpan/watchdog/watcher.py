@@ -131,7 +131,7 @@ class ChangeIterator(object):
                 await self._sleep(sleep_time / 1000)
 
             s = unix_ms()
-            new_changes = await self._run(self._watcher.check)
+            new_changes = await self._run(self._watcher)
             changes.update(new_changes)
 
             now = unix_ms()
