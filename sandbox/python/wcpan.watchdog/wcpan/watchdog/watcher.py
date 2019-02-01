@@ -1,111 +1,146 @@
-import enum
-import os
-import re
-from typing import Dict, Pattern, Set, Tuple, Union
+import asyncio as aio
+import concurrent.futures as cf
+import contextlib as cl
+import functools as ft
+import time
+
+from .filters import DefaultFilter
 
 
-__all__ = ('Change', 'AllWatcher', 'DefaultDirWatcher', 'DefaultWatcher',
-           'PythonWatcher', 'RegExpWatcher')
-
-
-class Change(enum.IntEnum):
-
-    added = 1
-    modified = 2
-    deleted = 3
-
-
-ChangeEntry = Tuple[Change, str]
-ChangeSet = Set[ChangeEntry]
-Snapshot = Dict[str, int]
-
-
-class AllWatcher(object):
-
-    def __init__(self, root_path: str):
-        self.files = {}
-        self.root_path = root_path
-
-    def should_watch_dir(self, entry: os.DirEntry) -> bool:
-        return True
-
-    def should_watch_file(self, entry: os.DirEntry) -> bool:
-        return True
-
-    def _walk(self, dir_path: str, changes: ChangeSet, new_files: Snapshot):
-        for entry in os.scandir(dir_path):
-            if entry.is_dir():
-                if self.should_watch_dir(entry):
-                    self._walk(entry.path, changes, new_files)
-            elif self.should_watch_file(entry):
-                mtime = entry.stat().st_mtime
-                new_files[entry.path] = mtime
-                old_mtime = self.files.get(entry.path)
-                if not old_mtime:
-                    changes.add((Change.added, entry.path))
-                elif old_mtime != mtime:
-                    changes.add((Change.modified, entry.path))
-
-    def check(self) -> ChangeSet:
-        changes = set()
-        new_files = {}
-        try:
-            self._walk(str(self.root_path), changes, new_files)
-        except OSError as e:
-            # happens when a directory has been deleted between checks
-            print(f'error walking file system: {e.__class__.__name__} {e}')
-
-        # look for deleted
-        deleted = self.files.keys() - new_files.keys()
-        if deleted:
-            changes |= {(Change.deleted, entry) for entry in deleted}
-
-        self.files = new_files
-        return changes
-
-
-class DefaultDirWatcher(AllWatcher):
-
-    ignored_dirs = {'.git', '__pycache__', 'site-packages', '.idea',
-                    'node_modules'}
-
-    def should_watch_dir(self, entry: os.DirEntry) -> bool:
-        return entry.name not in self.ignored_dirs
-
-
-class DefaultWatcher(DefaultDirWatcher):
-
-    ignored_file_regexes = (r'\.py[cod]$', r'\.___jb_...___$', r'\.sw.$', '~$')
-
-    def __init__(self, root_path: str):
-        super().__init__(root_path)
-
-        self._ignored_file_regexes = tuple(re.compile(r) for r in self.ignored_file_regexes)
-
-    def should_watch_file(self, entry: os.DirEntry) -> bool:
-        return not any(r.search(entry.name) for r in self._ignored_file_regexes)
-
-
-class PythonWatcher(DefaultDirWatcher):
-
-    def should_watch_file(self, entry: os.DirEntry) -> bool:
-        return entry.name.endswith(('.py', '.pyx', '.pyd'))
-
-
-class RegExpWatcher(AllWatcher):
+class Watcher(object):
 
     def __init__(self,
-        root_path: str,
-        re_files: Union[Pattern, str] = None,
-        re_dirs: Union[Pattern, str] = None,
+        stop_event=None,
+        watcher_class=DefaultFilter,
+        min_sleep=50,
+        normal_sleep=400,
+        debounce=1600,
+        executor=None,
+        loop=None,
     ):
-        super().__init__(root_path)
+        self._stop_event = stop_event
+        self._watcher_class = watcher_class
+        self._min_sleep = min_sleep
+        self._normal_sleep = normal_sleep
+        self._debounce = debounce
+        self._executor = executor
+        self._loop = loop
+        if not self._loop:
+            self._loop = aio.get_running_loop()
 
-        self.re_files = re.compile(re_files) if re_files is not None else re_files
-        self.re_dirs = re.compile(re_dirs) if re_dirs is not None else re_dirs
+    async def __aenter__(self):
+        async with cl.AsyncExitStack() as stack:
+            if self._executor is None:
+                self._executor = stack.enter_context(cf.ThreadPoolExecutor())
+            self._raii = stack.pop_all()
+        return WatcherCreator(self)
 
-    def should_watch_file(self, entry: os.DirEntry) -> bool:
-        return self.re_files.match(entry.path)
+    async def __aexit__(self, type_, exc, tb):
+        await self._raii.aclose()
 
-    def should_watch_dir(self, entry: os.DirEntry) -> bool:
-        return self.re_dirs.match(entry.path)
+    async def _run(self, cb, *args, **kwargs):
+        fn = ft.partial(cb, *args, **kwargs)
+        return await self._loop.run_in_executor(self._executor, fn)
+
+    async def _sleep(self, sec):
+        await aio.sleep(sec, loop=self._loop)
+
+
+class WatcherCreator(object):
+
+    def __init__(self, context):
+        self._context = context
+
+    def __call__(self,
+        path,
+        stop_event=None,
+        watcher_class=None,
+        min_sleep=None,
+        normal_sleep=None,
+        debounce=None,
+    ):
+        if stop_event is None:
+            stop_event = self._context._stop_event
+        if watcher_class is None:
+            watcher_class = self._context._watcher_class
+        if min_sleep is None:
+            min_sleep = self._context._min_sleep
+        if normal_sleep is None:
+            normal_sleep = self._context._normal_sleep
+        if debounce is None:
+            debounce = self._context._debounce
+
+        return ChangeIterator(
+            run=self._context._run,
+            sleep=self._context._sleep,
+            path=path,
+            stop_event=stop_event,
+            watcher_class=watcher_class,
+            min_sleep=min_sleep,
+            normal_sleep=normal_sleep,
+            debounce=debounce,
+        )
+
+
+class ChangeIterator(object):
+
+    def __init__(self,
+        run,
+        sleep,
+        path,
+        stop_event,
+        watcher_class,
+        min_sleep,
+        normal_sleep,
+        debounce,
+    ):
+        self._run = run
+        self._sleep = sleep
+        self._path = path
+        self._stop_event = stop_event
+        self._watcher_class = watcher_class
+        self._min_sleep = min_sleep
+        self._normal_sleep = normal_sleep
+        self._debounce = debounce
+
+        self._watcher = None
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if not self._watcher:
+            self._watcher = self._watcher_class(self._path)
+            await self._run(self._watcher)
+
+        check_time = 0
+        changes = set()
+        last_change = 0
+        while True:
+            if self._stop_event and self._stop_event.is_set():
+                raise StopAsyncIteration
+
+            if not changes:
+                last_change = unix_ms()
+
+            if check_time:
+                if changes:
+                    sleep_time = self._min_sleep
+                else:
+                    sleep_time = max(self._normal_sleep - check_time, self._min_sleep)
+                await self._sleep(sleep_time / 1000)
+
+            s = unix_ms()
+            new_changes = await self._run(self._watcher.check)
+            changes.update(new_changes)
+
+            now = unix_ms()
+            check_time = now - s
+            debounced = now - last_change
+
+            if changes and (not new_changes or debounced > self._debounce):
+                return changes
+
+
+def unix_ms():
+    return int(round(time.time() * 1000))
