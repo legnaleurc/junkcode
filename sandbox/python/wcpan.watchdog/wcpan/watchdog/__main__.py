@@ -8,14 +8,14 @@ import functools as ft
 import sys
 import time
 
-from .watcher import DefaultWatcher
+from .filters import DefaultFilter
 
 
 class Watcher(object):
 
     def __init__(self,
         stop_event=None,
-        watcher_factory=DefaultWatcher,
+        watcher_class=DefaultFilter,
         min_sleep=50,
         normal_sleep=400,
         debounce=1600,
@@ -23,7 +23,7 @@ class Watcher(object):
         loop=None,
     ):
         self._stop_event = stop_event
-        self._watcher_factory = watcher_factory
+        self._watcher_class = watcher_class
         self._min_sleep = min_sleep
         self._normal_sleep = normal_sleep
         self._debounce = debounce
@@ -58,15 +58,15 @@ class WatcherCreator(object):
     def __call__(self,
         path,
         stop_event=None,
-        watcher_factory=None,
+        watcher_class=None,
         min_sleep=None,
         normal_sleep=None,
         debounce=None,
     ):
         if stop_event is None:
             stop_event = self._context._stop_event
-        if watcher_factory is None:
-            watcher_factory = self._context._watcher_factory
+        if watcher_class is None:
+            watcher_class = self._context._watcher_class
         if min_sleep is None:
             min_sleep = self._context._min_sleep
         if normal_sleep is None:
@@ -79,7 +79,7 @@ class WatcherCreator(object):
             sleep=self._context._sleep,
             path=path,
             stop_event=stop_event,
-            watcher_factory=watcher_factory,
+            watcher_class=watcher_class,
             min_sleep=min_sleep,
             normal_sleep=normal_sleep,
             debounce=debounce,
@@ -93,7 +93,7 @@ class ChangeIterator(object):
         sleep,
         path,
         stop_event,
-        watcher_factory,
+        watcher_class,
         min_sleep,
         normal_sleep,
         debounce,
@@ -102,7 +102,7 @@ class ChangeIterator(object):
         self._sleep = sleep
         self._path = path
         self._stop_event = stop_event
-        self._watcher_factory = watcher_factory
+        self._watcher_class = watcher_class
         self._min_sleep = min_sleep
         self._normal_sleep = normal_sleep
         self._debounce = debounce
@@ -114,8 +114,8 @@ class ChangeIterator(object):
 
     async def __anext__(self):
         if not self._watcher:
-            self._watcher = self._watcher_factory(self._path)
-            await self._run(self._watcher.check)
+            self._watcher = self._watcher_class(self._path)
+            await self._run(self._watcher)
 
         check_time = 0
         changes = set()
