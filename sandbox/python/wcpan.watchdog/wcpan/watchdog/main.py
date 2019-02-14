@@ -1,10 +1,48 @@
 import asyncio as aio
 import argparse
+import fnmatch
 import signal
 import sys
 
 from .watcher import Watcher
 from .filters import DefaultFilter
+
+
+class GlobFilter(DefaultFilter):
+
+    def __init__(self, root_path, include_list, exclude_list):
+        super().__init__(root_path)
+
+        self._i = include_list
+        self._e = exclude_list
+
+    def should_watch_dir(self, entry):
+        rv = self._should_watch(entry)
+        if rv is not None:
+            return rv
+
+        if super().should_watch_dir(entry):
+            return True
+
+        return False
+
+    def should_watch_file(self, entry):
+        if super().should_watch_file(entry):
+            return True
+        return False
+
+    def _should_watch(self, entry):
+        if self._e:
+            excluded = any((fnmatch.fnmatch(entry.name, _) for _ in self._e))
+            if excluded:
+                return False
+
+        if self._i:
+            included = any((fnmatch.fnmatch(entry.name, _) for _ in self._i))
+            if included:
+                return True
+
+        return None
 
 
 async def main(args=None):
