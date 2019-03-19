@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name         GBF no mute
 // @namespace    sandbox
+// @version      0.1
 // @match        http://game.granbluefantasy.jp/*
 // @grant        unsafeWindow
 // ==/UserScript==
