@@ -1,5 +1,6 @@
 // ==UserScript==
 // @name         GBF show contribution
+// @namespace    sandbox
 // @match        http://game.granbluefantasy.jp/*
 // @grant        unsafeWindow
 // @grant        GM_addStyle
