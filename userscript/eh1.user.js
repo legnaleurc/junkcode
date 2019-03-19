@@ -9,44 +9,35 @@
 
 'use strict';
 
+
+const HIDDEN = 'rgb(0, 0, 0)';
+const HIGHLIGHT = 'rgb(3, 71, 207)';
+
+
 main();
 
 
 function main () {
-  const items = document.querySelectorAll('.id1');
-
+  const items = document.querySelectorAll('.gl1t');
   items.forEach((item) => {
-    if (hasHiddenFlags(item) || hasHiddenCategories(item)) {
+    if (hasHiddenFlags(item)) {
       item.style.opacity = 0.2;
     } else if (hasHighlightFlags(item)) {
-      item.style.borderColor = 'lime';
+      const tmp = item.querySelector('.gl3t');
+      tmp.style.borderColor = 'lime';
+      tmp.style.borderWidth = '5px';
     }
   });
 }
 
 
 function hasHiddenFlags (item) {
-  let marks = item.querySelectorAll('.tft');
-  marks = Array.prototype.filter.call(marks, (mark) => {
-    return mark.style.backgroundPosition === '0px -1px';
-  });
-  return marks.length > 0;
-}
-
-
-function hasHiddenCategories (item) {
-  let marks = item.querySelectorAll('.id41');
-  marks = Array.prototype.filter.call(marks, (mark) => {
-    return mark.title === 'Western';
-  });
-  return marks.length > 0;
+  const labels = item.querySelectorAll('.gt');
+	return Array.prototype.some.call(labels, label => label.style.borderColor === HIDDEN);
 }
 
 
 function hasHighlightFlags (item) {
-  let marks = item.querySelectorAll('.tft');
-  marks = Array.prototype.filter.call(marks, (mark) => {
-    return mark.style.backgroundPosition === '0px -52px';
-  });
-  return marks.length > 0;
+  const labels = item.querySelectorAll('.gt');
+	return Array.prototype.some.call(labels, label => label.style.borderColor === HIGHLIGHT);
 }
