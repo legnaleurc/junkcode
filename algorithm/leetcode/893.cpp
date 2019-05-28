@@ -12,7 +12,7 @@ public:
     TreeNode* increasingBST(TreeNode* root) {
         return leftMost(root);
     }
-    
+
     TreeNode* leftMost(TreeNode* node) {
         if (!node) {
             return nullptr;
