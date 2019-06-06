@@ -4,14 +4,14 @@ public:
     MedianFinder() {
         this->median = 0.0;
     }
-    
+
     void addNum(int num) {
         if (this->small.empty() && this->big.empty()) {
             this->median = num;
             this->small.push(num);
             return;
         }
-        
+
         if (this->small.size() > this->big.size()) {
             if (num > this->median) {
                 this->big.push(num);
@@ -40,11 +40,11 @@ public:
             }
         }
     }
-    
+
     double findMedian() {
         return this->median;
     }
-    
+
 private:
     double median;
     priority_queue<double> small;
