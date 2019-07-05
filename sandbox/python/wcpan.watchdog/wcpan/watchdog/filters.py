@@ -30,7 +30,7 @@ class Filter(object):
         self._exclude_list.append(fn)
 
 
-def create_default_filter():
+def create_default_filter() -> Filter:
     filter_ = Filter()
     filter_.exclude(is_vcs_folder)
     filter_.exclude(is_editor_file)
