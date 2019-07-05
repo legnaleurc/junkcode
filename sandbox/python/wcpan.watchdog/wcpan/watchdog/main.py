@@ -1,11 +1,11 @@
 import asyncio as aio
 import argparse
-import fnmatch
+import functools
 import signal
 import sys
 
 from .watcher import Watcher
-from .filters import create_default_filter
+from .filters import create_default_filter, matches_glob
 
 
 async def main(args=None):
@@ -54,8 +54,14 @@ def parse_args(args):
 
 
 def create_filter(args):
-    if not args.include and not args.exclude:
-        return create_default_filter()
+    filter_ = create_default_filter()
+    if args.include:
+        for p in args.include:
+            filter_.include(functools.partial(matches_glob, p))
+    if args.exclude:
+        for p in args.exclude:
+            filter_.exclude(functools.partial(matches_glob, p))
+    return filter_
 
 
 async def spawn(args):
