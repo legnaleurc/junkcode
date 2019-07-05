@@ -15,13 +15,17 @@ class Filter(object):
         self._exclude_list = []
 
     def __call__(self, entry: os.DirEntry) -> bool:
-        g = (_(entry) for _ in self._include_list)
-        should_include = any(g)
-        if not should_include:
-            return False
         g = (_(entry) for _ in self._exclude_list)
         should_exclude = any(g)
-        return not should_exclude
+        if should_exclude:
+            return False
+
+        if not self._include_list:
+            return True
+
+        g = (_(entry) for _ in self._include_list)
+        should_include = any(g)
+        return should_include
 
     def include(self, fn: FilterFunction) -> None:
         self._include_list.append(fn)
