@@ -1,4 +1,5 @@
 import enum
+import functools
 import os
 import re
 from typing import Dict, Pattern, Set, Tuple, Union
@@ -64,6 +65,31 @@ class AllFilter(object):
         return changes
 
 
+def exclude(fn):
+    @functools.wraps(fn)
+    def wrapper(entry: os.DirEntry, *args, **kwargs) -> bool:
+        return not fn(entry, *args, **kwargs)
+    return wrapper
+
+
+def file_only(fn):
+    @functools.wraps(fn)
+    def wrapper(entry: os.DirEntry, *args, **kwargs):
+        if entry.is_dir():
+            return False
+        return fn(entry, *args, **kwargs)
+    return wrapper
+
+
+def folder_only(fn):
+    @functools.wraps(fn)
+    def wrapper(entry: os.DirEntry, *args, **kwargs):
+        if not entry.is_dir():
+            return False
+        return fn(entry, *args, **kwargs)
+    return wrapper
+
+
 class DefaultDirFilter(AllFilter):
 
     ignored_dirs = {'.git', '__pycache__', 'site-packages', '.idea',
@@ -86,10 +112,42 @@ class DefaultFilter(DefaultDirFilter):
         return not any(r.search(entry.name) for r in self._ignored_file_regexes)
 
 
+@exclude
+def exclude_python_cache(entry: os.DirEntry) -> bool:
+    if entry.is_dir():
+        return entry.name in ('__pycache__', 'site-packages')
+    else:
+        return re.search(r'\.py[cod]$', entry.name) is not None
+
+
+@exclude
+def exclude_editor_files(entry: os.DirEntry) -> bool:
+    FOLDER_PATTERNS = ('.idea', '.vscode')
+    FILE_PATTERNS = (r'\.sw.$', r'~$')
+
+    if entry.is_dir():
+        g = (_ == entry.name for _ in FOLDER_PATTERNS)
+    else:
+        g = (re.search(_, entry.name) for _ in FILE_PATTERNS)
+    return any(g)
+
+
+@exclude
+@folder_only
+def exclude_vcs_folders(entry: os.DirEntry) -> bool:
+    PATTERNS = ('.git', '.hg', '.svn', '.cvs')
+    g = (_ == entry.name for _ in PATTERNS)
+    return any(g)
+
+
 class PythonFilter(DefaultDirFilter):
 
     def should_watch_file(self, entry: os.DirEntry) -> bool:
         return entry.name.endswith(('.py', '.pyx', '.pyd'))
+
+
+def include_python_files(entry: os.DirEntry) -> bool:
+    return not entry.is_dir() and entry.name.endswith(('.py', '.pyx', '.pyd'))
 
 
 class RegExpFilter(AllFilter):
