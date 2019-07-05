@@ -7,17 +7,23 @@ import re
 class Filter(object):
 
     def __init__(self):
-        self._filters = []
+        self._include_list = []
+        self._exclude_list = []
 
     def __call__(self, entry: os.DirEntry) -> bool:
-        g = (_(entry) for _ in self._filters)
-        return all(g)
+        g = (_(entry) for _ in self._include_list)
+        should_include = any(g)
+        if not should_include:
+            return False
+        g = (_(entry) for _ in self._exclude_list)
+        should_exclude = any(g)
+        return should_exclude
 
     def include(self, fn) -> None:
-        self._filters.append(fn)
+        self._include_list.append(fn)
 
     def exclude(self, fn) -> None:
-        self._filters.append(lambda entry: not fn(entry))
+        self._exclude_list.append(fn)
 
 
 def file_only(fn):
