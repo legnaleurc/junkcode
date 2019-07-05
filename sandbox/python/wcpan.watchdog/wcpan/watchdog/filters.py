@@ -2,6 +2,10 @@ import fnmatch
 import functools
 import os
 import re
+from typing import Callable
+
+
+FilterFunction = Callable[[os.DirEntry], bool]
 
 
 class Filter(object):
@@ -19,11 +23,20 @@ class Filter(object):
         should_exclude = any(g)
         return should_exclude
 
-    def include(self, fn) -> None:
+    def include(self, fn: FilterFunction) -> None:
         self._include_list.append(fn)
 
-    def exclude(self, fn) -> None:
+    def exclude(self, fn: FilterFunction) -> None:
         self._exclude_list.append(fn)
+
+
+def create_default_filter():
+    filter_ = Filter()
+    filter_.exclude(is_vcs_folder)
+    filter_.exclude(is_editor_file)
+    filter_.exclude(is_python_cache)
+    filter_.exclude(is_nodejs_cache)
+    return filter_
 
 
 def file_only(fn):
