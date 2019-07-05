@@ -4,6 +4,22 @@ import os
 import re
 
 
+class Filter(object):
+
+    def __init__(self):
+        self._filters = []
+
+    def __call__(self, entry: os.DirEntry) -> bool:
+        g = (_(entry) for _ in self._filters)
+        return all(g)
+
+    def include(self, fn) -> None:
+        self._filters.append(fn)
+
+    def exclude(self, fn) -> None:
+        self._filters.append(lambda entry: not fn(entry))
+
+
 def file_only(fn):
     @functools.wraps(fn)
     def wrapper(entry: os.DirEntry, *args, **kwargs):
