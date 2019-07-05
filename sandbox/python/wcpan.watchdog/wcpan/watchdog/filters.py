@@ -21,7 +21,7 @@ class Filter(object):
             return False
         g = (_(entry) for _ in self._exclude_list)
         should_exclude = any(g)
-        return should_exclude
+        return not should_exclude
 
     def include(self, fn: FilterFunction) -> None:
         self._include_list.append(fn)
