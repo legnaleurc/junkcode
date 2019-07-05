@@ -112,16 +112,14 @@ class DefaultFilter(DefaultDirFilter):
         return not any(r.search(entry.name) for r in self._ignored_file_regexes)
 
 
-@exclude
-def exclude_python_cache(entry: os.DirEntry) -> bool:
+def is_python_cache(entry: os.DirEntry) -> bool:
     if entry.is_dir():
         return entry.name in ('__pycache__', 'site-packages')
     else:
         return re.search(r'\.py[cod]$', entry.name) is not None
 
 
-@exclude
-def exclude_editor_files(entry: os.DirEntry) -> bool:
+def is_editor_file(entry: os.DirEntry) -> bool:
     FOLDER_PATTERNS = ('.idea', '.vscode')
     FILE_PATTERNS = (r'\.sw.$', r'~$')
 
@@ -132,17 +130,15 @@ def exclude_editor_files(entry: os.DirEntry) -> bool:
     return any(g)
 
 
-@exclude
 @folder_only
-def exclude_vcs_folders(entry: os.DirEntry) -> bool:
+def is_vcs_folder(entry: os.DirEntry) -> bool:
     PATTERNS = ('.git', '.hg', '.svn', '.cvs')
     g = (_ == entry.name for _ in PATTERNS)
     return any(g)
 
 
-@exclude
 @folder_only
-def exclude_nodejs_cache(entry: os.DirEntry) -> bool:
+def is_nodejs_cache(entry: os.DirEntry) -> bool:
     return entry.name == 'node_modules'
 
 
@@ -152,7 +148,7 @@ class PythonFilter(DefaultDirFilter):
         return entry.name.endswith(('.py', '.pyx', '.pyd'))
 
 
-def include_python_files(entry: os.DirEntry) -> bool:
+def is_python_file(entry: os.DirEntry) -> bool:
     return not entry.is_dir() and entry.name.endswith(('.py', '.pyx', '.pyd'))
 
 
