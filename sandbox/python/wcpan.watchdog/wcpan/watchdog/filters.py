@@ -140,6 +140,12 @@ def exclude_vcs_folders(entry: os.DirEntry) -> bool:
     return any(g)
 
 
+@exclude
+@folder_only
+def exclude_nodejs_cache(entry: os.DirEntry) -> bool:
+    return entry.name == 'node_modules'
+
+
 class PythonFilter(DefaultDirFilter):
 
     def should_watch_file(self, entry: os.DirEntry) -> bool:
