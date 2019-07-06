@@ -19,17 +19,13 @@ async def main(args=None):
     stop_event = aio.Event()
     loop.add_signal_handler(signal.SIGINT, lambda: stop_event.set())
 
-    p = await spawn(rest)
-
-    async with Watcher() as watcher:
+    async with ChildProcess(rest) as child, \
+               Watcher() as watcher:
         async for changes in watcher(args.path, stop_event=stop_event,
                                      filter_=filter_):
             print(changes)
 
-            await kill(p)
-            p = await spawn(rest)
-
-    await kill(p)
+            await child.restart()
 
     return 0
 
@@ -62,6 +58,30 @@ def create_filter(args):
         for p in args.exclude:
             filter_.exclude(matches_glob(p))
     return filter_
+
+
+class ChildProcess(object):
+
+    def __init__(self, args):
+        self._args = args
+        self._p = None
+
+    async def __aenter__(self):
+        if not self._args:
+            return self
+        self._p = await spawn(self._args)
+        return self
+
+    async def __aexit__(self, type_, e, tb):
+        if not self._args:
+            return
+        await kill(self._p)
+
+    async def restart(self):
+        if not self._args:
+            return
+        await kill(self._p)
+        self._p = await spawn(self._args)
 
 
 async def spawn(args):
