@@ -57,10 +57,10 @@ def create_filter(args):
     filter_ = create_default_filter()
     if args.include:
         for p in args.include:
-            filter_.include(functools.partial(matches_glob, p))
+            filter_.include(matches_glob(p))
     if args.exclude:
         for p in args.exclude:
-            filter_.exclude(functools.partial(matches_glob, p))
+            filter_.exclude(matches_glob(p))
     return filter_
 
 

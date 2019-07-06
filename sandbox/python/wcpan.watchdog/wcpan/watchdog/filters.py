@@ -95,9 +95,9 @@ def is_python_file(entry: os.DirEntry) -> bool:
     return not entry.is_dir() and entry.name.endswith(('.py', '.pyx', '.pyd'))
 
 
-def matches_glob(entry: os.DirEntry, pattern: str) -> bool:
-    return fnmatch.fnmatch(entry.name, pattern)
+def matches_glob(pattern: str) -> FilterFunction:
+    return lambda entry: fnmatch.fnmatch(entry.name, pattern)
 
 
-def matches_regex(entry: os.DirEntry, pattern: str) -> bool:
-    return re.search(pattern, entry.name) is not None
+def matches_regex(pattern: str) -> FilterFunction:
+    return lambda entry: re.search(pattern, entry.name) is not None
