@@ -1,4 +1,4 @@
-import fnmatch
+import pathlib
 import functools
 import os
 import re
@@ -95,7 +95,7 @@ def is_python_file(entry: os.DirEntry) -> bool:
 
 
 def matches_glob(pattern: str) -> FilterFunction:
-    return lambda entry: fnmatch.fnmatch(entry.name, pattern)
+    return lambda entry: pathlib.PurePath(entry.path).match(pattern)
 
 
 def matches_regex(pattern: str) -> FilterFunction:
