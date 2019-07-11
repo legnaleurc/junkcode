@@ -29,21 +29,22 @@ class Walker(object):
         changes: ChangeSet,
         new_files: Snapshot,
     ) -> None:
-        for entry in os.scandir(dir_path):
-            if not self._filter(entry):
-                continue
+        with os.scandir(dir_path) as scanner:
+            for entry in scanner:
+                if not self._filter(entry):
+                    continue
 
-            if entry.is_dir():
-                self._walk(entry.path, changes, new_files)
-                continue
+                if entry.is_dir():
+                    self._walk(entry.path, changes, new_files)
+                    continue
 
-            mtime = entry.stat().st_mtime
-            new_files[entry.path] = mtime
-            old_mtime = self._files.get(entry.path)
-            if not old_mtime:
-                changes.add((Change.added, entry.path))
-            elif old_mtime != mtime:
-                changes.add((Change.modified, entry.path))
+                mtime = entry.stat().st_mtime
+                new_files[entry.path] = mtime
+                old_mtime = self._files.get(entry.path)
+                if not old_mtime:
+                    changes.add((Change.added, entry.path))
+                elif old_mtime != mtime:
+                    changes.add((Change.modified, entry.path))
 
     def __call__(self) -> ChangeSet:
         changes = set()
