@@ -10,37 +10,17 @@
 class Solution {
 public:
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        vector<TreeNode*> pp;
-        getAncestors(pp, root, p);
-        reverse(begin(pp), end(pp));
-
-        vector<TreeNode*> qp;
-        getAncestors(qp, root, q);
-        reverse(begin(qp), end(qp));
-
-        int i = 0;
-        while (i < pp.size() && i < qp.size() && pp[i] == qp[i]) {
-            ++i;
-        }
-        return pp[i-1];
-    }
-
-    TreeNode* getAncestors(vector<TreeNode*>& path, TreeNode* root, TreeNode* node) {
         if (!root) {
             return nullptr;
         }
-        if (root == node) {
-            path.push_back(root);
+        if (root == p || root == q) {
             return root;
         }
-        if (auto rv = getAncestors(path, root->left, node)) {
-            path.push_back(root);
-            return rv;
+        auto l = lowestCommonAncestor(root->left, p, q);
+        auto r = lowestCommonAncestor(root->right, p, q);
+        if (l && r) {
+            return root;
         }
-        if (auto rv = getAncestors(path, root->right, node)) {
-            path.push_back(root);
-            return rv;
-        }
-        return nullptr;
+        return l ? l : r;
     }
 };
