@@ -18,14 +18,18 @@
 class Solution {
 public:
     TreeNode* sortedListToBST(ListNode* head) {
+        if (!head) {
+            return nullptr;
+        }
+        if (!head->next) {
+            return new TreeNode(head->val);
+        }
         auto mid = getMiddleNode(head);
         if (!mid) {
             return nullptr;
         }
         auto root = new TreeNode(mid->val);
-        if (mid != head) {
-            root->left = sortedListToBST(head);
-        }
+        root->left = sortedListToBST(head);
         root->right = sortedListToBST(mid->next);
         return root;
     }
