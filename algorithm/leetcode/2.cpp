@@ -9,59 +9,43 @@
 class Solution {
 public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        ListNode* head = nullptr;
-        ListNode* tail = nullptr;
         int carry = 0;
-        while (true) {
-            ListNode* n = nullptr;
-            if (l1 && l2) {
-                n = addTwo(l1, l2, carry);
+        auto head = addTwoNumbers(l1, l2, carry);
+        auto tail = head;
+        while (tail) {
+            if (l1) {
                 l1 = l1->next;
+            }
+            if (l2) {
                 l2 = l2->next;
-            } else if (!l1 && !l2) {
-                break;
-            } else {
-                ListNode* t = nullptr;
-                auto l = l1 ? l1 : l2;
-                n = addOne(l, carry, &t);
-                l1 = nullptr;
-                l2 = nullptr;
-                tail->next = n;
-                tail = t;
-                break;
             }
-
-            if (!head) {
-                head = n;
-                tail = n;
-            } else {
-                tail->next = n;
-                tail = n;
-            }
+            auto node = addTwoNumbers(l1, l2, carry);
+            tail->next = node;
+            tail = tail->next;
         }
-
-        if (carry > 0) {
-            tail->next = new ListNode(carry);
-        }
-
         return head;
     }
 
-    ListNode* addTwo(ListNode* l1, ListNode* l2, int& carry) {
-        auto v = l1->val + l2->val + carry;
-        carry = v / 10;
-        return new ListNode(v % 10);
-    }
-
-    ListNode* addOne(ListNode* l, int& carry, ListNode** t) {
-        ListNode* head = l;
-        while (l) {
-            l->val += carry;
-            carry = l->val / 10;
-            l->val = l->val % 10;
-            *t = l;
-            l = l->next;
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2, int& carry) {
+        if (!l1 && !l2) {
+            if (carry <= 0) {
+                return nullptr;
+            }
+        } else if (!l1) {
+            if (carry <= 0) {
+                return l2;
+            }
+            carry += l2->val;
+        } else if (!l2) {
+            if (carry <= 0) {
+                return l1;
+            }
+            carry += l1->val;
+        } else {
+            carry += l1->val + l2->val;
         }
-        return head;
+        auto node = new ListNode(carry % 10);
+        carry /= 10;
+        return node;
     }
 };
