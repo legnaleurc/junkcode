@@ -29,7 +29,7 @@ public:
             return false;
         }
         int i = 0;
-        while (b < e && i < word.size()) {
+        while (i < word.size()) {
             if (s[b] != word[i]) {
                 return false;
             }
