@@ -4,10 +4,12 @@ public:
         if (n == 0) {
             return 1;
         }
-        vector<int> cache(n + 1, 1);
+        int a = 1;
+        int b = 1;
         for (int i = 2; i <= n; ++i) {
-            cache[i] = cache[i-1] + cache[i-2];
+            b = a + b;
+            a = b - a;
         }
-        return cache.back();
+        return b;
     }
 };
