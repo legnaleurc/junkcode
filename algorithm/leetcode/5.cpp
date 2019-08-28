@@ -3,11 +3,11 @@ public:
     string longestPalindrome(string s) {
         string rv;
         for (int i = 0; i < s.size(); ++i) {
-            if (s.size() - i < rv.size()) {
+            if (s.size() - i <= rv.size()) {
                 continue;
             }
             for (int j = i + 1; j <= s.size(); ++j) {
-                if (j - i < rv.size()) {
+                if (j - i <= rv.size()) {
                     continue;
                 }
                 if (!isPalindrome(s, i, j)) {
