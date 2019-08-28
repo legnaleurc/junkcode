@@ -1,24 +1,26 @@
 class Solution {
 public:
     string longestPalindrome(string s) {
-        string rv;
+        int l = 0;
+        int r = 0;
         for (int i = 0; i < s.size(); ++i) {
-            if (s.size() - i <= rv.size()) {
+            if (s.size() - i <= r - l) {
                 continue;
             }
             for (int j = i + 1; j <= s.size(); ++j) {
-                if (j - i <= rv.size()) {
+                if (j - i <= r - l) {
                     continue;
                 }
                 if (!isPalindrome(s, i, j)) {
                     continue;
                 }
-                rv = s.substr(i, j - i);
+                l = i;
+                r = j;
             }
         }
-        return rv;
+        return s.substr(l, r - l);
     }
-    
+
     bool isPalindrome(const string& s, int i, int j) {
         while (i < j) {
             if (s[i] != s[j-1]) {
