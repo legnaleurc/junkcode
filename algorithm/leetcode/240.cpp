@@ -4,39 +4,17 @@ public:
         if (matrix.empty()) {
             return false;
         }
-        return searchMatrix(matrix, 0, matrix.size(), 0, matrix.back().size(), target);
-    }
-    
-    bool searchMatrix(
-        const vector<vector<int>>& matrix,
-        int rb, int re,
-        int cb, int ce,
-        int target)
-    {
-        if (rb >= re) {
-            return false;
-        }
-        if (cb >= ce) {
-            return false;
-        }
-        if (re - rb == 1 && ce - cb == 1) {
-            return target == matrix[rb][cb];
-        }
-        int rm = rb + (re - rb) / 2;
-        int cm = cb + (ce - cb) / 2;
-        if (matrix[rm][cm] == target) {
-            return true;
-        }
-        if (searchMatrix(matrix, rm, re, cb, cm, target)) {
-            return true;
-        }
-        if (searchMatrix(matrix, rb, rm, cm, ce, target)) {
-            return true;
-        }
-        if (matrix[rm][cm] > target) {
-            return searchMatrix(matrix, rb, rm, cb, cm, target);
-        } else {
-            return searchMatrix(matrix, rm, re, cm, ce, target);
+        int row = 0;
+        int col = matrix[row].size() - 1;
+        while (row < matrix.size() && col >= 0) {
+            if (target == matrix[row][col]) {
+                return true;
+            }
+            if (target > matrix[row][col]) {
+                ++row;
+            } else {
+                --col;
+            }
         }
         return false;
     }
