@@ -4,25 +4,14 @@ public:
         if (n < 1) {
             return 0;
         }
-        unordered_map<int, int> cache;
-        return search(n, cache);
-    }
-
-    int search(int n, unordered_map<int, int>& cache) {
-        if (n == 1) {
-            return 1;
+        vector<int> cache(n + 1, 0);
+        iota(begin(cache), end(cache), 0);
+        for (int i = 2; i <= n; ++i) {
+            int k = floor(sqrt(i));
+            for (int j = 1; j <= k; ++j) {
+                cache[i] = min(cache[i], cache[i - j * j] + 1);
+            }
         }
-        auto it = cache.find(n);
-        if (it != end(cache)) {
-            return it->second;
-        }
-        int rv = n;
-        int r = floor(sqrt(n));
-        while (r >= 1) {
-            rv = min(rv, search(n - r * r, cache) + 1);
-            --r;
-        }
-        cache.insert({ n, rv });
-        return rv;
+        return cache[n];
     }
 };
