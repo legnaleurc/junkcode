@@ -18,7 +18,6 @@
 class NestedIterator {
     using Iterator = vector<NestedInteger>::const_iterator;
     using IteratorPair = pair<Iterator, Iterator>;
-    vector<NestedInteger> l;
     stack<IteratorPair> s;
 public:
     NestedIterator(vector<NestedInteger> &nestedList) {
