@@ -31,7 +31,7 @@ public:
             it->second = index;
         }
         swap(v[index], v.back());
-        v.erase(prev(v.end()));
+        v.pop_back();
         return true;
     }
     
