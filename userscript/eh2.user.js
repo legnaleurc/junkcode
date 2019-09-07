@@ -7,7 +7,7 @@
 // @grant       none
 // ==/UserScript==
 
-var i = document.querySelectorAll('iframe');
-Array.prototype.forEach.call(i, (node) => {
-  node.parentNode.removeChild(node);
+const nodes = document.querySelectorAll('iframe');
+nodes.forEach((node) => {
+  node.remove();
 });
