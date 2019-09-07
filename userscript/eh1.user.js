@@ -11,7 +11,7 @@
 
 
 const HIDDEN = 'rgb(0, 0, 0)';
-const HIGHLIGHT = 'rgb(3, 71, 207)';
+const HIGHLIGHT = 'rgb(19, 87, 223)';
 
 
 main();
@@ -33,11 +33,11 @@ function main () {
 
 function hasHiddenFlags (item) {
   const labels = item.querySelectorAll('.gt');
-	return Array.prototype.some.call(labels, label => label.style.borderColor === HIDDEN);
+  return Array.prototype.some.call(labels, label => label.style.borderColor === HIDDEN);
 }
 
 
 function hasHighlightFlags (item) {
   const labels = item.querySelectorAll('.gt');
-	return Array.prototype.some.call(labels, label => label.style.borderColor === HIGHLIGHT);
+  return Array.prototype.some.call(labels, label => label.style.borderColor === HIGHLIGHT);
 }
