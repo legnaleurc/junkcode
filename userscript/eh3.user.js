@@ -11,7 +11,7 @@
 
 
 const URL_ = {
-  nodes: 'http://ddld.loc.al/api/v1/nodes',
+  nodes: 'http://localhost:8000/api/v1/nodes',
 };
 
 
@@ -50,11 +50,11 @@ async function searchCache () {
 
   try {
     let data = await get(URL_.nodes, {
-      pattern: title,
+      name: title,
     });
     data = JSON.parse(data);
     data.forEach((v) => {
-      addTextToSearchHint(v.name);
+      addTextToSearchHint(v.path);
     });
     markSearchNormal();
   } catch (e) {
@@ -277,9 +277,18 @@ function makeDownloadArchiveLink (url, size, price) {
 
 
 function makeDownloadTorrentLink (html) {
+  let blackUploader = [
+    '枯树昏鸦',
+  ];
   let blocks = html.querySelectorAll('#torrentinfo > div:nth-child(1) > form');
   let box = document.createDocumentFragment();
   blocks.forEach((block) => {
+    let uploader = block.querySelector('div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1)');
+    uploader = uploader.firstChild.nextSibling.textContent.trim();
+    let skip = blackUploader.some(u => u === uploader);
+    if (skip) {
+      return;
+    }
     block = document.importNode(block, true);
     box.appendChild(block);
   });
@@ -299,6 +308,7 @@ async function downloadArchive (url) {
   if (html.indexOf(msg) >= 0) {
     block.classList.add('success');
   } else {
+    console.error(html);
     block.classList.add('error');
   }
 }
