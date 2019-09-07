@@ -7,9 +7,20 @@
 
 
 function main () {
-  if (location.pathname.indexOf('/mpv/') === 0) {
+  if (location.pathname === '/' || location.pathname.startsWith('/tag/')) {
+    modifyMainPage();
+  } else if (location.pathname.indexOf('/mpv/') === 0) {
     modifyMultiPageViewer();
   }
+}
+
+
+function modifyMainPage () {
+  addStyle(`
+    .gl1t > a:visited > .glink {
+      color: #888888;
+    }
+  `);
 }
 
 
