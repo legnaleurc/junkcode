@@ -7,25 +7,9 @@
 
 
 function main () {
-  if (location.pathname === '/' || location.pathname.startsWith('/tag/')) {
-    modifyMainPage();
-  } else if (location.pathname.indexOf('/mpv/') === 0) {
+  if (location.pathname.indexOf('/mpv/') === 0) {
     modifyMultiPageViewer();
   }
-}
-
-
-function modifyMainPage () {
-  addStyle(`
-    div.ido {
-      min-width: unset;
-      width: 98%;
-    }
-
-    div.itg {
-      min-width: unset;
-    }
-  `);
 }
 
 
