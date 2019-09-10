@@ -10,15 +10,19 @@
 class Solution {
 public:
     vector<int> preorderTraversal(TreeNode* root) {
-        if (!root) {
-            return {};
-        }
-        auto left = preorderTraversal(root->left);
-        auto right = preorderTraversal(root->right);
         vector<int> rv;
-        rv.push_back(root->val);
-        rv.insert(end(rv), begin(left), end(left));
-        rv.insert(end(rv), begin(right), end(right));
+        stack<TreeNode*> track;
+        track.push(root);
+        while (!track.empty()) {
+            auto node = track.top();
+            track.pop();
+            if (!node) {
+                continue;
+            }
+            rv.push_back(node->val);
+            track.push(node->right);
+            track.push(node->left);
+        }
         return rv;
     }
 };
