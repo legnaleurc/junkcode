@@ -1,14 +1,15 @@
 class Solution {
 public:
     bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
-        unordered_multimap<int, int> edges;
+        unordered_multimap<int, int> graph;
         unordered_map<int, int> counts;
-        for (const auto & p : prerequisites) {
-            edges.insert({ p[1], p[0] });
-            counts[p[0]] += 1;
-            counts[p[1]] += 0;
+        for (int i = 0; i < numCourses; ++i) {
+            counts.insert({ i, 0 });
         }
-        numCourses = counts.size();
+        for (const auto & p : prerequisites) {
+            graph.insert({ p[1], p[0] });
+            counts[p[0]] += 1;
+        }
 
         vector<int> finished;
 
@@ -21,17 +22,17 @@ public:
                 if (it != end(counts)) {
                     counts.erase(it);
                 }
-                auto er = edges.equal_range(root);
+                auto er = graph.equal_range(root);
                 for (auto ti = er.first; ti != er.second; ++ti) {
                     auto vertex = ti->second;
                     it = counts.find(vertex);
                     it->second -= 1;
                 }
             }
-
+            
             rootList = getRootList(counts);
         }
-
+        
         return finished.size() == numCourses;
     }
 
