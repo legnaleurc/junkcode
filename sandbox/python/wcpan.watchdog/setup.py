@@ -13,8 +13,8 @@ setup(
         author='Wei-Cheng Pan',
         author_email='legnaleurc@gmail.com',
         description='Asynchronous watchdog.',
-        long_description=long_description,
-        long_description_content_type='text/markdown',
+#        long_description=long_description,
+#        long_description_content_type='text/markdown',
         url='https://github.com/legnaleurc/wcpan.watchdog',
         packages=[
             'wcpan.watchdog',
