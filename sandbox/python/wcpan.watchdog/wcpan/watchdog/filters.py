@@ -90,8 +90,9 @@ def is_nodejs_cache(entry: os.DirEntry) -> bool:
     return entry.name == 'node_modules'
 
 
+@file_only
 def is_python_file(entry: os.DirEntry) -> bool:
-    return not entry.is_dir() and entry.name.endswith(('.py', '.pyx', '.pyd'))
+    return entry.name.endswith(('.py', '.pyx', '.pyd'))
 
 
 def matches_glob(pattern: str) -> FilterFunction:
