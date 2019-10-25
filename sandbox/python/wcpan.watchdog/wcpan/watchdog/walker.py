@@ -58,7 +58,7 @@ class Walker(object):
         # look for deleted
         deleted = self._files.keys() - new_files.keys()
         if deleted:
-            changes |= {(Change.deleted, entry) for entry in deleted}
+            changes |= {(Change.deleted, path) for path in deleted}
 
         self._files = new_files
         return changes
