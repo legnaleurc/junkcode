@@ -1,4 +1,4 @@
-From 5bfca4e5e47459a9587cc1913dbdc4478b94dabb Mon Sep 17 00:00:00 2001
+From 38edda4f9a62044c601343f31ca2865710bc750f Mon Sep 17 00:00:00 2001
 From: Grzegorz Grzywacz <grzgrzgrz3@gmail.com>
 Date: Sun, 18 Jun 2017 23:17:31 +0200
 Subject: [PATCH] bpo-30698: asyncio shutdown the ssl layer cleanly.
@@ -11,11 +11,11 @@ _SSLPipe feels wrong and its removed.
 Removing callback from _SSLPipe.shutdown should not break any api.
 ---
  Lib/asyncio/sslproto.py                | 18 +++++---
- Lib/test/test_asyncio/test_sslproto.py | 61 ++++++++++++++++++++++++++
- 2 files changed, 72 insertions(+), 7 deletions(-)
+ Lib/test/test_asyncio/test_sslproto.py | 64 +++++++++++++++++++++++++-
+ 2 files changed, 74 insertions(+), 8 deletions(-)
 
 diff --git a/Lib/asyncio/sslproto.py b/Lib/asyncio/sslproto.py
-index 12fdb0d1c5..4960369ba6 100644
+index 3eca6b4a39..2a42d77de6 100644
 --- a/Lib/asyncio/sslproto.py
 +++ b/Lib/asyncio/sslproto.py
 @@ -124,7 +124,7 @@ class _SSLPipe(object):
@@ -44,7 +44,7 @@ index 12fdb0d1c5..4960369ba6 100644
  
              elif self._state == _UNWRAPPED:
                  # Drain possible plaintext data after close_notify.
-@@ -669,11 +666,14 @@ class SSLProtocol(protocols.Protocol):
+@@ -678,11 +675,14 @@ class SSLProtocol(protocols.Protocol):
                          self._on_handshake_complete)
                      offset = 1
                  else:
@@ -62,7 +62,7 @@ index 12fdb0d1c5..4960369ba6 100644
  
                  if offset < len(data):
                      self._write_backlog[0] = (data, offset)
-@@ -695,6 +695,10 @@ class SSLProtocol(protocols.Protocol):
+@@ -706,6 +706,10 @@ class SSLProtocol(protocols.Protocol):
              else:
                  self._fatal_error(exc, 'Fatal error on SSL transport')
  
@@ -71,15 +71,15 @@ index 12fdb0d1c5..4960369ba6 100644
 +            self._transport.write(chunk)
 +
      def _fatal_error(self, exc, message='Fatal error on transport'):
-         if isinstance(exc, base_events._FATAL_ERROR_IGNORE):
+         if isinstance(exc, OSError):
              if self._loop.get_debug():
 diff --git a/Lib/test/test_asyncio/test_sslproto.py b/Lib/test/test_asyncio/test_sslproto.py
-index 44ae3b67e0..c51f250c35 100644
+index c115e46e70..12cd914b8d 100644
 --- a/Lib/test/test_asyncio/test_sslproto.py
 +++ b/Lib/test/test_asyncio/test_sslproto.py
-@@ -1,8 +1,11 @@
+@@ -1,11 +1,15 @@
  """Tests for asyncio/sslproto.py."""
- 
+-
 +import contextlib
  import logging
 +import os
@@ -87,9 +87,14 @@ index 44ae3b67e0..c51f250c35 100644
  import sys
 +import threading
  import unittest
+ import weakref
  from unittest import mock
++
++
  try:
-@@ -18,6 +21,55 @@ from asyncio import tasks
+     import ssl
+ except ImportError:
+@@ -18,6 +22,55 @@ from asyncio import sslproto
  from test.test_asyncio import utils as test_utils
  from test.test_asyncio import functional as func_tests
  
@@ -97,7 +102,7 @@ index 44ae3b67e0..c51f250c35 100644
 +
 +
 +def data_file(name):
-+    return os.path.join(os.path.dirname(__file__), '..', name)
++    return os.path.join(os.path.dirname(__file__), name)
 +
 +
 +class DummySSLServer(threading.Thread):
@@ -143,9 +148,9 @@ index 44ae3b67e0..c51f250c35 100644
 +
 +
  
- @unittest.skipIf(ssl is None, 'No ssl module')
- class SslProtoHandshakeTests(test_utils.TestCase):
-@@ -149,6 +201,15 @@ class SslProtoHandshakeTests(test_utils.TestCase):
+ def tearDownModule():
+     asyncio.set_event_loop_policy(None)
+@@ -153,6 +206,15 @@ class SslProtoHandshakeTests(test_utils.TestCase):
          # should not raise
          self.assertIsNone(transp.write(b'data'))
  
@@ -162,5 +167,5 @@ index 44ae3b67e0..c51f250c35 100644
  ##############################################################################
  # Start TLS Tests
 -- 
-2.20.1
+2.23.0
 
