@@ -9,6 +9,16 @@ from .filters import create_default_filter
 
 
 class Watcher(object):
+    """
+    Creates a filesystem watcher.
+
+    stop_event is an asyncio.Event object which gives the watcher a hint about
+    when to stop the watching loop. If stop_event is None, the loop will not
+    stop.
+
+    filter_ is a Filter object, to filter out files and directories being
+    watching. If filter_ is None, create_default_filter() will be used.
+    """
 
     def __init__(self,
         stop_event=None,
