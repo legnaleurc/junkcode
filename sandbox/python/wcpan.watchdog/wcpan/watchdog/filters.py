@@ -106,7 +106,7 @@ def matches_regex(pattern: Text) -> FilterFunction:
 
 class GlobPathMatcher(object):
 
-    def __init__(self, pattern):
+    def __init__(self, pattern: Text):
         parts = pathlib.PurePath(pattern).parts
         self._parts = [re.compile(glob_to_regex(_)) for _ in parts]
 
