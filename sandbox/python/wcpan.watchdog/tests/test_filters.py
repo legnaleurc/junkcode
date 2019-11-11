@@ -10,13 +10,40 @@ class TestFilters(ut.TestCase):
     def testDefault(self):
         filter_ = wwdf.create_default_filter()
 
-        entry = create_dir_entry('.git')
-        self.assertFalse(filter_(entry))
+        with create_dir_entry('.git') as entry:
+            self.assertFalse(filter_(entry))
 
-        entry = create_dir_entry('node_modules')
-        self.assertFalse(filter_(entry))
+        with create_dir_entry('node_modules') as entry:
+            self.assertFalse(filter_(entry))
 
-        entry = create_dir_entry('test')
-        self.assertTrue(filter_(entry))
-        entry = create_file_entry('test')
-        self.assertTrue(filter_(entry))
+        with create_dir_entry('test') as entry:
+            self.assertTrue(filter_(entry))
+        with create_file_entry('test') as entry:
+            self.assertTrue(filter_(entry))
+
+    def testGlob1(self):
+        filter_ = wwdf.matches_glob('*')
+
+        with create_file_entry('a') as entry:
+            self.assertTrue(filter_(entry))
+
+        with create_dir_entry('a') as entry:
+            self.assertTrue(filter_(entry))
+
+        with create_file_entry('a/b') as entry:
+            self.assertTrue(filter_(entry))
+
+    def testGlob2(self):
+        filter_ = wwdf.matches_glob('a/*')
+
+        with create_file_entry('a') as entry:
+            self.assertFalse(filter_(entry))
+
+        with create_dir_entry('a') as entry:
+            self.assertTrue(filter_(entry))
+
+        with create_file_entry('a/b') as entry:
+            self.assertTrue(filter_(entry))
+
+        with create_file_entry('a/b/c') as entry:
+            self.assertTrue(filter_(entry))
