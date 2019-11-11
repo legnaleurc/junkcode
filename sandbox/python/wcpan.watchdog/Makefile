@@ -11,6 +11,7 @@ clean:
 
 test:
 	python -m compileall wcpan
+	python -m unittest
 
 install:
 	pip install -e .
