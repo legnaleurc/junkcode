@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
 import asyncio
+import mimetypes
+import re
 import sys
 
 from wcpan.drive.core.drive import DriveFactory
@@ -20,8 +22,80 @@ async def main():
             print(change)
 
         root_node = await drive.get_node_by_path(FROM_FOLDER)
+        new_root_node = await drive.get_node_by_path('/new')
+        await migrate_folder(drive, root_node, new_root_node)
+
         async for root, folders, files in drive.walk(root_node):
-            print(root, folders, files)
+            root_path = await drive.get_path(root)
+            new_root_path = re.sub(r'^/old', '/new', root_path)
+            new_root = await drive.get_node_by_path(new_root_path)
+            assert new_root is not None
+
+            for node in folders:
+                await migrate_folder(drive, node, new_root)
+
+            for node in files:
+                await migrate_file(drive, node, new_root)
+
+
+async def migrate_folder(drive, node, new_root):
+    new_node = await drive.create_folder(new_root, node.name, exist_ok=True)
+    ok = False
+    while not ok:
+        async for change in drive.sync():
+            if not change['removed'] and change['node']['id'] == new_node.id_:
+                ok = True
+
+
+async def migrate_file(drive, node, new_root):
+    new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
+    if new_node:
+        new_hash = await get_node_hash(drive, node)
+        if new_hash == node.hash_:
+            return
+
+        await drive.trash_node(new_node)
+        async for change in drive.sync():
+            print(change)
+
+    while True:
+        new_hash, new_node = await copy_node(drive, node, new_root)
+        if new_hash == new_node.hash_:
+            break
+
+        await drive.trash_node(new_node)
+        async for change in drive.sync():
+            print(change)
+
+
+async def get_node_hash(drive, node):
+    hasher = await drive.get_hasher()
+    async with await drive.download(node) as fin:
+        async for chunk in fin:
+            hasher.update(chunk)
+    rv = hasher.hexdigest()
+    return rv
+
+
+async def copy_node(drive, node, new_root):
+    mt, _ = mimetypes.guess_type(node.name)
+    hasher = await drive.get_hasher()
+
+    async with \
+        await drive.download(node) as fin, \
+        await drive.upload(
+            new_root,
+            node.name,
+            node.size,
+            mt,
+        ) as fout:
+        async for chunk in fin:
+            hasher.update(chunk)
+            await fout.write(chunk)
+
+    new_hash = hasher.hexdigest()
+    new_node = await fout.node()
+    return new_hash, new_node
 
 
 if __name__ == '__main__':
