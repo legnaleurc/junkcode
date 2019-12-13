@@ -58,21 +58,12 @@ async def migrate_file(drive, node, new_root):
     new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
     if new_node:
         new_hash = await get_node_hash(drive, node)
-        if new_hash == node.hash_:
+        if new_hash == new_node.hash_:
+            print('file exists, skip')
             return
 
-        await drive.trash_node(new_node)
-        async for change in drive.sync():
-            print(change)
-
-    while True:
-        new_hash, new_node = await copy_node(drive, node, new_root)
-        if new_hash == new_node.hash_:
-            break
-
-        await drive.trash_node(new_node)
-        async for change in drive.sync():
-            print(change)
+    new_hash, new_node = await copy_node(drive, node, new_root)
+    assert new_hash == new_node.hash_
 
 
 async def get_node_hash(drive, node):
