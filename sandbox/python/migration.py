@@ -45,11 +45,13 @@ async def main():
 
 async def migrate_folder(drive, node, new_root):
     new_node = await drive.create_folder(new_root, node.name, exist_ok=True)
-    ok = False
-    while not ok:
+    while True:
+        await asyncio.sleep(1)
         async for change in drive.sync():
-            if not change['removed'] and change['node']['id'] == new_node.id_:
-                ok = True
+            print(change)
+        new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
+        if new_node:
+            break
 
 
 async def migrate_file(drive, node, new_root):
