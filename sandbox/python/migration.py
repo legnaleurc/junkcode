@@ -30,12 +30,17 @@ async def main():
             new_root_path = re.sub(r'^/old', '/new', root_path)
             new_root = await drive.get_node_by_path(new_root_path)
             assert new_root is not None
+            print(f'working on {new_root_path}')
 
             for node in folders:
+                print(f'mkdir {node.name}')
                 await migrate_folder(drive, node, new_root)
+                print('ok')
 
             for node in files:
+                print(f'touch {node.name}')
                 await migrate_file(drive, node, new_root)
+                print('ok')
 
 
 async def migrate_folder(drive, node, new_root):
