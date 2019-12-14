@@ -9,9 +9,15 @@ import sqlite3
 import sys
 
 from wcpan.drive.core.drive import DriveFactory
+from wcpan.logger import setup as setup_logger, INFO
 
 
 async def main():
+    setup_logger((
+        'wcpan.drive',
+        'migrate',
+    ))
+
     from_path = sys.argv[1]
     initialize_cache()
 
@@ -22,7 +28,7 @@ async def main():
 
     async with factory() as drive:
         async for change in drive.sync():
-            print(change)
+            INFO('migrate') << change
 
         root_node = await drive.get_node_by_path(from_path)
         await migrate_root(drive, root_node)
@@ -32,17 +38,17 @@ async def main():
             new_root_path = pathlib.PurePath(*(('/', 'new') + root_path.parts[2:]))
             new_root = await drive.get_node_by_path(new_root_path)
             assert new_root is not None
-            print(f'working on {new_root_path}')
+            INFO('migrate') << f'working on {new_root_path}'
 
             for node in folders:
-                print(f'mkdir {node.name}')
+                INFO('migrate') << f'mkdir {node.name}'
                 await migrate_folder(drive, node, new_root)
-                print('ok')
+                INFO('migrate') << 'ok'
 
             for node in files:
-                print(f'touch {node.name}')
+                INFO('migrate') << f'touch {node.name}'
                 await migrate_file(drive, node, new_root)
-                print('ok')
+                INFO('migrate') << 'ok'
 
 
 async def migrate_root(drive, node):
@@ -69,14 +75,14 @@ async def migrate_root(drive, node):
 async def migrate_folder(drive, node, new_root):
     new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
     if new_node:
-        print('folder exists, skip')
+        INFO('migrate') << 'folder exists, skip'
         return new_node
 
     new_node = await drive.create_folder(new_root, node.name, exist_ok=True)
     while True:
         await asyncio.sleep(1)
         async for change in drive.sync():
-            print(change)
+            INFO('migrate') << change
         new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
         if new_node:
             return new_node
@@ -86,12 +92,12 @@ async def migrate_file(drive, node, new_root):
     new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
     if new_node:
         if is_migrated(new_node):
-            print('file exists (cached), skip')
+            INFO('migrate') << 'file exists (cached), skip'
             return new_node
         new_hash = await get_node_hash(drive, node)
         if new_hash == new_node.hash_:
             set_migrated(new_node)
-            print('file exists (remote verified), skip')
+            INFO('migrate') << 'file exists (remote verified), skip'
             return new_node
 
     new_hash, new_node = await copy_node(drive, node, new_root)
