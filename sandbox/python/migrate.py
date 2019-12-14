@@ -17,11 +17,11 @@ async def main():
     initialize_cache()
 
     factory = DriveFactory()
-    factory.set_database('nodes.sqlite')
-    factory.set_driver('wcpan.drive.google')
-    factory.add_middleware('wcpan.drive.crypt')
+    factory.database = 'nodes.sqlite'
+    factory.driver = 'wcpan.drive.google'
+    factory.middleware_list.append('wcpan.drive.crypt')
 
-    async with factory.create_drive() as drive:
+    async with factory() as drive:
         async for change in drive.sync():
             print(change)
 
