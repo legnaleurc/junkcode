@@ -11,11 +11,8 @@ import sys
 from wcpan.drive.core.drive import DriveFactory
 
 
-FROM_FOLDER = '/old/Pictures'
-TO_FOLDER = '/new'
-
-
 async def main():
+    from_path = sys.argv[1]
     initialize_cache()
 
     factory = DriveFactory()
@@ -27,9 +24,8 @@ async def main():
         async for change in drive.sync():
             print(change)
 
-        root_node = await drive.get_node_by_path(FROM_FOLDER)
-        new_root_node = await drive.get_node_by_path(TO_FOLDER)
-        await migrate_root(drive, root_node, new_root_node)
+        root_node = await drive.get_node_by_path(from_path)
+        await migrate_root(drive, root_node)
 
         async for root, folders, files in drive.walk(root_node):
             root_path = await drive.get_path(root)
@@ -49,7 +45,7 @@ async def main():
                 print('ok')
 
 
-async def migrate_root(drive, node, new_root):
+async def migrate_root(drive, node):
     node_path = await drive.get_path(node)
     parts = node_path.parts
     assert parts[0] == '/'
