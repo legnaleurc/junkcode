@@ -10,7 +10,7 @@ import sys
 from wcpan.drive.core.drive import DriveFactory
 
 
-FROM_FOLDER = '/old/Documents'
+FROM_FOLDER = '/old/Music'
 
 
 async def main():
