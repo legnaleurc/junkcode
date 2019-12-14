@@ -33,7 +33,7 @@ async def main():
 
         async for root, folders, files in drive.walk(root_node):
             root_path = await drive.get_path(root)
-            new_root_path = re.sub(r'^/old', '/new', str(root_path))
+            new_root_path = pathlib.PurePath(*(('/', 'new') + root_path.parts[2:]))
             new_root = await drive.get_node_by_path(new_root_path)
             assert new_root is not None
             print(f'working on {new_root_path}')
@@ -52,7 +52,9 @@ async def main():
 async def migrate_root(drive, node, new_root):
     node_path = await drive.get_path(node)
     parts = node_path.parts
-    new_parts = parts[0:1] + ('new',) + parts[2:]
+    assert parts[0] == '/'
+    assert parts[1] == 'old'
+    new_parts = ('/', 'new') + parts[2:]
     parent_node = await drive.get_root_node()
     for part in new_parts[1:]:
         node = await drive.get_node_by_name_from_parent(part, parent_node)
