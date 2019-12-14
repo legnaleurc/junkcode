@@ -1,8 +1,10 @@
 #! /usr/bin/env python3
 
 import asyncio
+import contextlib
 import mimetypes
 import re
+import sqlite3
 import sys
 
 from wcpan.drive.core.drive import DriveFactory
@@ -12,6 +14,8 @@ FROM_FOLDER = '/old/Documents'
 
 
 async def main():
+    initialize_cache()
+
     factory = DriveFactory()
     factory.set_database('nodes.sqlite')
     factory.set_driver('wcpan.drive.google')
@@ -44,6 +48,11 @@ async def main():
 
 
 async def migrate_folder(drive, node, new_root):
+    new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
+    if new_node:
+        print('folder exists, skip')
+        return new_node
+
     new_node = await drive.create_folder(new_root, node.name, exist_ok=True)
     while True:
         await asyncio.sleep(1)
@@ -51,19 +60,25 @@ async def migrate_folder(drive, node, new_root):
             print(change)
         new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
         if new_node:
-            break
+            return new_node
 
 
 async def migrate_file(drive, node, new_root):
     new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
     if new_node:
+        if is_migrated(new_node):
+            print('file exists, skip')
+            return new_node
         new_hash = await get_node_hash(drive, node)
         if new_hash == new_node.hash_:
+            set_migrated(new_node)
             print('file exists, skip')
-            return
+            return new_node
 
     new_hash, new_node = await copy_node(drive, node, new_root)
     assert new_hash == new_node.hash_
+    set_migrated(new_node)
+    return new_node
 
 
 async def get_node_hash(drive, node):
@@ -94,6 +109,44 @@ async def copy_node(drive, node, new_root):
     new_hash = hasher.hexdigest()
     new_node = await fout.node()
     return new_hash, new_node
+
+
+def initialize_cache():
+    with sqlite3.connect('migrated.sqlite') as db, \
+        contextlib.closing(db.cursor()) as query:
+        try:
+            query.execute('''
+                CREATE TABLE migrated (
+                    id INTEGER PRIMARY KEY,
+                    node_id TEXT NOT NULL UNIQUE,
+                    PRIMARY KEY (key)
+                );
+            ''')
+            query.execute('''
+                CREATE INDEX ix_migrated_node_id ON migrated(node_id);
+            ''')
+        except sqlite3.OperationalError:
+            pass
+
+
+def is_migrated(node):
+    with sqlite3.connect('migrated.sqlite') as db, \
+        contextlib.closing(db.cursor()) as query:
+        query.execute('''
+            SELECT id FROM migrated WHERE node_id = ?;
+        ''', (node.id_,))
+        row = query.fetchone()
+        if not row:
+            return False
+        return True
+
+
+def set_migrated(node):
+    with sqlite3.connect('migrated.sqlite') as db, \
+        contextlib.closing(db.cursor()) as query:
+        query.execute('''
+            INSERT INTO migrated (node_id) VALUES (?);
+        ''', (node.id_,))
 
 
 if __name__ == '__main__':
