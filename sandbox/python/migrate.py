@@ -11,7 +11,7 @@ import sys
 from wcpan.drive.core.drive import DriveFactory
 
 
-FROM_FOLDER = '/old/Music'
+FROM_FOLDER = '/old/Pictures'
 TO_FOLDER = '/new'
 
 
