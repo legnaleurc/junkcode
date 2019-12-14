@@ -3,6 +3,7 @@
 import asyncio
 import contextlib
 import mimetypes
+import pathlib
 import re
 import sqlite3
 import sys
@@ -11,6 +12,7 @@ from wcpan.drive.core.drive import DriveFactory
 
 
 FROM_FOLDER = '/old/Music'
+TO_FOLDER = '/new'
 
 
 async def main():
@@ -26,12 +28,12 @@ async def main():
             print(change)
 
         root_node = await drive.get_node_by_path(FROM_FOLDER)
-        new_root_node = await drive.get_node_by_path('/new')
-        await migrate_folder(drive, root_node, new_root_node)
+        new_root_node = await drive.get_node_by_path(TO_FOLDER)
+        await migrate_root(drive, root_node, new_root_node)
 
         async for root, folders, files in drive.walk(root_node):
             root_path = await drive.get_path(root)
-            new_root_path = re.sub(r'^/old', '/new', root_path)
+            new_root_path = re.sub(r'^/old', '/new', str(root_path))
             new_root = await drive.get_node_by_path(new_root_path)
             assert new_root is not None
             print(f'working on {new_root_path}')
@@ -45,6 +47,25 @@ async def main():
                 print(f'touch {node.name}')
                 await migrate_file(drive, node, new_root)
                 print('ok')
+
+
+async def migrate_root(drive, node, new_root):
+    node_path = await drive.get_path(node)
+    parts = node_path.parts
+    new_parts = parts[0:1] + ('new',) + parts[2:]
+    parent_node = await drive.get_root_node()
+    for part in new_parts[1:]:
+        node = await drive.get_node_by_name_from_parent(part, parent_node)
+        if not node:
+            node = await drive.create_folder(parent_node, part, exist_ok=True)
+            while True:
+                await asyncio.sleep(1)
+                async for change in drive.sync():
+                    print(change)
+                node = await drive.get_node_by_name_from_parent(part, parent_node)
+                if node:
+                    break
+        parent_node = node
 
 
 async def migrate_folder(drive, node, new_root):
