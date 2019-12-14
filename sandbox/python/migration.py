@@ -118,14 +118,14 @@ def initialize_cache():
             query.execute('''
                 CREATE TABLE migrated (
                     id INTEGER PRIMARY KEY,
-                    node_id TEXT NOT NULL UNIQUE,
-                    PRIMARY KEY (key)
+                    node_id TEXT NOT NULL UNIQUE
                 );
             ''')
             query.execute('''
                 CREATE INDEX ix_migrated_node_id ON migrated(node_id);
             ''')
-        except sqlite3.OperationalError:
+        except sqlite3.OperationalError as e:
+            print(e)
             pass
 
 
