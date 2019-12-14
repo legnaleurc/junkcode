@@ -83,9 +83,10 @@ async def migrate_file(drive, node, new_root):
 
 async def get_node_hash(drive, node):
     hasher = await drive.get_hasher()
-    async with await drive.download(node) as fin:
-        async for chunk in fin:
-            hasher.update(chunk)
+    if node.size > 0:
+        async with await drive.download(node) as fin:
+            async for chunk in fin:
+                hasher.update(chunk)
     rv = hasher.hexdigest()
     return rv
 
@@ -94,17 +95,17 @@ async def copy_node(drive, node, new_root):
     mt, _ = mimetypes.guess_type(node.name)
     hasher = await drive.get_hasher()
 
-    async with \
-        await drive.download(node) as fin, \
-        await drive.upload(
-            new_root,
-            node.name,
-            node.size,
-            mt,
-        ) as fout:
-        async for chunk in fin:
-            hasher.update(chunk)
-            await fout.write(chunk)
+    async with await drive.upload(
+        new_root,
+        node.name,
+        node.size,
+        mt,
+    ) as fout:
+        if node.size > 0:
+            async with await drive.download(node) as fin:
+                async for chunk in fin:
+                    hasher.update(chunk)
+                    await fout.write(chunk)
 
     new_hash = hasher.hexdigest()
     new_node = await fout.node()
