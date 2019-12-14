@@ -67,12 +67,12 @@ async def migrate_file(drive, node, new_root):
     new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
     if new_node:
         if is_migrated(new_node):
-            print('file exists, skip')
+            print('file exists (cached), skip')
             return new_node
         new_hash = await get_node_hash(drive, node)
         if new_hash == new_node.hash_:
             set_migrated(new_node)
-            print('file exists, skip')
+            print('file exists (remote verified), skip')
             return new_node
 
     new_hash, new_node = await copy_node(drive, node, new_root)
