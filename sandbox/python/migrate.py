@@ -101,6 +101,7 @@ async def migrate_file(drive, node, new_root):
             return new_node
 
     new_hash, new_node = await copy_node(drive, node, new_root)
+    assert new_node.size == node.size
     assert new_hash == new_node.hash_
     set_migrated(new_node)
     return new_node
