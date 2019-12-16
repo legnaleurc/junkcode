@@ -2,13 +2,13 @@
 
 import asyncio
 import contextlib
-import mimetypes
 import pathlib
 import re
 import sqlite3
 import sys
 
 from wcpan.drive.core.drive import DriveFactory
+from wcpan.drive.core.types import MediaInfo
 from wcpan.logger import setup as setup_logger, INFO
 
 
@@ -118,14 +118,19 @@ async def get_node_hash(drive, node):
 
 
 async def copy_node(drive, node, new_root):
-    mt, _ = mimetypes.guess_type(node.name)
     hasher = await drive.get_hasher()
+    media_info = None
+    if node.is_image:
+        media_info = MediaInfo.image(node.image_width, node.image_height)
+    if node.is_video:
+        media_info = MediaInfo.video(node.video_width, node.video_height, node.video_ms_duration)
 
     async with await drive.upload(
         new_root,
         node.name,
         node.size,
-        mt,
+        node.mime_type,
+        media_info,
     ) as fout:
         if node.size > 0:
             async with await drive.download(node) as fin:
