@@ -128,9 +128,9 @@ async def copy_node(drive, node, new_root):
     async with await drive.upload(
         new_root,
         node.name,
-        node.size,
-        node.mime_type,
-        media_info,
+        file_size=node.size,
+        mime_type=node.mime_type,
+        media_info=media_info,
     ) as fout:
         if node.size > 0:
             async with await drive.download(node) as fin:
