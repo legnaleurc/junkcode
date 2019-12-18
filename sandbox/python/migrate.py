@@ -36,7 +36,7 @@ async def main():
         async for root, folders, files in drive.walk(root_node):
             root_path = await drive.get_path(root)
             new_root_path = pathlib.PurePath(*(('/', 'new') + root_path.parts[2:]))
-            new_root = await drive.get_node_by_path(new_root_path)
+            new_root = await get_node(drive, new_root_path)
             assert new_root is not None
             INFO('migrate') << f'working on {new_root_path}'
 
@@ -79,13 +79,7 @@ async def migrate_folder(drive, node, new_root):
         return new_node
 
     new_node = await drive.create_folder(new_root, node.name, exist_ok=True)
-    while True:
-        await asyncio.sleep(1)
-        async for change in drive.sync():
-            INFO('migrate') << change
-        new_node = await drive.get_node_by_name_from_parent(node.name, new_root)
-        if new_node:
-            return new_node
+    return new_node
 
 
 async def migrate_file(drive, node, new_root):
@@ -105,6 +99,17 @@ async def migrate_file(drive, node, new_root):
     assert new_hash == new_node.hash_
     set_migrated(new_node)
     return new_node
+
+
+async def get_node(drive, path):
+    while True:
+        node = await drive.get_node_by_path(path)
+        if node:
+            return node
+
+        await asyncio.sleep(1)
+        async for change in drive.sync():
+            INFO('migrate') << change
 
 
 async def get_node_hash(drive, node):
