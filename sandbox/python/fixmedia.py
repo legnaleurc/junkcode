@@ -41,10 +41,16 @@ async def main():
 
             INFO('fixmedia') << f'working on {new_root_path}'
 
-            for node in files:
-                INFO('fixmedia') << f'touch {node.name}'
-                await fix_file(drive, node, new_root)
-                INFO('fixmedia') << 'ok'
+            lock = asyncio.Semaphore(5)
+            task_list = [locked_fix_file(lock, drive, node, new_root) for node in files]
+            await asyncio.gather(*task_list)
+
+
+async def locked_fix_file(lock, drive, node, new_root):
+    async with lock:
+        INFO('fixmedia') << f'touch {node.name}'
+        await fix_file(drive, node, new_root)
+        INFO('fixmedia') << f'ok {node.name}'
 
 
 async def fix_file(drive, node, new_root):
