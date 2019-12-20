@@ -127,8 +127,10 @@ async def copy_node(drive, node, new_root):
     media_info = None
     if node.is_image:
         media_info = MediaInfo.image(node.image_width, node.image_height)
+        INFO('migrate') << media_info
     if node.is_video:
         media_info = MediaInfo.video(node.video_width, node.video_height, node.video_ms_duration)
+        INFO('migrate') << media_info
 
     async with await drive.upload(
         new_root,
