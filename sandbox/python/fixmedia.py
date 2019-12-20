@@ -56,11 +56,13 @@ async def fix_file(drive, node, new_root):
     assert new_node.size == node.size
 
     if node.is_image:
-        await drive._remote._set_node_image_metadata(new_node, width=node.image_width, height=node.image_height)
-        INFO('fixmedia') << f'fixed to {node.image_width} {node.image_height}'
+        if not new_node.is_image or new_node.image_width <= 0 or new_node.image_height <= 0:
+            await drive._remote._set_node_image_metadata(new_node, width=node.image_width, height=node.image_height)
+            INFO('fixmedia') << f'fixed to {node.image_width} {node.image_height}'
     if node.is_video:
-        await drive._remote._set_node_video_metadata(new_node, width=node.video_width, height=node.video_height, ms_duration=node.video_ms_duration)
-        INFO('fixmedia') << f'fixed to {node.video_width} {node.video_height} {node.video_ms_duration}'
+        if not new_node.is_video or new_node.video_width <= 0 or new_node.video_height <= 0 or node.video_ms_duration <= 0:
+            await drive._remote._set_node_video_metadata(new_node, width=node.video_width, height=node.video_height, ms_duration=node.video_ms_duration)
+            INFO('fixmedia') << f'fixed to {node.video_width} {node.video_height} {node.video_ms_duration}'
 
     return new_node
 
