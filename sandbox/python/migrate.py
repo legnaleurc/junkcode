@@ -40,15 +40,13 @@ async def main():
             assert new_root is not None
             INFO('migrate') << f'working on {new_root_path}'
 
-            for node in folders:
-                INFO('migrate') << f'mkdir {node.name}'
-                await migrate_folder(drive, node, new_root)
-                INFO('migrate') << 'ok'
+            lock = asyncio.Semaphore(5)
 
-            for node in files:
-                INFO('migrate') << f'touch {node.name}'
-                await migrate_file(drive, node, new_root)
-                INFO('migrate') << 'ok'
+            task_list = [locked_migrate_folder(lock, drive, node, new_root) for node in folders]
+            await asyncio.gather(*task_list)
+
+            task_list = [locked_migrate_file(lock, drive, node, new_root) for node in files]
+            await asyncio.gather(*task_list)
 
 
 async def migrate_root(drive, node):
@@ -99,6 +97,20 @@ async def migrate_file(drive, node, new_root):
     assert new_hash == new_node.hash_
     set_migrated(new_node)
     return new_node
+
+
+async def locked_migrate_folder(lock, drive, node, new_root):
+    async with lock:
+        INFO('migrate') << f'mkdir {node.name}'
+        await migrate_folder(drive, node, new_root)
+        INFO('migrate') << f'ok {node.name}'
+
+
+async def locked_migrate_file(lock, drive, node, new_root):
+    async with lock:
+        INFO('migrate') << f'touch {node.name}'
+        await migrate_file(drive, node, new_root)
+        INFO('migrate') << f'ok {node.name}'
 
 
 async def get_node(drive, path):
