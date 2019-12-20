@@ -41,11 +41,9 @@ async def main():
             INFO('migrate') << f'working on {new_root_path}'
 
             lock = asyncio.Semaphore(5)
-
-            task_list = [locked_migrate_folder(lock, drive, node, new_root) for node in folders]
-            await asyncio.gather(*task_list)
-
-            task_list = [locked_migrate_file(lock, drive, node, new_root) for node in files]
+            folder_list = [locked_migrate_folder(lock, drive, node, new_root) for node in folders]
+            file_list = [locked_migrate_file(lock, drive, node, new_root) for node in files]
+            task_list = folder_list + file_list
             await asyncio.gather(*task_list)
 
 
