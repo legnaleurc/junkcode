@@ -40,7 +40,7 @@ async def main():
             assert new_root is not None
             INFO('migrate') << f'working on {new_root_path}'
 
-            lock = asyncio.Semaphore(5)
+            lock = asyncio.Semaphore(8)
             folder_list = [locked_migrate_folder(lock, drive, node, new_root) for node in folders]
             file_list = [locked_migrate_file(lock, drive, node, new_root) for node in files]
             task_list = folder_list + file_list
