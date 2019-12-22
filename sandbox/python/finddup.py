@@ -3,6 +3,8 @@
 import asyncio
 import sys
 
+import yaml
+
 from wcpan.drive.core.drive import DriveFactory
 from wcpan.logger import setup as setup_logger, INFO
 
@@ -31,15 +33,14 @@ async def main():
             seen = {}
             for node in nodes:
                 if node.name not in seen:
-                    seen[node.name] = [node.id_]
+                    seen[node.name] = [node.to_dict()]
                 else:
-                    seen[node.name].append(node.id_)
-            for id_list in seen.values():
-                if len(id_list) > 1:
-                    dup_list.append(id_list)
+                    seen[node.name].append(node.to_dict())
+            for node_list in seen.values():
+                if len(node_list) > 1:
+                    dup_list.append(node_list)
 
-    for id_list in dup_list:
-        print(id_list)
+    yaml.safe_dump(dup_list, default_flow_style=False)
 
 
 if __name__ == '__main__':
