@@ -16,15 +16,13 @@ async def main():
     setup_logger((
         'wcpan.drive',
         'migrate',
-    ))
+    ), '/tmp/migrate.log')
 
     from_path = sys.argv[1]
     initialize_cache()
 
     factory = DriveFactory()
-    factory.database = 'nodes.sqlite'
-    factory.driver = 'wcpan.drive.google'
-    factory.middleware_list.append('wcpan.drive.crypt')
+    factory.load_config()
 
     async with factory() as drive:
         async for change in drive.sync():
@@ -61,7 +59,7 @@ async def migrate_root(drive, node):
             while True:
                 await asyncio.sleep(1)
                 async for change in drive.sync():
-                    print(change)
+                    INFO('migrate') << change
                 node = await drive.get_node_by_name_from_parent(part, parent_node)
                 if node:
                     break
@@ -89,6 +87,12 @@ async def migrate_file(drive, node, new_root):
             set_migrated(new_node)
             INFO('migrate') << 'file exists (remote verified), skip'
             return new_node
+    else:
+        from wcpan.drive.crypt.util import encrypt_name
+        remote_node = await drive._remote._driver._fetch_node_by_name_from_parent_id(encrypt_name(node.name), new_root.id_)
+        if remote_node:
+            INFO('migrate') << 'found wierd conflict, trash it'
+            await drive.trash_node(remote_node)
 
     new_hash, new_node = await copy_node(drive, node, new_root)
     assert new_node.size == node.size
