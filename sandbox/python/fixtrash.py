@@ -38,6 +38,9 @@ async def main():
             assert new_root is not None
             INFO('fixtrash') << f'working on {new_root_path}'
 
+            if not drive._remote._driver._has_remote_children(new_root):
+                continue
+
             lock = asyncio.Semaphore(6)
             folder_list = [locked_migrate_folder(lock, drive, node, new_root) for node in folders]
             file_list = [locked_migrate_file(lock, drive, node, new_root) for node in files]
