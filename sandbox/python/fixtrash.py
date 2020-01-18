@@ -38,7 +38,8 @@ async def main():
             assert new_root is not None
             INFO('fixtrash') << f'working on {new_root_path}'
 
-            if not drive._remote._driver._has_remote_children(new_root):
+            if not await drive._remote._driver._has_remote_children(new_root):
+                INFO('fixtrash') << f'no child, skip'
                 continue
 
             lock = asyncio.Semaphore(6)
