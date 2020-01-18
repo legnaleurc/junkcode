@@ -17,7 +17,7 @@ async def main():
     setup_logger((
         'wcpan.drive',
         'fixtrash',
-    ), '/tmp/migrate.log')
+    ), '/tmp/fixtrash.log')
 
     from_path = sys.argv[1]
 
@@ -26,7 +26,7 @@ async def main():
 
     async with factory() as drive:
         async for change in drive.sync():
-            INFO('migrate') << change
+            INFO('fixtrash') << change
 
         root_node = await drive.get_node_by_path(from_path)
         await migrate_root(drive, root_node)
@@ -36,7 +36,7 @@ async def main():
             new_root_path = pathlib.PurePath(*(('/', 'new') + root_path.parts[2:]))
             new_root = await get_node(drive, new_root_path)
             assert new_root is not None
-            INFO('migrate') << f'working on {new_root_path}'
+            INFO('fixtrash') << f'working on {new_root_path}'
 
             lock = asyncio.Semaphore(6)
             folder_list = [locked_migrate_folder(lock, drive, node, new_root) for node in folders]
@@ -74,7 +74,7 @@ async def migrate_folder(drive, node, new_root):
         name = encrypt_name(node.name)
         remote_node = await drive._remote._driver._fetch_node_by_name_from_parent_id(name, new_root.id_)
         if remote_node:
-            INFO('migrate') << 'found wierd conflict, try force update'
+            INFO('fixtrash') << 'found wierd conflict, try force update'
             await drive._remote._driver._force_update_node(name, new_root)
 
 
@@ -86,22 +86,22 @@ async def migrate_file(drive, node, new_root):
         name = encrypt_name(node.name)
         remote_node = await drive._remote._driver._fetch_node_by_name_from_parent_id(name, new_root.id_)
         if remote_node:
-            INFO('migrate') << 'found wierd conflict, try force update'
+            INFO('fixtrash') << 'found wierd conflict, try force update'
             await drive._remote._driver._force_update_node(name, new_root)
 
 
 async def locked_migrate_folder(lock, drive, node, new_root):
     async with lock:
-        INFO('migrate') << f'mkdir {node.name}'
+        INFO('fixtrash') << f'mkdir {node.name}'
         await migrate_folder(drive, node, new_root)
-        INFO('migrate') << f'ok {node.name}'
+        INFO('fixtrash') << f'ok {node.name}'
 
 
 async def locked_migrate_file(lock, drive, node, new_root):
     async with lock:
-        INFO('migrate') << f'touch {node.name}'
+        INFO('fixtrash') << f'touch {node.name}'
         await migrate_file(drive, node, new_root)
-        INFO('migrate') << f'ok {node.name}'
+        INFO('fixtrash') << f'ok {node.name}'
 
 
 async def get_node(drive, path):
@@ -112,7 +112,7 @@ async def get_node(drive, path):
 
         await asyncio.sleep(1)
         async for change in drive.sync():
-            INFO('migrate') << change
+            INFO('fixtrash') << change
 
 
 async def get_node_hash(drive, node):
