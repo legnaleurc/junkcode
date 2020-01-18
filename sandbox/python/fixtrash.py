@@ -35,7 +35,10 @@ async def main():
             root_path = await drive.get_path(root)
             new_root_path = pathlib.PurePath(*(('/', 'new') + root_path.parts[2:]))
             new_root = await get_node(drive, new_root_path)
-            assert new_root is not None
+            if not new_root:
+                INFO('fixtrash') << f'not yet completed {new_root_path}, skip'
+                continue
+
             INFO('fixtrash') << f'working on {new_root_path}'
 
             if not await drive._remote._driver._has_remote_children(new_root):
@@ -109,14 +112,8 @@ async def locked_migrate_file(lock, drive, node, new_root):
 
 
 async def get_node(drive, path):
-    while True:
-        node = await drive.get_node_by_path(path)
-        if node:
-            return node
-
-        await asyncio.sleep(1)
-        async for change in drive.sync():
-            INFO('fixtrash') << change
+    node = await drive.get_node_by_path(path)
+    return node
 
 
 async def get_node_hash(drive, node):
