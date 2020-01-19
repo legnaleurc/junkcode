@@ -87,12 +87,6 @@ async def migrate_file(drive, node, new_root):
             set_migrated(new_node)
             INFO('migrate') << 'file exists (remote verified), skip'
             return new_node
-    else:
-        from wcpan.drive.crypt.util import encrypt_name
-        remote_node = await drive._remote._driver._fetch_node_by_name_from_parent_id(encrypt_name(node.name), new_root.id_)
-        if remote_node:
-            INFO('migrate') << 'found wierd conflict, trash it'
-            await drive.trash_node(remote_node)
 
     new_hash, new_node = await copy_node(drive, node, new_root)
     assert new_node.size == node.size
