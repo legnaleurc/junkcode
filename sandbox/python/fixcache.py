@@ -15,6 +15,7 @@ async def main():
         'wcpan.drive',
         'fixcache',
     ), '/tmp/fixcache.log')
+    initialize_cache()
 
     root_path = sys.argv[1]
 
