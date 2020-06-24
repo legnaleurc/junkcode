@@ -3,6 +3,9 @@
 // @namespace   sandbox
 // @include     http://*
 // @include     https://*
+// @exclude     https://www.office.com/*
+// @exclude     https://onedrive.live.com/*
+// @exclude     https://www.youtube.com/*
 // @version     1
 // @grant       unsafeWindow
 // @run-at      document-start
@@ -11,11 +14,11 @@
 'use strict';
 
 function getDialog () {
-  var div = document.querySelector('#close-overlay');
+  let div = document.querySelector('#close-overlay');
   if (div) {
     return div;
   }
-  var div = document.createElement('div');
+  div = document.createElement('div');
   div.id = 'close-overlay';
   div.style.position = 'fixed';
   div.style.top = 0;
@@ -29,8 +32,8 @@ function getDialog () {
 }
 
 function appendDialog (url) {
-  var div = getDialog();
-  var p = document.createElement('p');
+  const div = getDialog();
+  const p = document.createElement('p');
   p.textContent = url;
   div.appendChild(p);
 }
@@ -38,7 +41,7 @@ function appendDialog (url) {
 unsafeWindow.open = exportFunction(function (url) {
   console.info('window.open', url);
   appendDialog(url);
-  var p = new Proxy({}, {
+  const p = new Proxy({}, {
     get (target, name) {
       console.info('get', target, name);
       return undefined;
