@@ -27,8 +27,7 @@ export class Queue {
       this._getterList.push(getter);
       await getter.promise;
     }
-    const [top, ...rest] = this._list;
-    this._list = rest;
+    const top = this._list.shift();
     return top;
   }
 
@@ -50,8 +49,7 @@ export class Queue {
 
   _wakeup (waiterList) {
     while (waiterList.length > 0) {
-      const [waiter, ...rest] = waiterList;
-      waiterList = rest;
+      const waiter = waiterList.shift();
       waiter.resolve();
       break;
     }
