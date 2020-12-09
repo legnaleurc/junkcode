@@ -1,0 +1,27 @@
+#! /usr/bin/env python
+
+import re
+import sys
+
+
+HOSTS_FILE = '/mnt/c/Windows/System32/drivers/etc/hosts'
+
+
+def main(args=None):
+    print('server_name')
+    for host in read_host_list():
+        print('\t{}'.format(host))
+    print(';')
+    return 0
+
+
+def read_host_list():
+    with open(HOSTS_FILE, 'r') as fin:
+        for line in fin:
+            rv = re.match(r'^\s*\d+\.\d+\.\d+\.\d\s+(.+)\s*$', line)
+            if rv:
+                yield rv.group(1)
+
+
+if __name__ == '__main__':
+    main()
