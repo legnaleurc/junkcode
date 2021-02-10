@@ -4,14 +4,17 @@ public:
         if (nums.empty()) {
             return 0;
         }
+        // need to keep track minimum values because -1 * -1 = 1
+        int min_ = nums[0];
         int max_ = nums[0];
-        for (int b = 0; b < nums.size(); ++b) {
-            int p = 1;
-            for (int e = b; e < nums.size(); ++e) {
-                p *= nums[e];
-                max_ = max(p, max_);
-            }
+        int rv = nums[0];
+        for (int i = 1; i < nums.size(); ++i) {
+            int a = min({ nums[i], min_ * nums[i], max_ * nums[i] });
+            int b = max({ nums[i], min_ * nums[i], max_ * nums[i] });
+            rv = max(rv, b);
+            min_ = a;
+            max_ = b;
         }
-        return max_;
+        return rv;
     }
 };
