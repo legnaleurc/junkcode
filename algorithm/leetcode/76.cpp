@@ -1,19 +1,14 @@
 class Solution {
 public:
     string minWindow(string s, string t) {
-        unordered_map<char, int> target;
-        for (char c : t) {
-            auto it = target.find(c);
-            if (it == target.end()) {
-                target.insert({ c, 1 });
-            } else {
-                it->second += 1;
-            }
-        }
-        
         unordered_map<char, int> window;
         for (char c : t) {
-            window.insert({ c, 0 });
+            auto it = window.find(c);
+            if (it == window.end()) {
+                window.insert({ c, -1 });
+            } else {
+                it->second -= 1;
+            }
         }
 
         int rvL = 0;
@@ -21,7 +16,7 @@ public:
         int l = 0;
         int r = 0;
         while (r <= s.size() && l <= r) {
-            if (!isMatched(window, target)) {
+            if (!isMatched(window)) {
                 ++r;
                 addChar(window, s[r-1]);
                 continue;
@@ -50,10 +45,9 @@ public:
         }
     }
 
-    bool isMatched(const unordered_map<char, int>& window, const unordered_map<char, int>& target) {
-        for (const auto t : target) {
-            auto it = window.find(t.first);
-            if (it->second < t.second) {
+    bool isMatched(const unordered_map<char, int>& window) {
+        for (const auto & w : window) {
+            if (w.second < 0) {
                 return false;
             }
         }
