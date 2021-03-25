@@ -4,11 +4,9 @@ public:
         if (T.empty()) {
             return {};
         }
-        vector<int> rv({0});
-        unordered_map<int, vector<int>> cache({
-            { T[0], { 0 } },
-        });
-        for (int i = 1; i < T.size(); ++i) {
+        vector<int> rv;
+        unordered_map<int, vector<int>> cache;
+        for (int i = 0; i < T.size(); ++i) {
             rv.push_back(0);
 
             auto it = cache.find(T[i]);
