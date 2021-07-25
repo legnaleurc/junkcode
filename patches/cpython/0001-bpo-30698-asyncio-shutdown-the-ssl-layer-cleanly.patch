@@ -1,4 +1,4 @@
-From 38edda4f9a62044c601343f31ca2865710bc750f Mon Sep 17 00:00:00 2001
+From beab79f80396651d0a60e1fa97e6859acd6f7f7d Mon Sep 17 00:00:00 2001
 From: Grzegorz Grzywacz <grzgrzgrz3@gmail.com>
 Date: Sun, 18 Jun 2017 23:17:31 +0200
 Subject: [PATCH] bpo-30698: asyncio shutdown the ssl layer cleanly.
@@ -10,15 +10,15 @@ _SSLPipe feels wrong and its removed.
 
 Removing callback from _SSLPipe.shutdown should not break any api.
 ---
- Lib/asyncio/sslproto.py                | 18 +++++---
- Lib/test/test_asyncio/test_sslproto.py | 64 +++++++++++++++++++++++++-
- 2 files changed, 74 insertions(+), 8 deletions(-)
+ Lib/asyncio/sslproto.py                | 18 ++++---
+ Lib/test/test_asyncio/test_sslproto.py | 65 +++++++++++++++++++++++++-
+ 2 files changed, 75 insertions(+), 8 deletions(-)
 
 diff --git a/Lib/asyncio/sslproto.py b/Lib/asyncio/sslproto.py
-index 3eca6b4a39..2a42d77de6 100644
+index cad25b2653..96821fdf35 100644
 --- a/Lib/asyncio/sslproto.py
 +++ b/Lib/asyncio/sslproto.py
-@@ -124,7 +124,7 @@ class _SSLPipe(object):
+@@ -123,7 +123,7 @@ class _SSLPipe(object):
          assert len(appdata) == 0
          return ssldata
  
@@ -27,7 +27,7 @@ index 3eca6b4a39..2a42d77de6 100644
          """Start the SSL shutdown sequence.
  
          Return a list of ssldata. A ssldata element is a list of buffers
-@@ -139,7 +139,6 @@ class _SSLPipe(object):
+@@ -138,7 +138,6 @@ class _SSLPipe(object):
              raise RuntimeError('shutdown in progress')
          assert self._state in (_WRAPPED, _DO_HANDSHAKE)
          self._state = _SHUTDOWN
@@ -35,7 +35,7 @@ index 3eca6b4a39..2a42d77de6 100644
          ssldata, appdata = self.feed_ssldata(b'')
          assert appdata == [] or appdata == [b'']
          return ssldata
-@@ -207,8 +206,6 @@ class _SSLPipe(object):
+@@ -206,8 +205,6 @@ class _SSLPipe(object):
                  self._sslobj.unwrap()
                  self._sslobj = None
                  self._state = _UNWRAPPED
@@ -44,7 +44,7 @@ index 3eca6b4a39..2a42d77de6 100644
  
              elif self._state == _UNWRAPPED:
                  # Drain possible plaintext data after close_notify.
-@@ -678,11 +675,14 @@ class SSLProtocol(protocols.Protocol):
+@@ -677,11 +674,14 @@ class SSLProtocol(protocols.Protocol):
                          self._on_handshake_complete)
                      offset = 1
                  else:
@@ -62,7 +62,7 @@ index 3eca6b4a39..2a42d77de6 100644
  
                  if offset < len(data):
                      self._write_backlog[0] = (data, offset)
-@@ -706,6 +706,10 @@ class SSLProtocol(protocols.Protocol):
+@@ -705,6 +705,10 @@ class SSLProtocol(protocols.Protocol):
              else:
                  self._fatal_error(exc, 'Fatal error on SSL transport')
  
@@ -74,17 +74,18 @@ index 3eca6b4a39..2a42d77de6 100644
          if isinstance(exc, OSError):
              if self._loop.get_debug():
 diff --git a/Lib/test/test_asyncio/test_sslproto.py b/Lib/test/test_asyncio/test_sslproto.py
-index c115e46e70..12cd914b8d 100644
+index 948820c82f..c6073e4a69 100644
 --- a/Lib/test/test_asyncio/test_sslproto.py
 +++ b/Lib/test/test_asyncio/test_sslproto.py
-@@ -1,11 +1,15 @@
+@@ -1,11 +1,16 @@
  """Tests for asyncio/sslproto.py."""
 -
 +import contextlib
  import logging
 +import os
  import socket
- import sys
++import sys
+ from test import support
 +import threading
  import unittest
  import weakref
@@ -94,7 +95,7 @@ index c115e46e70..12cd914b8d 100644
  try:
      import ssl
  except ImportError:
-@@ -18,6 +22,55 @@ from asyncio import sslproto
+@@ -19,6 +24,55 @@ from test import support
  from test.test_asyncio import utils as test_utils
  from test.test_asyncio import functional as func_tests
  
@@ -150,7 +151,7 @@ index c115e46e70..12cd914b8d 100644
  
  def tearDownModule():
      asyncio.set_event_loop_policy(None)
-@@ -153,6 +206,15 @@ class SslProtoHandshakeTests(test_utils.TestCase):
+@@ -154,6 +208,15 @@ class SslProtoHandshakeTests(test_utils.TestCase):
          # should not raise
          self.assertIsNone(transp.write(b'data'))
  
@@ -167,5 +168,5 @@ index c115e46e70..12cd914b8d 100644
  ##############################################################################
  # Start TLS Tests
 -- 
-2.23.0
+2.20.1
 
