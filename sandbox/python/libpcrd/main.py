@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import cv2
+import pytesseract
 
 METHOD = cv2.TM_CCOEFF_NORMED
 
@@ -27,5 +28,12 @@ def searchItem(source, item):
     cv2.rectangle(display, matchL, (matchL[0] + item.shape[0], matchL[1] + item.shape[1]), (0, 0, 0), 2, 8, 0)
     cv2.imwrite(f'/mnt/d/local/tmp/output/rv.png', display)
 
+    display = source.copy()[matchL[1] + 120:matchL[1] + item.shape[1] - 5, matchL[0] + 80:matchL[0] + item.shape[0] - 5]
+    cv2.imwrite(f'/mnt/d/local/tmp/output/sub.png', display)
+    cv2.imwrite(f'./rv.png', display)
+    rv = pytesseract.image_to_string(display, lang='eng', config="--oem 3 --psm 6 outputbase digits")
+    print(rv)
 
-searchItem(backpack, item1)
+
+
+searchItem(backpack, item2)
