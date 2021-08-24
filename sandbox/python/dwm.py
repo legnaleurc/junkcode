@@ -9,8 +9,9 @@ async def main():
     while True:
         footprint = await get_dwm_footprint()
         now = datetime.datetime.now(datetime.timezone.utc).astimezone()
-        print(now.strftime('%Y/%m/%d-%H:%M'), footprint)
-        await asyncio.sleep(60 * 1000)
+        sys.stdout.write(f'{now.strftime("%Y/%m/%d-%H:%M")} {footprint} \n')
+        sys.stdout.flush()
+        await asyncio.sleep(60)
     return 0
 
 
