@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 
+import re
+
 import cv2
+import numpy
 import pytesseract
 
 METHOD = cv2.TM_CCOEFF_NORMED
@@ -20,20 +23,29 @@ def searchItem(source, item):
     _minV, maxV, _minL, maxL = cv2.minMaxLoc(rv, None)
 
     if maxV < 0.8:
-        return
+        return 0
 
     matchL = maxL
 
     display = source.copy()
-    cv2.rectangle(display, matchL, (matchL[0] + item.shape[0], matchL[1] + item.shape[1]), (0, 0, 0), 2, 8, 0)
-    cv2.imwrite(f'/mnt/d/local/tmp/output/rv.png', display)
+    display = display[matchL[1] + 120:matchL[1] + item.shape[1] - 5, matchL[0] + 80:matchL[0] + item.shape[0] - 5]
 
-    display = source.copy()[matchL[1] + 120:matchL[1] + item.shape[1] - 5, matchL[0] + 80:matchL[0] + item.shape[0] - 5]
-    cv2.imwrite(f'/mnt/d/local/tmp/output/sub.png', display)
-    cv2.imwrite(f'./rv.png', display)
-    rv = pytesseract.image_to_string(display, lang='eng', config="--oem 3 --psm 6 outputbase digits")
-    print(rv)
+    display = cv2.cvtColor(display, cv2.COLOR_BGR2HSV)
+    lower = numpy.array([0, 0, 30], dtype=numpy.uint8)
+    upper = numpy.array([255, 255, 125], dtype=numpy.uint8)
+    mask = cv2.inRange(display, lower, upper)
+    mask = ~mask
+    display = cv2.cvtColor(display, cv2.COLOR_HSV2BGR)
+
+    # cv2.imwrite(f'/mnt/d/local/tmp/output/display.png', display)
+    # cv2.imwrite(f'/mnt/d/local/tmp/output/mask.png', mask)
+    rv = pytesseract.image_to_string(mask, lang='eng', config="--oem 3 --psm 6 outputbase digits")
+    rv = re.sub('\D', '', rv)
+    rv = int(rv)
+    return rv
 
 
 
-searchItem(backpack, item2)
+print(searchItem(backpack, item0))
+print(searchItem(backpack, item1))
+print(searchItem(backpack, item2))
