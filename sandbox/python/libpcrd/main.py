@@ -16,7 +16,7 @@ item0 = cv2.imread('./items/icon_equipment_117611.png')
 # item0 = cv2.imread('./items/icon_equipment_113552.png')
 
 
-def searchItem(source, item):
+def searchItem(source, item, index):
     item = cv2.resize(item, (160, 160), cv2.INTER_AREA)
     rv = cv2.matchTemplate(source, item, METHOD)
 
@@ -27,25 +27,26 @@ def searchItem(source, item):
 
     matchL = maxL
 
-    display = source.copy()
-    display = display[matchL[1] + 120:matchL[1] + item.shape[1] - 5, matchL[0] + 80:matchL[0] + item.shape[0] - 5]
+    display = source[matchL[1] + 120:matchL[1] + item.shape[1] - 5, matchL[0] + 80:matchL[0] + item.shape[0] - 5]
 
     display = cv2.cvtColor(display, cv2.COLOR_BGR2HSV)
-    lower = numpy.array([0, 0, 30], dtype=numpy.uint8)
+    lower = numpy.array([0, 0, 70], dtype=numpy.uint8)
     upper = numpy.array([255, 255, 125], dtype=numpy.uint8)
     mask = cv2.inRange(display, lower, upper)
     mask = ~mask
     display = cv2.cvtColor(display, cv2.COLOR_HSV2BGR)
 
-    # cv2.imwrite(f'/mnt/d/local/tmp/output/display.png', display)
-    # cv2.imwrite(f'/mnt/d/local/tmp/output/mask.png', mask)
+    cv2.imwrite(f'/mnt/d/local/tmp/output/display_{index}.png', display)
+    cv2.imwrite(f'/mnt/d/local/tmp/output/mask_{index}.png', mask)
     rv = pytesseract.image_to_string(mask, lang='eng', config="--oem 3 --psm 6 outputbase digits")
     rv = re.sub('\D', '', rv)
-    rv = int(rv)
+    if not rv:
+        return 0
+    rv = int(rv, 10)
     return rv
 
 
 
-print(searchItem(backpack, item0))
-print(searchItem(backpack, item1))
-print(searchItem(backpack, item2))
+print(searchItem(backpack, item0, 0))
+print(searchItem(backpack, item1, 1))
+print(searchItem(backpack, item2, 2))
