@@ -156,9 +156,15 @@ async def copy_node(drive, node, new_root):
     return new_hash, new_node
 
 
-def initialize_cache():
+@contextlib.contextmanager
+def migration_cache():
     with sqlite3.connect('_migrated.sqlite') as db, \
         contextlib.closing(db.cursor()) as query:
+        yield query
+
+
+def initialize_cache():
+    with migration_cache() as query:
         try:
             query.execute('''
                 CREATE TABLE migrated (
@@ -175,8 +181,7 @@ def initialize_cache():
 
 
 def is_migrated(node):
-    with sqlite3.connect('_migrated.sqlite') as db, \
-        contextlib.closing(db.cursor()) as query:
+    with migration_cache() as query:
         query.execute('''
             SELECT id FROM migrated WHERE node_id = ?;
         ''', (node.id_,))
@@ -187,8 +192,7 @@ def is_migrated(node):
 
 
 def set_migrated(node):
-    with sqlite3.connect('_migrated.sqlite') as db, \
-        contextlib.closing(db.cursor()) as query:
+    with migration_cache() as query:
         query.execute('''
             INSERT INTO migrated (node_id) VALUES (?);
         ''', (node.id_,))
