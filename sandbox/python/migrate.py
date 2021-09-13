@@ -36,7 +36,8 @@ async def main():
 
         async for src_root, src_folders, src_files in src_drive.walk(src_root_node):
             src_root_path = await src_drive.get_path(src_root)
-            dst_root = await dst_drive.get_node_by_path(src_root_path)
+            assert src_root_path is not None, 'invalid source path'
+            dst_root = await get_node(dst_drive, src_root_path)
             assert dst_root is not None, 'invalid destination node'
             INFO('migrate') << f'working on {src_root_path}'
 
@@ -53,25 +54,25 @@ async def main():
             await asyncio.gather(*task_list)
 
 
-async def migrate_root(drive, node):
-    node_path = await drive.get_path(node)
-    parts = node_path.parts
-    assert parts[0] == '/'
-    assert parts[1] == 'old'
-    new_parts = ('/', 'new') + parts[2:]
-    parent_node = await drive.get_root_node()
-    for part in new_parts[1:]:
-        node = await drive.get_node_by_name_from_parent(part, parent_node)
-        if not node:
-            node = await drive.create_folder(parent_node, part, exist_ok=True)
-            while True:
-                await asyncio.sleep(1)
-                async for change in drive.sync():
-                    INFO('migrate') << change
-                node = await drive.get_node_by_name_from_parent(part, parent_node)
-                if node:
-                    break
-        parent_node = node
+# async def migrate_root(drive, node):
+#     node_path = await drive.get_path(node)
+#     parts = node_path.parts
+#     assert parts[0] == '/'
+#     assert parts[1] == 'old'
+#     new_parts = ('/', 'new') + parts[2:]
+#     parent_node = await drive.get_root_node()
+#     for part in new_parts[1:]:
+#         node = await drive.get_node_by_name_from_parent(part, parent_node)
+#         if not node:
+#             node = await drive.create_folder(parent_node, part, exist_ok=True)
+#             while True:
+#                 await asyncio.sleep(1)
+#                 async for change in drive.sync():
+#                     INFO('migrate') << change
+#                 node = await drive.get_node_by_name_from_parent(part, parent_node)
+#                 if node:
+#                     break
+#         parent_node = node
 
 
 async def migrate_folder(src_drive: Drive, src_node: Node, dst_drive: Drive, dst_root: Node):
@@ -116,7 +117,7 @@ async def locked_migrate_file(lock: asyncio.Semaphore, src_drive: Drive, src_nod
         INFO('migrate') << f'ok {src_node.name}'
 
 
-async def get_node(drive, path):
+async def get_node(drive: Drive, path: pathlib.Path):
     while True:
         node = await drive.get_node_by_path(path)
         if node:
@@ -127,14 +128,14 @@ async def get_node(drive, path):
             INFO('migrate') << change
 
 
-async def get_node_hash(drive, node):
-    hasher = await drive.get_hasher()
-    if node.size > 0:
-        async with await drive.download(node) as fin:
-            async for chunk in fin:
-                hasher.update(chunk)
-    rv = hasher.hexdigest()
-    return rv
+# async def get_node_hash(drive, node):
+#     hasher = await drive.get_hasher()
+#     if node.size > 0:
+#         async with await drive.download(node) as fin:
+#             async for chunk in fin:
+#                 hasher.update(chunk)
+#     rv = hasher.hexdigest()
+#     return rv
 
 
 async def copy_node(src_drive: Drive, src_node: Node, dst_drive: Drive, new_root: Node):
