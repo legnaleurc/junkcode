@@ -220,6 +220,8 @@ def get_migrated_size() -> int:
     with migration_cache() as query:
         query.execute('SELECT SUM(size) FROM migrated WHERE created_at >= ?;', (yesterday,))
         row = query.fetchone()
+        if not row:
+            return 0
         return row[0]
 
 
