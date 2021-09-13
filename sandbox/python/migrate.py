@@ -3,10 +3,10 @@
 import asyncio
 import contextlib
 import pathlib
-import re
 import sqlite3
 import sys
 
+import arrow
 from wcpan.drive.core.drive import DriveFactory, Drive, Node
 from wcpan.drive.core.types import MediaInfo
 from wcpan.logger import setup as setup_logger, INFO
@@ -178,7 +178,8 @@ def initialize_cache():
                 CREATE TABLE migrated (
                     id INTEGER PRIMARY KEY,
                     node_id TEXT NOT NULL UNIQUE,
-                    created_at DATETIME NOT NULL
+                    size INTEGER NOT NULL,
+                    created_at INTEGER NOT NULL
                 );
             ''')
             query.execute('''
@@ -204,8 +205,16 @@ def is_migrated(node: Node):
 def set_migrated(node: Node):
     with migration_cache() as query:
         query.execute('''
-            INSERT INTO migrated (node_id, created_at) VALUES (?, ?);
-        ''', (node.id_, node.created.datetime))
+            INSERT INTO migrated (node_id, size, created_at) VALUES (?, ?, ?);
+        ''', (node.id_, node.size, node.created.timestamp))
+
+
+def get_migrated_size() -> int:
+    yesterday = arrow.utcnow().shift(days=-1).timestamp
+    with migration_cache() as query:
+        query.execute('SELECT SUM(size) FROM migrated WHERE created_at >= ?;', (yesterday,))
+        row = query.fetchone()
+        return row[0]
 
 
 def get_config_path(root: str):
