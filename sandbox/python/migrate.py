@@ -239,7 +239,6 @@ def get_data_path(root: str):
 
 def get_src_drive():
     factory = DriveFactory()
-    factory.config_path = get_config_path('src')
     factory.data_path = get_data_path('src')
     factory.load_config()
     return factory
@@ -247,7 +246,6 @@ def get_src_drive():
 
 def get_dst_drive():
     factory = DriveFactory()
-    factory.config_path = get_config_path('dst')
     factory.data_path = get_data_path('dst')
     factory.load_config()
     return factory
