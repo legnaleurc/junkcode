@@ -36,6 +36,7 @@ async def main():
 
         async for src_root, src_folders, src_files in src_drive.walk(src_root_node):
             migrated_size = get_migrated_size()
+            INFO('migrate') << f'migrated {migrated_size} today'
             if migrated_size >= 700 * 1024 * 1024 * 1024:
                 break
 
@@ -56,27 +57,6 @@ async def main():
             ]
             task_list = folder_list + file_list
             await asyncio.gather(*task_list)
-
-
-# async def migrate_root(drive, node):
-#     node_path = await drive.get_path(node)
-#     parts = node_path.parts
-#     assert parts[0] == '/'
-#     assert parts[1] == 'old'
-#     new_parts = ('/', 'new') + parts[2:]
-#     parent_node = await drive.get_root_node()
-#     for part in new_parts[1:]:
-#         node = await drive.get_node_by_name_from_parent(part, parent_node)
-#         if not node:
-#             node = await drive.create_folder(parent_node, part, exist_ok=True)
-#             while True:
-#                 await asyncio.sleep(1)
-#                 async for change in drive.sync():
-#                     INFO('migrate') << change
-#                 node = await drive.get_node_by_name_from_parent(part, parent_node)
-#                 if node:
-#                     break
-#         parent_node = node
 
 
 async def migrate_folder(src_drive: Drive, src_node: Node, dst_drive: Drive, dst_root: Node):
@@ -130,16 +110,6 @@ async def get_node(drive: Drive, path: pathlib.Path):
         await asyncio.sleep(1)
         async for change in drive.sync():
             INFO('migrate') << change
-
-
-# async def get_node_hash(drive, node):
-#     hasher = await drive.get_hasher()
-#     if node.size > 0:
-#         async with await drive.download(node) as fin:
-#             async for chunk in fin:
-#                 hasher.update(chunk)
-#     rv = hasher.hexdigest()
-#     return rv
 
 
 async def copy_node(src_drive: Drive, src_node: Node, dst_drive: Drive, new_root: Node):
@@ -221,6 +191,8 @@ def get_migrated_size() -> int:
         query.execute('SELECT SUM(size) FROM migrated WHERE created_at >= ?;', (yesterday,))
         row = query.fetchone()
         if not row:
+            return 0
+        if not row[0]:
             return 0
         return row[0]
 
