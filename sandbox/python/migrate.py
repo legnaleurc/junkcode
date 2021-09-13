@@ -177,18 +177,20 @@ def initialize_cache():
             query.execute('''
                 CREATE TABLE migrated (
                     id INTEGER PRIMARY KEY,
-                    node_id TEXT NOT NULL UNIQUE
+                    node_id TEXT NOT NULL UNIQUE,
+                    created_at DATETIME NOT NULL
                 );
             ''')
             query.execute('''
                 CREATE INDEX ix_migrated_node_id ON migrated(node_id);
+                CREATE INDEX ix_migrated_created_at ON migrated(created_at);
             ''')
         except sqlite3.OperationalError as e:
             print(e)
             pass
 
 
-def is_migrated(node):
+def is_migrated(node: Node):
     with migration_cache() as query:
         query.execute('''
             SELECT id FROM migrated WHERE node_id = ?;
@@ -199,11 +201,11 @@ def is_migrated(node):
         return True
 
 
-def set_migrated(node):
+def set_migrated(node: Node):
     with migration_cache() as query:
         query.execute('''
-            INSERT INTO migrated (node_id) VALUES (?);
-        ''', (node.id_,))
+            INSERT INTO migrated (node_id, created_at) VALUES (?, ?);
+        ''', (node.id_, node.created.datetime))
 
 
 def get_config_path(root: str):
