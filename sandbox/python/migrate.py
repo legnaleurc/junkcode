@@ -188,6 +188,8 @@ def initialize_cache():
             ''')
             query.execute('''
                 CREATE INDEX ix_migrated_node_id ON migrated(node_id);
+            ''')
+            query.execute('''
                 CREATE INDEX ix_migrated_created_at ON migrated(created_at);
             ''')
         except sqlite3.OperationalError as e:
