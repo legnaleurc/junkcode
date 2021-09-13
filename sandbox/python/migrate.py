@@ -35,6 +35,10 @@ async def main():
         assert src_root_node is not None, 'invalid source root'
 
         async for src_root, src_folders, src_files in src_drive.walk(src_root_node):
+            migrated_size = get_migrated_size()
+            if migrated_size >= 700 * 1024 * 1024 * 1024:
+                break
+
             src_root_path = await src_drive.get_path(src_root)
             assert src_root_path is not None, 'invalid source path'
             dst_root = await get_node(dst_drive, src_root_path)
