@@ -42,6 +42,9 @@ async def main():
 
             src_root_path = await src_drive.get_path(src_root)
             assert src_root_path is not None, 'invalid source path'
+            if str(src_root_path).startswith('/tmp'):
+                INFO('migrate') << f'skip /tmp'
+                continue
             dst_root = await get_node(dst_drive, src_root_path)
             assert dst_root is not None, 'invalid destination node'
             INFO('migrate') << f'working on {src_root_path}'
