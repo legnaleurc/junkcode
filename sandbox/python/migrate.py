@@ -39,7 +39,7 @@ async def main():
 
         async for src_root, src_folders, src_files in src_drive.walk(src_root_node):
             migrated_size = get_migrated_size()
-            INFO('migrate') << f'migrated {migrated_size} today'
+            INFO('migrate') << f'migrated {humanize(migrated_size)} today'
             if migrated_size >= DAILY_SIZE:
                 break
 
@@ -107,10 +107,10 @@ async def locked_migrate_file(lock: asyncio.Semaphore, src_drive: Drive, src_nod
         if quota[0] <= 0:
             INFO('migrate') << 'skip (upload quota exceeded)'
             return
-        INFO('migrate') << f'touch ({quota[0]}) {src_node.name}'
+        INFO('migrate') << f'touch (@{humanize(quota[0])}) {src_node.name}'
         dst_node = await migrate_file(src_drive, src_node, dst_drive, dst_root)
         quota[0] -= dst_node.size
-        INFO('migrate') << f'ok ({quota[0]}) {src_node.name}'
+        INFO('migrate') << f'ok (@{humanize(quota[0])}) {src_node.name}'
 
 
 async def get_node(drive: Drive, path: pathlib.Path):
@@ -225,6 +225,7 @@ def get_data_path(root: str):
 
 
 def get_src_drive():
+    print('get_src_drive')
     factory = DriveFactory()
     factory.data_path = get_data_path('src')
     factory.load_config()
@@ -232,10 +233,20 @@ def get_src_drive():
 
 
 def get_dst_drive():
+    print('get_dst_drive')
     factory = DriveFactory()
     factory.data_path = get_data_path('dst')
     factory.load_config()
     return factory
+
+
+def humanize(n: int) -> str:
+    unit_list = ['', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
+    e = 0
+    while n >= 1024:
+        n = n // 1024
+        e += 1
+    return f'{n} {unit_list[e]}'
 
 
 if __name__ == '__main__':
