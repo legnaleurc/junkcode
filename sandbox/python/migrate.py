@@ -77,7 +77,7 @@ async def migrate_folder(src_drive: Drive, src_node: Node, dst_drive: Drive, dst
     return new_node
 
 
-async def migrate_file(src_drive: Drive, src_node: Node, dst_drive: Drive, dst_root: Node):
+async def migrate_file(src_drive: Drive, src_node: Node, dst_drive: Drive, dst_root: Node, quota: list[int]):
     new_node = await dst_drive.get_node_by_name_from_parent(src_node.name, dst_root)
     if new_node:
         if is_migrated(new_node):
@@ -92,6 +92,7 @@ async def migrate_file(src_drive: Drive, src_node: Node, dst_drive: Drive, dst_r
     assert new_node.size == src_node.size
     assert new_hash == new_node.hash_
     set_migrated(new_node)
+    quota[0] -= new_node.size
     return new_node
 
 
@@ -108,8 +109,7 @@ async def locked_migrate_file(lock: asyncio.Semaphore, src_drive: Drive, src_nod
             INFO('migrate') << 'skip (upload quota exceeded)'
             return
         INFO('migrate') << f'touch (@{humanize(quota[0])}) {src_node.name}'
-        dst_node = await migrate_file(src_drive, src_node, dst_drive, dst_root)
-        quota[0] -= dst_node.size
+        await migrate_file(src_drive, src_node, dst_drive, dst_root, quota)
         INFO('migrate') << f'ok (@{humanize(quota[0])}) {src_node.name}'
 
 
@@ -246,7 +246,7 @@ def humanize(n: int) -> str:
     while n >= 1024:
         n = n // 1024
         e += 1
-    return f'{n} {unit_list[e]}'
+    return f'{n}{unit_list[e]}'
 
 
 if __name__ == '__main__':
