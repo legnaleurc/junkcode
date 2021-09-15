@@ -12,6 +12,9 @@ from wcpan.drive.core.types import MediaInfo
 from wcpan.logger import setup as setup_logger, INFO
 
 
+DAILY_SIZE = 700 * 1024 * 1024 * 1024
+
+
 async def main():
     setup_logger((
         'wcpan.drive',
@@ -37,7 +40,7 @@ async def main():
         async for src_root, src_folders, src_files in src_drive.walk(src_root_node):
             migrated_size = get_migrated_size()
             INFO('migrate') << f'migrated {migrated_size} today'
-            if migrated_size >= 700 * 1024 * 1024 * 1024:
+            if migrated_size >= DAILY_SIZE:
                 break
 
             src_root_path = await src_drive.get_path(src_root)
@@ -45,17 +48,19 @@ async def main():
             if str(src_root_path).startswith('/tmp'):
                 INFO('migrate') << f'skip /tmp'
                 continue
+
             dst_root = await get_node(dst_drive, src_root_path)
             assert dst_root is not None, 'invalid destination node'
             INFO('migrate') << f'working on {src_root_path}'
 
+            quota = [DAILY_SIZE - migrated_size]
             lock = asyncio.Semaphore(4)
             folder_list = [
                 locked_migrate_folder(lock, src_drive, node, dst_drive, dst_root)
                 for node in src_folders
             ]
             file_list = [
-                locked_migrate_file(lock, src_drive, node, dst_drive, dst_root)
+                locked_migrate_file(lock, src_drive, node, dst_drive, dst_root, quota)
                 for node in src_files
             ]
             task_list = folder_list + file_list
@@ -97,11 +102,15 @@ async def locked_migrate_folder(lock: asyncio.Semaphore, src_drive: Drive, src_n
         INFO('migrate') << f'ok {src_node.name}'
 
 
-async def locked_migrate_file(lock: asyncio.Semaphore, src_drive: Drive, src_node: Node, dst_drive: Drive, dst_root: Node):
+async def locked_migrate_file(lock: asyncio.Semaphore, src_drive: Drive, src_node: Node, dst_drive: Drive, dst_root: Node, quota: list[int]):
     async with lock:
-        INFO('migrate') << f'touch {src_node.name}'
-        await migrate_file(src_drive, src_node, dst_drive, dst_root)
-        INFO('migrate') << f'ok {src_node.name}'
+        if quota[0] <= 0:
+            INFO('migrate') << 'skip (upload quota exceeded)'
+            return
+        INFO('migrate') << f'touch ({quota[0]}) {src_node.name}'
+        dst_node = await migrate_file(src_drive, src_node, dst_drive, dst_root)
+        quota[0] -= dst_node.size
+        INFO('migrate') << f'ok ({quota[0]}) {src_node.name}'
 
 
 async def get_node(drive: Drive, path: pathlib.Path):
@@ -138,6 +147,7 @@ async def copy_node(src_drive: Drive, src_node: Node, dst_drive: Drive, new_root
 
     new_hash = hasher.hexdigest()
     new_node = await fout.node()
+    assert new_node is not None
     return new_hash, new_node
 
 
