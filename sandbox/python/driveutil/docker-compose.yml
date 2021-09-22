@@ -6,6 +6,6 @@ services:
     cap_add:
       - NET_ADMIN
     volumes:
-      - migration-data:./migration-data
-volumes:
-  migration-data:
+      - type: bind
+        source: ./migration-data
+        target: /root/data
