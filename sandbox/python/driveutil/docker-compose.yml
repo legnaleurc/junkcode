@@ -9,3 +9,8 @@ services:
       - type: bind
         source: ./migration-data
         target: /root/data
+      - type: bind
+        source: ./config
+        target: /root/.config
+        read_only: true
+      - ./:/root
