@@ -1,0 +1,11 @@
+version: "3"
+services:
+  migration:
+    build:
+      context: .
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - migration-data:./migration-data
+volumes:
+  migration-data:
