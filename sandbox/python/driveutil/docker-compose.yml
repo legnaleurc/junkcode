@@ -3,11 +3,9 @@ services:
   migration:
     build:
       context: .
-    cap_add:
-      - NET_ADMIN
     volumes:
       - type: bind
-        source: ./migration-data
+        source: ./data-migrate
         target: /root/data
       - type: bind
         source: ./config
