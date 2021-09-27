@@ -6,9 +6,9 @@ services:
     volumes:
       - type: bind
         source: ./data-migrate
-        target: /root/data
+        target: /app/data
       - type: bind
         source: ./config
         target: /root/.config
         read_only: true
-      - ./:/root
+      - ./:/app
