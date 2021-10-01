@@ -5,10 +5,8 @@ services:
       context: .
     volumes:
       - type: bind
-        source: ./data-migrate
-        target: /app/data
-      - type: bind
-        source: ./config
-        target: /root/.config
+        source: .config
+        target: /root/.config/wcpan.drive
         read_only: true
-      - ./:/app
+      - .migrate:/app/data
+      - ./app:/app
