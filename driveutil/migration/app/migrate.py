@@ -19,7 +19,7 @@ async def main():
     setup_logger((
         'wcpan.drive',
         'migrate',
-    ), '/tmp/migrate.log')
+    ), './data/migrate.log')
 
     from_path = sys.argv[1]
     initialize_cache()
@@ -153,8 +153,8 @@ async def copy_node(src_drive: Drive, src_node: Node, dst_drive: Drive, new_root
 
 @contextlib.contextmanager
 def migration_cache():
-    with sqlite3.connect('_migrated.sqlite') as db, \
-        contextlib.closing(db.cursor()) as query:
+    with sqlite3.connect('data/_migrated.sqlite') as db, \
+         contextlib.closing(db.cursor()) as query:
         yield query
 
 
