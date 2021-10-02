@@ -153,7 +153,7 @@ async def copy_node(src_drive: Drive, src_node: Node, dst_drive: Drive, new_root
 
 @contextlib.contextmanager
 def migration_cache():
-    with sqlite3.connect('data/_migrated.sqlite') as db, \
+    with sqlite3.connect('./data/_migrated.sqlite') as db, \
          contextlib.closing(db.cursor()) as query:
         yield query
 

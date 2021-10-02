@@ -19,7 +19,7 @@ def main():
 
 
 def get_range(timestamp):
-    with sqlite3.connect('_migrated.sqlite') as db, \
+    with sqlite3.connect('./data/_migrated.sqlite') as db, \
          contextlib.closing(db.cursor()) as query:
         query.execute('SELECT SUM(size) FROM migrated WHERE created_at >= ? AND created_at < ?;', (timestamp, timestamp + 3600))
         rv = query.fetchone()
