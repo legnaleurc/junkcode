@@ -10,9 +10,12 @@ def main():
     now = arrow.utcnow()
     yesterday = now.shift(days=-1)
     past = yesterday.timestamp
+    total = 0
     for h in range(24):
         size = get_range(past + h * 3600)
         print(humanize(size))
+        total += size
+    print(f'Total: {humanize(total)}')
 
 
 def get_range(timestamp):
