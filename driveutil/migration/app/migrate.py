@@ -1,15 +1,21 @@
 #! /usr/bin/env python3
 
 import asyncio
-import contextlib
 import pathlib
 import sqlite3
 import sys
 
 import arrow
-from wcpan.drive.core.drive import DriveFactory, Drive, Node
+from wcpan.drive.core.drive import Drive, Node
 from wcpan.drive.core.types import MediaInfo
 from wcpan.logger import setup as setup_logger, INFO
+
+from .common import (
+    get_src_drive,
+    get_dst_drive,
+    humanize,
+    migration_cache,
+)
 
 
 DAILY_SIZE = 700 * 1024 * 1024 * 1024
@@ -151,13 +157,6 @@ async def copy_node(src_drive: Drive, src_node: Node, dst_drive: Drive, new_root
     return new_hash, new_node
 
 
-@contextlib.contextmanager
-def migration_cache():
-    with sqlite3.connect('./data/_migrated.sqlite') as db, \
-         contextlib.closing(db.cursor()) as query:
-        yield query
-
-
 def initialize_cache():
     with migration_cache() as query:
         try:
@@ -208,45 +207,6 @@ def get_migrated_size() -> int:
         if not row[0]:
             return 0
         return row[0]
-
-
-def get_config_path(root: str):
-    path = pathlib.Path(f'./{root}/config')
-    path = path.expanduser()
-    path = path / 'wcpan.drive'
-    return path
-
-
-def get_data_path(root: str):
-    path = pathlib.Path(f'./{root}/local/share')
-    path = path.expanduser()
-    path = path / 'wcpan.drive'
-    return path
-
-
-def get_src_drive():
-    print('get_src_drive')
-    factory = DriveFactory()
-    factory.data_path = get_data_path('data/src')
-    factory.load_config()
-    return factory
-
-
-def get_dst_drive():
-    print('get_dst_drive')
-    factory = DriveFactory()
-    factory.data_path = get_data_path('data/dst')
-    factory.load_config()
-    return factory
-
-
-def humanize(n: int) -> str:
-    unit_list = ['', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
-    e = 0
-    while n >= 1024:
-        n = n // 1024
-        e += 1
-    return f'{n}{unit_list[e]}'
 
 
 if __name__ == '__main__':

@@ -5,6 +5,8 @@ import sqlite3
 
 import arrow
 
+from .common import humanize, migration_cache
+
 
 def main():
     now = arrow.utcnow()
@@ -19,8 +21,7 @@ def main():
 
 
 def get_range(timestamp):
-    with sqlite3.connect('./data/_migrated.sqlite') as db, \
-         contextlib.closing(db.cursor()) as query:
+    with migration_cache() as query:
         query.execute('SELECT SUM(size) FROM migrated WHERE created_at >= ? AND created_at < ?;', (timestamp, timestamp + 3600))
         rv = query.fetchone()
         if rv is None:
@@ -28,15 +29,6 @@ def get_range(timestamp):
         if rv[0] is None:
             return 0
         return rv[0]
-
-
-def humanize(n: int) -> str:
-    unit_list = ['', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
-    e = 0
-    while n >= 1024:
-        n = n // 1024
-        e += 1
-    return f'{n}{unit_list[e]}'
 
 
 if __name__ == '__main__':
