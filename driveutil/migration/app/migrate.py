@@ -11,9 +11,10 @@ from wcpan.drive.core.types import MediaInfo
 from wcpan.logger import setup as setup_logger, INFO
 
 from .common import (
-    get_src_drive,
     get_dst_drive,
+    get_src_drive,
     humanize,
+    is_migrated,
     migration_cache,
 )
 
@@ -177,17 +178,6 @@ def initialize_cache():
         except sqlite3.OperationalError as e:
             print(e)
             pass
-
-
-def is_migrated(node: Node):
-    with migration_cache() as query:
-        query.execute('''
-            SELECT id FROM migrated WHERE node_id = ?;
-        ''', (node.id_,))
-        row = query.fetchone()
-        if not row:
-            return False
-        return True
 
 
 def set_migrated(node: Node):

@@ -2,7 +2,7 @@ import contextlib
 import pathlib
 import sqlite3
 
-from wcpan.drive.core.drive import DriveFactory
+from wcpan.drive.core.drive import DriveFactory, Node
 
 
 def humanize(n: int) -> str:
@@ -42,3 +42,14 @@ def migration_cache():
     with sqlite3.connect('./data/_migrated.sqlite') as db, \
          contextlib.closing(db.cursor()) as query:
         yield query
+
+
+def is_migrated(node: Node):
+    with migration_cache() as query:
+        query.execute('''
+            SELECT id FROM migrated WHERE node_id = ?;
+        ''', (node.id_,))
+        row = query.fetchone()
+        if not row:
+            return False
+        return True
