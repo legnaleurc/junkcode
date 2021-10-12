@@ -17,7 +17,7 @@ async def main():
 
         children = await drive.get_children(root_node)
         task_list = [
-            (folder, calculate_progress(drive, folder))
+            calculate_progress(drive, folder)
             for folder in children
         ]
         result_list = await asyncio.gather(*task_list)
@@ -34,7 +34,7 @@ async def calculate_progress(drive: Drive, root_node: Node):
             total += file.size
             if is_migrated(file):
                 migrated += file.size
-    return migrated / total
+    return root_node, migrated / total
 
 
 if __name__ == '__main__':
