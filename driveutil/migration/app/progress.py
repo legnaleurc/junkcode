@@ -16,7 +16,10 @@ async def main():
         assert root_node is not None
 
         children = await drive.get_children(root_node)
-        task_list = [(folder, calculate_progress(folder)) for folder in children]
+        task_list = [
+            (folder, calculate_progress(drive, folder))
+            for folder in children
+        ]
         result_list = await asyncio.gather(*task_list)
 
         for folder, rv in result_list:
