@@ -5,7 +5,7 @@ import sys
 
 from wcpan.drive.core.drive import Drive, Node
 
-from .common import get_src_drive, is_migrated
+from common import get_src_drive, is_migrated
 
 
 async def main():

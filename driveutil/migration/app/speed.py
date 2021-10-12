@@ -1,11 +1,8 @@
 #! /usr/bin/env python3
 
-import contextlib
-import sqlite3
-
 import arrow
 
-from .common import humanize, migration_cache
+from common import humanize, migration_cache
 
 
 def main():

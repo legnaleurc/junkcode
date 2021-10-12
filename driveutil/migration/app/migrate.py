@@ -10,7 +10,7 @@ from wcpan.drive.core.drive import Drive, Node
 from wcpan.drive.core.types import MediaInfo
 from wcpan.logger import setup as setup_logger, INFO
 
-from .common import (
+from common import (
     get_dst_drive,
     get_src_drive,
     humanize,
