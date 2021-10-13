@@ -36,7 +36,7 @@ async def calculate_progress(src_drive: Drive, dst_drive: Drive, root_node: Node
             total += file_.size
             path = await src_drive.get_path(file_)
             dst = await dst_drive.get_node_by_path(path)
-            if is_migrated(dst):
+            if dst and is_migrated(dst):
                 migrated += file_.size
     return root_node, migrated / total
 
