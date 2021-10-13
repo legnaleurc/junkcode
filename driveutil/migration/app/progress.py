@@ -23,6 +23,8 @@ async def main():
                 continue
 
             path = await src_drive.get_path(src_node)
+            if not path:
+                continue
             dst_node = await dst_drive.get_node_by_path(path)
             if not dst_node:
                 print(f'{src_node.name}: 0.00%')
