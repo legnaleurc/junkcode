@@ -28,8 +28,8 @@ async def main():
                 print(f'{src_node.name}: 0.00%')
                 continue
 
-            src_total = calculate_progress(src_drive, src_node)
-            dst_total = calculate_progress(dst_drive, dst_node)
+            src_total = await calculate_progress(src_drive, src_node)
+            dst_total = await calculate_progress(dst_drive, dst_node)
             print(f'{dst_node.name}: {(dst_total / src_total) * 100:.2f}%')
 
 
