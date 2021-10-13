@@ -18,27 +18,28 @@ async def main():
         assert root_node is not None
 
         children = await src_drive.get_children(root_node)
-        task_list = [
-            calculate_progress(src_drive, dst_drive, folder)
-            for folder in children
-        ]
-        result_list = await asyncio.gather(*task_list)
+        for src_node in children:
+            if src_node.is_file:
+                continue
 
-        for folder, rv in result_list:
-            print(f'{folder.name}: {rv * 100:.2f}%')
+            path = await src_drive.get_path(src_node)
+            dst_node = await dst_drive.get_node_by_path(path)
+            if not dst_node:
+                print(f'{src_node.name}: 0.00%')
+                continue
+
+            src_total = calculate_progress(src_drive, src_node)
+            dst_total = calculate_progress(dst_drive, dst_node)
+            print(f'{dst_node.name}: {(dst_total / src_total) * 100:.2f}%')
 
 
-async def calculate_progress(src_drive: Drive, dst_drive: Drive, root_node: Node):
+async def calculate_progress(drive: Drive, root_node: Node):
+    assert root_node.is_folder
     total: int = 0
-    migrated: int = 0
-    async for root, folders, files in src_drive.walk(root_node):
+    async for root, folders, files in drive.walk(root_node):
         for file_ in files:
             total += file_.size
-            path = await src_drive.get_path(file_)
-            dst = await dst_drive.get_node_by_path(path)
-            if dst and is_migrated(dst):
-                migrated += file_.size
-    return root_node, migrated / total
+    return total
 
 
 if __name__ == '__main__':
