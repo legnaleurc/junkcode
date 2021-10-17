@@ -31,7 +31,6 @@ def get_dst_drive():
 def get_data_path(root: str):
     path = pathlib.Path(f'./{root}')
     path = path.expanduser()
-    path = path / 'wcpan.drive'
     return path
 
 
