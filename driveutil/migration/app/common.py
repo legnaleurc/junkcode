@@ -15,7 +15,6 @@ def humanize(n: int) -> str:
 
 
 def get_src_drive():
-    print('get_src_drive')
     factory = DriveFactory()
     factory.data_path = get_data_path('data/src')
     factory.load_config()
@@ -23,7 +22,6 @@ def get_src_drive():
 
 
 def get_dst_drive():
-    print('get_dst_drive')
     factory = DriveFactory()
     factory.data_path = get_data_path('data/dst')
     factory.load_config()
@@ -31,7 +29,7 @@ def get_dst_drive():
 
 
 def get_data_path(root: str):
-    path = pathlib.Path(f'./{root}/local/share')
+    path = pathlib.Path(f'./{root}')
     path = path.expanduser()
     path = path / 'wcpan.drive'
     return path
