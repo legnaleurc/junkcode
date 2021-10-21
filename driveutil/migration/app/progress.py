@@ -5,7 +5,7 @@ import sys
 
 from wcpan.drive.core.drive import Drive, Node
 
-from common import get_dst_drive, get_src_drive
+from common import get_dst_drive, get_src_drive, humanize
 
 
 async def main():
@@ -30,12 +30,13 @@ async def main():
                 print(f'{src_node.name}: 0.00%')
                 continue
 
-            src_total = await calculate_progress(src_drive, src_node)
-            dst_total = await calculate_progress(dst_drive, dst_node)
-            print(f'{dst_node.name}: {(dst_total / src_total) * 100:.2f}%')
+            src_total = await calculate_total_size(src_drive, src_node)
+            dst_total = await calculate_total_size(dst_drive, dst_node)
+            diff = src_total - dst_total
+            print(f'{dst_node.name}: {(dst_total / src_total) * 100:.2f}% ({humanize(diff)})')
 
 
-async def calculate_progress(drive: Drive, root_node: Node):
+async def calculate_total_size(drive: Drive, root_node: Node):
     assert root_node.is_folder
     total: int = 0
     async for root, folders, files in drive.walk(root_node):
