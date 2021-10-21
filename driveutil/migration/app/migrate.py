@@ -41,37 +41,42 @@ async def main():
         async for change in dst_drive.sync():
             INFO('migrate') << 'dst sync' << change
 
-        src_root_node = await src_drive.get_node_by_path(from_path)
-        assert src_root_node is not None, 'invalid source root'
+        await migrate(src_drive, dst_drive, from_path)
 
-        async for src_root, src_folders, src_files in src_drive.walk(src_root_node):
-            migrated_size = get_migrated_size()
-            INFO('migrate') << f'migrated {humanize(migrated_size)} today'
-            if migrated_size >= DAILY_SIZE:
-                break
 
-            src_root_path = await src_drive.get_path(src_root)
-            assert src_root_path is not None, 'invalid source path'
-            if str(src_root_path).startswith('/tmp'):
-                INFO('migrate') << f'skip /tmp'
-                continue
 
-            dst_root = await get_node(dst_drive, src_root_path)
-            assert dst_root is not None, 'invalid destination node'
-            INFO('migrate') << f'working on {src_root_path}'
+async def migrate(src_drive: Drive, dst_drive: Drive, from_path: str):
+    src_root_node = await src_drive.get_node_by_path(from_path)
+    assert src_root_node is not None, 'invalid source root'
 
-            quota = [DAILY_SIZE - migrated_size]
-            lock = asyncio.Semaphore(4)
-            folder_list = [
-                locked_migrate_folder(lock, src_drive, node, dst_drive, dst_root)
-                for node in src_folders
-            ]
-            file_list = [
-                locked_migrate_file(lock, src_drive, node, dst_drive, dst_root, quota)
-                for node in src_files
-            ]
-            task_list = folder_list + file_list
-            await asyncio.gather(*task_list)
+    async for src_root, src_folders, src_files in src_drive.walk(src_root_node):
+        migrated_size = get_migrated_size()
+        INFO('migrate') << f'migrated {humanize(migrated_size)} today'
+        if migrated_size >= DAILY_SIZE:
+            break
+
+        src_root_path = await src_drive.get_path(src_root)
+        assert src_root_path is not None, 'invalid source path'
+        if str(src_root_path).startswith('/tmp'):
+            INFO('migrate') << f'skip /tmp'
+            continue
+
+        dst_root = await get_node(dst_drive, src_root_path)
+        assert dst_root is not None, 'invalid destination node'
+        INFO('migrate') << f'working on {src_root_path}'
+
+        quota = [DAILY_SIZE - migrated_size]
+        lock = asyncio.Semaphore(4)
+        folder_list = [
+            locked_migrate_folder(lock, src_drive, node, dst_drive, dst_root)
+            for node in src_folders
+        ]
+        file_list = [
+            locked_migrate_file(lock, src_drive, node, dst_drive, dst_root, quota)
+            for node in src_files
+        ]
+        task_list = folder_list + file_list
+        await asyncio.gather(*task_list)
 
 
 async def migrate_folder(src_drive: Drive, src_node: Node, dst_drive: Drive, dst_root: Node):
