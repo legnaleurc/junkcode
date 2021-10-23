@@ -48,7 +48,6 @@ async def main(args: list[str] = None):
             await migrate(src_drive, dst_drive, path)
 
 
-
 async def migrate(src_drive: Drive, dst_drive: Drive, from_path: str):
     src_root_node = await src_drive.get_node_by_path(from_path)
     assert src_root_node is not None, 'invalid source root'
