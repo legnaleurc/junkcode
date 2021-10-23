@@ -22,13 +22,16 @@ from common import (
 DAILY_SIZE = 700 * 1024 * 1024 * 1024
 
 
-async def main():
+async def main(args: list[str] = None):
     setup_logger((
         'wcpan.drive',
         'migrate',
     ), './data/migrate.log')
 
-    from_path = sys.argv[1]
+    if args is None:
+        args = sys.argv
+
+    path_list = args[1:]
     initialize_cache()
 
     src_factory = get_src_drive()
@@ -41,7 +44,8 @@ async def main():
         async for change in dst_drive.sync():
             INFO('migrate') << 'dst sync' << change
 
-        await migrate(src_drive, dst_drive, from_path)
+        for path in path_list:
+            await migrate(src_drive, dst_drive, path)
 
 
 
