@@ -29,6 +29,7 @@ async def main(args: list[str] = None):
             title = await fetch_jav_data(session, jav_id)
             if not title:
                 continue
+            title = normalize_title(title)
             if title == child.name:
                 continue
 
@@ -61,6 +62,10 @@ async def fetch_jav_data(session: aiohttp.ClientSession, jav_id: str):
         if not title:
             return None
         return title.text.strip()
+
+
+def normalize_title(title: str) -> str:
+    return title.replace('/', '／')
 
 
 async def rename(drive: Drive, node: Node, new_name: str):
