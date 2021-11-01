@@ -32,6 +32,8 @@ async def main(args: list[str] = None):
         args = sys.argv
 
     path_list = args[1:]
+    path_list.extend([
+    ])
     initialize_cache()
 
     src_factory = get_src_drive()
@@ -60,9 +62,6 @@ async def migrate(src_drive: Drive, dst_drive: Drive, from_path: str):
 
         src_root_path = await src_drive.get_path(src_root)
         assert src_root_path is not None, 'invalid source path'
-        if str(src_root_path).startswith('/tmp'):
-            INFO('migrate') << f'skip /tmp'
-            continue
 
         dst_root = await get_node(dst_drive, src_root_path)
         assert dst_root is not None, 'invalid destination node'
