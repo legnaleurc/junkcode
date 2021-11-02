@@ -35,9 +35,6 @@ async def main(args: list[str] = None):
 
             print(f'old: {child.name}')
             print(f'new: {title}')
-            confirm = input('y/N')
-            if confirm != 'y':
-                continue
             await rename(drive, child, title)
 
     return 0
@@ -56,7 +53,11 @@ async def fetch_jav_data(session: aiohttp.ClientSession, jav_id: str):
     async with session.get(f'https://www.javbus.com/ja/{jav_id}') as response:
         if response.status != 200:
             return None
-        html = await response.text()
+        try:
+            html = await response.text()
+        except Exception as e:
+            print(jav_id, e)
+            return None
         soup = BeautifulSoup(html, 'html.parser')
         title = soup.select_one('.container > h3')
         if not title:
@@ -65,7 +66,10 @@ async def fetch_jav_data(session: aiohttp.ClientSession, jav_id: str):
 
 
 def normalize_title(title: str) -> str:
-    return title.replace('/', '／')
+    title = title.replace('/', '／')
+    title = title.replace('\n', '')
+    title = title.replace('\r', '')
+    return title
 
 
 async def rename(drive: Drive, node: Node, new_name: str):
