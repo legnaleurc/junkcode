@@ -43,10 +43,10 @@ async def main(args: list[str] = None):
 
 
 def get_jav_id(name: str) -> str:
-    rv = re.match(r'([A-Za-z0-9]+-[0-9]+)', name)
+    rv = re.search(r'[A-Za-z0-9]+-[0-9]+', name)
     if not rv:
         return ''
-    rv = rv.group(1)
+    rv = rv.group(0)
     rv = rv.upper()
     return rv
 
