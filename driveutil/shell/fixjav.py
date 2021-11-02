@@ -53,11 +53,8 @@ async def fetch_jav_data(session: aiohttp.ClientSession, jav_id: str):
     async with session.get(f'https://www.javbus.com/ja/{jav_id}') as response:
         if response.status != 200:
             return None
-        try:
-            html = await response.text()
-        except Exception as e:
-            print(jav_id, e)
-            return None
+
+        html = await response.text(errors='ignore')
         soup = BeautifulSoup(html, 'html.parser')
         title = soup.select_one('.container > h3')
         if not title:
