@@ -23,6 +23,8 @@ async def main(args: list[str] = None):
         root_node = await drive.get_node_by_path(root_path)
         children = await drive.get_children(root_node)
         for child in children:
+            if child.trashed:
+                continue
             jav_id = get_jav_id(child.name)
             if not jav_id:
                 continue
