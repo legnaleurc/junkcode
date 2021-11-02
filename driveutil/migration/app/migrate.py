@@ -20,6 +20,8 @@ from common import (
 
 
 DAILY_SIZE = 700 * 1024 * 1024 * 1024
+PATH_LIST = [
+]
 
 
 async def main(args: list[str] = None):
@@ -32,8 +34,7 @@ async def main(args: list[str] = None):
         args = sys.argv
 
     path_list = args[1:]
-    path_list.extend([
-    ])
+    path_list.extend(PATH_LIST)
     initialize_cache()
 
     src_factory = get_src_drive()
