@@ -51,15 +51,94 @@ def get_jav_id(name: str) -> str:
     return rv
 
 
+'''
+def get_jav_id(name: str) -> str:
+    name = name.replace('hjd2048.com', '')
+    rv = re.search(r'([A-Za-z]{3,5})([0-9]{3})', name)
+    if not rv:
+        return ''
+    a, b = rv.group(1), rv.group(2)
+    rv = f'{a}-{b}'
+    rv = rv.upper()
+    return rv
+'''
+
+
+'''
+def get_jav_id(name: str) -> str:
+    rv = re.search(r'([A-Za-z]{3,4})([0-9]{3}[a-zA-Z])', name)
+    if not rv:
+        return ''
+    a, b = rv.group(1), rv.group(2)
+    rv = f'{a}-{b}'
+    rv = rv.upper()
+    return rv
+'''
+
+
+'''
+def get_jav_id(name: str) -> str:
+    name = name.replace('hjd2048.com', '')
+    rv = re.search(r'([tT]28)([0-9]{3})', name)
+    if not rv:
+        return ''
+    a, b = rv.group(1), rv.group(2)
+    rv = f'{a}-{b}'
+    rv = rv.upper()
+    return rv
+'''
+
+
+'''
+def get_jav_id(name: str) -> str:
+    rv = re.search(r'[A-Za-z0-9]+-[0-9]{3}[a-zA-Z]', name)
+    if not rv:
+        return ''
+    rv = rv.group(0)
+    rv = rv.upper()
+    return rv
+'''
+
+
 async def fetch_jav_data(session: aiohttp.ClientSession, jav_id: str):
+    SOURCE_LIST = [
+        fetch_jav_data_from_javbus,
+        fetch_jav_data_from_javlibrary,
+    ]
+    for source in SOURCE_LIST:
+        rv = await source(session, jav_id)
+        if not rv:
+            continue
+        return rv
+    return None
+
+
+async def fetch_jav_data_from_javbus(session: aiohttp.ClientSession, jav_id: str):
     async with session.get(f'https://www.javbus.com/ja/{jav_id}') as response:
         if response.status != 200:
+            print(f'{jav_id} not found in javbus')
             return None
 
         html = await response.text(errors='ignore')
         soup = BeautifulSoup(html, 'html.parser')
         title = soup.select_one('.container > h3')
         if not title:
+            return None
+        return title.text.strip()
+
+
+async def fetch_jav_data_from_javlibrary(session: aiohttp.ClientSession, jav_id: str):
+    async with session.get(f'http://www.javlibrary.com/ja/vl_searchbyid.php', params={
+        'keyword': jav_id,
+    }) as response:
+        if response.status != 200:
+            return None
+
+        html = await response.text(errors='ignore')
+        soup = BeautifulSoup(html, 'html.parser')
+        title = soup.select_one('#video_title .post-title')
+        if not title:
+            print(f'{jav_id} not found in javlibrary')
             return None
         return title.text.strip()
 
