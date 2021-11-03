@@ -43,7 +43,7 @@ async def main(args: list[str] = None):
 
 
 def get_jav_id(name: str) -> str:
-    rv = re.search(r'[A-Za-z0-9]+-[0-9]+', name)
+    rv = re.search(r'[A-Za-z0-9]+-[0-9]+[a-zA-Z]?', name)
     if not rv:
         return ''
     rv = rv.group(0)
@@ -116,7 +116,6 @@ async def fetch_jav_data(session: aiohttp.ClientSession, jav_id: str):
 async def fetch_jav_data_from_javbus(session: aiohttp.ClientSession, jav_id: str):
     async with session.get(f'https://www.javbus.com/ja/{jav_id}') as response:
         if response.status != 200:
-            print(f'{jav_id} not found in javbus')
             return None
 
         html = await response.text(errors='ignore')
@@ -138,7 +137,6 @@ async def fetch_jav_data_from_javlibrary(session: aiohttp.ClientSession, jav_id:
         soup = BeautifulSoup(html, 'html.parser')
         title = soup.select_one('#video_title .post-title')
         if not title:
-            print(f'{jav_id} not found in javlibrary')
             return None
         return title.text.strip()
 
