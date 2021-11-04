@@ -30,11 +30,19 @@ class VideoProcessor(object):
     def http_url(self) -> str:
         return f'{self.base_url}/api/v1/nodes/{self.node.id_}/stream/{self.node.name}'
 
-    async def prepare_codec_info(self):
-        raise NotImplementedError()
-
     @property
-    def codec_command(self) -> list[str]:
+    def codec_command(self):
+        if self.is_h264:
+            vc = ['-c:v', 'copy']
+        else:
+            vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
+        if self.is_aac:
+            ac = ['-c:a', 'copy']
+        else:
+            ac = []
+        return ac + vc + ['-movflags', '+faststart']
+
+    async def prepare_codec_info(self):
         raise NotImplementedError()
 
     @property
@@ -155,18 +163,6 @@ class MP4Processer(VideoProcessor):
         self.is_faststart = True
 
     @property
-    def codec_command(self):
-        if self.is_h264:
-            vc = ['-c:v', 'copy']
-        else:
-            vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
-        if self.is_aac:
-            ac = ['-c:a', 'copy']
-        else:
-            ac = []
-        return ac + vc + ['-movflags', '+faststart']
-
-    @property
     def transcoded_file_name(self):
         return self.node.name
 
@@ -179,18 +175,6 @@ class MaybeH264Processer(VideoProcessor):
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
         self.is_faststart = False
-
-    @property
-    def codec_command(self):
-        if self.is_h264:
-            vc = ['-c:v', 'copy']
-        else:
-            vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
-        if self.is_aac:
-            ac = ['-c:a', 'copy']
-        else:
-            ac = []
-        return ac + vc + ['-movflags', '+faststart']
 
     @property
     def transcoded_file_name(self):
@@ -208,18 +192,6 @@ class MKVProcesser(VideoProcessor):
         self.is_faststart = False
 
     @property
-    def codec_command(self):
-        if self.is_h264:
-            vc = ['-c:v', 'copy']
-        else:
-            vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
-        if self.is_aac:
-            ac = ['-c:a', 'copy']
-        else:
-            ac = []
-        return ac + vc + ['-movflags', '+faststart']
-
-    @property
     def transcoded_file_name(self):
         name, ext = os.path.splitext(self.node.name)
         return name + '.mp4'
@@ -233,18 +205,6 @@ class NeverH264Processer(VideoProcessor):
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
         self.is_faststart = False
-
-    @property
-    def codec_command(self):
-        if self.is_h264:
-            vc = ['-c:v', 'copy']
-        else:
-            vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
-        if self.is_aac:
-            ac = ['-c:a', 'copy']
-        else:
-            ac = []
-        return ac + vc + ['-movflags', '+faststart']
 
     @property
     def transcoded_file_name(self):
