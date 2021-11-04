@@ -80,9 +80,10 @@ class VideoProcessor(object):
         if exit_code != 0:
             print('ffmpeg failed')
             return
-        await self._delete_remote()
+        await self._rename_remote()
         await self._upload()
         self._delete_local()
+        await self._delete_remote()
 
     def _get_transcode_command(self):
         main_cmd = ['ffmpeg', '-nostdin', '-y']
@@ -94,9 +95,15 @@ class VideoProcessor(object):
         cmd = main_cmd + input_cmd + codec_cmd + [output_path]
         return cmd
 
-    async def _delete_remote(self):
+    async def _rename_remote(self):
         await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
+        async for change in self.drive.sync():
+            print(change)
+
+    async def _delete_remote(self):
         await self.drive.trash_node(self.node)
+        async for change in self.drive.sync():
+            print(change)
 
     async def _upload(self):
         output_folder = self.work_folder / self.node.id_
@@ -125,7 +132,7 @@ class MP4Processer(VideoProcessor):
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
-        # self.is_faststart = True
+        self.is_faststart = True
 
     @property
     def codec_command(self):
