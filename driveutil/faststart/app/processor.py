@@ -97,8 +97,12 @@ class VideoProcessor(object):
 
     async def _rename_remote(self):
         await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
-        async for change in self.drive.sync():
-            print(change)
+        while True:
+            async for change in self.drive.sync():
+                print(change)
+            new_node = await self.drive.get_node_by_id(self.node.id_)
+            if new_node != self.node.name:
+                break
 
     async def _delete_remote(self):
         await self.drive.trash_node(self.node)
