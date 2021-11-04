@@ -21,10 +21,10 @@ class VideoProcessor(object):
         self.drive = drive
         self.node = node
         # implies mp4
-        self.is_faststart = False
-        self.is_h264 = False
-        self.is_aac = False
-        self.is_mp3 = False
+        self.is_faststart = True
+        self.is_h264 = True
+        self.is_aac = True
+        self.is_mp3 = True
 
     @property
     def http_url(self) -> str:
