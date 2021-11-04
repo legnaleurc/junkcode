@@ -25,7 +25,6 @@ class VideoProcessor(object):
         self.is_faststart = False
         self.is_h264 = False
         self.is_aac = False
-        self.is_mp3 = False
 
     @property
     def http_url(self) -> str:
@@ -56,15 +55,13 @@ class VideoProcessor(object):
             if stream['codec_type'] == 'audio':
                 if not self.is_aac:
                     self.is_aac = stream['codec_name'] == 'aac'
-                if not self.is_mp3:
-                    self.is_mp3 = stream['codec_name'] == 'mp3'
             elif stream['codec_type'] == 'video':
                 if not self.is_h264:
                     self.is_h264 = stream['codec_name'] == 'h264'
         self.is_faststart = err.find('bytes read, 0 seeks') >= 0
 
     def _is_skippable(self):
-        return self.is_faststart and self.is_h264 and (self.is_aac or self.is_mp3)
+        return self.is_faststart and self.is_h264 and self.is_aac
 
     async def __call__(self):
         await self.prepare_codec_info()
@@ -146,7 +143,6 @@ class VideoProcessor(object):
         print(f'is faststart: {self.is_faststart}')
         print(f'is h264: {self.is_h264}')
         print(f'is aac: {self.is_aac}')
-        print(f'is mp3: {self.is_mp3}')
 
 
 class MP4Processer(VideoProcessor):
@@ -164,7 +160,7 @@ class MP4Processer(VideoProcessor):
             vc = ['-c:v', 'copy']
         else:
             vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
-        if self.is_aac or self.is_mp3:
+        if self.is_aac:
             ac = ['-c:a', 'copy']
         else:
             ac = []
@@ -190,7 +186,7 @@ class MaybeH264Processer(VideoProcessor):
             vc = ['-c:v', 'copy']
         else:
             vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
-        if self.is_aac or self.is_mp3:
+        if self.is_aac:
             ac = ['-c:a', 'copy']
         else:
             ac = []
@@ -217,7 +213,7 @@ class MKVProcesser(VideoProcessor):
             vc = ['-c:v', 'copy']
         else:
             vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
-        if self.is_aac or self.is_mp3:
+        if self.is_aac:
             ac = ['-c:a', 'copy']
         else:
             ac = []
@@ -244,7 +240,7 @@ class NeverH264Processer(VideoProcessor):
             vc = ['-c:v', 'copy']
         else:
             vc = ['-c:v', 'libx264', '-crf', H264_CRF, '-preset', H264_PRESET]
-        if self.is_aac or self.is_mp3:
+        if self.is_aac:
             ac = ['-c:a', 'copy']
         else:
             ac = []
