@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import json
 import os.path
 import pathlib
@@ -80,8 +81,10 @@ class VideoProcessor(object):
         if exit_code != 0:
             print('ffmpeg failed')
             return
-        await self._rename_remote()
-        await self._upload()
+
+        async with self._upload_context():
+            await self._upload()
+
         self._delete_local()
         await self._delete_remote()
 
@@ -94,15 +97,6 @@ class VideoProcessor(object):
         output_path = output_folder / self.transcoded_file_name
         cmd = main_cmd + input_cmd + codec_cmd + [output_path]
         return cmd
-
-    async def _rename_remote(self):
-        await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
-        while True:
-            async for change in self.drive.sync():
-                print(change)
-            new_node = await self.drive.get_node_by_id(self.node.id_)
-            if new_node != self.node.name:
-                break
 
     async def _delete_remote(self):
         await self.drive.trash_node(self.node)
@@ -119,6 +113,32 @@ class VideoProcessor(object):
     def _delete_local(self):
         output_folder = self.work_folder / self.node.id_
         shutil.rmtree(output_folder)
+
+    @contextlib.asynccontextmanager
+    async def _upload_context(self):
+        await self._rename_remote()
+        try:
+            yield
+        finally:
+            await self._restore_remote()
+
+    async def _rename_remote(self):
+        await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
+        while True:
+            async for change in self.drive.sync():
+                print(change)
+            new_node = await self.drive.get_node_by_id(self.node.id_)
+            if new_node != self.node.name:
+                break
+
+    async def _restore_remote(self):
+        await self.drive.rename_node(self.node, new_name=self.node.name)
+        while True:
+            async for change in self.drive.sync():
+                print(change)
+            new_node = await self.drive.get_node_by_id(self.node.id_)
+            if new_node == self.node.name:
+                break
 
     def _dump_info(self):
         print(f'node id: {self.node.id_}')
