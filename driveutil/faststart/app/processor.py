@@ -21,10 +21,10 @@ class VideoProcessor(object):
         self.drive = drive
         self.node = node
         # implies mp4
-        self.is_faststart = True
-        self.is_h264 = True
-        self.is_aac = True
-        self.is_mp3 = True
+        self.is_faststart = False
+        self.is_h264 = False
+        self.is_aac = False
+        self.is_mp3 = False
 
     @property
     def http_url(self) -> str:
@@ -53,10 +53,13 @@ class VideoProcessor(object):
         data = data['streams']
         for stream in data:
             if stream['codec_type'] == 'audio':
-                self.is_aac = stream['codec_name'] == 'aac'
-                self.is_mp3 = stream['codec_name'] == 'mp3'
+                if not self.is_aac:
+                    self.is_aac = stream['codec_name'] == 'aac'
+                if not self.is_mp3:
+                    self.is_mp3 = stream['codec_name'] == 'mp3'
             elif stream['codec_type'] == 'video':
-                self.is_h264 = stream['codec_name'] == 'h264'
+                if not self.is_h264:
+                    self.is_h264 = stream['codec_name'] == 'h264'
         self.is_faststart = err.find('bytes read, 0 seeks') >= 0
 
     def _is_skippable(self):
