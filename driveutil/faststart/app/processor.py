@@ -95,6 +95,7 @@ class VideoProcessor(object):
         return cmd
 
     async def _delete_remote(self):
+        await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
         await self.drive.trash_node(self.node)
 
     async def _upload(self):
@@ -124,6 +125,7 @@ class MP4Processer(VideoProcessor):
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
+        # self.is_faststart = True
 
     @property
     def codec_command(self):
