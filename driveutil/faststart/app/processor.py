@@ -50,15 +50,21 @@ class VideoProcessor(object):
         return ac + vc + ['-movflags', '+faststart']
 
     async def update_codec_from_ffmpeg(self):
-        out, err = await shell_pipe([
+        cmd = [
             'ffprobe',
             '-v', 'trace',
             '-show_streams',
             '-print_format', 'json',
             '-i', self.http_url,
-        ])
+        ]
+        out, err = await shell_pipe(cmd)
         data = json.loads(out)
-        data = data['streams']
+        try:
+            data = data['streams']
+        except KeyError:
+            print(cmd)
+            print(data)
+            raise
         for stream in data:
             if stream['codec_type'] == 'audio':
                 if not self.is_aac:
