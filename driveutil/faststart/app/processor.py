@@ -110,11 +110,11 @@ class VideoProcessor(object):
                 return
 
             async with self._upload_context():
-                await self._upload()
+                node = await self._upload()
 
             await self._delete_remote()
 
-            set_migrated(self.node)
+            set_migrated(node)
 
     def _get_transcode_command(self):
         main_cmd = ['ffmpeg', '-nostdin', '-y']
@@ -143,7 +143,8 @@ class VideoProcessor(object):
         parent_node = await self.drive.get_node_by_id(self.node.parent_id)
         media_info = MediaInfo.video(self.node.video_width, self.node.video_height, self.node.video_ms_duration)
         node = await upload_from_local(self.drive, parent_node, output_path, media_info)
-        INFO('faststart') << 'uploaded' << node.name
+        INFO('faststart') << 'uploaded' << node.id_
+        return node
 
     def _delete_local(self):
         output_folder = self.output_folder
