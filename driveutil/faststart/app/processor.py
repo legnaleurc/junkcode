@@ -26,6 +26,13 @@ class VideoProcessor(object):
         self.is_h264 = False
         self.is_aac = False
 
+    async def prepare_codec_info(self):
+        raise NotImplementedError()
+
+    @property
+    def transcoded_file_name(self) -> str:
+        raise NotImplementedError()
+
     @property
     def http_url(self) -> str:
         return f'{self.base_url}/api/v1/nodes/{self.node.id_}/stream/{self.node.name}'
@@ -41,13 +48,6 @@ class VideoProcessor(object):
         else:
             ac = []
         return ac + vc + ['-movflags', '+faststart']
-
-    async def prepare_codec_info(self):
-        raise NotImplementedError()
-
-    @property
-    def transcoded_file_name(self) -> str:
-        raise NotImplementedError()
 
     async def update_codec_from_ffmpeg(self):
         out, err = await shell_pipe([
@@ -68,12 +68,17 @@ class VideoProcessor(object):
                     self.is_h264 = stream['codec_name'] == 'h264'
         self.is_faststart = err.find('bytes read, 0 seeks') >= 0
 
-    def _is_skippable(self):
-        return self.is_faststart and self.is_h264 and self.is_aac
+    @property
+    def is_skippable(self):
+        return self.is_faststart and not self.need_transcode
+
+    @property
+    def need_transcode(self):
+        return not (self.is_h264 and self.is_aac)
 
     async def __call__(self):
         await self.prepare_codec_info()
-        if self._is_skippable():
+        if self.is_skippable:
             return
 
         self._dump_info()
@@ -160,7 +165,6 @@ class MP4Processer(VideoProcessor):
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
-        self.is_faststart = True
 
     @property
     def transcoded_file_name(self):
