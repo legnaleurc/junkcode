@@ -81,6 +81,10 @@ class VideoProcessor(object):
         if self.is_skippable:
             return
 
+        if not self.is_faststart and not self.need_transcode:
+            # transcode only
+            return
+
         self._dump_info()
 
         transcode_command = self._get_transcode_command()
