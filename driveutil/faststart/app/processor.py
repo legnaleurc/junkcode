@@ -9,7 +9,7 @@ from typing import Union
 
 from wcpan.drive.core.drive import Drive, Node, MediaInfo
 from wcpan.drive.core.util import upload_from_local, download_to_local
-from wcpan.logger import INFO, DEBUG, ERROR
+from wcpan.logger import INFO, DEBUG, ERROR, EXCEPTION
 
 from .cache import is_migrated, set_migrated
 
@@ -156,7 +156,8 @@ class VideoProcessor(object):
         await self._rename_remote()
         try:
             yield
-        except Exception:
+        except Exception as e:
+            EXCEPTION('faststart', e) << 'upload error'
             await self._restore_remote()
             raise
 
