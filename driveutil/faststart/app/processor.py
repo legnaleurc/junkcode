@@ -158,6 +158,7 @@ class VideoProcessor(object):
             yield
         except Exception:
             await self._restore_remote()
+            raise
 
     @contextlib.asynccontextmanager
     async def _download_context(self):
