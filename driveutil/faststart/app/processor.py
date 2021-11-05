@@ -124,7 +124,7 @@ class VideoProcessor(object):
         await self._rename_remote()
         try:
             yield
-        finally:
+        except Exception:
             await self._restore_remote()
 
     async def _rename_remote(self):
