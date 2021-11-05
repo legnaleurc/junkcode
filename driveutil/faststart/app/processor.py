@@ -5,9 +5,12 @@ import os.path
 import pathlib
 import shutil
 import subprocess
+from typing import Union
 
 from wcpan.drive.core.drive import Drive, Node, MediaInfo
-from wcpan.drive.core.util import upload_from_local
+from wcpan.drive.core.util import upload_from_local, download_to_local
+
+from .cache import is_migrated, set_migrated
 
 
 H264_PRESET = 'veryfast'
@@ -16,8 +19,7 @@ H264_CRF = '18'
 
 class VideoProcessor(object):
 
-    def __init__(self, base_url: str, work_folder: str, drive: Drive, node: Node):
-        self.base_url = base_url
+    def __init__(self, work_folder: str, drive: Drive, node: Node):
         self.work_folder = pathlib.Path(work_folder)
         self.drive = drive
         self.node = node
@@ -34,10 +36,6 @@ class VideoProcessor(object):
         raise NotImplementedError()
 
     @property
-    def http_url(self) -> str:
-        return f'{self.base_url}/api/v1/nodes/{self.node.id_}/stream/{self.node.name}'
-
-    @property
     def codec_command(self):
         if self.is_h264:
             vc = ['-c:v', 'copy']
@@ -49,22 +47,31 @@ class VideoProcessor(object):
             ac = []
         return ac + vc + ['-movflags', '+faststart']
 
+    @property
+    def output_folder(self) -> pathlib.Path:
+        folder = self.work_folder / self.node.id_
+        folder.mkdir(exist_ok=True)
+        return folder
+
+    @property
+    def raw_file_path(self) -> pathlib.Path:
+        return self.output_folder / f'__{self.node.name}'
+
+    @property
+    def transcoded_file_path(self) -> pathlib.Path:
+        return self.output_folder / self.transcoded_file_name
+
     async def update_codec_from_ffmpeg(self):
         cmd = [
             'ffprobe',
             '-v', 'trace',
             '-show_streams',
             '-print_format', 'json',
-            '-i', self.http_url,
+            '-i', self.raw_file_path,
         ]
         out, err = await shell_pipe(cmd)
         data = json.loads(out)
-        try:
-            data = data['streams']
-        except KeyError:
-            print(cmd)
-            print(data)
-            raise
+        data = data['streams']
         for stream in data:
             if stream['codec_type'] == 'audio':
                 if not self.is_aac:
@@ -83,38 +90,36 @@ class VideoProcessor(object):
         return not (self.is_h264 and self.is_aac)
 
     async def __call__(self):
-        await self.prepare_codec_info()
-        if self.is_skippable:
+        if is_migrated(self.node):
             return
 
-        if not self.is_faststart and not self.need_transcode:
-            # transcode only
-            return
+        async with self._download_context():
+            await self.prepare_codec_info()
+            if self.is_skippable:
+                set_migrated(self.node)
+                return
 
-        self._dump_info()
+            self._dump_info()
+            transcode_command = self._get_transcode_command()
+            print(transcode_command)
 
-        transcode_command = self._get_transcode_command()
+            exit_code = await shell_call(transcode_command)
+            if exit_code != 0:
+                print('ffmpeg failed')
+                return
 
-        print(transcode_command)
+            async with self._upload_context():
+                await self._upload()
 
-        exit_code = await shell_call(transcode_command)
-        if exit_code != 0:
-            print('ffmpeg failed')
-            return
+            await self._delete_remote()
 
-        async with self._upload_context():
-            await self._upload()
-
-        self._delete_local()
-        await self._delete_remote()
+            set_migrated(self.node)
 
     def _get_transcode_command(self):
         main_cmd = ['ffmpeg', '-nostdin', '-y']
-        input_cmd = ['-i', self.http_url]
+        input_cmd = ['-i', str(self.raw_file_path)]
         codec_cmd = self.codec_command
-        output_folder = self.work_folder / self.node.id_
-        output_folder.mkdir(exist_ok=True)
-        output_path = output_folder / self.transcoded_file_name
+        output_path = self.transcoded_file_path
         cmd = main_cmd + input_cmd + codec_cmd + [str(output_path)]
         return cmd
 
@@ -122,6 +127,11 @@ class VideoProcessor(object):
         await self.drive.trash_node(self.node)
         async for change in self.drive.sync():
             print(change)
+
+    async def _download(self):
+        output_folder = self.output_folder
+        downloaded_path = await download_to_local(self.drive, self.node, output_folder)
+        downloaded_path.rename(self.raw_file_path)
 
     async def _upload(self):
         output_folder = self.work_folder / self.node.id_
@@ -141,6 +151,14 @@ class VideoProcessor(object):
             yield
         except Exception:
             await self._restore_remote()
+
+    @contextlib.asynccontextmanager
+    async def _download_context(self):
+        await self._download()
+        try:
+            yield
+        finally:
+            self._delete_local()
 
     async def _rename_remote(self):
         await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
@@ -170,8 +188,8 @@ class VideoProcessor(object):
 
 class MP4Processer(VideoProcessor):
 
-    def __init__(self, base_url: str, work_folder: str, drive: Drive, node: Node):
-        super().__init__(base_url, work_folder, drive, node)
+    def __init__(self, work_folder: str, drive: Drive, node: Node):
+        super().__init__(work_folder, drive, node)
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -183,8 +201,8 @@ class MP4Processer(VideoProcessor):
 
 class MaybeH264Processer(VideoProcessor):
 
-    def __init__(self, base_url: str, work_folder: str, drive: Drive, node: Node):
-        super().__init__(base_url, work_folder, drive, node)
+    def __init__(self, work_folder: str, drive: Drive, node: Node):
+        super().__init__(work_folder, drive, node)
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -198,8 +216,8 @@ class MaybeH264Processer(VideoProcessor):
 
 class MKVProcesser(VideoProcessor):
 
-    def __init__(self, base_url: str, work_folder: str, drive: Drive, node: Node):
-        super().__init__(base_url, work_folder, drive, node)
+    def __init__(self, work_folder: str, drive: Drive, node: Node):
+        super().__init__(work_folder, drive, node)
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -238,11 +256,10 @@ async def shell_call(cmd_list: list[str]):
 
 
 def create_processor(
-    base_url: str,
     work_folder: str,
     drive: Drive,
     node: Node,
-) -> VideoProcessor:
+) -> Union[VideoProcessor, None]:
     table = {
         'video/mp4': MP4Processer,
         'video/x-matroska': MKVProcesser,
@@ -261,4 +278,4 @@ def create_processor(
     if node.mime_type not in table:
         return None
     constructor = table[node.mime_type]
-    return constructor(base_url, work_folder, drive, node)
+    return constructor(work_folder, drive, node)

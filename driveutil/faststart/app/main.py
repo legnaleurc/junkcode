@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
-import asyncio
 import sys
 import tempfile
 
-from wcpan.drive.core.drive import DriveFactory, Drive, Node
+from wcpan.drive.core.drive import DriveFactory
 
+from .cache import initialize_cache
 from .processor import create_processor
 
 
@@ -13,8 +13,9 @@ async def main(args: list[str] = None):
     if args is None:
         args = sys.argv
 
-    base_url = args[1]
-    root_path = args[2]
+    root_path = args[1]
+
+    initialize_cache()
 
     factory = DriveFactory()
     factory.load_config()
@@ -28,7 +29,10 @@ async def main(args: list[str] = None):
                     if not file_.is_video:
                         continue
 
-                    processor = create_processor(base_url, work_folder, drive, file_)
+                    processor = create_processor(work_folder, drive, file_)
+                    if not processor:
+                        continue
+
                     await processor()
 
     return 0
