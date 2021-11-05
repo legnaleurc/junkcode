@@ -109,7 +109,7 @@ class VideoProcessor(object):
         output_folder = self.work_folder / self.node.id_
         output_folder.mkdir(exist_ok=True)
         output_path = output_folder / self.transcoded_file_name
-        cmd = main_cmd + input_cmd + codec_cmd + [output_path]
+        cmd = main_cmd + input_cmd + codec_cmd + [str(output_path)]
         return cmd
 
     async def _delete_remote(self):
