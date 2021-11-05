@@ -9,6 +9,7 @@ from typing import Union
 
 from wcpan.drive.core.drive import Drive, Node, MediaInfo
 from wcpan.drive.core.util import upload_from_local, download_to_local
+from wcpan.logger import INFO, DEBUG, ERROR
 
 from .cache import is_migrated, set_migrated
 
@@ -101,11 +102,11 @@ class VideoProcessor(object):
 
             self._dump_info()
             transcode_command = self._get_transcode_command()
-            print(transcode_command)
+            INFO('faststart') << transcode_command
 
             exit_code = await shell_call(transcode_command)
             if exit_code != 0:
-                print('ffmpeg failed')
+                ERROR('faststart') << 'ffmpeg failed'
                 return
 
             async with self._upload_context():
@@ -126,22 +127,27 @@ class VideoProcessor(object):
     async def _delete_remote(self):
         await self.drive.trash_node(self.node)
         async for change in self.drive.sync():
-            print(change)
+            DEBUG('faststart') << change
 
     async def _download(self):
+        INFO('faststart') << 'downloading' << self.node.name
         output_folder = self.output_folder
         downloaded_path = await download_to_local(self.drive, self.node, output_folder)
-        downloaded_path.rename(self.raw_file_path)
+        output_path = self.raw_file_path
+        downloaded_path.rename(output_path)
+        INFO('faststart') << 'downloaded' << self.raw_file_path
 
     async def _upload(self):
-        output_folder = self.work_folder / self.node.id_
-        output_path = output_folder / self.transcoded_file_name
+        output_path = self.transcoded_file_path
+        INFO('faststart') << 'uploading' << output_path
         parent_node = await self.drive.get_node_by_id(self.node.parent_id)
         media_info = MediaInfo.video(self.node.video_width, self.node.video_height, self.node.video_ms_duration)
-        await upload_from_local(self.drive, parent_node, output_path, media_info)
+        node = await upload_from_local(self.drive, parent_node, output_path, media_info)
+        INFO('faststart') << 'uploaded' << node.name
 
     def _delete_local(self):
-        output_folder = self.work_folder / self.node.id_
+        output_folder = self.output_folder
+        INFO('faststart') << 'delete' << output_folder
         shutil.rmtree(output_folder)
 
     @contextlib.asynccontextmanager
@@ -164,7 +170,7 @@ class VideoProcessor(object):
         await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
         while True:
             async for change in self.drive.sync():
-                print(change)
+                DEBUG('faststart') << change
             new_node = await self.drive.get_node_by_id(self.node.id_)
             if new_node != self.node.name:
                 break
@@ -173,17 +179,17 @@ class VideoProcessor(object):
         await self.drive.rename_node(self.node, new_name=self.node.name)
         while True:
             async for change in self.drive.sync():
-                print(change)
+                DEBUG('faststart') << change
             new_node = await self.drive.get_node_by_id(self.node.id_)
             if new_node == self.node.name:
                 break
 
     def _dump_info(self):
-        print(f'node id: {self.node.id_}')
-        print(f'node name: {self.node.name}')
-        print(f'is faststart: {self.is_faststart}')
-        print(f'is h264: {self.is_h264}')
-        print(f'is aac: {self.is_aac}')
+        INFO('faststart') << f'node id: {self.node.id_}'
+        INFO('faststart') << f'node name: {self.node.name}'
+        INFO('faststart') << f'is faststart: {self.is_faststart}'
+        INFO('faststart') << f'is h264: {self.is_h264}'
+        INFO('faststart') << f'is aac: {self.is_aac}'
 
 
 class MP4Processer(VideoProcessor):
@@ -251,8 +257,9 @@ async def shell_pipe(cmd_list: list[str]):
 
 
 async def shell_call(cmd_list: list[str]):
-    p = await asyncio.create_subprocess_exec(*cmd_list)
-    return await p.wait()
+    with open('./data/shell.log', 'ab') as out:
+        p = await asyncio.create_subprocess_exec(*cmd_list, stdout=out, stderr=subprocess.STDOUT)
+        return await p.wait()
 
 
 def create_processor(

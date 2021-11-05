@@ -2,6 +2,7 @@ import contextlib
 import sqlite3
 
 from wcpan.drive.core.drive import Node
+from wcpan.logger import DEBUG
 
 
 def initialize_cache():
@@ -22,8 +23,7 @@ def initialize_cache():
                 CREATE INDEX ix_migrated_created_at ON migrated(created_at);
             ''')
         except sqlite3.OperationalError as e:
-            print(e)
-            pass
+            DEBUG('faststart') << e
 
 
 def is_migrated(node: Node):

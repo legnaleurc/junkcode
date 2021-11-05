@@ -4,6 +4,7 @@ import sys
 import tempfile
 
 from wcpan.drive.core.drive import DriveFactory
+from wcpan.logger import setup as setup_logger, WARNING
 
 from .cache import initialize_cache
 from .processor import create_processor
@@ -16,6 +17,10 @@ async def main(args: list[str] = None):
     root_path = args[1]
 
     initialize_cache()
+    setup_logger([
+        'wcpan.drive',
+        'faststart',
+    ], './data/migrate.log')
 
     factory = DriveFactory()
     factory.load_config()
@@ -31,6 +36,7 @@ async def main(args: list[str] = None):
 
                     processor = create_processor(work_folder, drive, file_)
                     if not processor:
+                        WARNING('faststart') << 'no processor for' << file_.name
                         continue
 
                     await processor()
