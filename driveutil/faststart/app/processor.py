@@ -240,8 +240,8 @@ class MKVProcesser(VideoProcessor):
 
 class NeverH264Processer(VideoProcessor):
 
-    def __init__(self, base_url: str, work_folder: str, drive: Drive, node: Node):
-        super().__init__(base_url, work_folder, drive, node)
+    def __init__(self, work_folder: str, drive: Drive, node: Node):
+        super().__init__(work_folder, drive, node)
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -271,7 +271,7 @@ def create_processor(
     node: Node,
 ) -> Union[VideoProcessor, None]:
     table = {
-        'video/mp4': MP4Processer,
+        # 'video/mp4': MP4Processer,
         'video/x-matroska': MKVProcesser,
         'video/x-msvideo': MaybeH264Processer,
         'video/x-ms-wmv': NeverH264Processer,
