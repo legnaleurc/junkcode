@@ -4,7 +4,7 @@ import sys
 import tempfile
 
 from wcpan.drive.core.drive import DriveFactory
-from wcpan.logger import setup as setup_logger, WARNING
+from wcpan.logger import setup as setup_logger, WARNING, DEBUG
 
 from .cache import initialize_cache
 from .processor import create_processor
@@ -27,6 +27,9 @@ async def main(args: list[str] = None):
 
     with tempfile.TemporaryDirectory() as work_folder:
         async with factory() as drive:
+            async for change in drive.sync():
+                DEBUG('faststart') << change
+
             root_node = await drive.get_node_by_path(root_path)
             assert root_node is not None
             async for root, folders, files in drive.walk(root_node):
