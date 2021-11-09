@@ -129,9 +129,10 @@ class VideoProcessor(object):
         return cmd
 
     async def _delete_remote(self):
+        INFO('faststart') << 'removing' << self.node.name
         await self.drive.trash_node(self.node)
-        async for change in self.drive.sync():
-            DEBUG('faststart') << change
+        await wait_for_sync(self.drive)
+        INFO('faststart') << 'removed' << self.node.name
 
     async def _download(self):
         INFO('faststart') << 'downloading' << self.node.name
@@ -152,8 +153,8 @@ class VideoProcessor(object):
 
     def _delete_local(self):
         output_folder = self.output_folder
-        INFO('faststart') << 'delete' << output_folder
         shutil.rmtree(output_folder)
+        INFO('faststart') << 'deleted' << output_folder
 
     @contextlib.asynccontextmanager
     async def _upload_context(self):
@@ -177,22 +178,22 @@ class VideoProcessor(object):
         await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
         DEBUG('faststart') << 'confirming rename'
         while True:
-            async for change in self.drive.sync():
-                DEBUG('faststart') << change
+            await wait_for_sync(self.drive)
             new_node = await self.drive.get_node_by_id(self.node.id_)
-            if new_node != self.node.name:
+            if new_node.name != self.node.name:
                 break
+            await asyncio.sleep(1)
         DEBUG('faststart') << 'rename confirmed'
 
     async def _restore_remote(self):
         await self.drive.rename_node(self.node, new_name=self.node.name)
         DEBUG('faststart') << 'confirming restore'
         while True:
-            async for change in self.drive.sync():
-                DEBUG('faststart') << change
+            await wait_for_sync(self.drive)
             new_node = await self.drive.get_node_by_id(self.node.id_)
-            if new_node == self.node.name:
+            if new_node.name == self.node.name:
                 break
+            await asyncio.sleep(1)
         DEBUG('faststart') << 'restore confirmed'
 
     def _dump_info(self):
@@ -271,6 +272,11 @@ async def shell_call(cmd_list: list[str]):
     with open('./data/shell.log', 'ab') as out:
         p = await asyncio.create_subprocess_exec(*cmd_list, stdout=out, stderr=subprocess.STDOUT)
         return await p.wait()
+
+
+async def wait_for_sync(drive: Drive):
+    async for change in drive.sync():
+        DEBUG('faststart') << change
 
 
 def create_processor(
