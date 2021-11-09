@@ -100,6 +100,10 @@ class VideoProcessor(object):
                 set_migrated(self.node)
                 return
 
+            if self.need_transcode:
+                INFO('faststart') << 'need transcode, skip'
+                return
+
             self._dump_info()
             transcode_command = self._get_transcode_command()
             INFO('faststart') << transcode_command
@@ -271,7 +275,7 @@ def create_processor(
     node: Node,
 ) -> Union[VideoProcessor, None]:
     table = {
-        # 'video/mp4': MP4Processer,
+        'video/mp4': MP4Processer,
         'video/x-matroska': MKVProcesser,
         'video/x-msvideo': MaybeH264Processer,
         'video/x-ms-wmv': NeverH264Processer,
