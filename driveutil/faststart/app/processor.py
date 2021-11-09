@@ -100,8 +100,8 @@ class VideoProcessor(object):
                 set_migrated(self.node)
                 return
 
-            if self.need_transcode:
-                INFO('faststart') << 'need transcode, skip'
+            if not self.need_transcode:
+                INFO('faststart') << 'no need transcode, skip'
                 return
 
             self._dump_info()
