@@ -42,6 +42,7 @@ async def main(args: list[str] = None):
     return 0
 
 
+'''
 def get_jav_id(name: str) -> str:
     rv = re.search(r'[A-Za-z0-9]+-[0-9]+[a-zA-Z]?', name)
     if not rv:
@@ -49,6 +50,7 @@ def get_jav_id(name: str) -> str:
     rv = rv.group(0)
     rv = rv.upper()
     return rv
+'''
 
 
 '''
@@ -98,6 +100,15 @@ def get_jav_id(name: str) -> str:
     rv = rv.upper()
     return rv
 '''
+
+
+def get_jav_id(name: str) -> str:
+    rv = re.search(r'[0-9]{6}[-_][0-9]{3}', name)
+    if not rv:
+        return ''
+    rv = rv.group(0)
+    rv = rv.upper()
+    return rv
 
 
 async def fetch_jav_data(session: aiohttp.ClientSession, jav_id: str):
