@@ -175,21 +175,25 @@ class VideoProcessor(object):
 
     async def _rename_remote(self):
         await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
+        DEBUG('faststart') << 'confirm rename'
         while True:
             async for change in self.drive.sync():
                 DEBUG('faststart') << change
             new_node = await self.drive.get_node_by_id(self.node.id_)
             if new_node != self.node.name:
                 break
+        DEBUG('faststart') << 'rename confirmed'
 
     async def _restore_remote(self):
         await self.drive.rename_node(self.node, new_name=self.node.name)
+        DEBUG('faststart') << 'confirm restore'
         while True:
             async for change in self.drive.sync():
                 DEBUG('faststart') << change
             new_node = await self.drive.get_node_by_id(self.node.id_)
             if new_node == self.node.name:
                 break
+        DEBUG('faststart') << 'restore confirmed'
 
     def _dump_info(self):
         INFO('faststart') << f'node id: {self.node.id_}'
