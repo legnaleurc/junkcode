@@ -23,6 +23,7 @@ async def main():
     from_path = sys.argv[1]
 
     factory = DriveFactory()
+    factory.load_config()
 
     with tempfile.TemporaryDirectory as work:
         work_folder = pathlib.Path(work)
