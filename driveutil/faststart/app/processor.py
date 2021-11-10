@@ -51,7 +51,6 @@ class VideoProcessor(object):
     @property
     def output_folder(self) -> pathlib.Path:
         folder = self.work_folder / self.node.id_
-        folder.mkdir(exist_ok=True)
         return folder
 
     @property
@@ -94,7 +93,13 @@ class VideoProcessor(object):
         if is_migrated(self.node):
             return
 
-        async with self._download_context():
+        with self._local_context():
+            try:
+                await self._download()
+            except Exception as e:
+                EXCEPTION('faststart', e) << 'download failed'
+                return
+
             await self.prepare_codec_info()
             if self.is_skippable:
                 set_migrated(self.node)
@@ -115,8 +120,6 @@ class VideoProcessor(object):
 
             async with self._upload_context():
                 node = await self._upload()
-
-            await self._delete_remote()
 
             set_migrated(node)
 
@@ -151,28 +154,25 @@ class VideoProcessor(object):
         INFO('faststart') << 'uploaded' << node.id_
         return node
 
-    def _delete_local(self):
+    def _local_context(self):
         output_folder = self.output_folder
-        shutil.rmtree(output_folder)
-        INFO('faststart') << 'deleted' << output_folder
+        output_folder.mkdir(exist_ok=True)
+        try:
+            yield
+        finally:
+            shutil.rmtree(output_folder)
+            INFO('faststart') << 'deleted' << output_folder
 
     @contextlib.asynccontextmanager
     async def _upload_context(self):
         await self._rename_remote()
         try:
             yield
+            await self._delete_remote()
         except Exception as e:
             EXCEPTION('faststart', e) << 'upload error'
             await self._restore_remote()
             raise
-
-    @contextlib.asynccontextmanager
-    async def _download_context(self):
-        await self._download()
-        try:
-            yield
-        finally:
-            self._delete_local()
 
     async def _rename_remote(self):
         await self.drive.rename_node(self.node, new_name=f'__{self.node.name}')
@@ -285,7 +285,7 @@ def create_processor(
     node: Node,
 ) -> Union[VideoProcessor, None]:
     table = {
-        'video/mp4': MP4Processer,
+        # 'video/mp4': MP4Processer,
         'video/x-matroska': MKVProcesser,
         'video/x-msvideo': MaybeH264Processer,
         'video/x-ms-wmv': NeverH264Processer,
