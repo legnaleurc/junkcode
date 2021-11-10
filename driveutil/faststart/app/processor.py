@@ -105,8 +105,8 @@ class VideoProcessor(object):
                 set_migrated(self.node)
                 return
 
-            if not self.need_transcode:
-                INFO('faststart') << 'no need transcode, skip'
+            if self.need_transcode:
+                INFO('faststart') << 'need transcode, skip'
                 return
 
             self._dump_info()
@@ -154,6 +154,7 @@ class VideoProcessor(object):
         INFO('faststart') << 'uploaded' << node.id_
         return node
 
+    @contextlib.contextmanager
     def _local_context(self):
         output_folder = self.output_folder
         output_folder.mkdir(exist_ok=True)
@@ -285,7 +286,7 @@ def create_processor(
     node: Node,
 ) -> Union[VideoProcessor, None]:
     table = {
-        # 'video/mp4': MP4Processer,
+        'video/mp4': MP4Processer,
         'video/x-matroska': MKVProcesser,
         'video/x-msvideo': MaybeH264Processer,
         'video/x-ms-wmv': NeverH264Processer,
