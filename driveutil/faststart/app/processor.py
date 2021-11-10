@@ -118,7 +118,7 @@ class VideoProcessor(object):
                 ERROR('faststart') << 'ffmpeg failed'
                 return
 
-            async with self._upload_context():
+            async with self._remote_context():
                 node = await self._upload()
 
             set_migrated(node)
@@ -165,7 +165,7 @@ class VideoProcessor(object):
             INFO('faststart') << 'deleted' << output_folder
 
     @contextlib.asynccontextmanager
-    async def _upload_context(self):
+    async def _remote_context(self):
         await self._rename_remote()
         try:
             yield
