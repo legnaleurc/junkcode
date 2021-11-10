@@ -270,7 +270,7 @@ class NeverH264Processer(VideoProcessor):
 async def shell_pipe(cmd_list: list[str]):
     p = await asyncio.create_subprocess_exec(*cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = await p.communicate()
-    return out.decode('utf-8'), err.decode('utf-8')
+    return out.decode('utf-8', 'ignore'), err.decode('utf-8', 'ignore')
 
 
 async def shell_call(cmd_list: list[str]):
