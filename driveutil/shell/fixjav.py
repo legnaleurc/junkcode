@@ -13,7 +13,8 @@ async def main(args: list[str] = None):
     if args is None:
         args = sys.argv
 
-    root_path = args[1]
+    pattern = args[1]
+    root_path = args[2]
 
     factory = DriveFactory()
     factory.load_config()
@@ -25,7 +26,7 @@ async def main(args: list[str] = None):
         for child in children:
             if child.trashed:
                 continue
-            jav_id = get_jav_id(child.name)
+            jav_id = get_jav_id(pattern, child.name)
             if not jav_id:
                 continue
             title = await fetch_jav_data(session, jav_id)
@@ -48,8 +49,8 @@ async def main(args: list[str] = None):
     return 0
 
 
-def get_jav_id(name: str) -> str:
-    rv = re.search(r'[a-zA-Z0-9]{4}-[0-9]{3}', name)
+def get_jav_id(pattern: str, name: str) -> str:
+    rv = re.search(pattern, name)
     if not rv:
         return ''
     rv = rv.group(0)
