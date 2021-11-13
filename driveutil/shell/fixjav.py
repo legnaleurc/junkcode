@@ -37,73 +37,19 @@ async def main(args: list[str] = None):
 
             print(f'old: {child.name}')
             print(f'new: {title}')
+
+            confirm = input('Y/n? ')
+            if confirm == 'n':
+                print('skip')
+                continue
+
             await rename(drive, child, title)
 
     return 0
 
 
-'''
 def get_jav_id(name: str) -> str:
-    rv = re.search(r'[A-Za-z0-9]+-[0-9]+[a-zA-Z]?', name)
-    if not rv:
-        return ''
-    rv = rv.group(0)
-    rv = rv.upper()
-    return rv
-'''
-
-
-'''
-def get_jav_id(name: str) -> str:
-    name = name.replace('hjd2048.com', '')
-    rv = re.search(r'([A-Za-z]{3,5})([0-9]{3})', name)
-    if not rv:
-        return ''
-    a, b = rv.group(1), rv.group(2)
-    rv = f'{a}-{b}'
-    rv = rv.upper()
-    return rv
-'''
-
-
-'''
-def get_jav_id(name: str) -> str:
-    rv = re.search(r'([A-Za-z]{3,4})([0-9]{3}[a-zA-Z])', name)
-    if not rv:
-        return ''
-    a, b = rv.group(1), rv.group(2)
-    rv = f'{a}-{b}'
-    rv = rv.upper()
-    return rv
-'''
-
-
-'''
-def get_jav_id(name: str) -> str:
-    name = name.replace('hjd2048.com', '')
-    rv = re.search(r'([tT]28)([0-9]{3})', name)
-    if not rv:
-        return ''
-    a, b = rv.group(1), rv.group(2)
-    rv = f'{a}-{b}'
-    rv = rv.upper()
-    return rv
-'''
-
-
-'''
-def get_jav_id(name: str) -> str:
-    rv = re.search(r'[A-Za-z0-9]+-[0-9]{3}[a-zA-Z]', name)
-    if not rv:
-        return ''
-    rv = rv.group(0)
-    rv = rv.upper()
-    return rv
-'''
-
-
-def get_jav_id(name: str) -> str:
-    rv = re.search(r'[0-9]{6}[-_][0-9]{3}', name)
+    rv = re.search(r'[a-zA-Z0-9]{4}-[0-9]{3}', name)
     if not rv:
         return ''
     rv = rv.group(0)
