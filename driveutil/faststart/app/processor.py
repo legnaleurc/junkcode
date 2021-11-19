@@ -11,7 +11,7 @@ from wcpan.drive.core.drive import Drive, Node, MediaInfo
 from wcpan.drive.core.util import upload_from_local, download_to_local
 from wcpan.logger import INFO, DEBUG, ERROR, EXCEPTION
 
-from .cache import is_migrated, set_migrated
+from .cache import is_migrated, set_migrated, need_transcode, has_cache
 
 
 H264_PRESET = 'veryfast'
@@ -93,6 +93,14 @@ class VideoProcessor(object):
         if is_migrated(self.node):
             return
 
+        if has_cache(self.node) and transcode_only and not need_transcode(self.node):
+            INFO('faststart') << 'no need transcode, skip'
+            return
+
+        if has_cache(self.node) and remux_only and need_transcode(self.node):
+            INFO('faststart') << 'need transcode, skip'
+            return
+
         with self._local_context():
             try:
                 await self._download()
@@ -102,8 +110,10 @@ class VideoProcessor(object):
 
             await self.prepare_codec_info()
             if self.is_skippable:
-                set_migrated(self.node)
+                set_migrated(self.node, True, True)
                 return
+
+            set_migrated(self.node, self.is_faststart, not self.need_transcode)
 
             if remux_only and self.need_transcode:
                 INFO('faststart') << 'need transcode, skip'
@@ -125,7 +135,7 @@ class VideoProcessor(object):
             async with self._remote_context():
                 node = await self._upload()
 
-            set_migrated(node)
+            set_migrated(node, True, True)
 
     def _get_transcode_command(self):
         main_cmd = ['ffmpeg', '-nostdin', '-y']
