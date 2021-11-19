@@ -304,6 +304,7 @@ def create_processor(
         'video/x-matroska': MKVProcesser,
         'video/x-msvideo': MaybeH264Processer,
         'video/x-ms-wmv': NeverH264Processer,
+        'video/quicktime': MaybeH264Processer,
         # '.mp4': MP4Processer,
         # '.mkv': MKVProcesser,
         # '.flv': MaybeH264Processer,
