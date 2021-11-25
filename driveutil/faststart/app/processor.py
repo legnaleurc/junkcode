@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import datetime
 import json
 import os.path
 import pathlib
@@ -16,6 +17,7 @@ from .cache import is_migrated, set_migrated, need_transcode, has_cache
 
 H264_PRESET = 'veryfast'
 H264_CRF = '18'
+DAILY_UPLOAD_QUOTA = 700 * 1024 * 1024 * 1024
 
 
 class VideoProcessor(object):
@@ -123,6 +125,10 @@ class VideoProcessor(object):
                 INFO('faststart') << 'no need transcode, skip'
                 return
 
+            if not self._has_enough_quota(self.node.size):
+                INFO('faststart') << 'not enough quota, skip'
+                return
+
             self._dump_info()
             transcode_command = self._get_transcode_command()
             INFO('faststart') << transcode_command
@@ -210,6 +216,14 @@ class VideoProcessor(object):
                 break
             await asyncio.sleep(1)
         DEBUG('faststart') << 'restore confirmed'
+
+    async def _has_enough_quota(self, size: int) -> bool:
+        now = datetime.datetime.now(datetime.timezone.utc)
+        yesterday = now - datetime.timedelta(days=1)
+        begin = int(yesterday.timestamp())
+        end = int(now.timestamp())
+        total = await self.drive.get_uploaded_size(begin, end)
+        return (total + size) < DAILY_UPLOAD_QUOTA
 
     def _dump_info(self):
         INFO('faststart') << f'node id: {self.node.id_}'
