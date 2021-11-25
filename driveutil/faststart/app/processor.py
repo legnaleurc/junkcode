@@ -74,13 +74,15 @@ class VideoProcessor(object):
         out, err = await shell_pipe(cmd)
         data = json.loads(out)
         data = data['streams']
+        audio_codec_list: list[str] = []
+        video_codec_list: list[str] = []
         for stream in data:
             if stream['codec_type'] == 'audio':
-                if not self.is_aac:
-                    self.is_aac = stream['codec_name'] == 'aac'
+                audio_codec_list.append(stream['codec_name'])
             elif stream['codec_type'] == 'video':
-                if not self.is_h264:
-                    self.is_h264 = stream['codec_name'] == 'h264'
+                video_codec_list.append(stream['codec_name'])
+        self.is_aac = all(c == 'aac' for c in audio_codec_list)
+        self.is_h264 = all(c == 'h264' for c in video_codec_list)
         self.is_faststart = err.find('bytes read, 0 seeks') >= 0
 
     @property
