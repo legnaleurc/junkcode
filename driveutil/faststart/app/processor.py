@@ -91,16 +91,25 @@ class VideoProcessor(object):
     def need_transcode(self):
         return not (self.is_h264 and self.is_aac)
 
-    async def __call__(self, *, remux_only: bool, transcode_only: bool):
+    async def __call__(self,
+        *,
+        remux_only: bool,
+        transcode_only: bool,
+        cache_only: bool,
+    ):
         if is_migrated(self.node):
             return
 
-        if has_cache(self.node) and transcode_only and not need_transcode(self.node):
+        if transcode_only and has_cache(self.node) and not need_transcode(self.node):
             INFO('faststart') << 'no need transcode, skip'
             return
 
-        if has_cache(self.node) and remux_only and need_transcode(self.node):
+        if remux_only and has_cache(self.node) and need_transcode(self.node):
             INFO('faststart') << 'need transcode, skip'
+            return
+
+        if cache_only and has_cache(self.node):
+            INFO('faststart') << 'already cached, skip'
             return
 
         with self._local_context():
@@ -123,6 +132,10 @@ class VideoProcessor(object):
 
             if transcode_only and not self.need_transcode:
                 INFO('faststart') << 'no need transcode, skip'
+                return
+
+            if cache_only:
+                INFO('faststart') << 'cached, skip'
                 return
 
             if not self._has_enough_quota(self.node.size):

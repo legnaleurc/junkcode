@@ -19,6 +19,7 @@ async def main(args: list[str] = None):
     root_path: str = kwargs.root_path
     remux_only: bool = kwargs.remux_only
     transcode_only: bool = kwargs.transcode_only
+    cache_only: bool = kwargs.cache_only
 
     initialize_cache()
     setup_logger([
@@ -47,7 +48,11 @@ async def main(args: list[str] = None):
                         WARNING('faststart') << 'no processor for' << file_.name
                         continue
 
-                    await processor(remux_only=remux_only, transcode_only=transcode_only)
+                    await processor(
+                        remux_only=remux_only,
+                        transcode_only=transcode_only,
+                        cache_only=cache_only,
+                    )
 
     return 0
 
@@ -58,6 +63,7 @@ def parse_args(args: list[str]) -> argparse.Namespace:
     mutex_group = parser.add_mutually_exclusive_group()
     mutex_group.add_argument('--remux-only', action='store_true', default=False)
     mutex_group.add_argument('--transcode-only', action='store_true', default=False)
+    mutex_group.add_argument('--cache-only', action='store_true', default=False)
 
     parser.add_argument('root_path', type=str)
 
