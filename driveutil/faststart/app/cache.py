@@ -68,7 +68,7 @@ def set_migrated(node: Node, is_muxed: bool, is_coded: bool):
             ''', (node.id_, is_muxed, is_coded))
             return
         query.execute('''
-            UPDATE migrated SET (is_muxed, is_coded) VALUES (?, ?) WHERE node_id = ?;
+            UPDATE migrated SET is_muxed = ?, is_coded = ? WHERE node_id = ?;
         ''', (is_muxed, is_coded, node.id_))
 
 

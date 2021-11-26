@@ -140,7 +140,7 @@ class VideoProcessor(object):
                 INFO('faststart') << 'cached, skip'
                 return
 
-            if not self._has_enough_quota(self.node.size):
+            if not await self._has_enough_quota(self.node.size):
                 INFO('faststart') << 'not enough quota, skip'
                 return
 
