@@ -16,7 +16,7 @@ async def main(args: list[str] = None):
         args = sys.argv
 
     kwargs = parse_args(args)
-    root_path: str = kwargs.root_path
+    root_path_list: list[str] = kwargs.root_path
     remux_only: bool = kwargs.remux_only
     transcode_only: bool = kwargs.transcode_only
     cache_only: bool = kwargs.cache_only
@@ -34,25 +34,26 @@ async def main(args: list[str] = None):
         async for change in drive.sync():
             DEBUG('faststart') << change
 
-        root_node = await drive.get_node_by_path(root_path)
-        assert root_node is not None
-
         with tempfile.TemporaryDirectory() as work_folder:
-            async for root, folders, files in drive.walk(root_node):
-                for file_ in files:
-                    if not file_.is_video:
-                        continue
+            for root_path in root_path_list:
+                root_node = await drive.get_node_by_path(root_path)
+                assert root_node is not None
 
-                    processor = create_processor(work_folder, drive, file_)
-                    if not processor:
-                        WARNING('faststart') << 'no processor for' << file_.name
-                        continue
+                async for root, folders, files in drive.walk(root_node):
+                    for file_ in files:
+                        if not file_.is_video:
+                            continue
 
-                    await processor(
-                        remux_only=remux_only,
-                        transcode_only=transcode_only,
-                        cache_only=cache_only,
-                    )
+                        processor = create_processor(work_folder, drive, file_)
+                        if not processor:
+                            WARNING('faststart') << 'no processor for' << file_.name
+                            continue
+
+                        await processor(
+                            remux_only=remux_only,
+                            transcode_only=transcode_only,
+                            cache_only=cache_only,
+                        )
 
     return 0
 
@@ -65,6 +66,6 @@ def parse_args(args: list[str]) -> argparse.Namespace:
     mutex_group.add_argument('--transcode-only', action='store_true', default=False)
     mutex_group.add_argument('--cache-only', action='store_true', default=False)
 
-    parser.add_argument('root_path', type=str)
+    parser.add_argument('root_path', type=str, nargs='+')
 
     return parser.parse_args(args[1:])
