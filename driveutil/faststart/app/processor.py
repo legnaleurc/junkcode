@@ -8,8 +8,8 @@ import shutil
 import subprocess
 from typing import Union
 
-from wcpan.drive.core.drive import Drive, Node, MediaInfo
-from wcpan.drive.core.util import upload_from_local, download_to_local
+from wcpan.drive.core.drive import Drive, upload_from_local, download_to_local
+from wcpan.drive.core.types import Node, MediaInfo
 from wcpan.logger import INFO, DEBUG, ERROR, EXCEPTION
 
 from .cache import is_migrated, set_migrated, need_transcode, has_cache
