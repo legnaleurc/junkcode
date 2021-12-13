@@ -35,14 +35,14 @@ async def main(args: list[str] = None):
     factory = DriveFactory()
     factory.load_config()
 
-    queue = asyncio.Queue()
+    queue = asyncio.Queue(jobs)
 
     async with factory() as drive:
         async for change in drive.sync():
             DEBUG('faststart') << change
 
         with tempfile.TemporaryDirectory() as work_folder:
-            await produce(queue, walk_root_list(drive, root_path_list))
+            produce_task = asyncio.create_task(produce(queue, walk_root_list(drive, root_path_list)))
             work = functools.partial(node_work,
                 drive=drive,
                 work_folder=work_folder,
@@ -54,7 +54,10 @@ async def main(args: list[str] = None):
                 asyncio.create_task(consume(queue, work))
                 for i in range(jobs)
             ]
-            await queue.join()
+            while not produce_task.done():
+                if queue.empty():
+                    await asyncio.sleep(0.1)
+                await queue.join()
 
             for i in range(jobs):
                 await queue.put(None)
