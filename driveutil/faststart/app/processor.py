@@ -114,6 +114,10 @@ class VideoProcessor(object):
             INFO('faststart') << 'already cached, skip'
             return
 
+        if not cache_only and not await self._has_enough_quota(self.node.size):
+            INFO('faststart') << 'not enough quota, skip'
+            return
+
         with self._local_context():
             try:
                 await self._download()
@@ -138,10 +142,6 @@ class VideoProcessor(object):
 
             if cache_only:
                 INFO('faststart') << 'cached, skip'
-                return
-
-            if not await self._has_enough_quota(self.node.size):
-                INFO('faststart') << 'not enough quota, skip'
                 return
 
             self._dump_info()
