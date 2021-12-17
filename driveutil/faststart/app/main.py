@@ -42,7 +42,6 @@ async def main(args: list[str] = None):
             DEBUG('faststart') << change
 
         with tempfile.TemporaryDirectory() as work_folder:
-            produce_task = asyncio.create_task(produce(queue, walk_root_list(drive, root_path_list)))
             work = functools.partial(node_work,
                 drive=drive,
                 work_folder=work_folder,
@@ -55,7 +54,7 @@ async def main(args: list[str] = None):
                 for i in range(jobs)
             ]
 
-            await produce_task
+            await produce(queue, walk_root_list(drive, root_path_list))
             await queue.join()
 
             for i in range(jobs):
