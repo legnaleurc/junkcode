@@ -19,7 +19,8 @@ from common import (
 )
 
 
-DAILY_SIZE = 700 * 1024 * 1024 * 1024
+MAX_TASK_COUNT = 4
+DAILY_SIZE = 500 * 1024 * 1024 * 1024
 PATH_LIST = [
 ]
 
@@ -69,7 +70,7 @@ async def migrate(src_drive: Drive, dst_drive: Drive, from_path: str):
         INFO('migrate') << f'working on {src_root_path}'
 
         quota = [DAILY_SIZE - migrated_size]
-        lock = asyncio.Semaphore(4)
+        lock = asyncio.Semaphore(MAX_TASK_COUNT)
         folder_list = [
             locked_migrate_folder(lock, src_drive, node, dst_drive, dst_root)
             for node in src_folders
