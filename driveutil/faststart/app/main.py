@@ -54,10 +54,9 @@ async def main(args: list[str] = None):
                 asyncio.create_task(consume(queue, work))
                 for i in range(jobs)
             ]
-            while not produce_task.done():
-                if queue.empty():
-                    await asyncio.sleep(0.1)
-                await queue.join()
+
+            await produce_task
+            await queue.join()
 
             for i in range(jobs):
                 await queue.put(None)

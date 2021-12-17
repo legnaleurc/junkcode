@@ -148,7 +148,7 @@ class VideoProcessor(object):
             transcode_command = self._get_transcode_command()
             INFO('faststart') << transcode_command
 
-            exit_code = await shell_call(transcode_command)
+            exit_code = await shell_call(transcode_command, self.node.id_)
             if exit_code != 0:
                 ERROR('faststart') << 'ffmpeg failed'
                 return
@@ -312,8 +312,8 @@ async def shell_pipe(cmd_list: list[str]):
     return out.decode('utf-8', 'ignore'), err.decode('utf-8', 'ignore')
 
 
-async def shell_call(cmd_list: list[str]):
-    with open('./data/shell.log', 'ab') as out:
+async def shell_call(cmd_list: list[str], node_id: str):
+    with open(f'./data/shell_{node_id}.log', 'ab') as out:
         p = await asyncio.create_subprocess_exec(*cmd_list, stdout=out, stderr=subprocess.STDOUT)
         return await p.wait()
 
