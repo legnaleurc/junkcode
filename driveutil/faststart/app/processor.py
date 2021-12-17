@@ -17,7 +17,7 @@ from .cache import is_migrated, set_migrated, need_transcode, has_cache
 
 H264_PRESET = 'veryfast'
 H264_CRF = '18'
-DAILY_UPLOAD_QUOTA = 700 * 1024 * 1024 * 1024
+DAILY_UPLOAD_QUOTA = 500 * 1024 * 1024 * 1024
 
 
 class VideoProcessor(object):
