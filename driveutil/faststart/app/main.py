@@ -12,7 +12,7 @@ from wcpan.logger import setup as setup_logger, WARNING, DEBUG
 
 from .cache import initialize_cache
 from .processor import create_processor
-from .queue_ import produce, consume
+from .queue_ import consume, until_finished
 
 
 async def main(args: list[str] = None):
@@ -49,17 +49,17 @@ async def main(args: list[str] = None):
                 transcode_only=transcode_only,
                 cache_only=cache_only,
             )
-            consume_task_list = [
+            consumer_list = [
                 asyncio.create_task(consume(queue, work))
                 for i in range(jobs)
             ]
 
-            await produce(queue, walk_root_list(drive, root_path_list))
-            await queue.join()
-
-            for i in range(jobs):
-                await queue.put(None)
-            await asyncio.gather(*consume_task_list)
+            rv = await asyncio.gather(
+                until_finished(queue, walk_root_list(drive, root_path_list), consumer_list),
+                *consumer_list,
+                return_exceptions=True,
+            )
+            print(rv)
 
     return 0
 
