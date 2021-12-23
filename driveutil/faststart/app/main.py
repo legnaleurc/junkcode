@@ -51,7 +51,7 @@ async def main(args: list[str] = None):
                 cache_only=cache_only,
             )
             consumer_list = [
-                asyncio.create_task(consume(queue, work))
+                asyncio.create_task(consume(queue, work), name=f'consumer-{i}')
                 for i in range(jobs)
             ]
 
@@ -60,7 +60,8 @@ async def main(args: list[str] = None):
                     queue,
                     walk_root_list(drive, root_path_list),
                     consumer_list,
-                )
+                ),
+                name=f'producer',
             )
 
             await asyncio.gather(
