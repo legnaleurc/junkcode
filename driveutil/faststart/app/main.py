@@ -2,10 +2,11 @@
 
 import argparse
 import asyncio
-import functools
+import signal
 import sys
 import tempfile
-from typing import NoReturn
+from functools import partial
+from typing import NoReturn, Any
 
 from wcpan.drive.core.drive import Drive, DriveFactory
 from wcpan.drive.core.types import Node
@@ -43,7 +44,7 @@ async def main(args: list[str] = None):
             DEBUG('faststart') << change
 
         with tempfile.TemporaryDirectory() as work_folder:
-            work = functools.partial(node_work,
+            work = partial(node_work,
                 drive=drive,
                 work_folder=work_folder,
                 remux_only=remux_only,
@@ -63,6 +64,12 @@ async def main(args: list[str] = None):
                 ),
                 name=f'producer',
             )
+
+            loop = asyncio.get_running_loop()
+            loop.add_signal_handler(signal.SIGINT, partial(shutdown, tasks=[
+                producer,
+                *consumer_list,
+            ]))
 
             await asyncio.gather(
                 producer,
@@ -130,6 +137,19 @@ async def until_finished(
 ):
     await produce(queue, node_gen)
     await queue.join()
-    for task in consumer_list:
+    cancel_tasks(consumer_list)
+
+
+def shutdown(*, tasks: list[asyncio.Task[Any]]):
+    cancel_tasks(tasks)
+    for task in tasks:
+        if not task.done():
+            task.print_stack()
+        elif task.cancelled():
+            print(f'{task.get_name()} cancelled')
+
+
+def cancel_tasks(tasks: list[asyncio.Task[Any]]):
+    for task in tasks:
         if not task.done():
             task.cancel()

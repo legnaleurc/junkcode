@@ -17,6 +17,6 @@ async def consume(queue: asyncio.Queue, fn: NodeProcessor):
     while True:
         node: Node = await queue.get()
         try:
-            await fn(node)
+            await asyncio.create_task(fn(node))
         finally:
             queue.task_done()
