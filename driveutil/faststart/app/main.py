@@ -5,6 +5,7 @@ import asyncio
 import functools
 import sys
 import tempfile
+from typing import NoReturn
 
 from wcpan.drive.core.drive import Drive, DriveFactory
 from wcpan.drive.core.types import Node
@@ -12,7 +13,7 @@ from wcpan.logger import setup as setup_logger, WARNING, DEBUG
 
 from .cache import initialize_cache
 from .processor import create_processor
-from .queue_ import consume, until_finished
+from .queue_ import consume, produce, NodeGenerator
 
 
 async def main(args: list[str] = None):
@@ -112,3 +113,15 @@ async def node_work(
         transcode_only=transcode_only,
         cache_only=cache_only,
     )
+
+
+async def until_finished(
+    queue: asyncio.Queue,
+    node_gen: NodeGenerator,
+    consumer_list: list[asyncio.Task[NoReturn]],
+):
+    await produce(queue, node_gen)
+    await queue.join()
+    for task in consumer_list:
+        if not task.done():
+            task.cancel()

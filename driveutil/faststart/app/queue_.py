@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncGenerator, Awaitable, Callable, NoReturn
+from typing import AsyncGenerator, Awaitable, Callable
 
 from wcpan.drive.core.types import Node
 
@@ -20,15 +20,3 @@ async def consume(queue: asyncio.Queue, fn: NodeProcessor):
             await fn(node)
         finally:
             queue.task_done()
-
-
-async def until_finished(
-    queue: asyncio.Queue,
-    node_gen: NodeGenerator,
-    consumer_list: list[asyncio.Task[NoReturn]],
-):
-    await produce(queue, node_gen)
-    await queue.join()
-    for task in consumer_list:
-        if not task.done():
-            task.cancel()
