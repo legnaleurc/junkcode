@@ -55,12 +55,19 @@ async def main(args: list[str] = None):
                 for i in range(jobs)
             ]
 
-            rv = await asyncio.gather(
-                until_finished(queue, walk_root_list(drive, root_path_list), consumer_list),
+            producer = asyncio.create_task(
+                until_finished(
+                    queue,
+                    walk_root_list(drive, root_path_list),
+                    consumer_list,
+                )
+            )
+
+            await asyncio.gather(
+                producer,
                 *consumer_list,
                 return_exceptions=True,
             )
-            print(rv)
 
     return 0
 
