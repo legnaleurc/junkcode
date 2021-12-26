@@ -114,7 +114,7 @@ class VideoProcessor(object):
             INFO('faststart') << 'already cached, skip'
             return
 
-        if not cache_only and not await self._has_enough_quota(self.node.size):
+        if not cache_only and not await has_enough_quota(self.drive, self.node.size):
             INFO('faststart') << 'not enough quota, skip'
             return
 
@@ -232,14 +232,6 @@ class VideoProcessor(object):
             await asyncio.sleep(1)
         DEBUG('faststart') << 'restore confirmed'
 
-    async def _has_enough_quota(self, size: int) -> bool:
-        now = datetime.datetime.now(datetime.timezone.utc)
-        yesterday = now - datetime.timedelta(days=1)
-        begin = int(yesterday.timestamp())
-        end = int(now.timestamp())
-        total = await self.drive.get_uploaded_size(begin, end)
-        return (total + size) < DAILY_UPLOAD_QUOTA
-
     def _dump_info(self):
         INFO('faststart') << f'node id: {self.node.id_}'
         INFO('faststart') << f'node name: {self.node.name}'
@@ -321,6 +313,15 @@ async def shell_call(cmd_list: list[str], node_id: str):
 async def wait_for_sync(drive: Drive):
     async for change in drive.sync():
         DEBUG('faststart') << change
+
+
+async def has_enough_quota(drive: Drive, size: int) -> bool:
+    now = datetime.datetime.now(datetime.timezone.utc)
+    yesterday = now - datetime.timedelta(days=1)
+    begin = int(yesterday.timestamp())
+    end = int(now.timestamp())
+    total = await drive.get_uploaded_size(begin, end)
+    return (total + size) < DAILY_UPLOAD_QUOTA
 
 
 def create_processor(
