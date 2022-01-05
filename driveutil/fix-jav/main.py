@@ -13,8 +13,8 @@ async def main(args: list[str] = None):
     if args is None:
         args = sys.argv
 
-    # await produce_manifest(args)
-    await apply_manifest(args)
+    await produce_manifest(args)
+    # await apply_manifest(args)
 
     return 0
 
