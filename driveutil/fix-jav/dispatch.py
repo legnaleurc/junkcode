@@ -1,7 +1,7 @@
 import re
 
 
-def include_jav_4_3(name: str):
+def include_jav(name: str):
     m = re.search(r'(\w{3,5})[-_](\d{3,4}\w?)', name)
     if not m:
         return ''
@@ -21,7 +21,7 @@ EXCLUDE_LIST = [
 
 
 INCLUDE_LIST = [
-    include_jav_4_3,
+    include_jav,
 ]
 
 
