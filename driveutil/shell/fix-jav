@@ -26,9 +26,8 @@ async def main(args: list[str] = None):
         root_node = await drive.get_node_by_path(root_path)
         children = await drive.get_children(root_node)
         async for node in process_node_list(session, pattern, children):
-            yaml.safe_dump([node], sys.stdout, encoding='utf-8', default_flow_style=False)
+            yaml.safe_dump([node], sys.stdout, encoding='utf-8', allow_unicode=True, default_flow_style=False)
             await asyncio.sleep(1)
-
 
     return 0
 
