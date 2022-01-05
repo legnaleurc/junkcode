@@ -29,7 +29,7 @@ async def fetch_jav_data_from_javbus(session: ClientSession, jav_id: str):
         return normalize_title(title.text)
 
 
-@named_fetch('javlibrary')
+@named_fetch('javlib')
 async def fetch_jav_data_from_javlibrary(session: ClientSession, jav_id: str):
     async with session.get(
         f'http://www.javlibrary.com/ja/vl_searchbyid.php',

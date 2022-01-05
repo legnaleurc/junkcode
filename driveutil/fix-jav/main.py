@@ -1,5 +1,4 @@
 import asyncio
-import re
 import sys
 
 import aiohttp
@@ -14,8 +13,7 @@ async def main(args: list[str] = None):
     if args is None:
         args = sys.argv
 
-    pattern = args[1]
-    root_path = args[2]
+    root_path = args[1]
 
     factory = DriveFactory()
     factory.load_config()
@@ -24,18 +22,18 @@ async def main(args: list[str] = None):
                aiohttp.ClientSession() as session:
         root_node = await drive.get_node_by_path(root_path)
         children = await drive.get_children(root_node)
-        async for node in process_node_list(session, pattern, children):
+        async for node in process_node_list(session, children):
             yaml.safe_dump([node], sys.stdout, encoding='utf-8', allow_unicode=True, default_flow_style=False)
             await asyncio.sleep(1)
 
     return 0
 
 
-async def process_node_list(session: aiohttp.ClientSession, pattern: str, node_list: list[Node]):
+async def process_node_list(session: aiohttp.ClientSession, node_list: list[Node]):
     for node in node_list:
         if node.trashed:
             continue
-        jav_id = get_jav_id(pattern, node.name)
+        jav_id = get_jav_id(node.name)
         if not jav_id:
             continue
         title = await fetch_jav_data(session, jav_id)
