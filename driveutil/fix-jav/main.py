@@ -13,14 +13,15 @@ async def main(args: list[str] = None):
     if args is None:
         args = sys.argv
 
-    root_path = args[1]
-
-    await produce_manifest(root_path)
+    # await produce_manifest(args)
+    await apply_manifest(args)
 
     return 0
 
 
-async def produce_manifest(root_path: str):
+async def produce_manifest(args: list[str]):
+    root_path = args[1]
+
     factory = DriveFactory()
     factory.load_config()
 
@@ -37,6 +38,26 @@ async def produce_manifest(root_path: str):
                 default_flow_style=False,
             )
             await asyncio.sleep(1)
+
+
+async def apply_manifest(args: list[str]):
+    factory = DriveFactory()
+    factory.load_config()
+
+    manifest = yaml.safe_load(sys.stdin)
+    async with factory() as drive:
+        for row in manifest:
+            id_ = row['id']
+            title_dict = row['title']
+
+            for value in title_dict.values():
+                if not value:
+                    continue
+
+                node = await drive.get_node_by_id(id_)
+                print(f'rename {node.name} -> {value}')
+                await rename(drive, node, value)
+                break
 
 
 async def process_node_list(session: ClientSession, node_list: list[Node]):
