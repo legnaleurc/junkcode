@@ -10,7 +10,13 @@ def include_jav_4_3(name: str):
     return rv
 
 
+def exclude_fc2(name: str):
+    m = re.search(r'fc2[-_]ppv', name, re.I)
+    return m is not None
+
+
 EXCLUDE_LIST = [
+    exclude_fc2,
 ]
 
 
