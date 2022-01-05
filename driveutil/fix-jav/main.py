@@ -1,8 +1,8 @@
 import asyncio
 import sys
 
-import aiohttp
 import yaml
+from aiohttp import ClientSession
 from wcpan.drive.core.drive import DriveFactory, Drive, Node
 
 from .sauce import fetch_jav_data
@@ -15,21 +15,31 @@ async def main(args: list[str] = None):
 
     root_path = args[1]
 
-    factory = DriveFactory()
-    factory.load_config()
-
-    async with factory() as drive, \
-               aiohttp.ClientSession() as session:
-        root_node = await drive.get_node_by_path(root_path)
-        children = await drive.get_children(root_node)
-        async for node in process_node_list(session, children):
-            yaml.safe_dump([node], sys.stdout, encoding='utf-8', allow_unicode=True, default_flow_style=False)
-            await asyncio.sleep(1)
+    await produce_manifest(root_path)
 
     return 0
 
 
-async def process_node_list(session: aiohttp.ClientSession, node_list: list[Node]):
+async def produce_manifest(root_path: str):
+    factory = DriveFactory()
+    factory.load_config()
+
+    async with factory() as drive, \
+               ClientSession() as session:
+        root_node = await drive.get_node_by_path(root_path)
+        children = await drive.get_children(root_node)
+        async for node in process_node_list(session, children):
+            yaml.safe_dump(
+                [node],
+                sys.stdout,
+                encoding='utf-8',
+                allow_unicode=True,
+                default_flow_style=False,
+            )
+            await asyncio.sleep(1)
+
+
+async def process_node_list(session: ClientSession, node_list: list[Node]):
     for node in node_list:
         if node.trashed:
             continue
