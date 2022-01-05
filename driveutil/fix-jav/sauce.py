@@ -43,9 +43,19 @@ async def fetch_jav_data_from_javlibrary(session: ClientSession, jav_id: str):
         html = await response.text(errors='ignore')
         soup = BeautifulSoup(html, 'html.parser')
         title = soup.select_one('#video_title .post-title')
-        if not title:
-            return None
-        return normalize_title(title.text)
+        if title:
+            return normalize_title(title.text)
+
+        videos = soup.select('.videos .video')
+        for div in videos:
+            id_ = div.select_one('.id')
+            if id_.text != jav_id:
+                continue
+            a = div.select_one('a')
+            if a:
+                return normalize_title(a.text)
+
+        return None
 
 
 SOURCE_LIST = [
@@ -67,3 +77,20 @@ def normalize_title(title: str) -> str:
     title = title.replace('\n', '')
     title = title.replace('\r', '')
     return title
+
+
+async def fetch(jav_id: str):
+    async with ClientSession() as session:
+        rv = await fetch_jav_data_from_javlibrary(session, jav_id)
+        return rv
+
+
+async def main():
+    import sys
+    args = sys.argv
+    rv = await fetch(args[1])
+    print(rv)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
