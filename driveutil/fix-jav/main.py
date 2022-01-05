@@ -7,6 +7,7 @@ import yaml
 from wcpan.drive.core.drive import DriveFactory, Drive, Node
 
 from .sauce import fetch_jav_data
+from .dispatch import get_jav_id
 
 
 async def main(args: list[str] = None):
@@ -44,15 +45,6 @@ async def process_node_list(session: aiohttp.ClientSession, pattern: str, node_l
             'jav_id': jav_id,
             'title': title,
         }
-
-
-def get_jav_id(pattern: str, name: str) -> str:
-    rv = re.search(pattern, name)
-    if not rv:
-        return ''
-    rv = rv.group(0)
-    rv = rv.upper()
-    return rv
 
 
 async def rename(drive: Drive, node: Node, new_name: str):
