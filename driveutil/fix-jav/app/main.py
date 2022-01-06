@@ -68,6 +68,14 @@ async def process_node_list(session: ClientSession, node_list: list[Node]):
         if not jav_id:
             continue
         title = await fetch_jav_data(session, jav_id)
+
+        name_set = set()
+        name_set.add(node.name)
+        for value in title.values():
+            name_set.add(value)
+        if len(name_set) <= 1:
+            continue
+
         yield {
             'id': node.id_,
             'name': node.name,
