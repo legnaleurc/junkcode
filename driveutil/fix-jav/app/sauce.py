@@ -53,7 +53,7 @@ async def fetch_jav_data_from_javlibrary(session: ClientSession, jav_id: str):
                 continue
             a = div.select_one('a')
             if a:
-                return normalize_title(a.text)
+                return normalize_title(a.get('title'))
 
         return None
 
