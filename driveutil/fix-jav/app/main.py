@@ -13,8 +13,8 @@ async def main(args: list[str] = None):
     if args is None:
         args = sys.argv
 
-    await produce_manifest(args)
-    # await apply_manifest(args)
+    # await produce_manifest(args)
+    await apply_manifest(args)
 
     return 0
 
@@ -86,6 +86,9 @@ async def process_node_list(session: ClientSession, node_list: list[Node]):
 
 async def rename(drive: Drive, node: Node, new_name: str):
     if node.is_folder:
+        if new_name == node.name:
+            print('skipped')
+            return
         await drive.rename_node(node, new_parent=None, new_name=new_name)
         return
     root_node = await drive.get_node_by_id(node.parent_id)
