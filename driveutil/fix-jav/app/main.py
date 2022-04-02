@@ -27,7 +27,7 @@ async def main(args: list[str] = None):
 
 
 async def produce_manifest(args: list[str]):
-    root_path = args[1]
+    root_path = args[0]
 
     factory = DriveFactory()
     factory.load_config()
