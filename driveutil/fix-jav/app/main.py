@@ -13,8 +13,15 @@ async def main(args: list[str] = None):
     if args is None:
         args = sys.argv
 
-    # await produce_manifest(args)
-    await apply_manifest(args)
+    args = args[1:]
+    mode = args[0]
+    args = args[1:]
+    if mode == 'produce' or mode == 'p':
+        await produce_manifest(args)
+    elif mode == 'apply' or mode == 'a':
+        await apply_manifest(args)
+    else:
+        return 1
 
     return 0
 
