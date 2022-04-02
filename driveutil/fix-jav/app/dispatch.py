@@ -10,6 +10,15 @@ def include_jav(name: str):
     return rv
 
 
+def include_jav2(name: str):
+    m = re.search(r'(\d{3,4})(\w{3,6})[-_](\d{3,4}\w?)', name)
+    if not m:
+        return ''
+    rv = f'{m.group(1)}{m.group(2)}-{m.group(3)}'
+    rv = rv.upper()
+    return rv
+
+
 def exclude_fc2(name: str):
     m = re.search(r'fc2[-_]ppv', name, re.I)
     return m is not None
@@ -21,6 +30,7 @@ EXCLUDE_LIST = [
 
 
 INCLUDE_LIST = [
+    include_jav2,
     include_jav,
 ]
 
