@@ -89,7 +89,7 @@ async def fetch_jav_data_from_javtorrent(session: ClientSession, jav_id: str):
 
 @named_fetch('heydouga')
 async def fetch_jav_data_from_heydouga(session: ClientSession, jav_id: str):
-    m = re.match(r'heydouga-(\d+)-(\d+)', jav_id)
+    m = re.match(r'HEYDOUGA-(\d+)-(\d+)', jav_id)
     if not m:
         return None
 
@@ -106,7 +106,7 @@ async def fetch_jav_data_from_heydouga(session: ClientSession, jav_id: str):
             return None
         for span in title.find_all('span'):
             span.decompose()
-        return normalize_title(title.text)
+        return f'{jav_id} ' + normalize_title(title.text)
 
 
 SOURCE_LIST = [

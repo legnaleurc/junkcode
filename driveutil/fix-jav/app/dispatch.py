@@ -28,10 +28,10 @@ def include_fc2(name: str):
 
 
 def include_heydouga(name: str):
-    m = re.search(r'heydouga[-_](\d+)[-_](\d+)', name, re.I)
+    m = re.search(r'hey(douga)?[-_ ]?(\d+)[-_](\d+)', name, re.I)
     if not m:
         return ''
-    rv = f'heydouga-{m.group(1)}-{m.group(2)}'
+    rv = f'HEYDOUGA-{m.group(2)}-{m.group(3)}'
     return rv
 
 
