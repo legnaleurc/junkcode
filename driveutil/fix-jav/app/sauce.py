@@ -113,10 +113,11 @@ async def fetch_jav_data_from_heydouga(session: ClientSession, jav_id: str):
 
 @named_fetch('carib')
 async def fetch_jav_data_from_carib(session: ClientSession, jav_id: str):
-    m = re.match(r'\d{6}_\d{3}', jav_id)
+    m = re.match(r'(\d{6})_(\d{3})', jav_id)
     if not m:
         return None
 
+    jav_id = f'{m.group(1)}-{m.group(2)}'
     async with session.get(
         f'https://www.caribbeancom.com/moviepages/{jav_id}/index.html',
     ) as response:
