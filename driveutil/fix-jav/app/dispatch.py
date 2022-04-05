@@ -27,11 +27,20 @@ def include_fc2(name: str):
     return rv
 
 
+def include_heydouga(name: str):
+    m = re.search(r'heydouga[-_](\d+)[-_](\d+)', name, re.I)
+    if not m:
+        return ''
+    rv = f'heydouga-{m.group(1)}-{m.group(2)}'
+    return rv
+
+
 EXCLUDE_LIST = [
 ]
 
 
 INCLUDE_LIST = [
+    include_heydouga,
     include_fc2,
     include_jav2,
     include_jav,
