@@ -20,6 +20,8 @@ async def main(args: list[str] = None):
         await generate_manifest(args)
     elif mode == 'apply' or mode == 'a':
         await apply_manifest(args)
+    elif mode == 'filter' or mode == 'f':
+        await filter_manifest(args)
     else:
         return 1
 
@@ -65,6 +67,27 @@ async def apply_manifest(args: list[str]):
                 print(f'rename {node.name} -> {value}')
                 await rename(drive, node, value)
                 break
+
+
+async def filter_manifest(args: list[str]):
+    manifest = yaml.safe_load(sys.stdin)
+
+    not_all_null = (m for m in manifest if any(m['title'].values()))
+
+    def all_same(m):
+        values = set(v for v in m['title'].values() if v)
+        values.add(m['name'])
+        return len(values) == 1
+    not_all_same = (m for m in not_all_null if not all_same(m))
+
+    for node in not_all_same:
+        yaml.safe_dump(
+            [node],
+            sys.stdout,
+            encoding='utf-8',
+            allow_unicode=True,
+            default_flow_style=False,
+        )
 
 
 async def process_node_list(session: ClientSession, node_list: list[Node]):
