@@ -19,17 +19,20 @@ def include_jav2(name: str):
     return rv
 
 
-def exclude_fc2(name: str):
-    m = re.search(r'fc2[-_]ppv', name, re.I)
-    return m is not None
+def include_fc2(name: str):
+    m = re.search(r'fc2[-_]ppv[-_](\d+)', name, re.I)
+    if not m:
+        return ''
+    rv = f'FC2-PPV-{m.group(1)}'
+    return rv
 
 
 EXCLUDE_LIST = [
-    exclude_fc2,
 ]
 
 
 INCLUDE_LIST = [
+    include_fc2,
     include_jav2,
     include_jav,
 ]
