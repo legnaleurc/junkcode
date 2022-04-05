@@ -35,11 +35,20 @@ def include_heydouga(name: str):
     return rv
 
 
+def include_carib(name: str):
+    m = re.search(r'(\d{6})[-_](\d{3})', name, re.I)
+    if not m:
+        return ''
+    rv = f'{m.group(1)}-{m.group(2)}'
+    return rv
+
+
 EXCLUDE_LIST = [
 ]
 
 
 INCLUDE_LIST = [
+    include_carib,
     include_heydouga,
     include_fc2,
     include_jav2,
