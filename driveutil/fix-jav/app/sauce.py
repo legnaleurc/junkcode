@@ -95,7 +95,9 @@ async def fetch_jav_data_from_heydouga(session: ClientSession, jav_id: str):
 
     p1 = m.group(1)
     p2 = m.group(2)
-    async with session.get(f'https://www.heydouga.com/moviepages/{p1}/{p2}/index.html') as response:
+    async with session.get(
+        f'https://www.heydouga.com/moviepages/{p1}/{p2}/index.html',
+    ) as response:
         if response.status != 200:
             return None
 
@@ -109,11 +111,71 @@ async def fetch_jav_data_from_heydouga(session: ClientSession, jav_id: str):
         return f'{jav_id} ' + normalize_title(title.text)
 
 
+@named_fetch('carib')
+async def fetch_jav_data_from_carib(session: ClientSession, jav_id: str):
+    m = re.match(r'\d{6}_\d{3}', jav_id)
+    if not m:
+        return None
+
+    async with session.get(
+        f'https://www.caribbeancom.com/moviepages/{jav_id}/index.html',
+    ) as response:
+        if response.status != 200:
+            return None
+
+        html = await response.text(errors='ignore')
+        soup = BeautifulSoup(html, 'html.parser')
+
+        title = soup.select_one('h1[itemprop=name]')
+        if not title:
+            return None
+        title = normalize_title(title.text)
+
+        actor = soup.select_one('.movie-spec a[itemprop=actor] > span[itemprop=name]')
+        if not actor:
+            actor = ''
+        else:
+            actor = normalize_title(actor.text)
+
+        return f'CARIB {jav_id} {title} {actor}'
+
+
+@named_fetch('caribpr')
+async def fetch_jav_data_from_caribpr(session: ClientSession, jav_id: str):
+    m = re.match(r'\d{6}_\d{3}', jav_id)
+    if not m:
+        return None
+
+    async with session.get(
+        f'https://www.caribbeancompr.com/moviepages/{jav_id}/index.html',
+    ) as response:
+        if response.status != 200:
+            return None
+
+        html = await response.text(errors='ignore')
+        soup = BeautifulSoup(html, 'html.parser')
+
+        title = soup.select_one('h1[itemprop=name]')
+        if not title:
+            return None
+        title = normalize_title(title.text)
+
+        actor = soup.select_one('.movie-spec a[itemprop=actor] > span[itemprop=name]')
+        if not actor:
+            actor = ''
+        else:
+            actor = normalize_title(actor.text)
+
+        return f'CARIBPR {jav_id} {title} {actor}'
+
+
 SOURCE_LIST = [
     fetch_jav_data_from_javbus,
     fetch_jav_data_from_javlibrary,
     fetch_jav_data_from_javtorrent,
     fetch_jav_data_from_heydouga,
+    fetch_jav_data_from_carib,
+    fetch_jav_data_from_caribpr,
 ]
 
 
