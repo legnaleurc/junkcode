@@ -169,6 +169,35 @@ async def fetch_jav_data_from_caribpr(session: ClientSession, jav_id: str):
         return f'CARIBPR {jav_id} {title} {actor}'
 
 
+@named_fetch('1pondo')
+async def fetch_jav_data_from_1pondo(session: ClientSession, jav_id: str):
+    m = re.match(r'\d{6}_\d{3}', jav_id)
+    if not m:
+        return None
+
+    async with session.get(
+        f'https://www.1pondo.tv/movies/{jav_id}/',
+    ) as response:
+        if response.status != 200:
+            return None
+
+        html = await response.text(errors='ignore')
+        soup = BeautifulSoup(html, 'html.parser')
+
+        title = soup.select_one('h1.h1--dense')
+        if not title:
+            return None
+        title = normalize_title(title.text)
+
+        actor = soup.select_one('.spec-content a')
+        if not actor:
+            actor = ''
+        else:
+            actor = normalize_title(actor.text)
+
+        return f'1PONDO {jav_id} {title} {actor}'
+
+
 SOURCE_LIST = [
     fetch_jav_data_from_javbus,
     fetch_jav_data_from_javlibrary,
@@ -176,6 +205,7 @@ SOURCE_LIST = [
     fetch_jav_data_from_heydouga,
     fetch_jav_data_from_carib,
     fetch_jav_data_from_caribpr,
+    fetch_jav_data_from_1pondo,
 ]
 
 
