@@ -16,8 +16,8 @@ async def main(args: list[str] = None):
     args = args[1:]
     mode = args[0]
     args = args[1:]
-    if mode == 'produce' or mode == 'p':
-        await produce_manifest(args)
+    if mode == 'generate' or mode == 'g':
+        await generate_manifest(args)
     elif mode == 'apply' or mode == 'a':
         await apply_manifest(args)
     else:
@@ -26,7 +26,7 @@ async def main(args: list[str] = None):
     return 0
 
 
-async def produce_manifest(args: list[str]):
+async def generate_manifest(args: list[str]):
     root_path = args[0]
 
     factory = DriveFactory()
