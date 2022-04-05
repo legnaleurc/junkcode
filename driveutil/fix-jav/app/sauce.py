@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import re
 
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
@@ -86,10 +87,33 @@ async def fetch_jav_data_from_javtorrent(session: ClientSession, jav_id: str):
         return normalize_title(title.text)
 
 
+@named_fetch('heydouga')
+async def fetch_jav_data_from_heydouga(session: ClientSession, jav_id: str):
+    m = re.match(r'heydouga-(\d+)-(\d+)', jav_id)
+    if not m:
+        return None
+
+    p1 = m.group(1)
+    p2 = m.group(2)
+    async with session.get(f'https://www.heydouga.com/moviepages/{p1}/{p2}/index.html') as response:
+        if response.status != 200:
+            return None
+
+        html = await response.text(errors='ignore')
+        soup = BeautifulSoup(html, 'html.parser')
+        title = soup.select_one('#title-bg > h1')
+        if not title:
+            return None
+        for span in title.find_all('span'):
+            span.decompose()
+        return normalize_title(title.text)
+
+
 SOURCE_LIST = [
     fetch_jav_data_from_javbus,
     fetch_jav_data_from_javlibrary,
     fetch_jav_data_from_javtorrent,
+    fetch_jav_data_from_heydouga,
 ]
 
 
