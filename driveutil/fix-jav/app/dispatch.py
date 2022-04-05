@@ -39,7 +39,7 @@ def include_carib(name: str):
     m = re.search(r'(\d{6})[-_](\d{3})', name, re.I)
     if not m:
         return ''
-    rv = f'{m.group(1)}-{m.group(2)}'
+    rv = f'{m.group(1)}_{m.group(2)}'
     return rv
 
 

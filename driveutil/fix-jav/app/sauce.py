@@ -176,24 +176,14 @@ async def fetch_jav_data_from_1pondo(session: ClientSession, jav_id: str):
         return None
 
     async with session.get(
-        f'https://www.1pondo.tv/movies/{jav_id}/',
+        f'https://www.1pondo.tv/dyn/phpauto/movie_details/movie_id/{jav_id}.json',
     ) as response:
         if response.status != 200:
             return None
 
-        html = await response.text(errors='ignore')
-        soup = BeautifulSoup(html, 'html.parser')
-
-        title = soup.select_one('h1.h1--dense')
-        if not title:
-            return None
-        title = normalize_title(title.text)
-
-        actor = soup.select_one('.spec-content a')
-        if not actor:
-            actor = ''
-        else:
-            actor = normalize_title(actor.text)
+        data = await response.json()
+        title = normalize_title(data['Title'])
+        actor = normalize_title(data['Actor'])
 
         return f'1PONDO {jav_id} {title} {actor}'
 
