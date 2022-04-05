@@ -155,12 +155,12 @@ async def fetch_jav_data_from_caribpr(session: ClientSession, jav_id: str):
         html = await response.text(errors='ignore')
         soup = BeautifulSoup(html, 'html.parser')
 
-        title = soup.select_one('h1[itemprop=name]')
+        title = soup.select_one('.movie-info .heading')
         if not title:
             return None
         title = normalize_title(title.text)
 
-        actor = soup.select_one('.movie-spec a[itemprop=actor] > span[itemprop=name]')
+        actor = soup.select_one('.movie-spec .spec-content > .spec-item')
         if not actor:
             actor = ''
         else:
