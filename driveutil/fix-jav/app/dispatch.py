@@ -2,7 +2,7 @@ import re
 
 
 def include_jav(name: str):
-    m = re.search(r'(\w{3,6})[-_](\d{3,4}\w?)', name)
+    m = re.search(r'(\w{2,6})[-_](\d{2,4}\w?)', name)
     if not m:
         return ''
     rv = f'{m.group(1)}-{m.group(2)}'
