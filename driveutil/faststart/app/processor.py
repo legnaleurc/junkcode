@@ -10,6 +10,7 @@ from typing import Union
 
 from wcpan.drive.core.drive import Drive, upload_from_local, download_to_local
 from wcpan.drive.core.types import Node, MediaInfo
+from wcpan.drive.cli.util import get_video_info
 from wcpan.logger import INFO, DEBUG, ERROR, EXCEPTION
 
 from .cache import is_migrated, set_migrated, need_transcode, has_cache
@@ -187,7 +188,7 @@ class VideoProcessor(object):
         output_path = self.transcoded_file_path
         INFO('faststart') << 'uploading' << output_path
         parent_node = await self.drive.get_node_by_id(self.node.parent_id)
-        media_info = MediaInfo.video(self.node.video_width, self.node.video_height, self.node.video_ms_duration)
+        media_info = await get_video_info(output_path)
         node = await upload_from_local(self.drive, parent_node, output_path, media_info)
         INFO('faststart') << 'uploaded' << node.id_
         return node
