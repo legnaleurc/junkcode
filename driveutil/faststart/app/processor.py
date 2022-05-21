@@ -243,7 +243,7 @@ class VideoProcessor(object):
         INFO('faststart') << f'is aac: {self.is_aac}'
 
 
-class MP4Processer(VideoProcessor):
+class MP4Processor(VideoProcessor):
 
     def __init__(self, work_folder: str, drive: Drive, node: Node):
         super().__init__(work_folder, drive, node)
@@ -256,7 +256,7 @@ class MP4Processer(VideoProcessor):
         return self.node.name
 
 
-class MaybeH264Processer(VideoProcessor):
+class MaybeH264Processor(VideoProcessor):
 
     def __init__(self, work_folder: str, drive: Drive, node: Node):
         super().__init__(work_folder, drive, node)
@@ -271,7 +271,7 @@ class MaybeH264Processer(VideoProcessor):
         return name + '.mp4'
 
 
-class MKVProcesser(VideoProcessor):
+class MKVProcessor(VideoProcessor):
 
     def __init__(self, work_folder: str, drive: Drive, node: Node):
         super().__init__(work_folder, drive, node)
@@ -286,7 +286,7 @@ class MKVProcesser(VideoProcessor):
         return name + '.mp4'
 
 
-class NeverH264Processer(VideoProcessor):
+class NeverH264Processor(VideoProcessor):
 
     def __init__(self, work_folder: str, drive: Drive, node: Node):
         super().__init__(work_folder, drive, node)
@@ -327,29 +327,39 @@ async def has_enough_quota(drive: Drive, size: int) -> bool:
     return (total + size) < DAILY_UPLOAD_QUOTA
 
 
+PROCESSOR_TABLE = {
+    'video/mp4': MP4Processor,
+    'video/x-matroska': MKVProcessor,
+    'video/x-msvideo': MaybeH264Processor,
+    'video/x-ms-wmv': NeverH264Processor,
+    'video/quicktime': MaybeH264Processor,
+    'video/mpeg': MaybeH264Processor,
+    # '.mp4': MP4Processer,
+    # '.mkv': MKVProcesser,
+    # '.flv': MaybeH264Processer,
+    # '.avi': MaybeH264Processer,
+    # '.asf': MaybeH264Processer,
+    # '.rm': NeverH264Processer,
+    # '.rmvb': NeverH264Processer,
+    # '.ogm': NeverH264Processer,
+}
+
+
 def create_processor(
     work_folder: str,
     drive: Drive,
     node: Node,
 ) -> Union[VideoProcessor, None]:
-    table = {
-        'video/mp4': MP4Processer,
-        'video/x-matroska': MKVProcesser,
-        'video/x-msvideo': MaybeH264Processer,
-        'video/x-ms-wmv': NeverH264Processer,
-        'video/quicktime': MaybeH264Processer,
-        'video/mpeg': MaybeH264Processer,
-        # '.mp4': MP4Processer,
-        # '.mkv': MKVProcesser,
-        # '.flv': MaybeH264Processer,
-        # '.avi': MaybeH264Processer,
-        # '.asf': MaybeH264Processer,
-        # '.wmv': NeverH264Processer,
-        # '.rm': NeverH264Processer,
-        # '.rmvb': NeverH264Processer,
-        # '.ogm': NeverH264Processer,
-    }
-    if node.mime_type not in table:
-        return None
-    constructor = table[node.mime_type]
-    return constructor(work_folder, drive, node)
+    if node.mime_type in PROCESSOR_TABLE:
+        constructor = PROCESSOR_TABLE[node.mime_type]
+        return constructor(work_folder, drive, node)
+
+    if is_realmedia(node):
+        constructor = NeverH264Processor
+        return constructor(work_folder, drive, node)
+
+    return None
+
+
+def is_realmedia(node: Node):
+    return node.name.endswith('.rm') or node.name.endswith('.RM') or node.name.endswith('.rmvb') or node.name.endswith('.RMVB')
