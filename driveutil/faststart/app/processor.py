@@ -48,7 +48,10 @@ class VideoProcessor(object):
             ac = ['-c:a', 'copy']
         else:
             ac = []
-        return ac + vc + ['-movflags', '+faststart']
+        return ac + vc + [
+            '-movflags', '+faststart',
+            '-max_muxing_queue_size', '1024',
+        ]
 
     @property
     def output_folder(self) -> pathlib.Path:
