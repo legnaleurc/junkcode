@@ -7,9 +7,8 @@ import shutil
 import sys
 import tempfile
 
-from wcpan.drive.core.drive import DriveFactory, Drive
+from wcpan.drive.core.drive import DriveFactory, Drive, download_to_local
 from wcpan.drive.core.types import Node
-from wcpan.drive.core.util import download_to_local
 from wcpan.drive.cli.util import get_image_info, get_video_info
 from wcpan.logger import setup as setup_logger, INFO
 
