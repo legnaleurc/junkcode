@@ -43,6 +43,7 @@ class VideoProcessor(object):
 
     @property
     def codec_command(self):
+        # codec options
         if self.is_h264:
             vc = ['-c:v', 'copy']
         else:
@@ -51,10 +52,13 @@ class VideoProcessor(object):
             ac = ['-c:a', 'copy']
         else:
             ac = []
-        return ac + vc + [
-            '-movflags', '+faststart',
-            '-max_muxing_queue_size', '1024',
-        ]
+        # muxer options
+        fast_start = ['-movflags', '+faststart']
+        # keeps subtitles if possible
+        all_streams = ['-map', '0']
+        # increase frame queue to fix corrupted frames
+        frame_queue = ['-max_muxing_queue_size', '1024']
+        return fast_start + all_streams + ac + vc + frame_queue
 
     @property
     def output_folder(self) -> pathlib.Path:
