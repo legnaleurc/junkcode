@@ -156,7 +156,7 @@ class VideoProcessor(object):
 
             self._dump_info()
             transcode_command = self._get_transcode_command()
-            INFO('faststart') << transcode_command
+            INFO('faststart') << ' '.join(transcode_command)
 
             exit_code = await shell_call(transcode_command, self.output_folder)
             if exit_code != 0:
