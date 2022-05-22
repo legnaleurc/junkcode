@@ -5,11 +5,13 @@ import asyncio
 import signal
 import sys
 import tempfile
+from concurrent.futures import Executor
 from functools import partial
 from typing import NoReturn, Any
 
 from wcpan.drive.core.drive import Drive, DriveFactory
 from wcpan.drive.core.types import Node
+from wcpan.drive.core.util import create_executor
 from wcpan.logger import setup as setup_logger, WARNING, DEBUG
 
 from .cache import initialize_cache
@@ -39,14 +41,17 @@ async def main(args: list[str] = None):
 
     queue = asyncio.Queue(jobs)
 
-    async with factory() as drive:
-        async for change in drive.sync():
-            DEBUG('faststart') << change
+    with create_executor() as pool, \
+         tempfile.TemporaryDirectory() as work_folder:
 
-        with tempfile.TemporaryDirectory() as work_folder:
+        async with factory(pool=pool) as drive:
+            async for change in drive.sync():
+                DEBUG('faststart') << change
+
             work = partial(node_work,
                 drive=drive,
                 work_folder=work_folder,
+                pool=pool,
                 remux_only=remux_only,
                 transcode_only=transcode_only,
                 cache_only=cache_only,
@@ -114,11 +119,12 @@ async def node_work(
     *,
     drive: Drive,
     work_folder: str,
+    pool: Executor,
     remux_only: bool,
     transcode_only: bool,
     cache_only: bool,
 ):
-    processor = create_processor(work_folder, drive, node)
+    processor = create_processor(work_folder, pool, drive, node)
     if not processor:
         WARNING('faststart') << 'no processor for' << node.name
         return

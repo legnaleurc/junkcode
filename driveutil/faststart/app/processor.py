@@ -6,11 +6,12 @@ import os.path
 import pathlib
 import shutil
 import subprocess
+from concurrent.futures import Executor
 from typing import Union
 
 from wcpan.drive.core.drive import Drive, upload_from_local, download_to_local
 from wcpan.drive.core.types import Node
-from wcpan.drive.cli.util import get_video_info
+from wcpan.drive.cli.util import get_video_info, get_hash
 from wcpan.logger import INFO, DEBUG, ERROR, EXCEPTION
 
 from .cache import is_migrated, set_migrated, need_transcode, has_cache
@@ -23,8 +24,9 @@ DAILY_UPLOAD_QUOTA = 500 * 1024 * 1024 * 1024
 
 class VideoProcessor(object):
 
-    def __init__(self, work_folder: str, drive: Drive, node: Node):
+    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
         self.work_folder = pathlib.Path(work_folder)
+        self.pool = pool
         self.drive = drive
         self.node = node
         # implies mp4
@@ -159,6 +161,7 @@ class VideoProcessor(object):
 
             async with self._remote_context():
                 node = await self._upload()
+                await self._verify(node)
 
             set_migrated(node, True, True)
 
@@ -193,6 +196,19 @@ class VideoProcessor(object):
         node = await upload_from_local(self.drive, parent_node, output_path, media_info)
         INFO('faststart') << 'uploaded' << node.id_
         return node
+
+    async def _verify(self, uploaded_node: Node):
+        output_path = self.transcoded_file_path
+        INFO('faststart') << 'verifying' << output_path
+        hasher = await self.drive.get_hasher()
+        loop = asyncio.get_running_loop()
+        local_hash = await loop.run_in_executor(self.pool, get_hash, output_path, hasher)
+        if local_hash != uploaded_node.hash_:
+            INFO('faststart') << 'removing' << uploaded_node.name
+            await self.drive.trash_node(uploaded_node)
+            INFO('faststart') << 'removed' << uploaded_node.name
+            raise Exception('hash mismatch')
+        INFO('faststart') << 'verified' << uploaded_node.hash_
 
     @contextlib.contextmanager
     def _local_context(self):
@@ -247,8 +263,8 @@ class VideoProcessor(object):
 
 class MP4Processor(VideoProcessor):
 
-    def __init__(self, work_folder: str, drive: Drive, node: Node):
-        super().__init__(work_folder, drive, node)
+    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
+        super().__init__(work_folder, pool, drive, node)
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -260,8 +276,8 @@ class MP4Processor(VideoProcessor):
 
 class MaybeH264Processor(VideoProcessor):
 
-    def __init__(self, work_folder: str, drive: Drive, node: Node):
-        super().__init__(work_folder, drive, node)
+    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
+        super().__init__(work_folder, pool, drive, node)
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -275,8 +291,8 @@ class MaybeH264Processor(VideoProcessor):
 
 class MKVProcessor(VideoProcessor):
 
-    def __init__(self, work_folder: str, drive: Drive, node: Node):
-        super().__init__(work_folder, drive, node)
+    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
+        super().__init__(work_folder, pool, drive, node)
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -290,8 +306,8 @@ class MKVProcessor(VideoProcessor):
 
 class NeverH264Processor(VideoProcessor):
 
-    def __init__(self, work_folder: str, drive: Drive, node: Node):
-        super().__init__(work_folder, drive, node)
+    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
+        super().__init__(work_folder, pool, drive, node)
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -349,16 +365,17 @@ PROCESSOR_TABLE = {
 
 def create_processor(
     work_folder: str,
+    pool: Executor,
     drive: Drive,
     node: Node,
 ) -> Union[VideoProcessor, None]:
     if node.mime_type in PROCESSOR_TABLE:
         constructor = PROCESSOR_TABLE[node.mime_type]
-        return constructor(work_folder, drive, node)
+        return constructor(work_folder, pool, drive, node)
 
     if is_realmedia(node):
         constructor = NeverH264Processor
-        return constructor(work_folder, drive, node)
+        return constructor(work_folder, pool, drive, node)
 
     return None
 
