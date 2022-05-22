@@ -15,7 +15,7 @@ from wcpan.drive.core.util import create_executor
 from wcpan.logger import setup as setup_logger, WARNING, DEBUG
 
 from .cache import initialize_cache
-from .processor import create_processor, is_realmedia
+from .processor import create_processor, is_oggmedia, is_realmedia
 from .queue_ import consume, produce, NodeGenerator
 
 
@@ -109,7 +109,7 @@ async def walk_root_list(drive: Drive, root_list: list[str]):
 
         async for root, folders, files in drive.walk(root_node):
             for file_ in files:
-                if not file_.is_video and not is_realmedia(file_):
+                if not file_.is_video and not is_realmedia(file_) and not is_oggmedia(file_):
                     continue
                 yield file_
 

@@ -354,7 +354,6 @@ PROCESSOR_TABLE = {
     'video/mpeg': MaybeH264Processor,
     # '.flv': MaybeH264Processer,
     # '.asf': MaybeH264Processer,
-    # '.ogm': NeverH264Processer,
 }
 
 
@@ -368,12 +367,25 @@ def create_processor(
         constructor = PROCESSOR_TABLE[node.mime_type]
         return constructor(work_folder, pool, drive, node)
 
-    if is_realmedia(node):
+    if is_realmedia(node) or is_oggmedia(node):
         constructor = NeverH264Processor
         return constructor(work_folder, pool, drive, node)
 
     return None
 
 
+REAL_MEDIA = [
+    '.rm',
+    '.rmv',
+    '.rmvb',
+]
+
+
 def is_realmedia(node: Node):
-    return node.name.endswith('.rm') or node.name.endswith('.RM') or node.name.endswith('.rmvb') or node.name.endswith('.RMVB') or node.name.endswith('.rmv') or node.name.endswith('.RMV')
+    lower_name = node.name.lower()
+    return any(lower_name.endswith(ext) for ext in REAL_MEDIA)
+
+
+def is_oggmedia(node: Node):
+    lower_name = node.name.lower()
+    return lower_name.endswith('.ogm')
