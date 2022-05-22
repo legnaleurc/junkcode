@@ -352,13 +352,8 @@ PROCESSOR_TABLE = {
     'video/x-ms-wmv': NeverH264Processor,
     'video/quicktime': MaybeH264Processor,
     'video/mpeg': MaybeH264Processor,
-    # '.mp4': MP4Processer,
-    # '.mkv': MKVProcesser,
     # '.flv': MaybeH264Processer,
-    # '.avi': MaybeH264Processer,
     # '.asf': MaybeH264Processer,
-    # '.rm': NeverH264Processer,
-    # '.rmvb': NeverH264Processer,
     # '.ogm': NeverH264Processer,
 }
 
