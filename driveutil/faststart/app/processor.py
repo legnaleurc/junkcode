@@ -33,6 +33,7 @@ class VideoProcessor(object):
         self.is_faststart = False
         self.is_h264 = False
         self.is_aac = False
+        self.is_movtext = False
 
     async def prepare_codec_info(self):
         raise NotImplementedError()
@@ -52,13 +53,17 @@ class VideoProcessor(object):
             ac = ['-c:a', 'copy']
         else:
             ac = []
+        if self.is_movtext:
+            sc = ['-c:s', 'copy']
+        else:
+            sc = ['-c:s', 'mov_text']
         # muxer options
         fast_start = ['-movflags', '+faststart']
         # keeps subtitles if possible
         all_streams = ['-map', '0']
         # increase frame queue to fix corrupted frames
         frame_queue = ['-max_muxing_queue_size', '1024']
-        return fast_start + all_streams + ac + vc + frame_queue
+        return fast_start + all_streams + ac + vc + sc + frame_queue
 
     @property
     def output_folder(self) -> pathlib.Path:
@@ -86,13 +91,19 @@ class VideoProcessor(object):
         data = data['streams']
         audio_codec_list: list[str] = []
         video_codec_list: list[str] = []
+        subtitle_codec_list: list[str] = []
         for stream in data:
-            if stream['codec_type'] == 'audio':
-                audio_codec_list.append(stream['codec_name'])
-            elif stream['codec_type'] == 'video':
-                video_codec_list.append(stream['codec_name'])
+            codec_type = stream['codec_type']
+            codec_name = stream['codec_name']
+            if codec_type == 'audio':
+                audio_codec_list.append(codec_name)
+            elif codec_type == 'video':
+                video_codec_list.append(codec_name)
+            elif codec_type == 'subtitle':
+                subtitle_codec_list.append(codec_name)
         self.is_aac = all(c == 'aac' for c in audio_codec_list)
         self.is_h264 = all(c == 'h264' for c in video_codec_list)
+        self.is_movtext = all(c == 'mov_text' for c in subtitle_codec_list)
         self.is_faststart = err.find('bytes read, 0 seeks') >= 0
 
     @property
