@@ -12,7 +12,7 @@ from typing import NoReturn, Any
 from wcpan.drive.core.drive import Drive, DriveFactory
 from wcpan.drive.core.types import Node
 from wcpan.drive.core.util import create_executor
-from wcpan.logger import setup as setup_logger, WARNING, DEBUG
+from wcpan.logger import setup as setup_logger, WARNING, DEBUG, INFO
 
 from .cache import initialize_cache
 from .processor import create_processor, is_oggmedia, is_realmedia
@@ -124,16 +124,19 @@ async def node_work(
     transcode_only: bool,
     cache_only: bool,
 ):
+    INFO('faststart') << 'processing' << node.name
     processor = create_processor(work_folder, pool, drive, node)
     if not processor:
         WARNING('faststart') << 'no processor for' << node.name
         return
 
-    await processor(
+    used_quota = await processor(
         remux_only=remux_only,
         transcode_only=transcode_only,
         cache_only=cache_only,
     )
+    if used_quota:
+        await asyncio.sleep(60)
 
 
 async def until_finished(

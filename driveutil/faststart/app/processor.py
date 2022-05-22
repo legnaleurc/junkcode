@@ -121,49 +121,50 @@ class VideoProcessor(object):
         cache_only: bool,
     ):
         if is_migrated(self.node):
-            return
+            INFO('faststart') << 'already cached, skip'
+            return False
 
         if transcode_only and has_cache(self.node) and not need_transcode(self.node):
             INFO('faststart') << 'no need transcode, skip'
-            return
+            return False
 
         if remux_only and has_cache(self.node) and need_transcode(self.node):
             INFO('faststart') << 'need transcode, skip'
-            return
+            return False
 
         if cache_only and has_cache(self.node):
             INFO('faststart') << 'already cached, skip'
-            return
+            return False
 
         if not cache_only and not await has_enough_quota(self.drive, self.node.size):
             INFO('faststart') << 'not enough quota, skip'
-            return
+            return False
 
         with self._local_context():
             try:
                 await self._download()
             except Exception as e:
                 EXCEPTION('faststart', e) << 'download failed'
-                return
+                return True
 
             await self.prepare_codec_info()
             if self.is_skippable:
                 set_migrated(self.node, True, True)
-                return
+                return True
 
             set_migrated(self.node, self.is_faststart, not self.need_transcode)
 
             if remux_only and self.need_transcode:
                 INFO('faststart') << 'need transcode, skip'
-                return
+                return True
 
             if transcode_only and not self.need_transcode:
                 INFO('faststart') << 'no need transcode, skip'
-                return
+                return True
 
             if cache_only:
                 INFO('faststart') << 'cached, skip'
-                return
+                return True
 
             self._dump_info()
             transcode_command = self._get_transcode_command()
@@ -172,7 +173,7 @@ class VideoProcessor(object):
             exit_code = await shell_call(transcode_command, self.output_folder)
             if exit_code != 0:
                 ERROR('faststart') << 'ffmpeg failed'
-                return
+                return True
             media_info = await get_video_info(self.transcoded_file_path)
             INFO('faststart') << media_info
 
@@ -181,6 +182,7 @@ class VideoProcessor(object):
                 await self._verify(node)
 
             set_migrated(node, True, True)
+            return True
 
     def _get_transcode_command(self):
         main_cmd = ['ffmpeg', '-nostdin', '-y']
