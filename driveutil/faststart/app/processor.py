@@ -10,7 +10,7 @@ from concurrent.futures import Executor
 from typing import Union
 
 from wcpan.drive.core.drive import Drive, upload_from_local, download_to_local
-from wcpan.drive.core.types import Node
+from wcpan.drive.core.types import Node, MediaInfo
 from wcpan.drive.cli.util import get_video_info, get_hash
 from wcpan.logger import INFO, DEBUG, ERROR, EXCEPTION
 
@@ -158,9 +158,11 @@ class VideoProcessor(object):
             if exit_code != 0:
                 ERROR('faststart') << 'ffmpeg failed'
                 return
+            media_info = await get_video_info(self.transcoded_file_path)
+            INFO('faststart') << media_info
 
             async with self._remote_context():
-                node = await self._upload()
+                node = await self._upload(media_info)
                 await self._verify(node)
 
             set_migrated(node, True, True)
@@ -187,12 +189,10 @@ class VideoProcessor(object):
         downloaded_path.rename(output_path)
         INFO('faststart') << 'downloaded' << self.raw_file_path
 
-    async def _upload(self):
+    async def _upload(self, media_info: MediaInfo):
         output_path = self.transcoded_file_path
         INFO('faststart') << 'uploading' << output_path
         parent_node = await self.drive.get_node_by_id(self.node.parent_id)
-        media_info = await get_video_info(output_path)
-        INFO('faststart') << media_info
         node = await upload_from_local(self.drive, parent_node, output_path, media_info)
         INFO('faststart') << 'uploaded' << node.id_
         return node
