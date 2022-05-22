@@ -364,4 +364,4 @@ def create_processor(
 
 
 def is_realmedia(node: Node):
-    return node.name.endswith('.rm') or node.name.endswith('.RM') or node.name.endswith('.rmvb') or node.name.endswith('.RMVB')
+    return node.name.endswith('.rm') or node.name.endswith('.RM') or node.name.endswith('.rmvb') or node.name.endswith('.RMVB') or node.name.endswith('.rmv') or node.name.endswith('.RMV')
