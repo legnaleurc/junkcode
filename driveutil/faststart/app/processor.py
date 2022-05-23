@@ -147,8 +147,13 @@ class VideoProcessor(object):
                 EXCEPTION('faststart', e) << 'download failed'
                 return True
 
-            await self.prepare_codec_info()
+            try:
+                await self.prepare_codec_info()
+            except Exception as e:
+                EXCEPTION('faststart', e) << 'ffmpeg failed'
+                return True
             if self.is_skippable:
+                INFO('faststart') << 'nothing to do, skip'
                 set_migrated(self.node, True, True)
                 return True
 
