@@ -98,7 +98,9 @@ class VideoProcessor(object):
             if codec_type == 'audio':
                 audio_codec_list.append(codec_name)
             elif codec_type == 'video':
-                video_codec_list.append(codec_name)
+                attached_pic: int = stream['disposition']['attached_pic']
+                if attached_pic == 0:
+                    video_codec_list.append(codec_name)
             elif codec_type == 'subtitle':
                 subtitle_codec_list.append(codec_name)
         self.is_aac = all(c == 'aac' for c in audio_codec_list)
