@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "fs/promises";
 
 import { auth } from "twitter-api-sdk";
+import { parseISO } from 'date-fns';
 
 import type { CallbackParams, Token } from "./types";
 import { CLIENT_ID, CLIENT_SECRET, CALLBACK, TOKEN_FILE } from "./consts";
@@ -60,7 +61,9 @@ async function readToken(): Promise<Token | null> {
     const buffer = await readFile(TOKEN_FILE, {
       encoding: "utf-8",
     });
-    return JSON.parse(buffer);
+    const token = JSON.parse(buffer);
+    token.expires_at = parseISO(token.expires_at);
+    return token;
   } catch (e: unknown) {
     return null;
   }
