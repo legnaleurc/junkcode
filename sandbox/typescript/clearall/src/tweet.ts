@@ -14,10 +14,13 @@ export async function* iterTweetList(client: Client, userId: string) {
       "tweet.fields": ["created_at"],
       pagination_token,
     });
-    pagination_token = tweetList.meta?.next_token;
-    for (const tweet of tweetList.data!) {
+    if (!tweetList.data) {
+      return;
+    }
+    for (const tweet of tweetList.data) {
       yield tweet;
     }
+    pagination_token = tweetList.meta?.next_token;
     if (!pagination_token) {
       break;
     }
