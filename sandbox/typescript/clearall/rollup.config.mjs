@@ -5,5 +5,6 @@ export default () => ({
   output: {
     dir: "build",
   },
+  external: ["twitter-api-sdk", "date-fns", "fs/promises", "dotenv"],
   plugins: [typescript()],
 });
