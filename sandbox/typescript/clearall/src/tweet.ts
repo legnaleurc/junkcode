@@ -15,11 +15,11 @@ export async function* iterTweetList(client: Client, userId: string) {
       pagination_token,
     });
     pagination_token = tweetList.meta?.next_token;
-    if (!pagination_token) {
-      break;
-    }
     for (const tweet of tweetList.data!) {
       yield tweet;
+    }
+    if (!pagination_token) {
+      break;
     }
   }
 }
