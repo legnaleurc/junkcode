@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "fs/promises";
 
 import { auth } from "twitter-api-sdk";
-import { parseISO } from 'date-fns';
+import { parseISO } from "date-fns";
 
 import type { CallbackParams, Token } from "./types";
 import { CLIENT_ID, CLIENT_SECRET, CALLBACK, TOKEN_FILE } from "./consts";
