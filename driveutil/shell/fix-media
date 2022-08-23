@@ -7,6 +7,7 @@ import shutil
 import sys
 import tempfile
 
+import pillow_avif
 from wcpan.drive.core.drive import DriveFactory, Drive, download_to_local
 from wcpan.drive.core.types import Node
 from wcpan.drive.cli.util import get_image_info, get_video_info
