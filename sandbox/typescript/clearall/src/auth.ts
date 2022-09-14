@@ -24,11 +24,7 @@ export async function createAuthUser(): Promise<auth.OAuth2User> {
   }
 
   if (authUser.isAccessTokenExpired()) {
-    console.debug('before first refresh');
-    let data = await authUser.refreshAccessToken();
-    console.debug('after first refresh, before second refresh');
-    data = await authUser.refreshAccessToken();
-    console.debug('after second refresh');
+    const data = await authUser.refreshAccessToken();
     await writeToken(data.token);
   }
 
