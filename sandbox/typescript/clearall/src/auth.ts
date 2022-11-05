@@ -8,17 +8,16 @@ import { CLIENT_ID, CLIENT_SECRET, CALLBACK, TOKEN_FILE } from "./consts";
 import { readAll, writeString } from "./io";
 
 export async function createAuthUser(): Promise<auth.OAuth2User> {
+  let token = await readToken();
   const authUser = new auth.OAuth2User({
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
     callback: CALLBACK,
     scopes: ["users.read", "tweet.read", "tweet.write", "offline.access"],
+    token,
   });
 
-  let token = await readToken();
-  if (token) {
-    authUser.token = token;
-  } else {
+  if (!token) {
     token = await createToken(authUser);
     hackExpireDate(token);
     await writeToken(token);
@@ -59,7 +58,7 @@ async function createToken(authUser: auth.OAuth2User): Promise<Token> {
   return token;
 }
 
-async function readToken(): Promise<Token | null> {
+async function readToken(): Promise<Token | undefined> {
   try {
     const buffer = await readFile(TOKEN_FILE, {
       encoding: "utf-8",
@@ -68,7 +67,7 @@ async function readToken(): Promise<Token | null> {
     token.expires_at = parseISO(token.expires_at);
     return token;
   } catch (e: unknown) {
-    return null;
+    return undefined;
   }
 }
 
