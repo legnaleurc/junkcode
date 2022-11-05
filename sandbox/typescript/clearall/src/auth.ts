@@ -1,7 +1,6 @@
 import { readFile, writeFile } from "fs/promises";
 
 import { auth } from "twitter-api-sdk";
-import { parseISO, addMinutes } from "date-fns";
 
 import type { CallbackParams, Token } from "./types";
 import { CLIENT_ID, CLIENT_SECRET, CALLBACK, TOKEN_FILE } from "./consts";
@@ -61,8 +60,7 @@ async function readToken(): Promise<Token | undefined> {
     const buffer = await readFile(TOKEN_FILE, {
       encoding: "utf-8",
     });
-    const token = JSON.parse(buffer);
-    token.expires_at = parseISO(token.expires_at);
+    const token = JSON.parse(buffer) as Token;
     return token;
   } catch (e: unknown) {
     return undefined;
@@ -76,9 +74,8 @@ async function writeToken(token: Token): Promise<void> {
 }
 
 function hackExpireDate(token: Token): void {
-  const old = token.expires_at;
-  if (!old) {
+  if (!token.expires_at) {
     return;
   }
-  token.expires_at = addMinutes(old, -1).getTime();
+  token.expires_at -= 60 * 1000;
 }
