@@ -9,7 +9,7 @@ export type Token = {
   token_type?: string;
   expires_in?: number;
   scope?: string;
-  expires_at?: Date;
+  expires_at?: number;
 };
 
 export interface TwitterResponseError extends Error {

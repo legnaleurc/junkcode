@@ -84,5 +84,5 @@ function hackExpireDate(token: Token): void {
   if (!old) {
     return;
   }
-  token.expires_at = addMinutes(old, -1);
+  token.expires_at = addMinutes(old, -1).getTime();
 }
