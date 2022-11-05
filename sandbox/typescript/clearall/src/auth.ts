@@ -20,6 +20,7 @@ export async function createAuthUser(): Promise<auth.OAuth2User> {
     authUser.token = token;
   } else {
     token = await createToken(authUser);
+    hackExpireDate(token);
     await writeToken(token);
   }
 
@@ -55,7 +56,6 @@ async function createToken(authUser: auth.OAuth2User): Promise<Token> {
   const rawInput = await readAll(process.stdin);
   const params = parseCallbackUrl(rawInput.trim());
   const { token } = await authUser.requestAccessToken(params.code);
-  hackExpireDate(token);
   return token;
 }
 
@@ -66,7 +66,6 @@ async function readToken(): Promise<Token | null> {
     });
     const token = JSON.parse(buffer);
     token.expires_at = parseISO(token.expires_at);
-    hackExpireDate(token);
     return token;
   } catch (e: unknown) {
     return null;
