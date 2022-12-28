@@ -1,9 +1,9 @@
 import { Client } from "twitter-api-sdk";
 import { parseISO, differenceInMilliseconds } from "date-fns";
 
-import { createAuthUser } from "./auth";
-import { getMyId, iterTweetList } from "./tweet";
-import { INTERVAL_MS } from "./consts";
+import { createAuthUser } from "./lib/auth";
+import { getMyId, iterTweetList } from "./lib/tweet";
+import { INTERVAL_MS } from "./lib/consts";
 
 async function main() {
   const authUser = await createAuthUser();
