@@ -22,10 +22,7 @@ export async function createAuthUser(): Promise<auth.OAuth2User> {
     await writeToken(token);
   }
 
-  const expires = new Date(token.expires_at ?? 0);
-  const now = new Date();
-  console.debug("expected expiration", expires);
-  console.debug("current datetime", now);
+  debugToken(token);
 
   if (authUser.isAccessTokenExpired()) {
     const data = await authUser.refreshAccessToken();
@@ -82,5 +79,12 @@ function hackExpireDate(token: Token): void {
   if (!token.expires_at) {
     return;
   }
-  token.expires_at -= (60 * 60 * 1.5) * 1000;
+  token.expires_at -= 60 * 60 * 1.5 * 1000;
+}
+
+function debugToken(token: Token): void {
+  const expires = new Date(token.expires_at ?? 0);
+  const now = new Date();
+  console.debug("expected expiration", expires);
+  console.debug("current datetime", now);
 }
