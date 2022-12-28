@@ -82,5 +82,5 @@ function hackExpireDate(token: Token): void {
   if (!token.expires_at) {
     return;
   }
-  token.expires_at -= 60 * 1000;
+  token.expires_at -= (60 * 60 * 1.5) * 1000;
 }
