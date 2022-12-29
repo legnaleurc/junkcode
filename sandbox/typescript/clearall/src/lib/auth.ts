@@ -3,7 +3,13 @@ import { readFile, writeFile } from "fs/promises";
 import { auth } from "twitter-api-sdk";
 
 import type { CallbackParams, Token } from "./types";
-import { CLIENT_ID, CLIENT_SECRET, CALLBACK, TOKEN_FILE } from "./consts";
+import {
+  CLIENT_ID,
+  CLIENT_SECRET,
+  CALLBACK,
+  TOKEN_FILE,
+  TOKEN_MS,
+} from "./consts";
 import { readAll, writeString } from "./io";
 
 export async function createAuthUser(): Promise<auth.OAuth2User> {
@@ -18,13 +24,10 @@ export async function createAuthUser(): Promise<auth.OAuth2User> {
 
   if (!token) {
     token = await createToken(authUser);
-    hackExpireDate(token);
     await writeToken(token);
   }
 
-  debugToken(token);
-
-  if (authUser.isAccessTokenExpired()) {
+  if (needRefreshToken(token)) {
     const data = await authUser.refreshAccessToken();
     await writeToken(data.token);
   }
@@ -75,16 +78,9 @@ async function writeToken(token: Token): Promise<void> {
   });
 }
 
-function hackExpireDate(token: Token): void {
+function needRefreshToken(token: Token): boolean {
   if (!token.expires_at) {
-    return;
+    return true;
   }
-  token.expires_at -= 60 * 60 * 1.5 * 1000;
-}
-
-function debugToken(token: Token): void {
-  const expires = new Date(token.expires_at ?? 0);
-  const now = new Date();
-  console.debug("expected expiration", expires);
-  console.debug("current datetime", now);
+  return token.expires_at - Date.now() < TOKEN_MS;
 }
