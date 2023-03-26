@@ -18,7 +18,15 @@ export async function createAuthUser(): Promise<auth.OAuth2User> {
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
     callback: CALLBACK,
-    scopes: ["users.read", "tweet.read", "tweet.write", "offline.access"],
+    scopes: [
+      "users.read",
+      "tweet.read",
+      "follows.read",
+      "list.read",
+      "tweet.write",
+      "block.write",
+      "offline.access",
+    ],
     token,
   });
 
