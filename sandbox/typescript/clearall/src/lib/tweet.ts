@@ -63,7 +63,7 @@ export async function* iterListsIncludesUserId(client: Client, userId: string) {
   while (true) {
     const rv = await client.lists.getUserListMemberships(userId, {
       max_results: 100,
-      "list.fields": ["private", "owner_id"],
+      "list.fields": ["private", "description", "owner_id"],
       pagination_token: token,
     });
     if (!rv.data) {

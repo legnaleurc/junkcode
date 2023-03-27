@@ -38,7 +38,13 @@ async function clearUnknownLists(client: Client, userId: string) {
   for await (const f of iterUserFollowing(client, userId)) {
     following.add(f.id);
   }
-  const black = new Set<string>();
+  type List = {
+    id: string;
+    name: string;
+    description?: string;
+    owner_id: string;
+  };
+  const black = new Map<string, List[]>();
   for await (const l of iterListsIncludesUserId(client, userId)) {
     if (l.private) {
       continue;
@@ -49,12 +55,31 @@ async function clearUnknownLists(client: Client, userId: string) {
     if (following.has(l.owner_id)) {
       continue;
     }
-    console.debug(`block ${l.name}`);
-    black.add(l.owner_id);
+    appendToMap(black, l.owner_id, {
+      id: l.id,
+      name: l.name,
+      description: l.description,
+      owner_id: l.owner_id,
+    });
   }
-  for (const id of black.values()) {
+  for (const [id, listList] of black.entries()) {
+    for (const list of listList) {
+      console.debug(`found ${list.name}`);
+      if (list.description) {
+        console.debug(`which ${list.description}`);
+      }
+    }
     const ok = await blockUserId(client, userId, id);
-    console.debug(`block ${userId} ${ok}`);
+    console.debug(`block ${id} ${ok}`);
+  }
+}
+
+function appendToMap<K, V>(map: Map<K, V[]>, key: K, value: V): void {
+  if (map.has(key)) {
+    const list = map.get(key) ?? [];
+    list.push(value);
+  } else {
+    map.set(key, [value]);
   }
 }
 
