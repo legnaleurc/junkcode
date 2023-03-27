@@ -87,8 +87,6 @@ async function writeToken(token: Token): Promise<void> {
 }
 
 function needRefreshToken(token: Token): boolean {
-  if (!token.expires_at) {
-    return true;
-  }
-  return token.expires_at - Date.now() < TOKEN_MS;
+  // Always refresh because Twitter API is broken.
+  return true;
 }
