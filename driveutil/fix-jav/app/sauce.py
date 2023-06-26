@@ -68,12 +68,12 @@ async def fetch_jav_data_from_javlibrary(session: ClientSession, jav_id: str):
         return None
 
 
-@named_fetch('javtor')
-async def fetch_jav_data_from_javtorrent(session: ClientSession, jav_id: str):
+@named_fetch('javbee')
+async def fetch_jav_data_from_javbee(session: ClientSession, jav_id: str):
     if not jav_id.startswith('FC2-PPV'):
         return None
 
-    async with session.get('https://jav-torrent.org/search', params={
+    async with session.get('https://javbee.org/search', params={
         'keyword': jav_id,
     }) as response:
         if response.status != 200:
@@ -192,7 +192,7 @@ async def fetch_jav_data_from_1pondo(session: ClientSession, jav_id: str):
 SOURCE_LIST = [
     fetch_jav_data_from_javbus,
     fetch_jav_data_from_javlibrary,
-    fetch_jav_data_from_javtorrent,
+    fetch_jav_data_from_javbee,
     fetch_jav_data_from_heydouga,
     fetch_jav_data_from_carib,
     fetch_jav_data_from_caribpr,
