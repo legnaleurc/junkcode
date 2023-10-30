@@ -1,3 +1,8 @@
+export interface Drive {
+  fileSystem: FileSystem;
+  snapshot: Snapshot;
+}
+
 export type FileMeta = {
   id: string;
   name: string;
@@ -27,7 +32,7 @@ export interface FileSystem {
 
   fetchInitialCursor(): Promise<string>;
   fetchRootFile(): Promise<FileMeta>;
-  fetchChanges(cursor: string): AsyncGenerator<ChangeCursor, void, void>;
+  fetchChangeList(cursor: string): AsyncGenerator<ChangeCursor, void, void>;
 }
 
 export interface RandomAccessFile {
@@ -46,7 +51,7 @@ export interface WritableFile extends RandomAccessFile {
   flush(): Promise<void>;
 }
 
-export interface FileSystemCache {
+export interface Snapshot {
   getMetadata(key: string): Promise<string>;
   setMetadata(key: string, value: string): Promise<void>;
 
@@ -61,4 +66,9 @@ export interface FileSystemCache {
   getFileByNameInFolder(fileName: string, parentId: string): Promise<FileMeta>;
 
   searchFilesByName(regex: RegExp): Promise<FileMeta[]>;
+
+  applyChangeList(
+    changeList: Array<ChangeAction>,
+    cursor: string,
+  ): Promise<void>;
 }
