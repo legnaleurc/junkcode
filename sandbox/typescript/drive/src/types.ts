@@ -1,6 +1,6 @@
 export interface Drive {
-  fileSystem: FileSystem;
-  snapshot: Snapshot;
+  sync(): Promise<void>;
+  walk(): AsyncGenerator<[FileMeta, Array<FileMeta>, Array<FileMeta>], void, void>;
 }
 
 export type FileMeta = {
