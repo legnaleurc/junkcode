@@ -1,0 +1,17 @@
+{
+  "name": "drive",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "format": "prettier --write .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.8.9",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  }
+}
