@@ -35,3 +35,20 @@ export interface WritableFile extends RandomAccessFile {
   write(data: Uint8Array): Promise<number>;
   flush(): Promise<void>;
 }
+
+export interface FileSystemCache {
+  getMetadata(key: string): Promise<string>;
+  setMetadata(key: string, value: string): Promise<void>;
+
+  getRootId(): Promise<string>;
+
+  getFileById(fileId: string): Promise<FileMeta>;
+  getFileByAbsolutePath(absolutePath: string): Promise<FileMeta>;
+
+  listFilesInFolder(fileId: string): Promise<FileMeta[]>;
+  listFilesInTrash(): Promise<FileMeta[]>;
+
+  getFileByNameInFolder(fileName: string, parentId: string): Promise<FileMeta>;
+
+  searchFilesByName(regex: RegExp): Promise<FileMeta[]>;
+}
