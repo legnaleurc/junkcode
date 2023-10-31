@@ -1,8 +1,3 @@
-export interface Drive {
-  sync(): Promise<void>;
-  walk(): AsyncGenerator<[FileMeta, Array<FileMeta>, Array<FileMeta>], void, void>;
-}
-
 export type FileMeta = {
   id: string;
   name: string;
@@ -14,8 +9,15 @@ export type FileMeta = {
   mimeType: string;
   hash: string;
   size: number;
-  extra: Record<string, any>;
+  extra: Record<string, unknown>;
 };
+
+export interface Drive {
+  sync(): Promise<void>;
+  walk(
+    root: FileMeta,
+  ): AsyncGenerator<[FileMeta, Array<FileMeta>, Array<FileMeta>], void, void>;
+}
 
 type RemoveAction = [true, string];
 type UpdateAction = [false, FileMeta];
@@ -23,12 +25,15 @@ type ChangeAction = RemoveAction | UpdateAction;
 type ChangeCursor = [string, ...ChangeAction];
 
 export interface FileSystem {
-  mkdir(name: string, parentId: string): Promise<FileMeta>;
-  move(fileId: string, newName: string, newParentId: string): Promise<void>;
-  trash(fileId: string): Promise<void>;
+  mkdir(name: string, parent: FileMeta): Promise<FileMeta>;
+  move(
+    file: FileMeta,
+    options: Partial<{ name: string; parentId: string }>,
+  ): Promise<void>;
+  trash(file: FileMeta): Promise<void>;
 
-  download(fileId: string): Promise<ReadableFile>;
-  upload(fileId: string): Promise<WritableFile>;
+  download(file: FileMeta): Promise<ReadableFile>;
+  upload(file: FileMeta): Promise<WritableFile>;
 
   fetchInitialCursor(): Promise<string>;
   fetchRootFile(): Promise<FileMeta>;
