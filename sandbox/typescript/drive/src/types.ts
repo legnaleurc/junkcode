@@ -23,9 +23,7 @@ type WalkEntry = [FileMeta, Array<FileMeta>, Array<FileMeta>];
 
 export interface Drive {
   sync(): Promise<void>;
-  walk(
-    root: FileMeta,
-  ): AG<WalkEntry>;
+  walk(root: FileMeta): AG<WalkEntry>;
 }
 
 type RemoveAction = [true, string];
