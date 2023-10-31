@@ -1,15 +1,20 @@
 export type FileMeta = {
   id: string;
+  parentId: string;
   name: string;
   isTrashed: boolean;
   ctime: Date;
   mtime: Date;
-  parentId: string;
+  extra: Record<string, unknown>;
   isFolder: boolean;
+  isImage: boolean;
+  isVideo: boolean;
   mimeType: string;
   hash: string;
   size: number;
-  extra: Record<string, unknown>;
+  width: number;
+  height: number;
+  msDuration: number;
 };
 
 export interface Drive {
@@ -24,16 +29,16 @@ type UpdateAction = [false, FileMeta];
 type ChangeAction = RemoveAction | UpdateAction;
 type ChangeCursor = [string, ...ChangeAction];
 
-export interface FileSystem {
-  mkdir(name: string, parent: FileMeta): Promise<FileMeta>;
+export interface Service {
+  download(file: FileMeta): Promise<ReadableFile>;
+  upload(file: FileMeta): Promise<WritableFile>;
+  create_folder(name: string, parent: FileMeta): Promise<FileMeta>;
+
   move(
     file: FileMeta,
     options: Partial<{ name: string; parentId: string }>,
   ): Promise<void>;
   trash(file: FileMeta): Promise<void>;
-
-  download(file: FileMeta): Promise<ReadableFile>;
-  upload(file: FileMeta): Promise<WritableFile>;
 
   fetchInitialCursor(): Promise<string>;
   fetchRootFile(): Promise<FileMeta>;
