@@ -17,11 +17,15 @@ export type FileMeta = {
   msDuration: number;
 };
 
+type AG<T> = AsyncGenerator<T, void, void>;
+
+type WalkEntry = [FileMeta, Array<FileMeta>, Array<FileMeta>];
+
 export interface Drive {
   sync(): Promise<void>;
   walk(
     root: FileMeta,
-  ): AsyncGenerator<[FileMeta, Array<FileMeta>, Array<FileMeta>], void, void>;
+  ): AG<WalkEntry>;
 }
 
 type RemoveAction = [true, string];
@@ -42,7 +46,7 @@ export interface Service {
 
   fetchInitialCursor(): Promise<string>;
   fetchRootFile(): Promise<FileMeta>;
-  fetchChangeList(cursor: string): AsyncGenerator<ChangeCursor, void, void>;
+  fetchChangeList(cursor: string): AG<ChangeCursor>;
 }
 
 export interface RandomAccessFile {
