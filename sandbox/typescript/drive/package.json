@@ -11,6 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.8.9",
+    "google-auth-library": "^9.2.0",
+    "googleapis": "^128.0.0",
     "prettier": "^3.0.3",
     "typescript": "^5.2.2"
   }
