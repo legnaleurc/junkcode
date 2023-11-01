@@ -75,19 +75,20 @@ async function uploadFile(auth: OAuth2Client) {
   console.log("File ID:", res.data.id);
 }
 
-async function downloadFile(auth: OAuth2Client, fileId: string, range: { start: number; end: number; }) {
-  const drive = google.drive({ version: 'v3', auth });
+async function downloadFile(
+  auth: OAuth2Client,
+  fileId: string,
+  range: { start: number; end: number },
+) {
+  const drive = google.drive({ version: "v3", auth });
 
   const options = {
     headers: {
-      'Range': `bytes=${range.start}-${range.end}`,
+      Range: `bytes=${range.start}-${range.end}`,
     },
   };
 
-  return drive.files.get(
-    { fileId, alt: 'media' },
-    options
-  ).then((res) => {
+  return drive.files.get({ fileId, alt: "media" }, options).then((res) => {
     if (res.status !== 200) {
       throw new Error(`Failed to download file. Status: ${res.status}`);
     }
@@ -96,7 +97,9 @@ async function downloadFile(auth: OAuth2Client, fileId: string, range: { start: 
 }
 
 async function main() {
-  const content = await fs.readFile("YOUR_CLIENT_SECRET_FILE.json", { encoding: "utf-8" });
+  const content = await fs.readFile("YOUR_CLIENT_SECRET_FILE.json", {
+    encoding: "utf-8",
+  });
   const credentials = JSON.parse(content);
   const auth = await authorize(credentials);
   await uploadFile(auth);
