@@ -19,13 +19,6 @@ export type FileMeta = {
 
 type AG<T> = AsyncGenerator<T, void, void>;
 
-type WalkEntry = [FileMeta, Array<FileMeta>, Array<FileMeta>];
-
-export interface Drive {
-  sync(): Promise<void>;
-  walk(root: FileMeta): AG<WalkEntry>;
-}
-
 type RemoveAction = [true, string];
 type UpdateAction = [false, FileMeta];
 type ChangeAction = RemoveAction | UpdateAction;
@@ -83,4 +76,11 @@ export interface Snapshot {
     changeList: Array<ChangeAction>,
     cursor: string,
   ): Promise<void>;
+}
+
+type WalkEntry = [FileMeta, Array<FileMeta>, Array<FileMeta>];
+
+export interface Drive {
+  sync(): Promise<void>;
+  walk(root: FileMeta): AG<WalkEntry>;
 }

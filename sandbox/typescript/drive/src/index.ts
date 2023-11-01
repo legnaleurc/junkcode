@@ -2,11 +2,20 @@ import fs from "node:fs/promises";
 import readline from "node:readline/promises";
 
 import { google } from "googleapis";
+import { OAuth2Client } from "google-auth-library";
 
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 const TOKEN_PATH = "token.json";
 
-async function authorize(credentials) {
+type Credential = {
+  installed: {
+    client_secret: string;
+    client_id: string;
+    redirect_uris: string[];
+  };
+};
+
+async function authorize(credentials: Credential) {
   const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
@@ -15,7 +24,7 @@ async function authorize(credentials) {
   );
 
   try {
-    const token = await readFileAsync(TOKEN_PATH);
+    const token = await fs.readFile(TOKEN_PATH, { encoding: "utf-8" });
     oAuth2Client.setCredentials(JSON.parse(token));
     return oAuth2Client;
   } catch (error) {
@@ -23,7 +32,7 @@ async function authorize(credentials) {
   }
 }
 
-async function getNewToken(oAuth2Client) {
+async function getNewToken(oAuth2Client: OAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
@@ -35,34 +44,30 @@ async function getNewToken(oAuth2Client) {
     output: process.stdout,
   });
 
-  const code = await new Promise((resolve) => {
-    rl.question("Enter the code from the page: ", (code) => {
-      rl.close();
-      resolve(code);
-    });
-  });
+  const code = await rl.question("Enter the code from the page: ");
 
   const token = await oAuth2Client.getToken(code);
-  oAuth2Client.setCredentials(token);
+  oAuth2Client.setCredentials(token.tokens);
 
-  await writeFileAsync(TOKEN_PATH, JSON.stringify(token));
+  await fs.writeFile(TOKEN_PATH, JSON.stringify(token), { encoding: "utf-8" });
   console.log("Token stored in", TOKEN_PATH);
 
   return oAuth2Client;
 }
 
-async function uploadFile(auth) {
+async function uploadFile(auth: OAuth2Client) {
   const drive = google.drive({ version: "v3", auth });
   const fileMetadata = {
     name: "YOUR_FILE_NAME.pdf", // The name you want to give the file on Google Drive
   };
+  const fin = await fs.open("YOUR_FILE_TO_UPLOAD.pdf");
   const media = {
     mimeType: "application/pdf", // Modify the MIME type according to your file
-    body: fs.createReadStream("YOUR_FILE_TO_UPLOAD.pdf"),
+    body: fin.createReadStream(),
   };
 
   const res = await drive.files.create({
-    resource: fileMetadata,
+    requestBody: fileMetadata,
     media: media,
     fields: "id",
   });
@@ -71,14 +76,10 @@ async function uploadFile(auth) {
 }
 
 async function main() {
-  fs.readFile("YOUR_CLIENT_SECRET_FILE.json", async (err, content) => {
-    if (err) {
-      console.error("Error loading client secret file:", err);
-      return;
-    }
-
-    const credentials = JSON.parse(content);
-    const auth = await authorize(credentials);
-    await uploadFile(auth);
-  });
+  const content = await fs.readFile("YOUR_CLIENT_SECRET_FILE.json", { encoding: "utf-8" });
+  const credentials = JSON.parse(content);
+  const auth = await authorize(credentials);
+  await uploadFile(auth);
 }
+
+main();
