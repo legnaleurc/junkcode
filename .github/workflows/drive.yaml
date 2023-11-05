@@ -1,25 +1,16 @@
 name: drive CI
 
 on:
-  workflow_dispatch:
-  # push:
-  #   branches:
-  #     - master
-  # pull_request:
-  #   branches:
-  #     - master
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  approval:
-    name: Approval
-    runs-on: ubuntu-latest
-    steps:
-      - name: Request Approval
-        id: approval
-        uses: actions/github/request-reviews@v2
-        with:
-          reviewers: legnaleurc
   test:
+    environment: Drive Test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
