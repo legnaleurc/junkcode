@@ -27,7 +27,7 @@ type ChangeCursor = [string, ...ChangeAction];
 export interface Service {
   download(file: FileMeta): Promise<ReadableFile>;
   upload(file: FileMeta): Promise<WritableFile>;
-  create_folder(name: string, parent: FileMeta): Promise<FileMeta>;
+  createFolder(name: string, parent: FileMeta): Promise<FileMeta>;
 
   move(
     file: FileMeta,
