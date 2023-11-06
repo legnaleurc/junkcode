@@ -24,7 +24,7 @@ type UpdateAction = [false, FileMeta];
 type ChangeAction = RemoveAction | UpdateAction;
 type ChangeCursor = [string, ...ChangeAction];
 
-export interface Service {
+export interface FileService {
   download(file: FileMeta): Promise<ReadableFile>;
   upload(file: FileMeta): Promise<WritableFile>;
   createFolder(name: string, parent: FileMeta): Promise<FileMeta>;
@@ -56,7 +56,7 @@ export interface WritableFile extends RandomAccessFile {
   flush(): Promise<void>;
 }
 
-export interface Snapshot {
+export interface SnapshotService {
   getMetadata(key: string): Promise<string>;
   setMetadata(key: string, value: string): Promise<void>;
 

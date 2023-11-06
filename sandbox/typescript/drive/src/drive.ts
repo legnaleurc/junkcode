@@ -1,8 +1,8 @@
-import { Drive, Service } from "./types";
+import { Drive, FileService, SnapshotService } from "./types";
 
 type CreateDriveParameters = {
-    createService: () => Promise<Service>;
-    createSnapshot: () => Promise<Service>;
+    createService: () => Promise<FileService>;
+    createSnapshot: () => Promise<SnapshotService>;
 };
 export async function createDrive(params: CreateDriveParameters): Promise<Drive> {
     return new DefaultDrive();
