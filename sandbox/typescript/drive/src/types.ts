@@ -81,6 +81,8 @@ export interface SnapshotService {
 type WalkEntry = [FileMeta, Array<FileMeta>, Array<FileMeta>];
 
 export interface Drive {
+  getRootFile(): Promise<FileMeta>;
+
   sync(): Promise<void>;
   walk(root: FileMeta): AG<WalkEntry>;
 }
