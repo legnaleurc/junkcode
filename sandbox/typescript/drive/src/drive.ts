@@ -1,4 +1,4 @@
-import { Drive, FileMeta, FileService, SnapshotService } from "./types";
+import type { Drive, FileMeta, FileService, SnapshotService } from "./types";
 
 type CreateDriveParameters = {
   createFileService: () => Promise<FileService>;
@@ -28,10 +28,20 @@ class DefaultDrive implements Drive {
     this.snapshotService = params.snapshotService;
   }
 
-  async getRootFile(): Promise<FileMeta> {
+  async getRoot(): Promise<FileMeta> {
     const rootId = await this.snapshotService.getRootId();
-    const root = await this.snapshotService.getFileById(rootId);
+    const root = await this.getFileById(rootId);
     return root;
+  }
+
+  async getFileById(id: string): Promise<FileMeta> {
+    const file = await this.snapshotService.getFileById(id);
+    return file;
+  }
+
+  async getChildren(file: FileMeta): Promise<Array<FileMeta>> {
+    const children = await this.snapshotService.getChildren(file.id);
+    return children;
   }
 
   async sync() {}

@@ -65,7 +65,7 @@ export interface SnapshotService {
   getFileById(fileId: string): Promise<FileMeta>;
   getFileByAbsolutePath(absolutePath: string): Promise<FileMeta>;
 
-  listFilesInFolder(fileId: string): Promise<FileMeta[]>;
+  getChildren(fileId: string): Promise<FileMeta[]>;
   listFilesInTrash(): Promise<FileMeta[]>;
 
   getFileByNameInFolder(fileName: string, parentId: string): Promise<FileMeta>;
@@ -81,7 +81,7 @@ export interface SnapshotService {
 type WalkEntry = [FileMeta, Array<FileMeta>, Array<FileMeta>];
 
 export interface Drive {
-  getRootFile(): Promise<FileMeta>;
+  getRoot(): Promise<FileMeta>;
 
   sync(): Promise<void>;
   walk(root: FileMeta): AG<WalkEntry>;
