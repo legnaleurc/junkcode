@@ -44,6 +44,8 @@ class DefaultDrive implements Drive {
     return children;
   }
 
+  async resolve() {}
+
   async sync() {}
 
   async *walk() {}

@@ -82,6 +82,8 @@ type WalkEntry = [FileMeta, Array<FileMeta>, Array<FileMeta>];
 
 export interface Drive {
   getRoot(): Promise<FileMeta>;
+  getFileById(id: string): Promise<FileMeta>;
+  getChildren(file: FileMeta): Promise<Array<FileMeta>>;
 
   sync(): Promise<void>;
   walk(root: FileMeta): AG<WalkEntry>;
