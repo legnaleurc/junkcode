@@ -7,12 +7,15 @@ import sys
 import tempfile
 from concurrent.futures import Executor
 from functools import partial
+from logging import getLogger
+from logging.config import dictConfig
+from tempfile import TemporaryDirectory
 from typing import NoReturn, Any
 
 from wcpan.drive.core.drive import Drive, DriveFactory
 from wcpan.drive.core.types import Node
 from wcpan.drive.core.util import create_executor
-from wcpan.logger import setup as setup_logger, WARNING, DEBUG, INFO
+from wcpan.logging import ConfigBuilder
 
 from .cache import initialize_cache
 from .processor import create_processor, is_oggmedia, is_realmedia
@@ -31,24 +34,22 @@ async def main(args: list[str] = None):
     jobs: int = kwargs.jobs
 
     initialize_cache()
-    setup_logger([
-        'wcpan.drive',
-        'faststart',
-    ], './data/migrate.log')
+    dictConfig(
+        ConfigBuilder(path="./data/migrate.log").add("wcpan.drive", "app").to_dict()
+    )
 
     factory = DriveFactory()
     factory.load_config()
 
     queue = asyncio.Queue(jobs)
 
-    with create_executor() as pool, \
-         tempfile.TemporaryDirectory() as work_folder:
-
+    with create_executor() as pool, TemporaryDirectory() as work_folder:
         async with factory(pool=pool) as drive:
             async for change in drive.sync():
-                DEBUG('faststart') << change
+                getLogger(__name__).debug(change)
 
-            work = partial(node_work,
+            work = partial(
+                node_work,
                 drive=drive,
                 work_folder=work_folder,
                 pool=pool,
@@ -57,7 +58,7 @@ async def main(args: list[str] = None):
                 cache_only=cache_only,
             )
             consumer_list = [
-                asyncio.create_task(consume(queue, work), name=f'consumer-{i}')
+                asyncio.create_task(consume(queue, work), name=f"consumer-{i}")
                 for i in range(jobs)
             ]
 
@@ -67,14 +68,20 @@ async def main(args: list[str] = None):
                     walk_root_list(drive, root_path_list),
                     consumer_list,
                 ),
-                name=f'producer',
+                name=f"producer",
             )
 
             loop = asyncio.get_running_loop()
-            loop.add_signal_handler(signal.SIGINT, partial(shutdown, tasks=[
-                producer,
-                *consumer_list,
-            ]))
+            loop.add_signal_handler(
+                signal.SIGINT,
+                partial(
+                    shutdown,
+                    tasks=[
+                        producer,
+                        *consumer_list,
+                    ],
+                ),
+            )
 
             await asyncio.gather(
                 producer,
@@ -86,16 +93,16 @@ async def main(args: list[str] = None):
 
 
 def parse_args(args: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser('app')
+    parser = argparse.ArgumentParser("app")
 
     mutex_group = parser.add_mutually_exclusive_group()
-    mutex_group.add_argument('--remux-only', action='store_true', default=False)
-    mutex_group.add_argument('--transcode-only', action='store_true', default=False)
-    mutex_group.add_argument('--cache-only', action='store_true', default=False)
+    mutex_group.add_argument("--remux-only", action="store_true", default=False)
+    mutex_group.add_argument("--transcode-only", action="store_true", default=False)
+    mutex_group.add_argument("--cache-only", action="store_true", default=False)
 
-    parser.add_argument('--jobs', '-j', type=int, default=1)
+    parser.add_argument("--jobs", "-j", type=int, default=1)
 
-    parser.add_argument('root_path', type=str, nargs='+')
+    parser.add_argument("root_path", type=str, nargs="+")
 
     return parser.parse_args(args[1:])
 
@@ -109,7 +116,11 @@ async def walk_root_list(drive: Drive, root_list: list[str]):
 
         async for root, folders, files in drive.walk(root_node):
             for file_ in files:
-                if not file_.is_video and not is_realmedia(file_) and not is_oggmedia(file_):
+                if (
+                    not file_.is_video
+                    and not is_realmedia(file_)
+                    and not is_oggmedia(file_)
+                ):
                     continue
                 yield file_
 
@@ -124,10 +135,10 @@ async def node_work(
     transcode_only: bool,
     cache_only: bool,
 ):
-    INFO('faststart') << 'processing' << node.name
+    getLogger(__name__).info(f"processing {node.name}")
     processor = create_processor(work_folder, pool, drive, node)
     if not processor:
-        WARNING('faststart') << 'no processor for' << node.name
+        getLogger(__name__).warning(f"no processor for {node.name}")
         return
 
     used_quota = await processor(
@@ -155,7 +166,7 @@ def shutdown(*, tasks: list[asyncio.Task[Any]]):
         if not task.done():
             task.print_stack()
         elif task.cancelled():
-            print(f'{task.get_name()} cancelled')
+            print(f"{task.get_name()} cancelled")
 
 
 def cancel_tasks(tasks: list[asyncio.Task[Any]]):
