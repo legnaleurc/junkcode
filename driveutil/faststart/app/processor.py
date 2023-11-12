@@ -2,12 +2,12 @@ import asyncio
 import datetime
 import json
 import os.path
-import pathlib
 import shutil
 import subprocess
 from concurrent.futures import Executor
 from contextlib import asynccontextmanager, contextmanager
 from logging import getLogger
+from pathlib import Path
 from typing import Union
 
 from wcpan.drive.core.drive import Drive, upload_from_local, download_to_local
@@ -24,7 +24,7 @@ DAILY_UPLOAD_QUOTA = 500 * 1024 * 1024 * 1024
 
 class VideoProcessor(object):
     def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
-        self.work_folder = pathlib.Path(work_folder)
+        self.work_folder = Path(work_folder)
         self.pool = pool
         self.drive = drive
         self.node = node
@@ -65,16 +65,16 @@ class VideoProcessor(object):
         return fast_start + all_streams + ac + vc + sc + frame_queue
 
     @property
-    def output_folder(self) -> pathlib.Path:
+    def output_folder(self) -> Path:
         folder = self.work_folder / self.node.id_
         return folder
 
     @property
-    def raw_file_path(self) -> pathlib.Path:
+    def raw_file_path(self) -> Path:
         return self.output_folder / f"__{self.node.name}"
 
     @property
-    def transcoded_file_path(self) -> pathlib.Path:
+    def transcoded_file_path(self) -> Path:
         return self.output_folder / self.transcoded_file_name
 
     async def update_codec_from_ffmpeg(self):
@@ -352,7 +352,7 @@ async def shell_pipe(cmd_list: list[str]):
     return out.decode("utf-8", "ignore"), err.decode("utf-8", "ignore")
 
 
-async def shell_call(cmd_list: list[str], folder: pathlib.Path):
+async def shell_call(cmd_list: list[str], folder: Path):
     with open(folder / "shell.log", "ab") as out:
         p = await asyncio.create_subprocess_exec(
             *cmd_list, stdout=out, stderr=subprocess.STDOUT
