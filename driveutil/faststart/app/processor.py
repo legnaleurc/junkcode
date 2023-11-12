@@ -1,12 +1,12 @@
 import asyncio
 import datetime
 import json
-import os.path
 import shutil
 import subprocess
 from concurrent.futures import Executor
 from contextlib import asynccontextmanager, contextmanager
 from logging import getLogger
+from os.path import splitext
 from pathlib import Path
 from typing import Union
 
@@ -312,7 +312,7 @@ class MaybeH264Processor(VideoProcessor):
 
     @property
     def transcoded_file_name(self):
-        name, ext = os.path.splitext(self.node.name)
+        name, ext = splitext(self.node.name)
         return name + ".mp4"
 
 
@@ -326,7 +326,7 @@ class MKVProcessor(VideoProcessor):
 
     @property
     def transcoded_file_name(self):
-        name, ext = os.path.splitext(self.node.name)
+        name, ext = splitext(self.node.name)
         return name + ".mp4"
 
 
@@ -340,7 +340,7 @@ class NeverH264Processor(VideoProcessor):
 
     @property
     def transcoded_file_name(self):
-        name, ext = os.path.splitext(self.node.name)
+        name, ext = splitext(self.node.name)
         return name + ".mp4"
 
 
