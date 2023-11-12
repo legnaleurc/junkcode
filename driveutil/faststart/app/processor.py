@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 import datetime
 import json
 import os.path
@@ -7,6 +6,7 @@ import pathlib
 import shutil
 import subprocess
 from concurrent.futures import Executor
+from contextlib import asynccontextmanager, contextmanager
 from logging import getLogger
 from typing import Union
 
@@ -42,7 +42,7 @@ class VideoProcessor(object):
         raise NotImplementedError()
 
     @property
-    def codec_command(self):
+    def codec_command(self) -> list[str]:
         # codec options
         if self.is_h264:
             vc = ["-c:v", "copy"]
@@ -111,12 +111,12 @@ class VideoProcessor(object):
         self.is_faststart = err.find("bytes read, 0 seeks") >= 0
 
     @property
-    def is_skippable(self):
-        return self.is_faststart and not self.need_transcode
+    def is_skippable(self) -> bool:
+        return self.is_faststart and self.is_native_codec
 
     @property
-    def need_transcode(self):
-        return not (self.is_h264 and self.is_aac)
+    def is_native_codec(self) -> bool:
+        return self.is_h264 and self.is_aac
 
     async def __call__(
         self,
@@ -162,13 +162,13 @@ class VideoProcessor(object):
                 set_migrated(self.node, True, True)
                 return True
 
-            set_migrated(self.node, self.is_faststart, not self.need_transcode)
+            set_migrated(self.node, self.is_faststart, self.is_native_codec)
 
-            if remux_only and self.need_transcode:
+            if remux_only and not self.is_native_codec:
                 getLogger(__name__).info("need transcode, skip")
                 return True
 
-            if transcode_only and not self.need_transcode:
+            if transcode_only and self.is_native_codec:
                 getLogger(__name__).info("no need transcode, skip")
                 return True
 
@@ -239,7 +239,7 @@ class VideoProcessor(object):
             raise Exception("hash mismatch")
         getLogger(__name__).info(f"verified {uploaded_node.hash_}")
 
-    @contextlib.contextmanager
+    @contextmanager
     def _local_context(self):
         output_folder = self.output_folder
         output_folder.mkdir(exist_ok=True)
@@ -249,7 +249,7 @@ class VideoProcessor(object):
             shutil.rmtree(output_folder)
             getLogger(__name__).info(f"deleted {output_folder}")
 
-    @contextlib.asynccontextmanager
+    @asynccontextmanager
     async def _remote_context(self):
         await self._rename_remote()
         try:
