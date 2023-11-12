@@ -125,7 +125,7 @@ class VideoProcessor(object):
         cache_only: bool,
     ):
         if is_migrated(self.node):
-            getLogger(__name__).info("already cached, skip")
+            getLogger(__name__).info("(cache) already migrated, skip")
             return False
 
         if transcode_only and has_cache(self.node) and not need_transcode(self.node):
