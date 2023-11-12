@@ -5,6 +5,9 @@ from logging import getLogger
 from wcpan.drive.core.drive import Node
 
 
+DATABASE_PATH = "./data/_migrated.sqlite"
+
+
 def initialize_cache():
     with migration_cache() as query:
         try:
@@ -96,7 +99,5 @@ def set_cache(node: Node, is_muxed: bool, is_coded: bool):
 
 @contextmanager
 def migration_cache():
-    with sqlite3.connect("./data/_migrated.sqlite") as db, closing(
-        db.cursor()
-    ) as query:
+    with sqlite3.connect(DATABASE_PATH) as db, closing(db.cursor()) as query:
         yield query
