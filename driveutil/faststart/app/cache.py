@@ -1,5 +1,5 @@
-import contextlib
 import sqlite3
+from contextlib import closing, contextmanager
 from logging import getLogger
 
 from wcpan.drive.core.drive import Node
@@ -10,7 +10,7 @@ def initialize_cache():
         try:
             query.execute(
                 """
-                CREATE TABLE migrated (
+                CREATE TABLE IF NOT EXISTS migrated (
                     id INTEGER PRIMARY KEY,
                     node_id TEXT NOT NULL UNIQUE,
                     is_muxed INTEGER NOT NULL,
@@ -20,7 +20,7 @@ def initialize_cache():
             )
             query.execute(
                 """
-                CREATE INDEX ix_migrated_node_id ON migrated(node_id);
+                CREATE INDEX IF NOT EXISTS ix_migrated_node_id ON migrated(node_id);
                 """
             )
         except sqlite3.OperationalError:
@@ -94,9 +94,9 @@ def set_cache(node: Node, is_muxed: bool, is_coded: bool):
         )
 
 
-@contextlib.contextmanager
+@contextmanager
 def migration_cache():
-    with sqlite3.connect("./data/_migrated.sqlite") as db, contextlib.closing(
+    with sqlite3.connect("./data/_migrated.sqlite") as db, closing(
         db.cursor()
     ) as query:
         yield query
