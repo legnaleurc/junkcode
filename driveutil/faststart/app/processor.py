@@ -8,7 +8,6 @@ from contextlib import asynccontextmanager, contextmanager
 from logging import getLogger
 from os.path import splitext
 from pathlib import Path
-from typing import Union
 
 from wcpan.drive.core.drive import Drive, upload_from_local, download_to_local
 from wcpan.drive.core.types import Node, MediaInfo
@@ -391,7 +390,7 @@ def create_processor(
     pool: Executor,
     drive: Drive,
     node: Node,
-) -> Union[VideoProcessor, None]:
+) -> VideoProcessor | None:
     if node.mime_type in PROCESSOR_TABLE:
         constructor = PROCESSOR_TABLE[node.mime_type]
         return constructor(work_folder, pool, drive, node)
