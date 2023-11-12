@@ -97,6 +97,16 @@ def set_cache(node: Node, is_muxed: bool, is_coded: bool):
         )
 
 
+def unset_cache(node: Node):
+    with migration_cache() as query:
+        query.execute(
+            """
+            DELETE FROM migrated WHERE node_id = ?;
+            """,
+            (node.id_,),
+        )
+
+
 @contextmanager
 def migration_cache():
     with sqlite3.connect(DATABASE_PATH) as db, closing(db.cursor()) as query:

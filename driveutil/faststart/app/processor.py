@@ -13,7 +13,7 @@ from wcpan.drive.core.drive import Drive, upload_from_local, download_to_local
 from wcpan.drive.core.types import Node, MediaInfo
 from wcpan.drive.cli.util import get_video_info, get_hash
 
-from .cache import is_migrated, set_cache, need_transcode, has_cache
+from .cache import is_migrated, set_cache, need_transcode, has_cache, unset_cache
 
 
 H264_PRESET = "veryfast"
@@ -254,6 +254,7 @@ class VideoProcessor(object):
         try:
             yield
             await self._delete_remote()
+            unset_cache(self.node)
         except Exception:
             getLogger(__name__).exception("upload error")
             await self._restore_remote()
