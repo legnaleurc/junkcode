@@ -69,7 +69,7 @@ def need_transcode(node: Node):
         return True
 
 
-def set_migrated(node: Node, is_muxed: bool, is_coded: bool):
+def set_cache(node: Node, is_muxed: bool, is_coded: bool):
     with migration_cache() as query:
         query.execute(
             """
