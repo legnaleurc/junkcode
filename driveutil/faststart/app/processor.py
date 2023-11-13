@@ -55,13 +55,14 @@ class VideoProcessor(object):
             sc = ["-c:s", "copy"]
         else:
             sc = ["-c:s", "mov_text"]
+        dc = ["-c:d", "copy"]
         # muxer options
         fast_start = ["-movflags", "+faststart"]
         # keeps subtitles if possible
         all_streams = ["-map", "0"]
         # increase frame queue to fix corrupted frames
         frame_queue = ["-max_muxing_queue_size", "1024"]
-        return fast_start + all_streams + ac + vc + sc + frame_queue
+        return fast_start + ac + vc + sc + dc + all_streams + frame_queue
 
     @property
     def output_folder(self) -> Path:
@@ -95,6 +96,8 @@ class VideoProcessor(object):
         subtitle_codec_list: list[str] = []
         for stream in data:
             codec_type = stream["codec_type"]
+            if codec_type == "data":
+                continue
             codec_name = stream["codec_name"]
             if codec_type == "audio":
                 audio_codec_list.append(codec_name)
