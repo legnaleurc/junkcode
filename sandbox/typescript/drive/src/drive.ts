@@ -46,7 +46,27 @@ class DefaultDrive implements Drive {
 
   async resolve() {}
 
-  async sync() {}
+  async *sync() {
+    const initialCursor = await this.fileService.fetchInitialCursor();
+    let cursor = initialCursor;
+    try {
+      cursor = await this.snapshotService.getCurrentCursor();
+    } catch (e: unknown) {
+      console.warn(e);
+    }
+    // no data, reset root node
+    if (cursor === initialCursor) {
+      const root = await this.fileService.fetchRoot();
+      await this.snapshotService.setRoot(root);
+    }
+
+    for await (const [changeList, next] of this.fileService.fetchChangeList(cursor)) {
+      await this.snapshotService.applyChangeList(changeList, next);
+      for (const change of changeList) {
+        yield change;
+      }
+    }
+  }
 
   async *walk() {}
 }

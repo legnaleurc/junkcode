@@ -22,7 +22,7 @@ type AG<T> = AsyncGenerator<T, void, void>;
 type RemoveAction = [true, string];
 type UpdateAction = [false, FileMeta];
 type ChangeAction = RemoveAction | UpdateAction;
-type ChangeCursor = [string, ...ChangeAction];
+type ChangeCursor = [Array<ChangeAction>, string];
 
 export interface FileService {
   download(file: FileMeta): Promise<ReadableFile>;
@@ -84,6 +84,6 @@ export interface Drive {
   getFileById(id: string): Promise<FileMeta>;
   getChildren(file: FileMeta): Promise<Array<FileMeta>>;
 
-  sync(): Promise<void>;
+  sync(): AG<ChangeAction>;
   walk(root: FileMeta): AG<WalkEntry>;
 }
