@@ -36,7 +36,7 @@ export interface FileService {
   trash(file: FileMeta): Promise<void>;
 
   fetchInitialCursor(): Promise<string>;
-  fetchRootFile(): Promise<FileMeta>;
+  fetchRoot(): Promise<FileMeta>;
   fetchChangeList(cursor: string): AG<ChangeCursor>;
 }
 
@@ -57,10 +57,9 @@ export interface WritableFile extends RandomAccessFile {
 }
 
 export interface SnapshotService {
-  getMetadata(key: string): Promise<string>;
-  setMetadata(key: string, value: string): Promise<void>;
-
-  getRootId(): Promise<string>;
+  getCurrentCursor(): Promise<string>;
+  getRoot(): Promise<FileMeta>;
+  setRoot(root: FileMeta): Promise<void>;
 
   getFileById(fileId: string): Promise<FileMeta>;
   getFileByAbsolutePath(absolutePath: string): Promise<FileMeta>;
