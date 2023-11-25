@@ -189,6 +189,21 @@ async def fetch_jav_data_from_1pondo(session: ClientSession, jav_id: str):
         return f'1PONDO {jav_id} {title} {actor}'
 
 
+@named_fetch('10musume')
+async def fetch_jav_data_from_10musume(session: ClientSession, jav_id: str):
+    async with session.get(
+        f'https://www.10musume.com/dyn/phpauto/movie_details/movie_id/{jav_id}.json',
+    ) as response:
+        if response.status != 200:
+            return None
+
+        data = await response.json()
+        title = normalize_title(data['Title'])
+        actor = normalize_title(data['Actor'])
+
+        return f'10MU {jav_id} {title} {actor}'
+
+
 SOURCE_LIST = [
     fetch_jav_data_from_javbus,
     fetch_jav_data_from_javlibrary,
@@ -197,6 +212,7 @@ SOURCE_LIST = [
     fetch_jav_data_from_carib,
     fetch_jav_data_from_caribpr,
     fetch_jav_data_from_1pondo,
+    fetch_jav_data_from_10musume,
 ]
 
 

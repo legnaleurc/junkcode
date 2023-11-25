@@ -42,11 +42,20 @@ def include_carib(name: str):
     rv = f'{m.group(1)}_{m.group(2)}'
     return rv
 
+
 def include_mesubuta(name: str):
     m = re.search(r'(\d{6})[-_](\d{3})[-_](\d{2})', name, re.I)
     if not m:
         return ''
     rv = f'{m.group(1)}_{m.group(2)}_{m.group(3)}'
+    return rv
+
+
+def include_10musume(name: str):
+    m = re.search(r'(\d{6})[-_](\d{2})-10MU', name, re.I)
+    if not m:
+        return ''
+    rv = f'{m.group(1)}_{m.group(2)}'
     return rv
 
 
@@ -56,6 +65,7 @@ EXCLUDE_LIST = [
 
 
 INCLUDE_LIST = [
+    include_10musume,
     include_carib,
     include_heydouga,
     include_fc2,
