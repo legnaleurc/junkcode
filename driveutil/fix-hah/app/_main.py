@@ -50,4 +50,4 @@ async def _migrate(drive: Drive, src: Node, tmp: Path, parent: Node) -> None:
     tmp_path = await archive(src_path, tmp)
     await upload(drive, tmp_path, parent)
     await drive.move(src, trashed=True)
-    print(f"remove {src}")
+    print(f"remove {src.name}")
