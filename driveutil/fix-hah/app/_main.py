@@ -1,6 +1,8 @@
 from asyncio import sleep
+from concurrent.futures import ProcessPoolExecutor, Executor
 from logging.config import dictConfig
 from pathlib import Path
+from shutil import rmtree
 from tempfile import TemporaryDirectory
 
 from wcpan.drive.core.types import Drive, Node
@@ -22,7 +24,7 @@ async def main(args: list[str]) -> int:
         async for _ in drive.sync():
             pass
 
-        with TemporaryDirectory() as tmp:
+        with TemporaryDirectory() as tmp, ProcessPoolExecutor() as pool:
             work_path = Path(tmp)
 
             for path in kwargs.path_list:
@@ -33,7 +35,7 @@ async def main(args: list[str]) -> int:
                 children = (_ for _ in children if _is_hah_name(_.name))
 
                 for child in children:
-                    await _migrate(drive, child, work_path, node)
+                    await _migrate(child, drive=drive, pool=pool, tmp=work_path, parent=node)
                     await sleep(60)
     return 0
 
@@ -45,9 +47,17 @@ def _is_hah_name(name: str) -> bool:
     return rv is not None
 
 
-async def _migrate(drive: Drive, src: Node, tmp: Path, parent: Node) -> None:
-    src_path = await download(drive, src, tmp)
+async def _migrate(src: Node, /, *, drive: Drive, pool: Executor, tmp: Path, parent: Node) -> None:
+    src_path = await download(drive, src, tmp, pool)
     tmp_path = await archive(src_path, tmp)
-    await upload(drive, tmp_path, parent)
+    await upload(drive, tmp_path, parent, pool)
+    await _cleanup(src, tmp_path, src_path, drive=drive)
+
+
+async def _cleanup(src: Node, ar: Path, tmp: Path, /, *, drive: Drive):
+    rmtree(ar)
+    print(f"remove {ar}")
+    rmtree(tmp)
+    print(f"remove {tmp}")
     await drive.move(src, trashed=True)
     print(f"remove {src.name}")

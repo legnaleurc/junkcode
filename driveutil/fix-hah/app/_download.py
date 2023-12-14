@@ -1,28 +1,31 @@
+from concurrent.futures import Executor
 from pathlib import Path
 
 from wcpan.queue import AioQueue
 from wcpan.drive.core.lib import download_file_to_local
 from wcpan.drive.core.types import Drive, Node
 
+from ._check import get_hash
 
-async def download(drive: Drive, src: Node, dst: Path) -> Path:
+
+async def download(drive: Drive, src: Node, dst: Path, pool: Executor) -> Path:
     with AioQueue[None].fifo() as queue:
-        await queue.push(_download_unknown(queue, drive, src, dst))
+        await queue.push(_download_unknown(queue, drive, src, dst, pool))
         await queue.consume(4)
     return dst / src.name
 
 
 async def _download_unknown(
-    queue: AioQueue[None], drive: Drive, src: Node, dst: Path
+    queue: AioQueue[None], drive: Drive, src: Node, dst: Path, pool: Executor
 ) -> None:
     if src.is_directory:
-        await queue.push(_download_directory(queue, drive, src, dst))
+        await queue.push(_download_directory(queue, drive, src, dst, pool))
     else:
-        await queue.push(_download_file(drive, src, dst))
+        await queue.push(_download_file(drive, src, dst, pool))
 
 
 async def _download_directory(
-    queue: AioQueue[None], drive: Drive, src: Node, dst: Path
+    queue: AioQueue[None], drive: Drive, src: Node, dst: Path, pool: Executor
 ) -> None:
     name = src.name
     new_direcotry = dst / name
@@ -32,9 +35,13 @@ async def _download_directory(
     children = await drive.get_children(src)
     children = (_ for _ in children if not _.is_trashed)
     for child in children:
-        await queue.push(_download_unknown(queue, drive, child, new_direcotry))
+        await queue.push(_download_unknown(queue, drive, child, new_direcotry, pool))
 
 
-async def _download_file(drive: Drive, src: Node, dst: Path) -> None:
+async def _download_file(drive: Drive, src: Node, dst: Path, pool: Executor) -> None:
     path = await download_file_to_local(drive, src, dst)
     print(f"touch {path}")
+    factory = await drive.get_hasher_factory()
+    hash_ = await get_hash(path, factory, pool)
+    assert hash_ == src.hash
+    print(f"check {path}")
