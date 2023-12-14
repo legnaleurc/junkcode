@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = ""
+authors = ["Wei-Cheng Pan <legnaleurc@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+wcpan-drive-sqlite = "^1.0.2"
+wcpan-drive-google = "^9.0.0"
+wcpan-drive-crypt = "^4.0.0"
+wcpan-drive-cli = "^3.1.4"
+wcpan-logging = "^2.0.3"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
