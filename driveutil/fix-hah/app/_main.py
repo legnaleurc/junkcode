@@ -35,7 +35,9 @@ async def main(args: list[str]) -> int:
                 children = (_ for _ in children if _is_hah_name(_.name))
 
                 for child in children:
-                    await _migrate(child, drive=drive, pool=pool, tmp=work_path, parent=node)
+                    await _migrate(
+                        child, drive=drive, pool=pool, tmp=work_path, parent=node
+                    )
                     await sleep(60)
     return 0
 
@@ -47,7 +49,9 @@ def _is_hah_name(name: str) -> bool:
     return rv is not None
 
 
-async def _migrate(src: Node, /, *, drive: Drive, pool: Executor, tmp: Path, parent: Node) -> None:
+async def _migrate(
+    src: Node, /, *, drive: Drive, pool: Executor, tmp: Path, parent: Node
+) -> None:
     src_path = await download(drive, src, tmp, pool)
     tmp_path = await archive(src_path, tmp)
     await upload(drive, tmp_path, parent, pool)
@@ -55,7 +59,7 @@ async def _migrate(src: Node, /, *, drive: Drive, pool: Executor, tmp: Path, par
 
 
 async def _cleanup(src: Node, ar: Path, tmp: Path, /, *, drive: Drive):
-    rmtree(ar)
+    ar.unlink()
     print(f"remove {ar}")
     rmtree(tmp)
     print(f"remove {tmp}")
