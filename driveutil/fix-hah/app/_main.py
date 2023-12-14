@@ -35,8 +35,8 @@ async def main(args: list[str]) -> int:
                     src_path = await download(drive, child, work_path)
                     tmp_path = await archive(src_path, work_path)
                     await upload(drive, tmp_path, node)
-                    await drive.move(node, trashed=True)
-                    print(f"remove {path}")
+                    await drive.move(child, trashed=True)
+                    print(f"remove {child}")
                     await sleep(60)
     return 0
 
