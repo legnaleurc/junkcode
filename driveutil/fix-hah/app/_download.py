@@ -21,7 +21,7 @@ async def _download_unknown(
     if src.is_directory:
         await queue.push(_download_directory(queue, drive, src, dst, pool))
     else:
-        await queue.push(_download_file(drive, src, dst, pool))
+        await queue.push(_download_file(queue, drive, src, dst, pool))
 
 
 async def _download_directory(
@@ -38,10 +38,15 @@ async def _download_directory(
         await queue.push(_download_unknown(queue, drive, child, new_direcotry, pool))
 
 
-async def _download_file(drive: Drive, src: Node, dst: Path, pool: Executor) -> None:
+async def _download_file(queue: AioQueue[None], drive: Drive, src: Node, dst: Path, pool: Executor) -> None:
     path = await download_file_to_local(drive, src, dst)
     print(f"touch {path}")
+
+    await queue.push(_check_file(drive, src, path, pool))
+
+
+async def _check_file(drive: Drive, src: Node, tmp: Path, pool: Executor) -> None:
     factory = await drive.get_hasher_factory()
-    hash_ = await get_hash(path, factory, pool)
+    hash_ = await get_hash(tmp, factory, pool)
     assert hash_ == src.hash
-    print(f"check {path}")
+    print(f"check {tmp}")
