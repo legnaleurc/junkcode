@@ -1,4 +1,3 @@
-from asyncio import sleep
 from concurrent.futures import ProcessPoolExecutor, Executor
 from logging.config import dictConfig
 from pathlib import Path
@@ -38,7 +37,6 @@ async def main(args: list[str]) -> int:
                     await _migrate(
                         child, drive=drive, pool=pool, tmp=work_path, parent=node
                     )
-                    await sleep(60)
     return 0
 
 
