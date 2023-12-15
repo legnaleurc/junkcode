@@ -24,7 +24,7 @@ async def main(args: list[str]) -> int:
         async for _ in drive.sync():
             pass
 
-        with TemporaryDirectory() as tmp, ProcessPoolExecutor() as pool:
+        with TemporaryDirectory() as tmp, ProcessPoolExecutor(4) as pool:
             work_path = Path(tmp)
 
             for path in kwargs.path_list:
