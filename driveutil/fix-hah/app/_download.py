@@ -11,7 +11,7 @@ from ._check import get_hash
 async def download(drive: Drive, src: Node, dst: Path, pool: Executor) -> Path:
     with AioQueue[None].fifo() as queue:
         await queue.push(_download_unknown(queue, drive, src, dst, pool))
-        await queue.consume(4)
+        await queue.consume(8)
     return dst / src.name
 
 
