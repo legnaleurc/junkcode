@@ -1,7 +1,7 @@
 import asyncio
 import sys
 
-from .main import main
+from ._main import main
 
 
 sys.exit(asyncio.run(main()))

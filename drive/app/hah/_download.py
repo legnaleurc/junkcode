@@ -38,7 +38,9 @@ async def _download_directory(
         await queue.push(_download_unknown(queue, drive, child, new_direcotry, pool))
 
 
-async def _download_file(queue: AioQueue[None], drive: Drive, src: Node, dst: Path, pool: Executor) -> None:
+async def _download_file(
+    queue: AioQueue[None], drive: Drive, src: Node, dst: Path, pool: Executor
+) -> None:
     path = await download_file_to_local(drive, src, dst)
     print(f"touch {path}")
 

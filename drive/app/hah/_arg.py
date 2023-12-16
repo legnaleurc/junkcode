@@ -10,7 +10,7 @@ class KeywordArgument:
 
 
 def parse_args(args: list[str]) -> KeywordArgument:
-    parser = ArgumentParser("fix-hah")
+    parser = ArgumentParser("hah")
 
     parser.add_argument("--config", "-c", required=True, type=str)
     parser.add_argument("path", nargs="+", type=str)
