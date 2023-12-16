@@ -61,5 +61,5 @@ async def _cleanup(src: Node, ar: Path, tmp: Path, /, *, drive: Drive):
     print(f"remove {ar}")
     rmtree(tmp)
     print(f"remove {tmp}")
-    await drive.move(src, trashed=True)
+    await drive.delete(src)
     print(f"remove {src.name}")
