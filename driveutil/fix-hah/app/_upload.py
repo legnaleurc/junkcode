@@ -17,7 +17,10 @@ async def upload(drive: Drive, src: Path, dst: Node, pool: Executor) -> None:
         upload_ = group.create_task(_maybe_upload(drive, src, dst))
         hash_ = await check
         node = await upload_
-    assert node.hash == hash_
+    if node.hash != hash_:
+        print(f"mismatch {src}")
+        await drive.delete(node)
+        raise Exception("upload failed")
     print(f"upload {node.name}")
 
 
