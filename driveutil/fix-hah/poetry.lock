@@ -596,62 +596,62 @@ files = [
 
 [[package]]
 name = "wcpan-drive-cli"
-version = "3.1.4"
+version = "3.2.0"
 description = "command line tool for wcpan.drive"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_cli-3.1.4-py3-none-any.whl", hash = "sha256:51474e84b80578fc823ebe08853498d7caae14dd2ad58771a11e3a090de26dc5"},
-    {file = "wcpan_drive_cli-3.1.4.tar.gz", hash = "sha256:ba774d38ff7f94d6f2c46e221daf01d6756ffffaaa3b13ce6f62c7202f821be3"},
+    {file = "wcpan_drive_cli-3.2.0-py3-none-any.whl", hash = "sha256:6fc6eceba2e88afe0654b9051bf009b411d22112d11d4964670745cb715b3c0f"},
+    {file = "wcpan_drive_cli-3.2.0.tar.gz", hash = "sha256:97109a2d80bc6db68089094ab25ad7781f90ff51bae9a5bc7011c48be8fd420a"},
 ]
 
 [package.dependencies]
 Pillow = ">=9,<11"
 PyYAML = ">=6.0.1,<7.0.0"
-wcpan-drive-core = ">=4.0.1,<5.0.0"
+wcpan-drive-core = ">=4.1.0,<5.0.0"
 wcpan-logging = ">=2.0.3,<3.0.0"
 wcpan-queue = ">=7.2.1,<8.0.0"
 
 [[package]]
 name = "wcpan-drive-core"
-version = "4.0.1"
+version = "4.1.0"
 description = "asynchronous generic cloud drive library"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_core-4.0.1-py3-none-any.whl", hash = "sha256:8b1b1143f92aabe22561af9045ee08b7f4c8377491856ba49bbd3acd521c8361"},
-    {file = "wcpan_drive_core-4.0.1.tar.gz", hash = "sha256:b8c70552f15e5e776ccdb73e287f5f3adf80020ad6416e3f2359a526d4fcb8ad"},
+    {file = "wcpan_drive_core-4.1.0-py3-none-any.whl", hash = "sha256:fcddef9014c4dbddbfaf925c994989a6d4a524fd7a5670c1a92eb83934f4c837"},
+    {file = "wcpan_drive_core-4.1.0.tar.gz", hash = "sha256:982f1b83cdce287cd91dd186fae85f2db07dd86874d38eb831935c24c56d3566"},
 ]
 
 [[package]]
 name = "wcpan-drive-crypt"
-version = "4.0.0"
+version = "4.1.0"
 description = "crypt middleware for wcpan.drive"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_crypt-4.0.0-py3-none-any.whl", hash = "sha256:1a23ad71912acc69c764c0ea9e2c356166aa55004b576eca426376b20822d11c"},
-    {file = "wcpan_drive_crypt-4.0.0.tar.gz", hash = "sha256:f399bba14f738348f42296d589e803d9aa0b2d0f2f08ceed6335968618287dd1"},
+    {file = "wcpan_drive_crypt-4.1.0-py3-none-any.whl", hash = "sha256:95a37754ea8d65cd71a0695324a2972adc4119c507ea6ad385f7d6852c5d22c4"},
+    {file = "wcpan_drive_crypt-4.1.0.tar.gz", hash = "sha256:61905dda4f4d3c3a7226a92c26f152fc31c73abb7da07713595b99db5266ad08"},
 ]
 
 [package.dependencies]
 numpy = ">=1.18.0,<2.0.0"
-wcpan-drive-core = ">=4.0.0,<5.0.0"
+wcpan-drive-core = ">=4.1.0,<5.0.0"
 
 [[package]]
 name = "wcpan-drive-google"
-version = "9.0.0"
+version = "9.1.0"
 description = "Google Drive driver for wcpan.drive"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_google-9.0.0-py3-none-any.whl", hash = "sha256:39453e57c648d378383e2d5fa768b6351eaaa95669ded810c0f2cbd71aea5f48"},
-    {file = "wcpan_drive_google-9.0.0.tar.gz", hash = "sha256:5207555d05d9107e49b8eebb15a9e874b3b20d3ebfef2f60ba7cbb054982826a"},
+    {file = "wcpan_drive_google-9.1.0-py3-none-any.whl", hash = "sha256:bb0750d71deff25ab7ea749ce0c55e28b40752f2dc700c502a17a4e0a8592b74"},
+    {file = "wcpan_drive_google-9.1.0.tar.gz", hash = "sha256:5fea314bfd7d3d8b7054262cde98088ae772d1a2e969b50e1b98267c36763c10"},
 ]
 
 [package.dependencies]
 aiohttp = ">=3.6.0,<4.0.0"
-wcpan-drive-core = ">=4.0.0,<5.0.0"
+wcpan-drive-core = ">=4.1.0,<5.0.0"
 
 [[package]]
 name = "wcpan-drive-sqlite"
@@ -796,4 +796,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "69a82e8d5e149a3a18282772091d305fb0c0fa24b37572ad89ed4b75725447c1"
+content-hash = "82c423fe94f4a7c7649792faceefc94ce8a7dcd8594d61494677633689c2a651"
