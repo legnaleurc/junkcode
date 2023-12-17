@@ -22,7 +22,7 @@ async def main(args: list[str] | None = None) -> int:
     command = parser.add_subparsers()
 
     g_parser = command.add_parser("generate", aliases=["g"])
-    g_parser.add_argument("path", required=True, type=str)
+    g_parser.add_argument("path", type=str)
     g_parser.set_defaults(action=_generate)
 
     a_parser = command.add_parser("apply", aliases=["a"])
