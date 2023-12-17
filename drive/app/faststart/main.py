@@ -23,8 +23,8 @@ from .processor import create_processor, is_oggmedia, is_realmedia
 
 async def main(args: list[str] | None = None):
     kwargs = parse_args(args)
-    config_path = Path(kwargs.config_path)
-    data_path = Path(kwargs.data_path)
+    config_path = Path(kwargs.config_path).expanduser().resolve()
+    data_path = Path(kwargs.data_path).expanduser().resolve()
     root_path_list = [PurePath(_) for _ in kwargs.root_path]
     remux_only: bool = kwargs.remux_only
     transcode_only: bool = kwargs.transcode_only
