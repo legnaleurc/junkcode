@@ -113,7 +113,7 @@ async def process_node_list(session: ClientSession, node_list: list[Node]):
         yield {
             "id": node.id,
             "name": node.name,
-            "jav_id": jav_query,
+            "jav_id": jav_query.name,
             "title": title,
         }
 
