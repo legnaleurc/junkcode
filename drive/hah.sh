@@ -1,3 +1,3 @@
 #! /bin/sh
 
-poetry run -- python3 -m app.hah -c "~/.config/wcpan.drive/cli.yaml" "$@"
+poetry run -- python3 -m app.hah --drive-path="~/.config/wcpan.drive/cli.yaml" "$@"

@@ -23,7 +23,7 @@ from .processor import create_processor, is_oggmedia, is_realmedia
 
 async def main(args: list[str] | None = None):
     kwargs = parse_args(args)
-    config_path = Path(kwargs.config_path).expanduser().resolve()
+    drive_path = Path(kwargs.drive_path).expanduser().resolve()
     data_path = Path(kwargs.data_path).expanduser().resolve()
     root_path_list = [PurePath(_) for _ in kwargs.root_path]
     remux_only: bool = kwargs.remux_only
@@ -47,7 +47,7 @@ async def main(args: list[str] | None = None):
         pool = stack.enter_context(create_executor())
         work_folder = Path(stack.enter_context(TemporaryDirectory(dir=tmp_path)))
         queue = stack.enter_context(AioQueue[None].fifo())
-        drive = await stack.enter_async_context(create_drive_from_config(config_path))
+        drive = await stack.enter_async_context(create_drive_from_config(drive_path))
 
         async for change in drive.sync():
             getLogger(__name__).debug(change)
@@ -77,7 +77,7 @@ def parse_args(args: list[str] | None) -> Namespace:
 
     parser = ArgumentParser("app")
 
-    parser.add_argument("--config-path", "-c", required=True, type=str)
+    parser.add_argument("--drive-path", required=True, type=str)
     parser.add_argument("--data-path", required=True, type=str)
     parser.add_argument("--tmp-path", type=str)
     parser.add_argument("--jobs", "-j", default=1)

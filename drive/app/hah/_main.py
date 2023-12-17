@@ -19,7 +19,7 @@ async def main(args: list[str]) -> int:
 
     dictConfig(ConfigBuilder().add("wcpan", level="D").to_dict())
 
-    async with create_drive_from_config(kwargs.config_path) as drive:
+    async with create_drive_from_config(kwargs.drive_path) as drive:
         async for _ in drive.sync():
             pass
 
