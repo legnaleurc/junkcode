@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import json
 import shutil
 import subprocess
@@ -9,9 +8,10 @@ from logging import getLogger
 from os.path import splitext
 from pathlib import Path
 
-from wcpan.drive.core.drive import Drive, upload_from_local, download_to_local
-from wcpan.drive.core.types import Node, MediaInfo
-from wcpan.drive.cli.util import get_video_info, get_hash
+from wcpan.drive.core.lib import upload_file_from_local, download_file_to_local
+from wcpan.drive.core.types import Node, MediaInfo, Drive
+
+from app.lib import get_hash, get_video_info, get_daily_usage
 
 from .cache import is_migrated, set_cache, need_transcode, has_cache, unset_cache
 
@@ -22,8 +22,11 @@ DAILY_UPLOAD_QUOTA = 500 * 1024 * 1024 * 1024
 
 
 class VideoProcessor(object):
-    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
-        self.work_folder = Path(work_folder)
+    def __init__(
+        self, *, work_folder: Path, dsn: Path, pool: Executor, drive: Drive, node: Node
+    ):
+        self.work_folder = work_folder
+        self.dsn = dsn
         self.pool = pool
         self.drive = drive
         self.node = node
@@ -33,7 +36,7 @@ class VideoProcessor(object):
         self.is_aac = False
         self.is_movtext = False
 
-    async def prepare_codec_info(self):
+    async def prepare_codec_info(self) -> None:
         raise NotImplementedError()
 
     @property
@@ -66,7 +69,7 @@ class VideoProcessor(object):
 
     @property
     def output_folder(self) -> Path:
-        folder = self.work_folder / self.node.id_
+        folder = self.work_folder / self.node.id
         return folder
 
     @property
@@ -86,7 +89,7 @@ class VideoProcessor(object):
             "-print_format",
             "json",
             "-i",
-            self.raw_file_path,
+            str(self.raw_file_path),
         ]
         out, err = await shell_pipe(cmd)
         data = json.loads(out)
@@ -127,19 +130,27 @@ class VideoProcessor(object):
         transcode_only: bool,
         cache_only: bool,
     ):
-        if is_migrated(self.node):
+        if is_migrated(self.dsn, self.node):
             getLogger(__name__).info("(cache) already migrated, skip")
             return False
 
-        if transcode_only and has_cache(self.node) and not need_transcode(self.node):
+        if (
+            transcode_only
+            and has_cache(self.dsn, self.node)
+            and not need_transcode(self.dsn, self.node)
+        ):
             getLogger(__name__).info("no need transcode, skip")
             return False
 
-        if remux_only and has_cache(self.node) and need_transcode(self.node):
+        if (
+            remux_only
+            and has_cache(self.dsn, self.node)
+            and need_transcode(self.dsn, self.node)
+        ):
             getLogger(__name__).info("need transcode, skip")
             return False
 
-        if cache_only and has_cache(self.node):
+        if cache_only and has_cache(self.dsn, self.node):
             getLogger(__name__).info("already cached, skip")
             return False
 
@@ -161,10 +172,10 @@ class VideoProcessor(object):
                 return True
             if self.is_skippable:
                 getLogger(__name__).info("nothing to do, skip")
-                set_cache(self.node, True, True)
+                set_cache(self.dsn, self.node, True, True)
                 return True
 
-            set_cache(self.node, self.is_faststart, self.is_native_codec)
+            set_cache(self.dsn, self.node, self.is_faststart, self.is_native_codec)
 
             if remux_only and not self.is_native_codec:
                 getLogger(__name__).info("need transcode, skip")
@@ -193,7 +204,7 @@ class VideoProcessor(object):
                 node = await self._upload(media_info)
                 await self._verify(node)
 
-            set_cache(node, True, True)
+            set_cache(self.dsn, node, True, True)
             return True
 
     def _get_transcode_command(self):
@@ -206,40 +217,48 @@ class VideoProcessor(object):
 
     async def _delete_remote(self):
         getLogger(__name__).info(f"removing {self.node.name}")
-        await self.drive.trash_node(self.node)
+        await self.drive.move(self.node, trashed=True)
         await wait_for_sync(self.drive)
         getLogger(__name__).info(f"removed {self.node.name}")
 
     async def _download(self):
         getLogger(__name__).info(f"downloading {self.node.name}")
         output_folder = self.output_folder
-        downloaded_path = await download_to_local(self.drive, self.node, output_folder)
+        downloaded_path = await download_file_to_local(
+            self.drive, self.node, output_folder
+        )
         output_path = self.raw_file_path
         downloaded_path.rename(output_path)
         getLogger(__name__).info(f"downloaded {self.node.name}")
 
     async def _upload(self, media_info: MediaInfo):
+        from mimetypes import guess_type
+
         output_path = self.transcoded_file_path
         getLogger(__name__).info(f"uploading {output_path}")
+        assert self.node.parent_id
         parent_node = await self.drive.get_node_by_id(self.node.parent_id)
-        node = await upload_from_local(self.drive, parent_node, output_path, media_info)
-        getLogger(__name__).info(f"uploaded {node.id_}")
+        type_, _ext = guess_type(output_path)
+        node = await upload_file_from_local(
+            self.drive, output_path, parent_node, mime_type=type_, media_info=media_info
+        )
+        getLogger(__name__).info(f"uploaded {node.id}")
         return node
 
     async def _verify(self, uploaded_node: Node):
         output_path = self.transcoded_file_path
         getLogger(__name__).info(f"verifying {output_path}")
-        hasher = await self.drive.get_hasher()
+        factory = await self.drive.get_hasher_factory()
         loop = asyncio.get_running_loop()
         local_hash = await loop.run_in_executor(
-            self.pool, get_hash, output_path, hasher
+            self.pool, get_hash, output_path, factory
         )
-        if local_hash != uploaded_node.hash_:
+        if local_hash != uploaded_node.hash:
             getLogger(__name__).info(f"removing {uploaded_node.name}")
-            await self.drive.trash_node(uploaded_node)
+            await self.drive.move(uploaded_node, trashed=True)
             getLogger(__name__).info(f"removed {uploaded_node.name}")
             raise Exception("hash mismatch")
-        getLogger(__name__).info(f"verified {uploaded_node.hash_}")
+        getLogger(__name__).info(f"verified {uploaded_node.hash}")
 
     @contextmanager
     def _local_context(self):
@@ -257,36 +276,36 @@ class VideoProcessor(object):
         try:
             yield
             await self._delete_remote()
-            unset_cache(self.node)
+            unset_cache(self.dsn, self.node)
         except Exception:
             getLogger(__name__).exception("upload error")
             await self._restore_remote()
             raise
 
     async def _rename_remote(self):
-        await self.drive.rename_node(self.node, new_name=f"__{self.node.name}")
+        await self.drive.move(self.node, new_name=f"__{self.node.name}")
         getLogger(__name__).debug("confirming rename")
         while True:
             await wait_for_sync(self.drive)
-            new_node = await self.drive.get_node_by_id(self.node.id_)
+            new_node = await self.drive.get_node_by_id(self.node.id)
             if new_node.name != self.node.name:
                 break
             await asyncio.sleep(1)
         getLogger(__name__).debug("rename confirmed")
 
     async def _restore_remote(self):
-        await self.drive.rename_node(self.node, new_name=self.node.name)
+        await self.drive.move(self.node, new_name=self.node.name)
         getLogger(__name__).debug("confirming restore")
         while True:
             await wait_for_sync(self.drive)
-            new_node = await self.drive.get_node_by_id(self.node.id_)
+            new_node = await self.drive.get_node_by_id(self.node.id)
             if new_node.name == self.node.name:
                 break
             await asyncio.sleep(1)
         getLogger(__name__).debug("restore confirmed")
 
     def _dump_info(self):
-        getLogger(__name__).info(f"node id: {self.node.id_}")
+        getLogger(__name__).info(f"node id: {self.node.id}")
         getLogger(__name__).info(f"node name: {self.node.name}")
         getLogger(__name__).info(f"is faststart: {self.is_faststart}")
         getLogger(__name__).info(f"is h264: {self.is_h264}")
@@ -294,8 +313,12 @@ class VideoProcessor(object):
 
 
 class MP4Processor(VideoProcessor):
-    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
-        super().__init__(work_folder, pool, drive, node)
+    def __init__(
+        self, *, work_folder: Path, dsn: Path, pool: Executor, drive: Drive, node: Node
+    ):
+        super().__init__(
+            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
+        )
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -306,8 +329,12 @@ class MP4Processor(VideoProcessor):
 
 
 class MaybeH264Processor(VideoProcessor):
-    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
-        super().__init__(work_folder, pool, drive, node)
+    def __init__(
+        self, *, work_folder: Path, dsn: Path, pool: Executor, drive: Drive, node: Node
+    ):
+        super().__init__(
+            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
+        )
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -315,13 +342,17 @@ class MaybeH264Processor(VideoProcessor):
 
     @property
     def transcoded_file_name(self):
-        name, ext = splitext(self.node.name)
+        name, _ext = splitext(self.node.name)
         return name + ".mp4"
 
 
 class MKVProcessor(VideoProcessor):
-    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
-        super().__init__(work_folder, pool, drive, node)
+    def __init__(
+        self, *, work_folder: Path, dsn: Path, pool: Executor, drive: Drive, node: Node
+    ):
+        super().__init__(
+            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
+        )
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -329,13 +360,17 @@ class MKVProcessor(VideoProcessor):
 
     @property
     def transcoded_file_name(self):
-        name, ext = splitext(self.node.name)
+        name, _ext = splitext(self.node.name)
         return name + ".mp4"
 
 
 class NeverH264Processor(VideoProcessor):
-    def __init__(self, work_folder: str, pool: Executor, drive: Drive, node: Node):
-        super().__init__(work_folder, pool, drive, node)
+    def __init__(
+        self, *, work_folder: Path, dsn: Path, pool: Executor, drive: Drive, node: Node
+    ):
+        super().__init__(
+            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
+        )
 
     async def prepare_codec_info(self):
         await self.update_codec_from_ffmpeg()
@@ -343,7 +378,7 @@ class NeverH264Processor(VideoProcessor):
 
     @property
     def transcoded_file_name(self):
-        name, ext = splitext(self.node.name)
+        name, _ext = splitext(self.node.name)
         return name + ".mp4"
 
 
@@ -369,11 +404,7 @@ async def wait_for_sync(drive: Drive):
 
 
 async def has_enough_quota(drive: Drive, size: int) -> bool:
-    now = datetime.datetime.now(datetime.timezone.utc)
-    yesterday = now - datetime.timedelta(days=1)
-    begin = int(yesterday.timestamp())
-    end = int(now.timestamp())
-    total = await drive.get_uploaded_size(begin, end)
+    total = await get_daily_usage(drive)
     return (total + size) < DAILY_UPLOAD_QUOTA
 
 
@@ -390,18 +421,24 @@ PROCESSOR_TABLE = {
 
 
 def create_processor(
-    work_folder: str,
+    *,
+    work_folder: Path,
+    dsn: Path,
     pool: Executor,
     drive: Drive,
     node: Node,
 ) -> VideoProcessor | None:
     if node.mime_type in PROCESSOR_TABLE:
         constructor = PROCESSOR_TABLE[node.mime_type]
-        return constructor(work_folder, pool, drive, node)
+        return constructor(
+            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
+        )
 
     if is_realmedia(node) or is_oggmedia(node):
         constructor = NeverH264Processor
-        return constructor(work_folder, pool, drive, node)
+        return constructor(
+            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
+        )
 
     return None
 

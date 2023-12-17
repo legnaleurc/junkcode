@@ -1,15 +1,13 @@
 import sqlite3
 from contextlib import closing, contextmanager
 from logging import getLogger
+from pathlib import Path
 
-from wcpan.drive.core.drive import Node
-
-
-DATABASE_PATH = "./data/_migrated.sqlite"
+from wcpan.drive.core.types import Node
 
 
-def initialize_cache():
-    with migration_cache() as query:
+def initialize_cache(dsn: Path):
+    with migration_cache(dsn) as query:
         try:
             query.execute(
                 """
@@ -30,13 +28,13 @@ def initialize_cache():
             getLogger(__name__).exception("cache initialize failed")
 
 
-def is_migrated(node: Node):
-    with migration_cache() as query:
+def is_migrated(dsn: Path, node: Node):
+    with migration_cache(dsn) as query:
         query.execute(
             """
             SELECT id FROM migrated WHERE node_id = ? AND is_muxed = 1 AND is_coded = 1;
             """,
-            (node.id_,),
+            (node.id,),
         )
         row = query.fetchone()
         if not row:
@@ -44,13 +42,13 @@ def is_migrated(node: Node):
         return True
 
 
-def has_cache(node: Node):
-    with migration_cache() as query:
+def has_cache(dsn: Path, node: Node):
+    with migration_cache(dsn) as query:
         query.execute(
             """
             SELECT id FROM migrated WHERE node_id = ?;
             """,
-            (node.id_,),
+            (node.id,),
         )
         row = query.fetchone()
         if not row:
@@ -58,13 +56,13 @@ def has_cache(node: Node):
         return True
 
 
-def need_transcode(node: Node):
-    with migration_cache() as query:
+def need_transcode(dsn: Path, node: Node):
+    with migration_cache(dsn) as query:
         query.execute(
             """
             SELECT id FROM migrated WHERE node_id = ? AND is_coded = 0;
             """,
-            (node.id_,),
+            (node.id,),
         )
         row = query.fetchone()
         if not row:
@@ -72,13 +70,13 @@ def need_transcode(node: Node):
         return True
 
 
-def set_cache(node: Node, is_muxed: bool, is_coded: bool):
-    with migration_cache() as query:
+def set_cache(dsn: Path, node: Node, is_muxed: bool, is_coded: bool):
+    with migration_cache(dsn) as query:
         query.execute(
             """
             SELECT is_muxed, is_coded FROM migrated WHERE node_id = ?;
             """,
-            (node.id_,),
+            (node.id,),
         )
         row = query.fetchone()
         if not row:
@@ -86,28 +84,28 @@ def set_cache(node: Node, is_muxed: bool, is_coded: bool):
                 """
                 INSERT INTO migrated (node_id, is_muxed, is_coded) VALUES (?, ?, ?);
                 """,
-                (node.id_, is_muxed, is_coded),
+                (node.id, is_muxed, is_coded),
             )
             return
         query.execute(
             """
             UPDATE migrated SET is_muxed = ?, is_coded = ? WHERE node_id = ?;
             """,
-            (is_muxed, is_coded, node.id_),
+            (is_muxed, is_coded, node.id),
         )
 
 
-def unset_cache(node: Node):
-    with migration_cache() as query:
+def unset_cache(dsn: Path, node: Node):
+    with migration_cache(dsn) as query:
         query.execute(
             """
             DELETE FROM migrated WHERE node_id = ?;
             """,
-            (node.id_,),
+            (node.id,),
         )
 
 
 @contextmanager
-def migration_cache():
-    with sqlite3.connect(DATABASE_PATH) as db, closing(db.cursor()) as query:
+def migration_cache(dsn: Path):
+    with sqlite3.connect(dsn) as db, closing(db.cursor()) as query:
         yield query
