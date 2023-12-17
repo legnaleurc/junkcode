@@ -169,17 +169,6 @@ async def fetch_jav_data_from_10musume(session: ClientSession, jav_id: str, quer
         return f"10MU {jav_id} {title} {actor}"
 
 
-# SOURCE_LIST = [
-#     fetch_jav_data_from_javbus,
-#     fetch_jav_data_from_javlibrary,
-#     fetch_jav_data_from_javbee,
-#     fetch_jav_data_from_heydouga,
-#     fetch_jav_data_from_carib,
-#     fetch_jav_data_from_caribpr,
-#     fetch_jav_data_from_1pondo,
-#     fetch_jav_data_from_10musume,
-# ]
-
 SAUCE_DICT = {
     "javbus": fetch_jav_data_from_javbus,
     "javlibrary": fetch_jav_data_from_javlibrary,
