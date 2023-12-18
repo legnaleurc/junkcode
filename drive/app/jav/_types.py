@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import TypedDict
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -11,3 +12,10 @@ class SauceData:
 class JavData:
     name: str
     sauce_list: list[SauceData]
+
+
+class ManifestDict(TypedDict):
+    id: str
+    jav_id: str
+    name: str
+    title: dict[str, str | None]

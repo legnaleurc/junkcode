@@ -1,7 +1,6 @@
 from argparse import ArgumentParser, Namespace
-from collections.abc import Callable, Awaitable
+from collections.abc import Callable, Awaitable, AsyncIterator
 from pathlib import Path
-from typing import Any
 import asyncio
 import sys
 
@@ -10,6 +9,7 @@ from aiohttp import ClientSession
 from wcpan.drive.core.types import Drive, Node
 from wcpan.drive.cli.lib import create_drive_from_config
 
+from ._types import ManifestDict
 from ._sauce import fetch_jav_data
 from ._dispatch import get_jav_query
 
@@ -61,7 +61,7 @@ async def _generate(drive: Drive, kwargs: Namespace) -> int:
 
 
 async def _apply(drive: Drive, kwargs: Namespace) -> int:
-    manifest = yaml.safe_load(sys.stdin)
+    manifest: list[ManifestDict] = yaml.safe_load(sys.stdin)
     for row in manifest:
         id_ = row["id"]
         title_dict = row["title"]
@@ -78,11 +78,11 @@ async def _apply(drive: Drive, kwargs: Namespace) -> int:
 
 
 async def _filter(drive: Drive, kwargs: Namespace) -> int:
-    manifest = yaml.safe_load(sys.stdin)
+    manifest: list[ManifestDict] = yaml.safe_load(sys.stdin)
 
     not_all_null = (m for m in manifest if any(m["title"].values()))
 
-    def all_same(m: dict[str, Any]):
+    def all_same(m: ManifestDict):
         values = set(v for v in m["title"].values() if v)
         values.add(m["name"])
         return len(values) == 1
@@ -101,7 +101,9 @@ async def _filter(drive: Drive, kwargs: Namespace) -> int:
     return 0
 
 
-async def _process_node_list(session: ClientSession, node_list: list[Node]):
+async def _process_node_list(
+    session: ClientSession, node_list: list[Node]
+) -> AsyncIterator[ManifestDict]:
     for node in node_list:
         if node.is_trashed:
             continue
