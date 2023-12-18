@@ -48,7 +48,7 @@ async def _generate(drive: Drive, kwargs: Namespace) -> int:
     async with ClientSession() as session:
         root_node = await drive.get_node_by_path(root_path)
         children = await drive.get_children(root_node)
-        async for node in process_node_list(session, children):
+        async for node in _process_node_list(session, children):
             yaml.safe_dump(
                 [node],
                 sys.stdout,
@@ -72,7 +72,7 @@ async def _apply(drive: Drive, kwargs: Namespace) -> int:
 
             node = await drive.get_node_by_id(id_)
             print(f"rename {node.name} -> {value}")
-            await rename(drive, node, value)
+            await _rename(drive, node, value)
             break
     return 0
 
@@ -101,7 +101,7 @@ async def _filter(drive: Drive, kwargs: Namespace) -> int:
     return 0
 
 
-async def process_node_list(session: ClientSession, node_list: list[Node]):
+async def _process_node_list(session: ClientSession, node_list: list[Node]):
     for node in node_list:
         if node.is_trashed:
             continue
@@ -118,7 +118,7 @@ async def process_node_list(session: ClientSession, node_list: list[Node]):
         }
 
 
-async def rename(drive: Drive, node: Node, new_name: str) -> None:
+async def _rename(drive: Drive, node: Node, new_name: str) -> None:
     if node.is_directory:
         if new_name == node.name:
             print("skipped")
