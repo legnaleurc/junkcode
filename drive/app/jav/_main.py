@@ -108,13 +108,13 @@ async def _process_node_list(session: ClientSession, node_list: list[Node]):
         jav_query = get_jav_query(node.name)
         if not jav_query:
             continue
-        title = await fetch_jav_data(session, jav_query)
+        title_dict = await fetch_jav_data(session, jav_query)
 
         yield {
             "id": node.id,
             "name": node.name,
             "jav_id": jav_query.name,
-            "title": title,
+            "title": title_dict,
         }
 
 
