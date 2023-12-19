@@ -3,28 +3,28 @@
 import asyncio
 import unicodedata
 import sys
+from pathlib import Path
 
-from wcpan.drive.core.drive import DriveFactory
+from wcpan.drive.cli.lib import create_drive_from_config
+
+
+FORM = 'NFC'
 
 
 async def main():
-    factory = DriveFactory()
-    factory.load_config()
-
-    FORM = 'NFC'
-
-    async with factory() as drive:
-        root_node = await drive.get_root_node()
-        async for root, folders, files in drive.walk(root_node):
+    drive_path = Path("~/.config/wcpan.drive/cli.yaml").expanduser().resolve()
+    async with create_drive_from_config(drive_path) as drive:
+        root_node = await drive.get_root()
+        async for _root, folders, files in drive.walk(root_node):
             node_list = folders + files
             for child in node_list:
                 if unicodedata.is_normalized(FORM, child.name):
                     continue
                 new_name = unicodedata.normalize(FORM, child.name)
-                print(child.id_)
+                print(child.id)
                 print(child.name)
                 print(new_name)
-                await drive.rename_node(child, new_parent=None, new_name=new_name)
+                await drive.move(child, new_parent=None, new_name=new_name)
 
     return 0
 
