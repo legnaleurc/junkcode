@@ -1,10 +1,13 @@
-from concurrent.futures import Executor, ProcessPoolExecutor
 from datetime import datetime, UTC, timedelta
 from pathlib import Path
 
 from wcpan.drive.core.types import Drive
 from wcpan.drive.sqlite.lib import get_uploaded_size
-from wcpan.drive.cli._lib import get_video_info as get_video_info, get_hash as get_hash
+from wcpan.drive.cli.lib import (
+    get_video_info as get_video_info,
+    get_file_hash as get_file_hash,
+    create_executor as create_executor,
+)
 
 
 async def get_daily_usage(drive: Drive) -> int:
@@ -32,18 +35,3 @@ def get_default_data_path() -> Path:
     path = path.expanduser()
     path = path / "wcpan.drive"
     return path
-
-
-def create_executor() -> Executor:
-    from multiprocessing import get_start_method
-
-    if get_start_method() == "spawn":
-        return ProcessPoolExecutor(initializer=_initialize_worker)
-    else:
-        return ProcessPoolExecutor()
-
-
-def _initialize_worker() -> None:
-    from signal import signal, SIGINT, SIG_IGN
-
-    signal(SIGINT, SIG_IGN)
