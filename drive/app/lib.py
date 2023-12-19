@@ -3,11 +3,6 @@ from pathlib import Path
 
 from wcpan.drive.core.types import Drive
 from wcpan.drive.sqlite.lib import get_uploaded_size
-from wcpan.drive.cli.lib import (
-    get_video_info as get_video_info,
-    get_file_hash as get_file_hash,
-    create_executor as create_executor,
-)
 
 
 async def get_daily_usage(drive: Drive) -> int:
