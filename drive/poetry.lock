@@ -669,13 +669,13 @@ wcpan-drive-core = ">=4.1.0,<5.0.0"
 
 [[package]]
 name = "wcpan-drive-google"
-version = "9.1.4"
+version = "9.1.5"
 description = "Google Drive driver for wcpan.drive"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_google-9.1.4-py3-none-any.whl", hash = "sha256:5f81e960bcddff5ed83882465e0a1d50c0151fe175e17ba8bcd0608178911ba5"},
-    {file = "wcpan_drive_google-9.1.4.tar.gz", hash = "sha256:e93d6776bf39e39f94262eadc80cdb78c1d8b5ceedb3be251a5e9405685657f3"},
+    {file = "wcpan_drive_google-9.1.5-py3-none-any.whl", hash = "sha256:9f8813b69b35e26ec1dac1b1e5c2afa6551c1b0ba50f42825483ace017d0102f"},
+    {file = "wcpan_drive_google-9.1.5.tar.gz", hash = "sha256:325287a3629f6555ffb33fc056bbe5d73f67e84f68aeba43beb17853e81dee23"},
 ]
 
 [package.dependencies]
@@ -825,4 +825,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "0743643e4239cd17e9c6f759d195e47f3d259d0f8ca365ec6b5576c2a851645b"
+content-hash = "62970ee93e3544ec3d94f3da0d796a97ea9eef71f483bb8a1b1ef3a0814adcd1"
