@@ -10,8 +10,9 @@ from pathlib import Path
 
 from wcpan.drive.core.lib import upload_file_from_local, download_file_to_local
 from wcpan.drive.core.types import Node, MediaInfo, Drive
+from wcpan.drive.cli.lib import get_file_hash, get_video_info
 
-from app.lib import get_hash, get_video_info, get_daily_usage
+from app.lib import get_daily_usage
 
 from .cache import is_migrated, set_cache, need_transcode, has_cache, unset_cache
 
@@ -248,11 +249,7 @@ class VideoProcessor(object):
     async def _verify(self, uploaded_node: Node):
         output_path = self.transcoded_file_path
         getLogger(__name__).info(f"verifying {output_path}")
-        factory = await self.drive.get_hasher_factory()
-        loop = asyncio.get_running_loop()
-        local_hash = await loop.run_in_executor(
-            self.pool, get_hash, output_path, factory
-        )
+        local_hash = await get_file_hash(output_path, pool=self.pool, drive=self.drive)
         if local_hash != uploaded_node.hash:
             getLogger(__name__).info(f"removing {uploaded_node.name}")
             await self.drive.move(uploaded_node, trashed=True)

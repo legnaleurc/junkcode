@@ -11,11 +11,9 @@ from pathlib import PurePath, Path
 from tempfile import TemporaryDirectory
 
 from wcpan.drive.core.types import Node, Drive
-from wcpan.drive.cli.lib import create_drive_from_config
+from wcpan.drive.cli.lib import create_drive_from_config, create_executor
 from wcpan.logging import ConfigBuilder
 from wcpan.queue import AioQueue
-
-from app.lib import create_executor
 
 from .cache import initialize_cache
 from .processor import create_processor, is_oggmedia, is_realmedia
