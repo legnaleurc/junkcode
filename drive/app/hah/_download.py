@@ -4,8 +4,7 @@ from pathlib import Path
 from wcpan.queue import AioQueue
 from wcpan.drive.core.lib import download_file_to_local
 from wcpan.drive.core.types import Drive, Node
-
-from ._check import get_hash
+from wcpan.drive.cli.lib import get_file_hash
 
 
 async def download(drive: Drive, src: Node, dst: Path, pool: Executor) -> Path:
@@ -48,7 +47,6 @@ async def _download_file(
 
 
 async def _check_file(drive: Drive, src: Node, tmp: Path, pool: Executor) -> None:
-    factory = await drive.get_hasher_factory()
-    hash_ = await get_hash(tmp, factory, pool)
+    hash_ = await get_file_hash(tmp, drive=drive, pool=pool)
     assert hash_ == src.hash
     print(f"check {tmp}")

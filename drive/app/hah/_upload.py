@@ -6,14 +6,12 @@ from mimetypes import guess_type
 from wcpan.drive.core.types import Drive, Node
 from wcpan.drive.core.lib import upload_file_from_local
 from wcpan.drive.core.exceptions import NodeNotFoundError
-
-from ._check import get_hash
+from wcpan.drive.cli.lib import get_file_hash
 
 
 async def upload(drive: Drive, src: Path, dst: Node, pool: Executor) -> None:
     async with TaskGroup() as group:
-        factory = await drive.get_hasher_factory()
-        check = group.create_task(get_hash(src, factory, pool))
+        check = group.create_task(get_file_hash(src, drive=drive, pool=pool))
         upload_ = group.create_task(_maybe_upload(drive, src, dst))
         hash_ = await check
         node = await upload_
