@@ -1,8 +1,11 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from datetime import datetime, UTC, timedelta
 from pathlib import Path
 
 from wcpan.drive.core.types import Drive
 from wcpan.drive.sqlite.lib import get_uploaded_size
+from wcpan.drive.cli.lib import create_drive_from_config
 
 
 async def get_daily_usage(drive: Drive) -> int:
@@ -30,3 +33,11 @@ def get_default_data_path() -> Path:
     path = path.expanduser()
     path = path / "wcpan.drive"
     return path
+
+
+@asynccontextmanager
+async def create_default_drive() -> AsyncIterator[Drive]:
+    config_path = get_default_config_path()
+    drive_path = config_path / "cli.yaml"
+    async with create_drive_from_config(drive_path) as drive:
+        yield drive
