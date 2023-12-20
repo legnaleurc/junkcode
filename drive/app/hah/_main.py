@@ -5,8 +5,9 @@ from shutil import rmtree
 from tempfile import TemporaryDirectory
 
 from wcpan.drive.core.types import Drive, Node
-from wcpan.drive.cli.lib import create_drive_from_config
 from wcpan.logging import ConfigBuilder
+
+from app.lib import create_default_drive
 
 from ._arg import parse_args
 from ._download import download
@@ -19,7 +20,7 @@ async def main(args: list[str]) -> int:
 
     dictConfig(ConfigBuilder().add("wcpan", level="D").to_dict())
 
-    async with create_drive_from_config(kwargs.drive_path) as drive:
+    async with create_default_drive() as drive:
         async for _ in drive.sync():
             pass
 

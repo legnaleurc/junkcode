@@ -11,9 +11,11 @@ from pathlib import PurePath, Path
 from tempfile import TemporaryDirectory
 
 from wcpan.drive.core.types import Node, Drive
-from wcpan.drive.cli.lib import create_drive_from_config, create_executor
+from wcpan.drive.cli.lib import create_executor
 from wcpan.logging import ConfigBuilder
 from wcpan.queue import AioQueue
+
+from app.lib import create_default_drive
 
 from .cache import initialize_cache
 from .processor import create_processor, is_oggmedia, is_realmedia
@@ -21,7 +23,6 @@ from .processor import create_processor, is_oggmedia, is_realmedia
 
 async def main(args: list[str] | None = None):
     kwargs = parse_args(args)
-    drive_path = Path(kwargs.drive_path).expanduser().resolve()
     data_path = Path(kwargs.data_path).expanduser().resolve()
     root_path_list = [PurePath(_) for _ in kwargs.root_path]
     remux_only: bool = kwargs.remux_only
@@ -45,7 +46,7 @@ async def main(args: list[str] | None = None):
         pool = stack.enter_context(create_executor())
         work_folder = Path(stack.enter_context(TemporaryDirectory(dir=tmp_path)))
         queue = stack.enter_context(AioQueue[None].fifo())
-        drive = await stack.enter_async_context(create_drive_from_config(drive_path))
+        drive = await stack.enter_async_context(create_default_drive())
 
         async for change in drive.sync():
             getLogger(__name__).debug(change)
