@@ -3,17 +3,14 @@
 import asyncio
 import unicodedata
 import sys
-from pathlib import Path
 
-from wcpan.drive.cli.lib import create_drive_from_config
-
-
-FORM = 'NFC'
+from .lib import create_default_drive
 
 
 async def main():
-    drive_path = Path("~/.config/wcpan.drive/cli.yaml").expanduser().resolve()
-    async with create_drive_from_config(drive_path) as drive:
+    FORM = 'NFC'
+
+    async with create_default_drive() as drive:
         root_node = await drive.get_root()
         async for _root, folders, files in drive.walk(root_node):
             node_list = folders + files
