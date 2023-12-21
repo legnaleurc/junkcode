@@ -17,8 +17,8 @@ from wcpan.queue import AioQueue
 
 from app.lib import create_default_drive
 
-from .cache import initialize_cache
-from .processor import create_processor, is_oggmedia, is_realmedia
+from ._cache import initialize_cache
+from ._processor import create_processor, is_oggmedia, is_realmedia
 
 
 async def main(args: list[str] | None = None):

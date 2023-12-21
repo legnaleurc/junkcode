@@ -14,7 +14,7 @@ from wcpan.drive.cli.lib import get_file_hash, get_video_info
 
 from app.lib import get_daily_usage
 
-from .cache import is_migrated, set_cache, need_transcode, has_cache, unset_cache
+from ._cache import is_migrated, set_cache, need_transcode, has_cache, unset_cache
 
 
 H264_PRESET = "veryfast"
