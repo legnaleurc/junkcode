@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from ._types import JavData
 
 
-async def _fetch_jav_data_from_javbus(session: ClientSession, jav_id: str, query: str):
+async def _fetch_from_javbus(session: ClientSession, jav_id: str, query: str):
     async with session.get(f"https://www.javbus.com/ja/{query}") as response:
         if response.status != 200:
             return None
@@ -21,9 +21,7 @@ async def _fetch_jav_data_from_javbus(session: ClientSession, jav_id: str, query
         return _normalize_title(title.text)
 
 
-async def _fetch_jav_data_from_javlibrary(
-    session: ClientSession, jav_id: str, query: str
-):
+async def _fetch_from_javlibrary(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         f"http://www.javlibrary.com/ja/vl_searchbyid.php",
         params={
@@ -58,7 +56,7 @@ async def _fetch_jav_data_from_javlibrary(
         return None
 
 
-async def _fetch_jav_data_from_javbee(session: ClientSession, jav_id: str, query: str):
+async def _fetch_from_javbee(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         "https://javbee.org/search",
         params={
@@ -76,9 +74,7 @@ async def _fetch_jav_data_from_javbee(session: ClientSession, jav_id: str, query
         return _normalize_title(title.text)
 
 
-async def _fetch_jav_data_from_heydouga(
-    session: ClientSession, jav_id: str, query: str
-):
+async def _fetch_from_heydouga(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         f"https://www.heydouga.com/moviepages/{query}/index.html",
     ) as response:
@@ -96,7 +92,7 @@ async def _fetch_jav_data_from_heydouga(
         return f"{jav_id} {title}"
 
 
-async def _fetch_jav_data_from_heyzo(session: ClientSession, jav_id: str, query: str):
+async def _fetch_from_heyzo(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         f"https://www.heyzo.com/moviepages/{query}/index.html",
     ) as response:
@@ -113,7 +109,7 @@ async def _fetch_jav_data_from_heyzo(session: ClientSession, jav_id: str, query:
         return f"{jav_id} {title}"
 
 
-async def _fetch_jav_data_from_carib(session: ClientSession, jav_id: str, query: str):
+async def _fetch_from_carib(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         f"https://www.caribbeancom.com/moviepages/{query}/index.html",
     ) as response:
@@ -136,7 +132,7 @@ async def _fetch_jav_data_from_carib(session: ClientSession, jav_id: str, query:
         return f"{jav_id} {title} {actor}"
 
 
-async def _fetch_jav_data_from_caribpr(session: ClientSession, jav_id: str, query: str):
+async def _fetch_from_caribpr(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         f"https://www.caribbeancompr.com/moviepages/{query}/index.html",
     ) as response:
@@ -158,7 +154,7 @@ async def _fetch_jav_data_from_caribpr(session: ClientSession, jav_id: str, quer
         return f"{jav_id} {title} {_normalize_title(actor.text)}"
 
 
-async def _fetch_jav_data_from_1pondo(session: ClientSession, jav_id: str, query: str):
+async def _fetch_from_1pondo(session: ClientSession, jav_id: str, query: str):
     m = re.match(r"\d{6}_\d{3}", jav_id)
     if not m:
         return None
@@ -176,9 +172,7 @@ async def _fetch_jav_data_from_1pondo(session: ClientSession, jav_id: str, query
         return f"{jav_id} {title} {actor}"
 
 
-async def _fetch_jav_data_from_10musume(
-    session: ClientSession, jav_id: str, query: str
-):
+async def _fetch_from_10musume(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         f"https://www.10musume.com/dyn/phpauto/movie_details/movie_id/{jav_id}.json",
     ) as response:
@@ -193,16 +187,16 @@ async def _fetch_jav_data_from_10musume(
 
 
 _SAUCE_DICT = {
-    "javbus": _fetch_jav_data_from_javbus,
-    "javlibrary": _fetch_jav_data_from_javlibrary,
-    "javbee": _fetch_jav_data_from_javbee,
-    "javtorrent": _fetch_jav_data_from_javbee,
-    "heydouga": _fetch_jav_data_from_heydouga,
-    "carib": _fetch_jav_data_from_carib,
-    "caribpr": _fetch_jav_data_from_caribpr,
-    "1pondo": _fetch_jav_data_from_1pondo,
-    "10musume": _fetch_jav_data_from_10musume,
-    "heyzo": _fetch_jav_data_from_heyzo,
+    "javbus": _fetch_from_javbus,
+    "javlibrary": _fetch_from_javlibrary,
+    "javbee": _fetch_from_javbee,
+    "javtorrent": _fetch_from_javbee,
+    "heydouga": _fetch_from_heydouga,
+    "carib": _fetch_from_carib,
+    "caribpr": _fetch_from_caribpr,
+    "1pondo": _fetch_from_1pondo,
+    "10musume": _fetch_from_10musume,
+    "heyzo": _fetch_from_heyzo,
 }
 
 
