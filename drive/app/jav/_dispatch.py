@@ -68,7 +68,7 @@ def _match_caribpr(name: str) -> JavData | None:
         return None
     a = m.group(1)
     b = m.group(2)
-    name = f"CARIBPR {a}-{b}"
+    name = f"{a}-{b}-CARIBPR"
     return JavData(
         name=name,
         sauce_list=[SauceData(name="caribpr", query=f"{a}-{b}")],
@@ -81,7 +81,7 @@ def _match_carib(name: str) -> JavData | None:
         return None
     a = m.group(1)
     b = m.group(2)
-    name = f"CARIB {a}-{b}"
+    name = f"{a}-{b}-CARIB"
     return JavData(
         name=name,
         sauce_list=[SauceData(name="carib", query=f"{a}-{b}")],
@@ -136,7 +136,7 @@ def _match_mesubuta(name: str) -> JavData | None:
     m = re.search(r"(\d{6})[-_](\d{3})[-_](\d{2})", name, re.I)
     if not m:
         return None
-    name = f"{m.group(1)}_{m.group(2)}_{m.group(3)}"
+    name = f"MESUBUTA {m.group(1)}_{m.group(2)}_{m.group(3)}"
     return JavData(
         name=name,
         sauce_list=[],
@@ -149,7 +149,7 @@ def _match_10musume(name: str) -> JavData | None:
         return None
     a = m.group(1)
     b = m.group(2)
-    name = f"10MU {a}_{b}"
+    name = f"{a}_{b}-10MU"
     return JavData(
         name=name,
         sauce_list=[
