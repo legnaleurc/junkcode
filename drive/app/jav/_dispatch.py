@@ -113,12 +113,12 @@ def _match_unknown(name: str) -> JavData | None:
         return None
     a = m.group(1)
     b = m.group(2)
-    name = f"{a}-{b}"
+    query = f"{a}-{b}"
     return JavData(
         sauce_list=[
-            SauceData(sauce="carib", query=f"{a}-{b}", name=name),
-            SauceData(sauce="caribpr", query=f"{a}-{b}", name=name),
-            SauceData(sauce="1pondo", query=f"{a}-{b}", name=name),
+            SauceData(sauce="carib", query=query, name=f"{query}-CARIB"),
+            SauceData(sauce="caribpr", query=query, name=f"{query}-CARIBPR"),
+            SauceData(sauce="1pondo", query=query, name=f"1PONDO {query}"),
         ],
     )
 
