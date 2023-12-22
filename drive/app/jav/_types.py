@@ -4,7 +4,7 @@ from typing import TypedDict
 
 @dataclass(frozen=True, kw_only=True)
 class SauceData:
-    name: str
+    sauce: str
     query: str
 
 

@@ -12,8 +12,8 @@ def _match_jav_1(name: str) -> JavData | None:
     return JavData(
         name=name,
         sauce_list=[
-            SauceData(name="javbus", query=name),
-            SauceData(name="javlibrary", query=name),
+            SauceData(sauce="javbus", query=name),
+            SauceData(sauce="javlibrary", query=name),
         ],
     )
 
@@ -27,8 +27,8 @@ def _match_jav_2(name: str) -> JavData | None:
     return JavData(
         name=name,
         sauce_list=[
-            SauceData(name="javbus", query=name),
-            SauceData(name="javlibrary", query=name),
+            SauceData(sauce="javbus", query=name),
+            SauceData(sauce="javlibrary", query=name),
         ],
     )
 
@@ -41,8 +41,8 @@ def _match_fc2(name: str) -> JavData | None:
     return JavData(
         name=name,
         sauce_list=[
-            SauceData(name="javbee", query=name),
-            SauceData(name="javtorrent", query=name),
+            SauceData(sauce="javbee", query=name),
+            SauceData(sauce="javtorrent", query=name),
         ],
     )
 
@@ -57,7 +57,7 @@ def _match_heydouga(name: str) -> JavData | None:
     return JavData(
         name=name,
         sauce_list=[
-            SauceData(name="heydouga", query=f"{a}/{b}"),
+            SauceData(sauce="heydouga", query=f"{a}/{b}"),
         ],
     )
 
@@ -71,7 +71,7 @@ def _match_caribpr(name: str) -> JavData | None:
     name = f"{a}-{b}-CARIBPR"
     return JavData(
         name=name,
-        sauce_list=[SauceData(name="caribpr", query=f"{a}-{b}")],
+        sauce_list=[SauceData(sauce="caribpr", query=f"{a}-{b}")],
     )
 
 
@@ -84,7 +84,7 @@ def _match_carib(name: str) -> JavData | None:
     name = f"{a}-{b}-CARIB"
     return JavData(
         name=name,
-        sauce_list=[SauceData(name="carib", query=f"{a}-{b}")],
+        sauce_list=[SauceData(sauce="carib", query=f"{a}-{b}")],
     )
 
 
@@ -97,7 +97,7 @@ def _match_1pondo(name: str) -> JavData | None:
     name = f"1PONDO {a}-{b}"
     return JavData(
         name=name,
-        sauce_list=[SauceData(name="1pondo", query=f"{a}-{b}")],
+        sauce_list=[SauceData(sauce="1pondo", query=f"{a}-{b}")],
     )
 
 
@@ -110,7 +110,7 @@ def _match_heyzo(name: str) -> JavData | None:
     return JavData(
         name=name,
         sauce_list=[
-            SauceData(name="heyzo", query=number),
+            SauceData(sauce="heyzo", query=number),
         ],
     )
 
@@ -125,9 +125,9 @@ def _match_unknown(name: str) -> JavData | None:
     return JavData(
         name=name,
         sauce_list=[
-            SauceData(name="carib", query=f"{a}-{b}"),
-            SauceData(name="caribpr", query=f"{a}-{b}"),
-            SauceData(name="1pondo", query=f"{a}-{b}"),
+            SauceData(sauce="carib", query=f"{a}-{b}"),
+            SauceData(sauce="caribpr", query=f"{a}-{b}"),
+            SauceData(sauce="1pondo", query=f"{a}-{b}"),
         ],
     )
 
@@ -153,7 +153,7 @@ def _match_10musume(name: str) -> JavData | None:
     return JavData(
         name=name,
         sauce_list=[
-            SauceData(name="10musume", query=f"{a}_{b}"),
+            SauceData(sauce="10musume", query=f"{a}_{b}"),
         ],
     )
 

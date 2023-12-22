@@ -210,7 +210,7 @@ async def fetch_jav_data(session: ClientSession, jav_query: JavData):
     queries = (
         await _
         for _ in as_completed(
-            _as_kv(_.name, _SAUCE_DICT[_.name](session, jav_query.name, _.query))
+            _as_kv(_.sauce, _SAUCE_DICT[_.sauce](session, jav_query.name, _.query))
             for _ in jav_query.sauce_list
         )
     )
