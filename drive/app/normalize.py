@@ -8,7 +8,7 @@ from .lib import create_default_drive
 
 
 async def main():
-    FORM = 'NFC'
+    FORM = "NFC"
 
     async with create_default_drive() as drive:
         root_node = await drive.get_root()
@@ -26,5 +26,5 @@ async def main():
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(asyncio.run(main()))

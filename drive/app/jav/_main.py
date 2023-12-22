@@ -113,7 +113,6 @@ async def _process_node_list(
         yield {
             "id": node.id,
             "name": node.name,
-            "jav_id": jav_query.name,
             "title": title_dict,
         }
 

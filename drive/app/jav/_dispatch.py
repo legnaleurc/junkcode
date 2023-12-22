@@ -10,10 +10,9 @@ def _match_jav_1(name: str) -> JavData | None:
     name = f"{m.group(1)}-{m.group(2)}"
     name = name.upper()
     return JavData(
-        name=name,
         sauce_list=[
-            SauceData(sauce="javbus", query=name),
-            SauceData(sauce="javlibrary", query=name),
+            SauceData(sauce="javbus", query=name, name=name),
+            SauceData(sauce="javlibrary", query=name, name=name),
         ],
     )
 
@@ -25,10 +24,9 @@ def _match_jav_2(name: str) -> JavData | None:
     name = f"{m.group(1)}{m.group(2)}-{m.group(3)}"
     name = name.upper()
     return JavData(
-        name=name,
         sauce_list=[
-            SauceData(sauce="javbus", query=name),
-            SauceData(sauce="javlibrary", query=name),
+            SauceData(sauce="javbus", query=name, name=name),
+            SauceData(sauce="javlibrary", query=name, name=name),
         ],
     )
 
@@ -39,10 +37,9 @@ def _match_fc2(name: str) -> JavData | None:
         return None
     name = f"FC2-PPV-{m.group(1)}"
     return JavData(
-        name=name,
         sauce_list=[
-            SauceData(sauce="javbee", query=name),
-            SauceData(sauce="javtorrent", query=name),
+            SauceData(sauce="javbee", query=name, name=name),
+            SauceData(sauce="javtorrent", query=name, name=name),
         ],
     )
 
@@ -55,9 +52,8 @@ def _match_heydouga(name: str) -> JavData | None:
     b = m.group(3)
     name = f"HEYDOUGA-{a}-{b}"
     return JavData(
-        name=name,
         sauce_list=[
-            SauceData(sauce="heydouga", query=f"{a}/{b}"),
+            SauceData(sauce="heydouga", query=f"{a}/{b}", name=name),
         ],
     )
 
@@ -70,8 +66,7 @@ def _match_caribpr(name: str) -> JavData | None:
     b = m.group(2)
     name = f"{a}-{b}-CARIBPR"
     return JavData(
-        name=name,
-        sauce_list=[SauceData(sauce="caribpr", query=f"{a}-{b}")],
+        sauce_list=[SauceData(sauce="caribpr", query=f"{a}-{b}", name=name)],
     )
 
 
@@ -83,8 +78,7 @@ def _match_carib(name: str) -> JavData | None:
     b = m.group(2)
     name = f"{a}-{b}-CARIB"
     return JavData(
-        name=name,
-        sauce_list=[SauceData(sauce="carib", query=f"{a}-{b}")],
+        sauce_list=[SauceData(sauce="carib", query=f"{a}-{b}", name=name)],
     )
 
 
@@ -96,8 +90,7 @@ def _match_1pondo(name: str) -> JavData | None:
     b = m.group(2)
     name = f"1PONDO {a}-{b}"
     return JavData(
-        name=name,
-        sauce_list=[SauceData(sauce="1pondo", query=f"{a}-{b}")],
+        sauce_list=[SauceData(sauce="1pondo", query=f"{a}-{b}", name=name)],
     )
 
 
@@ -108,9 +101,8 @@ def _match_heyzo(name: str) -> JavData | None:
     number = m.group(1)
     name = f"HEYZO-{number}"
     return JavData(
-        name=name,
         sauce_list=[
-            SauceData(sauce="heyzo", query=number),
+            SauceData(sauce="heyzo", query=number, name=name),
         ],
     )
 
@@ -123,11 +115,10 @@ def _match_unknown(name: str) -> JavData | None:
     b = m.group(2)
     name = f"{a}-{b}"
     return JavData(
-        name=name,
         sauce_list=[
-            SauceData(sauce="carib", query=f"{a}-{b}"),
-            SauceData(sauce="caribpr", query=f"{a}-{b}"),
-            SauceData(sauce="1pondo", query=f"{a}-{b}"),
+            SauceData(sauce="carib", query=f"{a}-{b}", name=name),
+            SauceData(sauce="caribpr", query=f"{a}-{b}", name=name),
+            SauceData(sauce="1pondo", query=f"{a}-{b}", name=name),
         ],
     )
 
@@ -138,7 +129,6 @@ def _match_mesubuta(name: str) -> JavData | None:
         return None
     name = f"MESUBUTA {m.group(1)}_{m.group(2)}_{m.group(3)}"
     return JavData(
-        name=name,
         sauce_list=[],
     )
 
@@ -151,9 +141,8 @@ def _match_10musume(name: str) -> JavData | None:
     b = m.group(2)
     name = f"{a}_{b}-10MU"
     return JavData(
-        name=name,
         sauce_list=[
-            SauceData(sauce="10musume", query=f"{a}_{b}"),
+            SauceData(sauce="10musume", query=f"{a}_{b}", name=name),
         ],
     )
 
