@@ -4,7 +4,7 @@ import asyncio
 import unicodedata
 import sys
 
-from .lib import create_default_drive
+from ..lib import create_default_drive
 
 
 async def main():
