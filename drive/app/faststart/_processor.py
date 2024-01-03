@@ -155,7 +155,7 @@ class VideoProcessor(object):
             getLogger(__name__).info("already cached, skip")
             return False
 
-        if not cache_only and not await has_enough_quota(self.drive, self.node.size):
+        if not cache_only and not has_enough_quota(self.drive, self.node.size):
             getLogger(__name__).info("not enough quota, skip")
             return False
 
@@ -400,8 +400,8 @@ async def wait_for_sync(drive: Drive):
         getLogger(__name__).debug(change)
 
 
-async def has_enough_quota(drive: Drive, size: int) -> bool:
-    total = await get_daily_usage(drive)
+def has_enough_quota(drive: Drive, size: int) -> bool:
+    total = get_daily_usage(drive)
     return (total + size) < DAILY_UPLOAD_QUOTA
 
 

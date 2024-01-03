@@ -8,17 +8,17 @@ from wcpan.drive.sqlite.lib import get_uploaded_size
 from wcpan.drive.cli.lib import create_drive_from_config
 
 
-async def get_daily_usage(drive: Drive) -> int:
+def get_daily_usage(drive: Drive) -> int:
     now = datetime.now(UTC)
     yesterday = now - timedelta(days=1)
     dsn = _get_dsn(drive)
-    return await get_uploaded_size(
+    return get_uploaded_size(
         dsn, int(yesterday.timestamp()), int(now.timestamp())
     )
 
 
 def _get_dsn(drive: Drive) -> str:
-    return drive._ss._dsn  # type: ignore
+    return drive._ss._bg._dsn  # type: ignore
 
 
 def get_default_config_path() -> Path:
