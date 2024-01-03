@@ -76,7 +76,6 @@ def parse_args(args: list[str] | None) -> Namespace:
 
     parser = ArgumentParser("app")
 
-    parser.add_argument("--drive-path", required=True, type=str)
     parser.add_argument("--data-path", required=True, type=str)
     parser.add_argument("--tmp-path", type=str)
     parser.add_argument("--jobs", "-j", default=1)
