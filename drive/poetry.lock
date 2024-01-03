@@ -639,13 +639,13 @@ files = [
 
 [[package]]
 name = "wcpan-drive-crypt"
-version = "4.1.0"
+version = "4.1.1"
 description = "crypt middleware for wcpan.drive"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_crypt-4.1.0-py3-none-any.whl", hash = "sha256:95a37754ea8d65cd71a0695324a2972adc4119c507ea6ad385f7d6852c5d22c4"},
-    {file = "wcpan_drive_crypt-4.1.0.tar.gz", hash = "sha256:61905dda4f4d3c3a7226a92c26f152fc31c73abb7da07713595b99db5266ad08"},
+    {file = "wcpan_drive_crypt-4.1.1-py3-none-any.whl", hash = "sha256:7f527b6bbc57920a2e9e4ba4c51fefcdf69331d05130a2a81f076d2b1e0f0e1b"},
+    {file = "wcpan_drive_crypt-4.1.1.tar.gz", hash = "sha256:d39ac4af42d959260e4a6b6cd2325275019b8937e2fc632fb7d35ea171537817"},
 ]
 
 [package.dependencies]
@@ -669,13 +669,13 @@ wcpan-drive-core = ">=4.1.0,<5.0.0"
 
 [[package]]
 name = "wcpan-drive-sqlite"
-version = "2.0.0"
+version = "2.1.0"
 description = "sqlite3 snapshot service for wcpan.drive"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_sqlite-2.0.0-py3-none-any.whl", hash = "sha256:7c99b0bea64346c89e385ff230232070884c27e2f2d69d9ee633482b2398e00f"},
-    {file = "wcpan_drive_sqlite-2.0.0.tar.gz", hash = "sha256:d322bfca769ee3e5fcb6c5a4eec1c291179f2c0181dfe9f9a35f0c1755ee3020"},
+    {file = "wcpan_drive_sqlite-2.1.0-py3-none-any.whl", hash = "sha256:65555d88dbbea08d20fb22f0fbfe07feb93bed695480c2299e3fbf0236cc1150"},
+    {file = "wcpan_drive_sqlite-2.1.0.tar.gz", hash = "sha256:182ac6eb9a7f2287b26b0740e4d853be034182a9da3c89dd89fb6e0df3e3218f"},
 ]
 
 [package.dependencies]
@@ -809,4 +809,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "0bc8408756f21179bc56eb41d375e1bee83a337914eab9b551b31c060fa80173"
+content-hash = "b978cc20eb7e9a6b4bb886785dbf51d36f01e925487a872fa99307c899d6d2d6"
