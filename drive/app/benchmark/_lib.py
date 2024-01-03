@@ -24,7 +24,7 @@ def random_date() -> datetime:
 
 
 def random_str() -> str:
-    return ''.join(random.choices(_STR_LIST, k=64))
+    return "".join(random.choices(_STR_LIST, k=64))
 
 
 def random_private() -> dict[str, str]:

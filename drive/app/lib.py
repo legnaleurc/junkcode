@@ -12,9 +12,7 @@ def get_daily_usage(drive: Drive) -> int:
     now = datetime.now(UTC)
     yesterday = now - timedelta(days=1)
     dsn = _get_dsn(drive)
-    return get_uploaded_size(
-        dsn, int(yesterday.timestamp()), int(now.timestamp())
-    )
+    return get_uploaded_size(dsn, yesterday, now)
 
 
 def _get_dsn(drive: Drive) -> str:
