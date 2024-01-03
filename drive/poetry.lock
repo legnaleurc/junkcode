@@ -110,21 +110,6 @@ files = [
 frozenlist = ">=1.1.0"
 
 [[package]]
-name = "aiosqlite"
-version = "0.19.0"
-description = "asyncio bridge to the standard sqlite3 module"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "aiosqlite-0.19.0-py3-none-any.whl", hash = "sha256:edba222e03453e094a3ce605db1b970c4b3376264e56f32e2a4959f948d66a96"},
-    {file = "aiosqlite-0.19.0.tar.gz", hash = "sha256:95ee77b91c8d2808bd08a59fbebf66270e9090c3d92ffbf260dc0db0b979577d"},
-]
-
-[package.extras]
-dev = ["aiounittest (==1.4.1)", "attribution (==1.6.2)", "black (==23.3.0)", "coverage[toml] (==7.2.3)", "flake8 (==5.0.4)", "flake8-bugbear (==23.3.12)", "flit (==3.7.1)", "mypy (==1.2.0)", "ufmt (==2.1.0)", "usort (==1.0.6)"]
-docs = ["sphinx (==6.1.3)", "sphinx-mdinclude (==0.5.3)"]
-
-[[package]]
 name = "attrs"
 version = "23.1.0"
 description = "Classes Without Boilerplate"
@@ -684,18 +669,17 @@ wcpan-drive-core = ">=4.1.0,<5.0.0"
 
 [[package]]
 name = "wcpan-drive-sqlite"
-version = "1.0.2"
+version = "2.0.0"
 description = "sqlite3 snapshot service for wcpan.drive"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_sqlite-1.0.2-py3-none-any.whl", hash = "sha256:061d6ec20c24993bbb57d9b5263e8d352a6b333e2d03f1f425f9decad3e6de4f"},
-    {file = "wcpan_drive_sqlite-1.0.2.tar.gz", hash = "sha256:b71cb623f8a41cc951e7ea79d4d70d6615f3b0c1fab0b1909cb1e6afa4b63b20"},
+    {file = "wcpan_drive_sqlite-2.0.0-py3-none-any.whl", hash = "sha256:7c99b0bea64346c89e385ff230232070884c27e2f2d69d9ee633482b2398e00f"},
+    {file = "wcpan_drive_sqlite-2.0.0.tar.gz", hash = "sha256:d322bfca769ee3e5fcb6c5a4eec1c291179f2c0181dfe9f9a35f0c1755ee3020"},
 ]
 
 [package.dependencies]
-aiosqlite = ">=0.19.0,<0.20.0"
-wcpan-drive-core = ">=4.0.0,<5.0.0"
+wcpan-drive-core = ">=4.1.0,<5.0.0"
 
 [[package]]
 name = "wcpan-logging"
@@ -825,4 +809,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "c2e750315f11ad770177f05937aca637ba4ba6aaeb3147423da1d07965189d07"
+content-hash = "0bc8408756f21179bc56eb41d375e1bee83a337914eab9b551b31c060fa80173"
