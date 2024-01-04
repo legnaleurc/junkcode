@@ -16,7 +16,7 @@ async def main(args: list[str]) -> int:
     async with create_default_drive() as drive:
         parent = await drive.get_node_by_path(path)
         children = await drive.get_children(parent)
-        g = ((to_eid(_.name), _.name) for _ in children)
+        g = ((to_eid(_.name), _.name) for _ in children if not _.is_trashed)
         pair_list = [(eid, name) for eid, name in g if eid is not None]
         pair_list.sort(reverse=True)
         name_list = (name for _eid, name in pair_list)
