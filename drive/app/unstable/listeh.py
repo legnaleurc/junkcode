@@ -8,7 +8,7 @@ from ..lib import create_default_drive
 
 
 async def main(args: list[str]) -> int:
-    parser = ArgumentParser("lseh")
+    parser = ArgumentParser("listeh")
     parser.add_argument("path", type=str)
     kwargs = parser.parse_args(args)
     path = Path(kwargs.path)
