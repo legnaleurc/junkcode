@@ -610,13 +610,13 @@ files = [
 
 [[package]]
 name = "wcpan-drive-cli"
-version = "3.3.0"
+version = "3.3.1"
 description = "command line tool for wcpan.drive"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "wcpan_drive_cli-3.3.0-py3-none-any.whl", hash = "sha256:2f78f07fdd3020455887f8f2e71420bc43c11a95142540e1d3e1204328ab82a3"},
-    {file = "wcpan_drive_cli-3.3.0.tar.gz", hash = "sha256:64cc954c7cade623ce0905a7076aaee5317dbd6fdfbd94a7429bf1fe98ae0cb9"},
+    {file = "wcpan_drive_cli-3.3.1-py3-none-any.whl", hash = "sha256:44472eb449b2ff7a93d619ee7df18fa52ff19865955f592fbc90695881c7265e"},
+    {file = "wcpan_drive_cli-3.3.1.tar.gz", hash = "sha256:1784056dce19df787a55e9bafd25838fc8dadc61798d3af1e88bd2c9012542ce"},
 ]
 
 [package.dependencies]
@@ -809,4 +809,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "b978cc20eb7e9a6b4bb886785dbf51d36f01e925487a872fa99307c899d6d2d6"
+content-hash = "cbe462bc02ef66b51cad03d5befb001ff42071d45cb1a2725edd605160d938ce"

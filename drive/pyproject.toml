@@ -10,7 +10,7 @@ python = "^3.12"
 wcpan-drive-sqlite = "^2.1.0"
 wcpan-drive-google = "^9.1.6"
 wcpan-drive-crypt = "^4.1.1"
-wcpan-drive-cli = "^3.3.0"
+wcpan-drive-cli = "^3.3.1"
 wcpan-logging = "^2.0.3"
 beautifulsoup4 = "^4.12.2"
 
