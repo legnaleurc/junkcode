@@ -88,9 +88,9 @@ def _match_1pondo(name: str) -> JavData | None:
         return None
     a = m.group(1)
     b = m.group(2)
-    name = f"1PONDO {a}-{b}"
+    name = f"{a}_{b}-1PON"
     return JavData(
-        sauce_list=[SauceData(sauce="1pondo", query=f"{a}-{b}", name=name)],
+        sauce_list=[SauceData(sauce="1pondo", query=f"{a}_{b}", name=name)],
     )
 
 

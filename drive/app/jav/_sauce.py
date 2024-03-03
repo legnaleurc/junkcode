@@ -155,10 +155,6 @@ async def _fetch_from_caribpr(session: ClientSession, jav_id: str, query: str):
 
 
 async def _fetch_from_1pondo(session: ClientSession, jav_id: str, query: str):
-    m = re.match(r"\d{6}_\d{3}", jav_id)
-    if not m:
-        return None
-
     async with session.get(
         f"https://www.1pondo.tv/dyn/phpauto/movie_details/movie_id/{query}.json",
     ) as response:
