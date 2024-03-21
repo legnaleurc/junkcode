@@ -88,8 +88,7 @@ async def _fetch_from_heydouga(session: ClientSession, jav_id: str, query: str):
             return None
         for span in title.find_all("span"):
             span.decompose()
-        title = _normalize_title(title.text)
-        return f"{jav_id} {title}"
+        return _normalize_title(title.text)
 
 
 async def _fetch_from_heyzo(session: ClientSession, jav_id: str, query: str):
@@ -170,7 +169,7 @@ async def _fetch_from_1pondo(session: ClientSession, jav_id: str, query: str):
 
 async def _fetch_from_10musume(session: ClientSession, jav_id: str, query: str):
     async with session.get(
-        f"https://www.10musume.com/dyn/phpauto/movie_details/movie_id/{jav_id}.json",
+        f"https://www.10musume.com/dyn/phpauto/movie_details/movie_id/{query}.json",
     ) as response:
         if response.status != 200:
             return None
