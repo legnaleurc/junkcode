@@ -1,0 +1,16 @@
+services:
+  dfd:
+    build:
+      target: production
+      args:
+        - SQLITE_PATH=/mnt/dfd.sqlite
+        - PUBLIC_API_BASE=${DFD_API_BASE}
+    volumes:
+      - ${DFD_DATA_PATH}:/mnt:rw
+    ports:
+      - "${DFD_PORT}:3000"
+    environment:
+      - SQLITE_PATH=/mnt/dfd.sqlite
+      - PUBLIC_API_BASE=${DFD_API_BASE}
+      - ORIGIN=${DFD_API_BASE}
+    command: node build
