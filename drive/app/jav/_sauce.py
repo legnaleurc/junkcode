@@ -8,52 +8,20 @@ from bs4 import BeautifulSoup
 from ._types import JavData
 
 
-async def _fetch_from_javbus(session: ClientSession, jav_id: str, query: str):
-    async with session.get(f"https://www.javbus.com/ja/{query}") as response:
-        if response.status != 200:
-            return None
-
-        html = await response.text(errors="ignore")
-        soup = BeautifulSoup(html, "html.parser")
-        title = soup.select_one(".container > h3")
-        if not title:
-            return None
-        return _normalize_title(title.text)
-
-
-async def _fetch_from_javlibrary(session: ClientSession, jav_id: str, query: str):
+async def _fetch_from_fanza(session: ClientSession, jav_id: str, query: str):
     async with session.get(
-        f"http://www.javlibrary.com/ja/vl_searchbyid.php",
-        params={
-            "keyword": query,
-        },
+        f"https://www.dmm.co.jp/search/=/searchstr={query}/limit=30/sort=rankprofile/"
     ) as response:
         if response.status != 200:
             return None
 
         html = await response.text(errors="ignore")
         soup = BeautifulSoup(html, "html.parser")
-        title = soup.select_one("#video_title .post-title")
+        title = soup.select_one(".txt > a:nth-child(1)")
         if title:
-            return _normalize_title(title.text)
-
-        videos = soup.select(".videos .video")
-        for div in videos:
-            id_ = div.select_one(".id")
-            if not id_:
-                continue
-            if id_.text != query:
-                continue
-            a = div.select_one("a")
-            if a:
-                title = a.get("title")
-                if not title:
-                    continue
-                if title.find("（ブルーレイディスク）") >= 0:
-                    continue
-                return _normalize_title(title)
-
-        return None
+            title = _normalize_title(title.text)
+            return f"{jav_id} {title}"
+    return None
 
 
 async def _fetch_from_javbee(session: ClientSession, jav_id: str, query: str):
@@ -182,8 +150,6 @@ async def _fetch_from_10musume(session: ClientSession, jav_id: str, query: str):
 
 
 _SAUCE_DICT = {
-    "javbus": _fetch_from_javbus,
-    "javlibrary": _fetch_from_javlibrary,
     "javbee": _fetch_from_javbee,
     "javtorrent": _fetch_from_javbee,
     "heydouga": _fetch_from_heydouga,
@@ -192,6 +158,7 @@ _SAUCE_DICT = {
     "1pondo": _fetch_from_1pondo,
     "10musume": _fetch_from_10musume,
     "heyzo": _fetch_from_heyzo,
+    "fanza": _fetch_from_fanza,
 }
 
 

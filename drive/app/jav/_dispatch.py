@@ -3,7 +3,7 @@ import re
 from ._types import SauceData, JavData
 
 
-def _match_jav_1(name: str) -> JavData | None:
+def _match_jav(name: str) -> JavData | None:
     m = re.search(r"(\w{2,6})[-_](\d{2,4}\w?)", name)
     if not m:
         return None
@@ -11,22 +11,22 @@ def _match_jav_1(name: str) -> JavData | None:
     name = name.upper()
     return JavData(
         sauce_list=[
-            SauceData(sauce="javbus", query=name, name=name),
-            SauceData(sauce="javlibrary", query=name, name=name),
+            SauceData(sauce="fanza", query=name, name=name),
         ],
     )
 
 
-def _match_jav_2(name: str) -> JavData | None:
+def _match_jav_number(name: str) -> JavData | None:
     m = re.search(r"(\d{3,4})(\w{3,6})[-_](\d{3,4}\w?)", name)
     if not m:
         return None
-    name = f"{m.group(1)}{m.group(2)}-{m.group(3)}"
+    query = f"{m.group(2)}-{m.group(3)}"
+    query = query.upper()
+    name = f"{m.group(1)}{query}"
     name = name.upper()
     return JavData(
         sauce_list=[
-            SauceData(sauce="javbus", query=name, name=name),
-            SauceData(sauce="javlibrary", query=name, name=name),
+            SauceData(sauce="fanza", query=query, name=name),
         ],
     )
 
@@ -160,8 +160,8 @@ _INCLUDE_LIST = [
     _match_heyzo,
     _match_heydouga,
     _match_fc2,
-    _match_jav_1,
-    _match_jav_2,
+    _match_jav_number,
+    _match_jav,
     _match_unknown,
 ]
 
