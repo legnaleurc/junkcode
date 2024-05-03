@@ -11,23 +11,15 @@
 
 
 const URL_ = {
-  filters: 'http://dfd.loc.al/api/v1/filters',
-  nodes: 'http://ddld.loc.al/api/v1/nodes',
+  filters: 'http://dfd.local/api/v1/filters',
+  nodes: 'http://dvd.local/api/v1/nodes',
 };
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  removeBanner();
   markGarbage();
   searchCache();
 });
-
-
-function removeBanner () {
-  let el = document.querySelector('.servers-cost-money1');
-  el.previousElementSibling.remove();
-  el.remove();
-}
 
 
 async function markGarbage () {
@@ -48,8 +40,8 @@ async function markGarbage () {
 async function getFilters () {
   let rv = await get(URL_.filters, {});
   rv = JSON.parse(rv);
-  rv = Object.keys(rv).map((key) => {
-    return new RegExp(rv[key], 'i');
+  rv = rv.map((value) => {
+    return new RegExp(value.regexp, 'i');
   });
   return rv;
 }
