@@ -65,7 +65,7 @@ function getIconParent (icon) {
 
 
 async function searchCache () {
-  let title = document.querySelector('body > .container > div:nth-child(1) .panel-title');
+  let title = document.querySelector('div.panel:nth-child(6) > div:nth-child(1) > h3:nth-child(1)');
   if (!title) {
     return;
   }
@@ -84,7 +84,8 @@ async function searchCache () {
 
   try {
     let raw = await get(URL_.nodes, {
-      pattern: t,
+      name: t,
+      fuzzy: true,
     });
     let data = JSON.parse(raw);
     data.forEach((v) => {
@@ -156,7 +157,7 @@ function searchReal (title) {
 
 
 function makeHintArea () {
-  let a = document.querySelector('body > .container > div:nth-child(2)');
+  let a = document.querySelector('div.panel:nth-child(7)');
   let c = document.createElement('div');
   c.id = 'fake-hint';
   c.classList.add('panel', 'panel-default');
