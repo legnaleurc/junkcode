@@ -6,6 +6,6 @@ export default {
   out: "./drizzle/migrations",
   driver: "better-sqlite",
   dbCredentials: {
-    url: process.env.SQLITE_PATH,
+    url: process.env.SQLITE_FILE,
   },
 } satisfies Config;

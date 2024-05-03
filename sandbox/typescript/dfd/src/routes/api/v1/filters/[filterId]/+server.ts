@@ -13,6 +13,8 @@ export const PATCH = (async ({ params, request }) => {
 
 export const DELETE = (async ({ params }) => {
   const { filterId } = params;
-  const rv = deleteFilter(Number(filterId));
-  return json(rv);
+  deleteFilter(Number(filterId));
+  return new Response(null, {
+    status: 204,
+  });
 }) satisfies RequestHandler;

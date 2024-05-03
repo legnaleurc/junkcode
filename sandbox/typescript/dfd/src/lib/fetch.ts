@@ -55,7 +55,7 @@ export class RequestBuilder<T> {
     return this;
   }
 
-  response(): Promise<Response> {
+  async response(): Promise<Response> {
     if (!this._path || !this._base) {
       throw new Error("invalid url");
     }
@@ -72,14 +72,15 @@ export class RequestBuilder<T> {
     }
     const url = new URL(this._path, this._base);
     const request = new Request(url, options);
-    return this._fetch(request);
+    const response = await this._fetch(request);
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    return response;
   }
 
   async fetch(): Promise<T> {
     const response = await this.response();
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
     return await response.json();
   }
 }

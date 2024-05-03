@@ -24,7 +24,7 @@
   });
 
   const delete_ = createMutation({
-    mutationFn: () => deleteFilter(id).fetch(),
+    mutationFn: () => deleteFilter(id).response(),
     onSuccess: () => {
       client.invalidateQueries({
         queryKey: ["filters"],

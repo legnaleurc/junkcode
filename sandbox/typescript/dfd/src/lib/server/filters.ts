@@ -21,7 +21,6 @@ export function updateFilter(id: number, filter: MutableFilter): Filter {
     .get();
 }
 
-export function deleteFilter(id: number): number {
+export function deleteFilter(id: number): void {
   connect().delete(filters).where(eq(filters.id, id)).run();
-  return id;
 }
