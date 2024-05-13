@@ -89,7 +89,7 @@ async function searchCache () {
     });
     let data = JSON.parse(raw);
     data.forEach((v) => {
-      addHint(v.name);
+      addHint(`${v.parent_path}/${v.name}`);
     });
     markNormal();
   } catch (e) {
