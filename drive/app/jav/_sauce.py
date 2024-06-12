@@ -8,8 +8,10 @@ from bs4 import BeautifulSoup
 from ._types import JavData
 
 
-async def _get_html(session: ClientSession, url: str) -> BeautifulSoup | None:
-    async with session.get(url) as response:
+async def _get_html(
+    session: ClientSession, url: str, query: dict[str, str] | None = None
+) -> BeautifulSoup | None:
+    async with session.get(url, params=query) as response:
         if response.status != 200:
             return None
 
@@ -169,41 +171,39 @@ async def _fetch_from_10musume(
 async def _fetch_from_javbee(
     session: ClientSession, jav_id: str, query: str
 ) -> str | None:
-    async with session.get(
+    soup = await _get_html(
+        session,
         "https://javbee.org/search",
-        params={
+        {
             "keyword": query,
         },
-    ) as response:
-        if response.status != 200:
-            return None
+    )
+    if not soup:
+        return None
 
-        html = await response.text(errors="ignore")
-        soup = BeautifulSoup(html, "html.parser")
-        title = soup.select_one(".title > a")
-        if not title:
-            return None
-        return _normalize_title(title.text)
+    title = soup.select_one(".title > a")
+    if not title:
+        return None
+    return _normalize_title(title.text)
 
 
 async def _fetch_from_javtorrent(
     session: ClientSession, jav_id: str, query: str
 ) -> str | None:
-    async with session.get(
+    soup = await _get_html(
+        session,
         "https://jav-torrent.org/search",
-        params={
+        {
             "keyword": query,
         },
-    ) as response:
-        if response.status != 200:
-            return None
+    )
+    if not soup:
+        return None
 
-        html = await response.text(errors="ignore")
-        soup = BeautifulSoup(html, "html.parser")
-        title = soup.select_one(".title > a")
-        if not title:
-            return None
-        return _normalize_title(title.text)
+    title = soup.select_one(".title > a")
+    if not title:
+        return None
+    return _normalize_title(title.text)
 
 
 _SAUCE_DICT = {
