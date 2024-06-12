@@ -38,24 +38,6 @@ async def _fetch_from_mgs(session: ClientSession, jav_id: str, query: str):
     return None
 
 
-async def _fetch_from_javbee(session: ClientSession, jav_id: str, query: str):
-    async with session.get(
-        "https://javbee.org/search",
-        params={
-            "keyword": query,
-        },
-    ) as response:
-        if response.status != 200:
-            return None
-
-        html = await response.text(errors="ignore")
-        soup = BeautifulSoup(html, "html.parser")
-        title = soup.select_one(".title > a")
-        if not title:
-            return None
-        return _normalize_title(title.text)
-
-
 async def _fetch_from_heydouga(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         f"https://www.heydouga.com/moviepages/{query}/index.html",
@@ -163,9 +145,43 @@ async def _fetch_from_10musume(session: ClientSession, jav_id: str, query: str):
         return f"10MU {jav_id} {title} {actor}"
 
 
+async def _fetch_from_javbee(session: ClientSession, jav_id: str, query: str):
+    async with session.get(
+        "https://javbee.org/search",
+        params={
+            "keyword": query,
+        },
+    ) as response:
+        if response.status != 200:
+            return None
+
+        html = await response.text(errors="ignore")
+        soup = BeautifulSoup(html, "html.parser")
+        title = soup.select_one(".title > a")
+        if not title:
+            return None
+        return _normalize_title(title.text)
+
+
+async def _fetch_from_javtorrent(session: ClientSession, jav_id: str, query: str):
+    async with session.get(
+        "https://jav-torrent.org/search",
+        params={
+            "keyword": query,
+        },
+    ) as response:
+        if response.status != 200:
+            return None
+
+        html = await response.text(errors="ignore")
+        soup = BeautifulSoup(html, "html.parser")
+        title = soup.select_one(".title > a")
+        if not title:
+            return None
+        return _normalize_title(title.text)
+
+
 _SAUCE_DICT = {
-    "javbee": _fetch_from_javbee,
-    "javtorrent": _fetch_from_javbee,
     "heydouga": _fetch_from_heydouga,
     "carib": _fetch_from_carib,
     "caribpr": _fetch_from_caribpr,
@@ -174,6 +190,8 @@ _SAUCE_DICT = {
     "heyzo": _fetch_from_heyzo,
     "fanza": _fetch_from_fanza,
     "mgs": _fetch_from_mgs,
+    "javbee": _fetch_from_javbee,
+    "javtorrent": _fetch_from_javtorrent,
 }
 
 
