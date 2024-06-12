@@ -17,16 +17,14 @@ def _match_jav(name: str) -> JavData | None:
 
 
 def _match_jav_number(name: str) -> JavData | None:
-    m = re.search(r"(\d{3,4})(\w{3,6})[-_](\d{3,4}\w?)", name)
+    m = re.search(r"(\d{3,4}\w{3,6})[-_](\d{3,4}\w?)", name)
     if not m:
         return None
-    query = f"{m.group(2)}-{m.group(3)}"
-    query = query.upper()
-    name = f"{m.group(1)}{query}"
+    name = f"{m.group(1)}-{m.group(2)}"
     name = name.upper()
     return JavData(
         sauce_list=[
-            SauceData(sauce="mgs", query=query, name=name),
+            SauceData(sauce="mgs", query=name, name=name),
         ],
     )
 
