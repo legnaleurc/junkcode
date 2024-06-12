@@ -43,7 +43,7 @@ async def _fetch_from_fanza(
     if not title:
         return None
 
-    title = _normalize_title(title.text)
+    title = _normalize_name(title.text)
     return f"{jav_id} {title}"
 
 
@@ -60,7 +60,7 @@ async def _fetch_from_mgs(
     if not title:
         return None
 
-    title = _normalize_title(title.text)
+    title = _normalize_name(title.text)
     return f"{jav_id} {title}"
 
 
@@ -80,7 +80,7 @@ async def _fetch_from_heydouga(
     for span in title.find_all("span"):
         span.decompose()
 
-    return _normalize_title(title.text)
+    return _normalize_name(title.text)
 
 
 async def _fetch_from_heyzo(
@@ -96,7 +96,7 @@ async def _fetch_from_heyzo(
     if not title:
         return None
 
-    title = _normalize_title(title.text)
+    title = _normalize_name(title.text)
     title = re.sub(r"\t+", " ", title)
     return f"{jav_id} {title}"
 
@@ -113,12 +113,12 @@ async def _fetch_from_carib(
     title = soup.select_one("h1[itemprop=name]")
     if not title:
         return None
-    title = _normalize_title(title.text)
+    title = _normalize_name(title.text)
 
     actor = soup.select_one(".movie-spec a[itemprop=actor] > span[itemprop=name]")
     if not actor:
         return f"{jav_id} {title}"
-    actor = _normalize_title(actor.text)
+    actor = _normalize_name(actor.text)
 
     return f"{jav_id} {title} {actor}"
 
@@ -135,12 +135,12 @@ async def _fetch_from_caribpr(
     title = soup.select_one(".movie-info .heading")
     if not title:
         return None
-    title = _normalize_title(title.text)
+    title = _normalize_name(title.text)
 
     actor = soup.select_one(".movie-spec .spec-content > .spec-item")
     if not actor:
         return f"{jav_id} {title}"
-    actor = _normalize_title(actor.text)
+    actor = _normalize_name(actor.text)
 
     return f"{jav_id} {title} {actor}"
 
@@ -155,8 +155,8 @@ async def _fetch_from_1pondo(
     if not data:
         return None
 
-    title = _normalize_title(data["Title"])
-    actor = _normalize_title(data["Actor"])
+    title = _normalize_name(data["Title"])
+    actor = _normalize_name(data["Actor"])
 
     return f"{jav_id} {title} {actor}"
 
@@ -171,8 +171,8 @@ async def _fetch_from_10musume(
     if not data:
         return None
 
-    title = _normalize_title(data["Title"])
-    actor = _normalize_title(data["Actor"])
+    title = _normalize_name(data["Title"])
+    actor = _normalize_name(data["Actor"])
 
     return f"{jav_id} {title} {actor}"
 
@@ -193,7 +193,7 @@ async def _fetch_from_javbee(
     title = soup.select_one(".title > a")
     if not title:
         return None
-    return _normalize_title(title.text)
+    return _normalize_name(title.text)
 
 
 async def _fetch_from_javtorrent(
@@ -212,7 +212,7 @@ async def _fetch_from_javtorrent(
     title = soup.select_one(".title > a")
     if not title:
         return None
-    return _normalize_title(title.text)
+    return _normalize_name(title.text)
 
 
 _SAUCE_DICT = {
@@ -245,9 +245,9 @@ async def _as_kv[K, V](key: K, value: Awaitable[V]) -> tuple[K, V]:
     return key, await value
 
 
-def _normalize_title(title: str) -> str:
-    title = title.strip()
-    title = title.replace("/", "／")
-    title = title.replace("\n", "")
-    title = title.replace("\r", "")
-    return title
+def _normalize_name(name: str) -> str:
+    name = name.strip()
+    name = name.replace("/", "／")
+    name = name.replace("\n", "")
+    name = name.replace("\r", "")
+    return name
