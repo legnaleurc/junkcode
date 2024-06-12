@@ -165,7 +165,7 @@ async def _fetch_from_10musume(
         title = _normalize_title(data["Title"])
         actor = _normalize_title(data["Actor"])
 
-        return f"10MU {jav_id} {title} {actor}"
+        return f"{jav_id} {title} {actor}"
 
 
 async def _fetch_from_javbee(
