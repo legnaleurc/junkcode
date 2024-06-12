@@ -1,6 +1,7 @@
 import re
 from asyncio import as_completed
 from collections.abc import Awaitable
+from typing import Any
 
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
@@ -18,6 +19,14 @@ async def _get_html(
         html = await response.text(errors="ignore")
 
     return BeautifulSoup(html, "html.parser")
+
+
+async def _get_json(session: ClientSession, url: str) -> Any | None:
+    async with session.get(url) as response:
+        if response.status != 200:
+            return None
+
+        return await response.json()
 
 
 async def _fetch_from_fanza(
@@ -139,33 +148,33 @@ async def _fetch_from_caribpr(
 async def _fetch_from_1pondo(
     session: ClientSession, jav_id: str, query: str
 ) -> str | None:
-    async with session.get(
+    data = await _get_json(
+        session,
         f"https://www.1pondo.tv/dyn/phpauto/movie_details/movie_id/{query}.json",
-    ) as response:
-        if response.status != 200:
-            return None
+    )
+    if not data:
+        return None
 
-        data = await response.json()
-        title = _normalize_title(data["Title"])
-        actor = _normalize_title(data["Actor"])
+    title = _normalize_title(data["Title"])
+    actor = _normalize_title(data["Actor"])
 
-        return f"{jav_id} {title} {actor}"
+    return f"{jav_id} {title} {actor}"
 
 
 async def _fetch_from_10musume(
     session: ClientSession, jav_id: str, query: str
 ) -> str | None:
-    async with session.get(
+    data = await _get_json(
+        session,
         f"https://www.10musume.com/dyn/phpauto/movie_details/movie_id/{query}.json",
-    ) as response:
-        if response.status != 200:
-            return None
+    )
+    if not data:
+        return None
 
-        data = await response.json()
-        title = _normalize_title(data["Title"])
-        actor = _normalize_title(data["Actor"])
+    title = _normalize_title(data["Title"])
+    actor = _normalize_title(data["Actor"])
 
-        return f"{jav_id} {title} {actor}"
+    return f"{jav_id} {title} {actor}"
 
 
 async def _fetch_from_javbee(
