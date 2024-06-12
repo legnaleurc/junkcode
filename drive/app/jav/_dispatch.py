@@ -26,7 +26,7 @@ def _match_jav_number(name: str) -> JavData | None:
     name = name.upper()
     return JavData(
         sauce_list=[
-            SauceData(sauce="fanza", query=query, name=name),
+            SauceData(sauce="mgs", query=query, name=name),
         ],
     )
 

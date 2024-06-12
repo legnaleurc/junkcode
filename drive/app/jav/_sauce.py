@@ -24,6 +24,20 @@ async def _fetch_from_fanza(session: ClientSession, jav_id: str, query: str):
     return None
 
 
+async def _fetch_from_mgs(session: ClientSession, jav_id: str, query: str):
+    async with session.get(f"https://www.mgstage.com/product/product_detail/{query}/") as response:
+        if response.status != 200:
+            return None
+
+        html = await response.text(errors="ignore")
+        soup = BeautifulSoup(html, "html.parser")
+        title = soup.select_one(".tag")
+        if title:
+            title = _normalize_title(title.text)
+            return f"{jav_id} {title}"
+    return None
+
+
 async def _fetch_from_javbee(session: ClientSession, jav_id: str, query: str):
     async with session.get(
         "https://javbee.org/search",
@@ -159,6 +173,7 @@ _SAUCE_DICT = {
     "10musume": _fetch_from_10musume,
     "heyzo": _fetch_from_heyzo,
     "fanza": _fetch_from_fanza,
+    "mgs": _fetch_from_mgs,
 }
 
 
