@@ -10,10 +10,26 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
     return total_size;
 }
 
+int fetch_once(CURLM *multi_handle) {
+    CURLMcode multi_code;
+    int numfds;
+    int running_handles;
+    multi_code = curl_multi_wait(multi_handle, NULL, 0, 1000, &numfds);
+    if (multi_code != CURLM_OK) {
+        fprintf(stderr, "curl_multi_wait() failed, code %d.\n", multi_code);
+        return 0;
+    }
+    multi_code = curl_multi_perform(multi_handle, &running_handles);
+    if (multi_code != CURLM_OK) {
+        fprintf(stderr, "curl_multi_perform() failed, code %d.\n", multi_code);
+        return 0;
+    }
+    return running_handles;
+}
+
 int main(void) {
     CURL *easy_handle;
     CURLM *multi_handle;
-    CURLMcode multi_code;
     int still_running = 0; // keep number of running handles
 
     // Initialize the curl library
@@ -46,17 +62,15 @@ int main(void) {
 
     // Perform the request
     do {
-        int numfds;
-        multi_code = curl_multi_wait(multi_handle, NULL, 0, 1000, &numfds);
-        if (multi_code != CURLM_OK) {
-            fprintf(stderr, "curl_multi_wait() failed, code %d.\n", multi_code);
-            break;
-        }
-        multi_code = curl_multi_perform(multi_handle, &still_running);
-        if (multi_code != CURLM_OK) {
-            fprintf(stderr, "curl_multi_perform() failed, code %d.\n", multi_code);
-            break;
-        }
+        still_running = fetch_once(multi_handle);
+
+        long code;
+        curl_easy_getinfo(easy_handle, CURLINFO_RESPONSE_CODE, &code);
+        fprintf(stderr, "status code %d\n", code);
+
+        curl_off_t content_length;
+        curl_easy_getinfo(easy_handle, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &content_length);
+        fprintf(stderr, "content length %lld\n", content_length);
     } while (still_running);
 
     // Clean up
