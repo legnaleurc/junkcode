@@ -1,2 +1,2 @@
 fetch: fetch.c
-	$(CC) -o $@ $+ -lcurl
+	$(CC) -g -o $@ $+ -lcurl

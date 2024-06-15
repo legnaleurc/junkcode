@@ -49,8 +49,7 @@ int main(void) {
     curl_multi_add_handle(multi_handle, easy_handle);
 
     // Perform the request
-    multi_code = curl_multi_perform(multi_handle, &still_running);
-    while (still_running) {
+    do {
         int numfds;
         multi_code = curl_multi_wait(multi_handle, NULL, 0, 1000, &numfds);
         if (multi_code != CURLM_OK) {
@@ -58,12 +57,11 @@ int main(void) {
             break;
         }
         multi_code = curl_multi_perform(multi_handle, &still_running);
-    }
-
-    // Check for errors
-    if (multi_code != CURLM_OK) {
-        fprintf(stderr, "curl_multi_perform() failed, code %d.\n", multi_code);
-    }
+        if (multi_code != CURLM_OK) {
+            fprintf(stderr, "curl_multi_perform() failed, code %d.\n", multi_code);
+            break;
+        }
+    } while (still_running);
 
     // Print fetched data
     printf("Fetched Data: %s\n", data);
