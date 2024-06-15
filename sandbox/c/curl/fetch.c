@@ -6,8 +6,7 @@
 // Callback function to write data received from the server
 size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
     size_t total_size = size * nmemb;
-    // Append the received data to the user-provided buffer
-    strncat((char *)userdata, (char *)ptr, total_size);
+    fwrite(ptr, size, nmemb, stdout);
     return total_size;
 }
 
@@ -16,7 +15,6 @@ int main(void) {
     CURLM *multi_handle;
     CURLMcode multi_code;
     int still_running = 0; // keep number of running handles
-    char data[1024] = {0}; // buffer to store fetched data
 
     // Initialize the curl library
     curl_global_init(CURL_GLOBAL_ALL);
@@ -29,13 +27,11 @@ int main(void) {
     }
 
     // Set URL for the easy handle
-    curl_easy_setopt(easy_handle, CURLOPT_URL, "https://httpbin.org/get");
+    const char * URL = "https://httpbin.org/get";
+    curl_easy_setopt(easy_handle, CURLOPT_URL, URL);
 
     // Set callback function to handle data
     curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_callback);
-
-    // Set user data for callback function
-    curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, data);
 
     // Create multi handle
     multi_handle = curl_multi_init();
@@ -62,9 +58,6 @@ int main(void) {
             break;
         }
     } while (still_running);
-
-    // Print fetched data
-    printf("Fetched Data: %s\n", data);
 
     // Clean up
     curl_multi_remove_handle(multi_handle, easy_handle);
