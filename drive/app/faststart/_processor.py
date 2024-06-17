@@ -437,6 +437,12 @@ def create_processor(
             work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
         )
 
+    if is_mkv(node):
+        constructor = MKVProcessor
+        return constructor(
+            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
+        )
+
     return None
 
 
@@ -455,3 +461,8 @@ def is_realmedia(node: Node):
 def is_oggmedia(node: Node):
     lower_name = node.name.lower()
     return lower_name.endswith(".ogm")
+
+
+def is_mkv(node: Node):
+    lower_name = node.name.lower()
+    return lower_name.endswith(".mkv")

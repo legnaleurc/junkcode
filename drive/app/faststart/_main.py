@@ -18,7 +18,7 @@ from wcpan.queue import AioQueue
 from app.lib import create_default_drive
 
 from ._cache import initialize_cache
-from ._processor import create_processor, is_oggmedia, is_realmedia
+from ._processor import create_processor, is_oggmedia, is_realmedia, is_mkv
 
 
 async def main(args: list[str] | None = None):
@@ -103,6 +103,7 @@ async def walk_root_list(drive: Drive, root_list: list[PurePath]):
                     not file_.is_video
                     and not is_realmedia(file_)
                     and not is_oggmedia(file_)
+                    and not is_mkv(file_)
                 ):
                     continue
                 yield file_
