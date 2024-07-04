@@ -51,10 +51,11 @@ async function searchCache () {
   try {
     let data = await get(URL_.nodes, {
       name: title,
+      fuzzy: true,
     });
     data = JSON.parse(data);
     data.forEach((v) => {
-      addTextToSearchHint(v.path);
+      addTextToSearchHint(`${v.parent_path}/${v.name}`);
     });
     markSearchNormal();
   } catch (e) {
