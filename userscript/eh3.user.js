@@ -288,10 +288,21 @@ function makeDownloadTorrentLink (html) {
       return;
     }
     block = document.importNode(block, true);
+    lowlightUploader(uploader, block);
     box.appendChild(block);
   });
   const element = document.querySelector('#blk-torrent');
   element.appendChild(box);
+}
+
+
+function lowlightUploader(uploader, block) {
+  const isLowlight = uploader !== 'milannews';
+  if (!isLowlight) {
+    return;
+  }
+  const box = block.querySelector('form > div');
+  box.style.borderStyle = 'dashed';
 }
 
 
