@@ -92,7 +92,6 @@ function searchArt (title) {
   const blackList = [
     /^\d+$/,
     /^(FHD|MP4)\//,
-    /^FHD|HD|ADV|CG|RPG|HCG|MMD$/,
     /[23]D-Hentai/,
     /^Crack$/i,
     /^無修正$/,
