@@ -71,13 +71,18 @@ async function inlineDownload () {
 }
 
 
+/**
+ * search keyword
+ * @param {string} title title
+ * @returns {string | null} keyword
+ */
 function searchKeyword (title) {
-  let rv = searchArt(title);
+  let rv = searchArtKeyword(title);
   if (rv.length > 0) {
     return rv[0];
   }
 
-  rv = searchReal(title);
+  rv = searchRealKeyword(title);
   if (rv.length > 0) {
     return rv[0];
   }
@@ -86,7 +91,12 @@ function searchKeyword (title) {
 }
 
 
-function searchArt (title) {
+/**
+ * search art keyword
+ * @param {string} title title
+ * @returns {string[]} keyword
+ */
+function searchArtKeyword (title) {
   const blackList = [
     /^\d+$/,
     /^(FHD|MP4)\//,
@@ -116,7 +126,12 @@ function searchArt (title) {
 }
 
 
-function searchReal (title) {
+/**
+ * search real keyword
+ * @param {string} title title
+ * @returns {string[]} keyword
+ */
+function searchRealKeyword (title) {
   const pattern = /[a-zA-Z]+-\d+/g;
   const rv = [];
   let tmp = null;
@@ -212,6 +227,10 @@ function markSearchError () {
 }
 
 
+/**
+ * add text to search hint
+ * @param {string} message message
+ */
 function addTextToSearchHint (message) {
   const p = document.querySelector('#blk-search');
   const c = document.createElement('pre');
@@ -251,15 +270,21 @@ async function inlineTorrentDownload () {
   url = url[1];
 
   // get page information
-  let html = await get(url);
+  const html = await get(url);
   const parser = new DOMParser();
-  html = parser.parseFromString(html, 'text/html');
+  const rv = parser.parseFromString(html, 'text/html');
 
   // make UI
-  makeDownloadTorrentLink(html);
+  makeDownloadTorrentLink(rv);
 }
 
 
+/**
+ * make download archive link
+ * @param {string} url url
+ * @param {string} size size
+ * @param {string} price price
+ */
 function makeDownloadArchiveLink (url, size, price) {
   const block = document.createElement('div');
   block.textContent = `${size} / ${price}`;
@@ -274,6 +299,10 @@ function makeDownloadArchiveLink (url, size, price) {
 }
 
 
+/**
+ * make download torrent link
+ * @param {Document} html html
+ */
 function makeDownloadTorrentLink (html) {
   const blackUploader = [
     '枯树昏鸦',
@@ -296,6 +325,11 @@ function makeDownloadTorrentLink (html) {
 }
 
 
+/**
+ * lowlight uploader
+ * @param {string} uploader uploader
+ * @param {HTMLElement} block block
+ */
 function lowlightUploader(uploader, block) {
   const isLowlight = uploader !== 'milannews';
   if (!isLowlight) {
@@ -306,6 +340,10 @@ function lowlightUploader(uploader, block) {
 }
 
 
+/**
+ * download archive
+ * @param {string} url url
+ */
 async function downloadArchive (url) {
   const html = await post(url, {
     hathdl_xres: 'org',
@@ -323,11 +361,17 @@ async function downloadArchive (url) {
 }
 
 
+/**
+ * get
+ * @param {string} url url
+ * @param {Record<string, string>} args args
+ * @returns {Promise<string>} response
+ */
 function get (url, args) {
-  url = new URL(url);
+  const url_ = new URL(url);
   if (args) {
     Object.keys(args).forEach((k) => {
-      url.searchParams.set(k, args[k]);
+      url_.searchParams.set(k, args[k]);
     });
   }
   return new Promise((resolve, reject) => {
@@ -342,12 +386,19 @@ function get (url, args) {
       onerror: (error) => {
         reject(error);
       },
-      url: url.toString(),
+      url: url_.toString(),
     });
   });
 }
 
 
+/**
+ * post
+ * @param {string} url url
+ * @param {Record<string, string>} args args
+ * @param {Record<string, string> | undefined} header header
+ * @returns {Promise<string>} response
+ */
 function post (url, args, header) {
   const data = new URLSearchParams();
   if (args) {
@@ -379,6 +430,11 @@ function post (url, args, header) {
 }
 
 
+/**
+ * wait
+ * @param {number} msDelay delay
+ * @returns {Promise<void>}
+ */
 function wait (msDelay) {
   return new Promise((resolve) => {
     setTimeout(resolve, msDelay);
@@ -386,6 +442,10 @@ function wait (msDelay) {
 }
 
 
+/**
+ * add style
+ * @param {string} text text
+ */
 function addStyle (text) {
   const style = document.createElement('style');
   style.textContent = text;
