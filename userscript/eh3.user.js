@@ -11,7 +11,7 @@
 
 
 const URL_ = {
-  nodes: 'http://localhost:8000/api/v1/nodes',
+  nodes: 'http://dvd.localhost/api/v1/nodes',
 };
 
 
