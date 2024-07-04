@@ -10,9 +10,7 @@
 'use strict';
 
 
-const URL_ = {
-  nodes: 'http://dvd.localhost/api/v1/nodes',
-};
+const NODES_URL = 'http://dvd.localhost/api/v1/nodes';
 
 
 main().catch((e) => {
@@ -49,7 +47,7 @@ async function searchCache () {
   addTextToSearchHint(title);
 
   try {
-    let data = await get(URL_.nodes, {
+    let data = await get(NODES_URL, {
       name: title,
       fuzzy: true,
     });
@@ -106,7 +104,7 @@ function searchArt (title) {
   let tmp = null;
   while ((tmp = pattern.exec(title)) !== null) {
     tmp = tmp[1];
-    let isBlack = blackList.some((p) => {
+    const isBlack = blackList.some((p) => {
       return p.test(tmp);
     });
     if (isBlack) {
@@ -224,19 +222,19 @@ function addTextToSearchHint (message) {
 
 async function inlineArchiveDownload () {
   // get URL
-  let element = document.querySelector('.g2.gsp > a');
+  const element = document.querySelector('.g2.gsp > a');
   let url = element.getAttribute('onclick');
   url = url.match(/'([^']+)'/);
   url = url[1];
 
   // get page information
   let html = await get(url);
-  let parser = new DOMParser();
+  const parser = new DOMParser();
   html = parser.parseFromString(html, 'text/html');
-  let form = html.querySelector('#hathdl_form');
-  let block = form.nextElementSibling.firstElementChild.firstElementChild.lastElementChild;
-  let size = block.children[1].textContent;
-  let price = block.children[2].textContent;
+  const form = html.querySelector('#hathdl_form');
+  const block = form.nextElementSibling.firstElementChild.firstElementChild.lastElementChild;
+  const size = block.children[1].textContent;
+  const price = block.children[2].textContent;
 
   // make UI
   makeDownloadArchiveLink(form.action, size, price);
@@ -254,7 +252,7 @@ async function inlineTorrentDownload () {
 
   // get page information
   let html = await get(url);
-  let parser = new DOMParser();
+  const parser = new DOMParser();
   html = parser.parseFromString(html, 'text/html');
 
   // make UI
@@ -263,7 +261,7 @@ async function inlineTorrentDownload () {
 
 
 function makeDownloadArchiveLink (url, size, price) {
-  let block = document.createElement('div');
+  const block = document.createElement('div');
   block.textContent = `${size} / ${price}`;
   block.id = 'btn-dl-archive';
   block.addEventListener('click', (event) => {
@@ -271,40 +269,40 @@ function makeDownloadArchiveLink (url, size, price) {
       console.warn(e);
     });
   });
-  let element = document.querySelector('#blk-archive');
+  const element = document.querySelector('#blk-archive');
   element.appendChild(block);
 }
 
 
 function makeDownloadTorrentLink (html) {
-  let blackUploader = [
+  const blackUploader = [
     '枯树昏鸦',
   ];
-  let blocks = html.querySelectorAll('#torrentinfo > div:nth-child(1) > form');
-  let box = document.createDocumentFragment();
+  const blocks = html.querySelectorAll('#torrentinfo > div:nth-child(1) > form');
+  const box = document.createDocumentFragment();
   blocks.forEach((block) => {
     let uploader = block.querySelector('div:nth-child(1) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1)');
     uploader = uploader.firstChild.nextSibling.textContent.trim();
-    let skip = blackUploader.some(u => u === uploader);
+    const skip = blackUploader.some(u => u === uploader);
     if (skip) {
       return;
     }
     block = document.importNode(block, true);
     box.appendChild(block);
   });
-  let element = document.querySelector('#blk-torrent');
+  const element = document.querySelector('#blk-torrent');
   element.appendChild(box);
 }
 
 
 async function downloadArchive (url) {
-  let html = await post(url, {
+  const html = await post(url, {
     hathdl_xres: 'org',
   }, {
     Referer: url,
   });
-  let msg = 'Downloads should start processing within a couple of minutes.';
-  let block = document.querySelector('#blk-archive');
+  const msg = 'Downloads should start processing within a couple of minutes.';
+  const block = document.querySelector('#blk-archive');
   if (html.indexOf(msg) >= 0) {
     block.classList.add('success');
   } else {
@@ -378,8 +376,7 @@ function wait (msDelay) {
 
 
 function addStyle (text) {
-  let style = document.createElement('style');
-  style.type = 'text/css';
+  const style = document.createElement('style');
   style.textContent = text;
   document.head.appendChild(style);
 }
