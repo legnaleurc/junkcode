@@ -107,7 +107,8 @@ function searchArtKeyword (title) {
     /字幕/,
     / hentai$/i,
     /^BD 1080P$/,
-    /$\d{4}-\d{2}-\d{2}$/,
+    /^\d{2}-\d{2}-\d{2}$/,
+    /^\d{4}-\d{2}-\d{2}$/,
   ];
   const pattern = /\[([^\]]+)\]/g;
   const rv = [];
