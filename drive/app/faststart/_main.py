@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import asyncio
 import sys
 from argparse import ArgumentParser, Namespace
 from concurrent.futures import Executor
@@ -18,7 +17,7 @@ from wcpan.queue import AioQueue
 from app.lib import create_default_drive
 
 from ._cache import initialize_cache
-from ._processor import create_processor, is_oggmedia, is_realmedia, is_mkv
+from ._processor import create_processor
 
 
 _L = getLogger(__name__)
@@ -54,10 +53,10 @@ async def main(args: list[str] | None = None):
         async for change in drive.sync():
             _L.debug(change)
 
-        async for video_file in walk_root_list(drive, root_path_list):
+        async for file_ in walk_root_list(drive, root_path_list):
             await queue.push(
                 node_work(
-                    video_file,
+                    file_,
                     drive=drive,
                     work_folder=work_folder,
                     dsn=dsn,
@@ -102,13 +101,6 @@ async def walk_root_list(drive: Drive, root_list: list[PurePath]):
 
         async for _root, _folders, files in drive.walk(root_node):
             for file_ in files:
-                if (
-                    not file_.is_video
-                    and not is_realmedia(file_)
-                    and not is_oggmedia(file_)
-                    and not is_mkv(file_)
-                ):
-                    continue
                 yield file_
 
 
@@ -123,18 +115,16 @@ async def node_work(
     transcode_only: bool,
     cache_only: bool,
 ):
-    _L.info(f"processing {node.name}")
     processor = create_processor(
         work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
     )
     if not processor:
-        _L.warning(f"no processor for {node.name}")
         return
 
+    _L.info(f"begin {node.name}")
     used_quota = await processor(
         remux_only=remux_only,
         transcode_only=transcode_only,
         cache_only=cache_only,
     )
-    if used_quota:
-        await asyncio.sleep(60)
+    _L.info(f"used quota {used_quota}, end {node.name}")
