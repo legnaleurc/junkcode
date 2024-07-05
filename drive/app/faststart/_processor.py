@@ -22,6 +22,9 @@ H264_CRF = "18"
 DAILY_UPLOAD_QUOTA = 500 * 1024 * 1024 * 1024
 
 
+_L = getLogger(__name__)
+
+
 class VideoProcessor(object):
     def __init__(
         self, *, work_folder: Path, dsn: Path, pool: Executor, drive: Drive, node: Node
@@ -132,7 +135,7 @@ class VideoProcessor(object):
         cache_only: bool,
     ):
         if is_migrated(self.dsn, self.node):
-            getLogger(__name__).info("(cache) already migrated, skip")
+            _L.info("(cache) already migrated, skip")
             return False
 
         if (
@@ -140,7 +143,7 @@ class VideoProcessor(object):
             and has_cache(self.dsn, self.node)
             and not need_transcode(self.dsn, self.node)
         ):
-            getLogger(__name__).info("no need transcode, skip")
+            _L.info("no need transcode, skip")
             return False
 
         if (
@@ -148,58 +151,58 @@ class VideoProcessor(object):
             and has_cache(self.dsn, self.node)
             and need_transcode(self.dsn, self.node)
         ):
-            getLogger(__name__).info("need transcode, skip")
+            _L.info("need transcode, skip")
             return False
 
         if cache_only and has_cache(self.dsn, self.node):
-            getLogger(__name__).info("already cached, skip")
+            _L.info("already cached, skip")
             return False
 
         if not cache_only and not has_enough_quota(self.drive, self.node.size):
-            getLogger(__name__).info("not enough quota, skip")
+            _L.info("not enough quota, skip")
             return False
 
         with self._local_context():
             try:
                 await self._download()
             except Exception:
-                getLogger(__name__).exception("download failed")
+                _L.exception("download failed")
                 return True
 
             try:
                 await self.prepare_codec_info()
             except Exception:
-                getLogger(__name__).exception("ffmpeg failed")
+                _L.exception("ffmpeg failed")
                 return True
             if self.is_skippable:
-                getLogger(__name__).info("nothing to do, skip")
+                _L.info("nothing to do, skip")
                 set_cache(self.dsn, self.node, True, True)
                 return True
 
             set_cache(self.dsn, self.node, self.is_faststart, self.is_native_codec)
 
             if remux_only and not self.is_native_codec:
-                getLogger(__name__).info("need transcode, skip")
+                _L.info("need transcode, skip")
                 return True
 
             if transcode_only and self.is_native_codec:
-                getLogger(__name__).info("no need transcode, skip")
+                _L.info("no need transcode, skip")
                 return True
 
             if cache_only:
-                getLogger(__name__).info("cached, skip")
+                _L.info("cached, skip")
                 return True
 
             self._dump_info()
             transcode_command = self._get_transcode_command()
-            getLogger(__name__).info(" ".join(transcode_command))
+            _L.info(" ".join(transcode_command))
 
             exit_code = await shell_call(transcode_command, self.output_folder)
             if exit_code != 0:
-                getLogger(__name__).error("ffmpeg failed")
+                _L.error("ffmpeg failed")
                 return True
             media_info = await get_video_info(self.transcoded_file_path)
-            getLogger(__name__).info(media_info)
+            _L.info(media_info)
 
             async with self._remote_context():
                 node = await self._upload(media_info)
@@ -217,45 +220,45 @@ class VideoProcessor(object):
         return cmd
 
     async def _delete_remote(self):
-        getLogger(__name__).info(f"removing {self.node.name}")
+        _L.info(f"removing {self.node.name}")
         await self.drive.move(self.node, trashed=True)
         await wait_for_sync(self.drive)
-        getLogger(__name__).info(f"removed {self.node.name}")
+        _L.info(f"removed {self.node.name}")
 
     async def _download(self):
-        getLogger(__name__).info(f"downloading {self.node.name}")
+        _L.info(f"downloading {self.node.name}")
         output_folder = self.output_folder
         downloaded_path = await download_file_to_local(
             self.drive, self.node, output_folder
         )
         output_path = self.raw_file_path
         downloaded_path.rename(output_path)
-        getLogger(__name__).info(f"downloaded {self.node.name}")
+        _L.info(f"downloaded {self.node.name}")
 
     async def _upload(self, media_info: MediaInfo):
         from mimetypes import guess_type
 
         output_path = self.transcoded_file_path
-        getLogger(__name__).info(f"uploading {output_path}")
+        _L.info(f"uploading {output_path}")
         assert self.node.parent_id
         parent_node = await self.drive.get_node_by_id(self.node.parent_id)
         type_, _ext = guess_type(output_path)
         node = await upload_file_from_local(
             self.drive, output_path, parent_node, mime_type=type_, media_info=media_info
         )
-        getLogger(__name__).info(f"uploaded {node.id}")
+        _L.info(f"uploaded {node.id}")
         return node
 
     async def _verify(self, uploaded_node: Node):
         output_path = self.transcoded_file_path
-        getLogger(__name__).info(f"verifying {output_path}")
+        _L.info(f"verifying {output_path}")
         local_hash = await get_file_hash(output_path, pool=self.pool, drive=self.drive)
         if local_hash != uploaded_node.hash:
-            getLogger(__name__).info(f"removing {uploaded_node.name}")
+            _L.info(f"removing {uploaded_node.name}")
             await self.drive.move(uploaded_node, trashed=True)
-            getLogger(__name__).info(f"removed {uploaded_node.name}")
+            _L.info(f"removed {uploaded_node.name}")
             raise Exception("hash mismatch")
-        getLogger(__name__).info(f"verified {uploaded_node.hash}")
+        _L.info(f"verified {uploaded_node.hash}")
 
     @contextmanager
     def _local_context(self):
@@ -265,7 +268,7 @@ class VideoProcessor(object):
             yield
         finally:
             shutil.rmtree(output_folder)
-            getLogger(__name__).info(f"deleted {output_folder}")
+            _L.info(f"deleted {output_folder}")
 
     @asynccontextmanager
     async def _remote_context(self):
@@ -275,38 +278,38 @@ class VideoProcessor(object):
             await self._delete_remote()
             unset_cache(self.dsn, self.node)
         except Exception:
-            getLogger(__name__).exception("upload error")
+            _L.exception("upload error")
             await self._restore_remote()
             raise
 
     async def _rename_remote(self):
         await self.drive.move(self.node, new_name=f"__{self.node.name}")
-        getLogger(__name__).debug("confirming rename")
+        _L.debug("confirming rename")
         while True:
             await wait_for_sync(self.drive)
             new_node = await self.drive.get_node_by_id(self.node.id)
             if new_node.name != self.node.name:
                 break
             await asyncio.sleep(1)
-        getLogger(__name__).debug("rename confirmed")
+        _L.debug("rename confirmed")
 
     async def _restore_remote(self):
         await self.drive.move(self.node, new_name=self.node.name)
-        getLogger(__name__).debug("confirming restore")
+        _L.debug("confirming restore")
         while True:
             await wait_for_sync(self.drive)
             new_node = await self.drive.get_node_by_id(self.node.id)
             if new_node.name == self.node.name:
                 break
             await asyncio.sleep(1)
-        getLogger(__name__).debug("restore confirmed")
+        _L.debug("restore confirmed")
 
     def _dump_info(self):
-        getLogger(__name__).info(f"node id: {self.node.id}")
-        getLogger(__name__).info(f"node name: {self.node.name}")
-        getLogger(__name__).info(f"is faststart: {self.is_faststart}")
-        getLogger(__name__).info(f"is h264: {self.is_h264}")
-        getLogger(__name__).info(f"is aac: {self.is_aac}")
+        _L.info(f"node id: {self.node.id}")
+        _L.info(f"node name: {self.node.name}")
+        _L.info(f"is faststart: {self.is_faststart}")
+        _L.info(f"is h264: {self.is_h264}")
+        _L.info(f"is aac: {self.is_aac}")
 
 
 class MP4Processor(VideoProcessor):
@@ -397,7 +400,7 @@ async def shell_call(cmd_list: list[str], folder: Path):
 
 async def wait_for_sync(drive: Drive):
     async for change in drive.sync():
-        getLogger(__name__).debug(change)
+        _L.debug(change)
 
 
 def has_enough_quota(drive: Drive, size: int) -> bool:

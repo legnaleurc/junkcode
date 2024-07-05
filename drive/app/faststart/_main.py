@@ -21,6 +21,9 @@ from ._cache import initialize_cache
 from ._processor import create_processor, is_oggmedia, is_realmedia, is_mkv
 
 
+_L = getLogger(__name__)
+
+
 async def main(args: list[str] | None = None):
     kwargs = parse_args(args)
     data_path = Path(kwargs.data_path).expanduser().resolve()
@@ -49,7 +52,7 @@ async def main(args: list[str] | None = None):
         drive = await stack.enter_async_context(create_default_drive())
 
         async for change in drive.sync():
-            getLogger(__name__).debug(change)
+            _L.debug(change)
 
         async for video_file in walk_root_list(drive, root_path_list):
             await queue.push(
@@ -120,12 +123,12 @@ async def node_work(
     transcode_only: bool,
     cache_only: bool,
 ):
-    getLogger(__name__).info(f"processing {node.name}")
+    _L.info(f"processing {node.name}")
     processor = create_processor(
         work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
     )
     if not processor:
-        getLogger(__name__).warning(f"no processor for {node.name}")
+        _L.warning(f"no processor for {node.name}")
         return
 
     used_quota = await processor(

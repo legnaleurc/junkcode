@@ -6,6 +6,9 @@ from pathlib import Path
 from wcpan.drive.core.types import Node
 
 
+_L = getLogger(__name__)
+
+
 def initialize_cache(dsn: Path):
     with migration_cache(dsn) as query:
         try:
@@ -25,7 +28,7 @@ def initialize_cache(dsn: Path):
                 """
             )
         except sqlite3.OperationalError:
-            getLogger(__name__).exception("cache initialize failed")
+            _L.exception("cache initialize failed")
 
 
 def is_migrated(dsn: Path, node: Node):
