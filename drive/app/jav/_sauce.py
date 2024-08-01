@@ -223,6 +223,28 @@ async def _fetch_from_javtorrent(
     return _normalize_name(title.text)
 
 
+async def _fetch_from_fc2(
+    session: ClientSession, jav_id: str, query: str
+) -> str | None:
+    soup = await _get_html(
+        session,
+        f"https://adult.contents.fc2.com/article/{query}/",
+    )
+    if not soup:
+        return None
+
+    title = soup.select_one('head > meta[name="twitter:title"]')
+    if not title:
+        return None
+    meta = title.attrs.get("content")
+    if not meta:
+        return None
+    if not isinstance(meta, str):
+        return None
+    name = _normalize_name(meta)
+    return f"{jav_id} {name}"
+
+
 _SAUCE_DICT = {
     "heydouga": _fetch_from_heydouga,
     "carib": _fetch_from_carib,
@@ -232,8 +254,9 @@ _SAUCE_DICT = {
     "heyzo": _fetch_from_heyzo,
     "fanza": _fetch_from_fanza,
     "mgs": _fetch_from_mgs,
-    "javbee": _fetch_from_javbee,
-    "javtorrent": _fetch_from_javtorrent,
+    "fc2_bee": _fetch_from_javbee,
+    "fc2_tor": _fetch_from_javtorrent,
+    "fc2_acm": _fetch_from_fc2,
 }
 
 

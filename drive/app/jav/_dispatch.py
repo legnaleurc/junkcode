@@ -33,11 +33,13 @@ def _match_fc2(name: str) -> JavData | None:
     m = re.search(r"fc2[-_]ppv[-_](\d+)", name, re.I)
     if not m:
         return None
-    name = f"FC2-PPV-{m.group(1)}"
+    id_ = m.group(1)
+    name = f"FC2-PPV-{id_}"
     return JavData(
         sauce_list=[
-            SauceData(sauce="javbee", query=name, name=name),
-            SauceData(sauce="javtorrent", query=name, name=name),
+            SauceData(sauce="fc2_acm", query=id_, name=name),
+            SauceData(sauce="fc2_tor", query=name, name=name),
+            SauceData(sauce="fc2_bee", query=name, name=name),
         ],
     )
 
