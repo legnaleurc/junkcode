@@ -10,7 +10,7 @@ from ._types import JavData
 
 
 async def _get_html(
-    session: ClientSession, url: str, query: dict[str, str] | None = None
+    session: ClientSession, url: str, *, query: dict[str, str] | None = None
 ) -> BeautifulSoup | None:
     async with session.get(url, params=query) as response:
         if response.status != 200:
@@ -183,7 +183,7 @@ async def _fetch_from_javbee(
     soup = await _get_html(
         session,
         "https://javbee.org/search",
-        {
+        query={
             "keyword": query,
         },
     )
@@ -202,7 +202,7 @@ async def _fetch_from_javtorrent(
     soup = await _get_html(
         session,
         "https://jav-torrent.org/search",
-        {
+        query={
             "keyword": query,
         },
     )
