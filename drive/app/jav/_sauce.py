@@ -55,7 +55,11 @@ async def _fetch_from_mgs(
     session: ClientSession, jav_id: str, query: str
 ) -> str | None:
     soup = await _get_html(
-        session, f"https://www.mgstage.com/product/product_detail/{query}/"
+        session,
+        f"https://www.mgstage.com/product/product_detail/{query}/",
+        cookies={
+            "adc": "1",
+        },
     )
     if not soup:
         return None
