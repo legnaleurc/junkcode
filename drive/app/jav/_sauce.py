@@ -1,10 +1,12 @@
 import re
 from asyncio import as_completed
 from collections.abc import Awaitable
+from pathlib import PurePath
 from typing import Any
+from urllib.parse import urlsplit
 
 from aiohttp import ClientSession
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from ._types import JavData
 
@@ -43,11 +45,18 @@ async def _fetch_from_fanza(
     if not soup:
         return None
 
-    title = soup.select_one(".txt > a:nth-child(1)")
-    if not title:
+    node_list = soup.select(".txt > a")
+    if not node_list:
         return None
 
-    title = _normalize_name(title.text)
+    pattern = re.compile(query.replace("-", "0*"), re.I)
+    noise_list = (_normalize_fanza(_, pattern) for _ in node_list)
+    ordered_list = [_ for _ in noise_list if _].sort()
+    if not ordered_list:
+        return None
+
+    best = ordered_list[0]
+    title = _normalize_name(best[0])
     return f"{jav_id} {title}"
 
 
@@ -282,3 +291,25 @@ def _normalize_name(name: str) -> str:
     name = name.replace("\n", "")
     name = name.replace("\r", "")
     return name
+
+
+def _normalize_fanza(anchor: Tag, pattern: re.Pattern[str]) -> tuple[str, str] | None:
+    href = anchor.attrs["href"]
+    if not isinstance(href, str):
+        return None
+
+    title = anchor.text
+    if not title:
+        return None
+
+    cid = _find_cid(href)
+    noise = pattern.sub("", cid)
+
+    return noise, title
+
+
+def _find_cid(href: str) -> str:
+    url = urlsplit(href)
+    path = PurePath(url.path)
+    last = path.parts[-1]
+    return last[4:]
