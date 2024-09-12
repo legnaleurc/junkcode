@@ -224,7 +224,7 @@ function get (url, args) {
   }
   return new Promise((resolve, reject) => {
     GM.xmlHttpRequest({
-      header: {
+      headers: {
         'Cache-Control': 'no-store',
       },
       method: 'GET',
