@@ -84,11 +84,7 @@ async function searchCache () {
   addHint(t);
 
   try {
-    let raw = await get(URL_.nodes, {
-      name: t,
-      fuzzy: true,
-    });
-    let data = JSON.parse(raw);
+    const data = await queryNodesApi(t);
     data.forEach((v) => {
       addHint(`${v.parent_path}/${v.name}`);
     });
@@ -214,7 +210,26 @@ function addHint (message) {
 }
 
 
-function get (url, args) {
+/**
+ * queryNodesApi
+ * @param {string} title title
+ * @returns {Promise<Array<Object>>} response
+ */
+async function queryNodesApi (title) {
+  const args = {
+    name: title,
+    fuzzy: true,
+  };
+  const headers = {};
+  if (TOKEN) {
+    headers['Authorization'] = `Token ${TOKEN}`;
+  }
+  const data = await get(URL_.nodes, args, headers);
+  return JSON.parse(data);
+}
+
+
+function get (url, args, header) {
   let query = new URLSearchParams();
   Object.keys(args).forEach((k) => {
     query.set(k, args[k]);
@@ -223,11 +238,11 @@ function get (url, args) {
   if (query) {
     query = '?' + query;
   }
-  const headers = {
+  let headers = {
     'Cache-Control': 'no-store',
   };
-  if (TOKEN) {
-    headers['Authorization'] = `Token ${TOKEN}`;
+  if (header) {
+    headers = Object.assign(headers, header);
   }
   return new Promise((resolve, reject) => {
     GM.xmlHttpRequest({

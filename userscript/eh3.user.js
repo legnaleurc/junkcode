@@ -48,11 +48,7 @@ async function searchCache () {
   addTextToSearchHint(title);
 
   try {
-    let data = await get(NODES_URL, {
-      name: title,
-      fuzzy: true,
-    });
-    data = JSON.parse(data);
+    const data = await queryNodesApi(title);
     data.forEach((v) => {
       addTextToSearchHint(`${v.parent_path}/${v.name}`);
     });
@@ -364,23 +360,43 @@ async function downloadArchive (url) {
 
 
 /**
+ * queryNodesApi
+ * @param {string} title title
+ * @returns {Promise<Array<Object>>} response
+ */
+async function queryNodesApi (title) {
+  const args = {
+    name: title,
+    fuzzy: true,
+  };
+  const headers = {};
+  if (TOKEN) {
+    headers['Authorization'] = `Token ${TOKEN}`;
+  }
+  const data = await get(NODES_URL, args, headers);
+  return JSON.parse(data);
+}
+
+
+/**
  * get
  * @param {string} url url
  * @param {Record<string, string>} args args
+ * @param {Record<string, string> | undefined} header header
  * @returns {Promise<string>} response
  */
-function get (url, args) {
+function get (url, args, header) {
   const url_ = new URL(url);
   if (args) {
     Object.keys(args).forEach((k) => {
       url_.searchParams.set(k, args[k]);
     });
   }
-  const headers = {
+  let headers = {
     'Cache-Control': 'no-store',
   };
-  if (TOKEN) {
-    headers['Authorization'] = `Token ${TOKEN}`;
+  if (header) {
+    headers = Object.assign(headers, header);
   }
   return new Promise((resolve, reject) => {
     GM.xmlHttpRequest({
@@ -415,13 +431,9 @@ function post (url, args, header) {
   let headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
-  if (TOKEN) {
-    headers['Authorization'] = `Token ${TOKEN}`;
-  }
   if (header) {
     headers = Object.assign(headers, header);
   }
-
   return new Promise((resolve, reject) => {
     GM.xmlHttpRequest({
       headers,
