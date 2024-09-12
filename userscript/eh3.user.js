@@ -11,6 +11,7 @@
 
 
 const NODES_URL = 'http://dvd.localhost/api/v1/nodes';
+const TOKEN = '';
 
 
 main().catch((e) => {
@@ -375,11 +376,15 @@ function get (url, args) {
       url_.searchParams.set(k, args[k]);
     });
   }
+  const headers = {
+    'Cache-Control': 'no-store',
+  };
+  if (TOKEN) {
+    headers['Authorization'] = `Token ${TOKEN}`;
+  }
   return new Promise((resolve, reject) => {
     GM.xmlHttpRequest({
-      headers: {
-        'Cache-Control': 'no-store',
-      },
+      headers,
       method: 'GET',
       onload: (response) => {
         resolve(response.responseText);
@@ -410,13 +415,16 @@ function post (url, args, header) {
   let headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
+  if (TOKEN) {
+    headers['Authorization'] = `Token ${TOKEN}`;
+  }
   if (header) {
     headers = Object.assign(headers, header);
   }
 
   return new Promise((resolve, reject) => {
     GM.xmlHttpRequest({
-      headers: headers,
+      headers,
       method: 'POST',
       data: data.toString(),
       onload: (response) => {

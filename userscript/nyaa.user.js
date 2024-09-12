@@ -14,6 +14,7 @@ const URL_ = {
   filters: 'http://dfd.local/api/v1/filters',
   nodes: 'http://dvd.local/api/v1/nodes',
 };
+const TOKEN = '';
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -222,11 +223,15 @@ function get (url, args) {
   if (query) {
     query = '?' + query;
   }
+  const headers = {
+    'Cache-Control': 'no-store',
+  };
+  if (TOKEN) {
+    headers['Authorization'] = `Token ${TOKEN}`;
+  }
   return new Promise((resolve, reject) => {
     GM.xmlHttpRequest({
-      headers: {
-        'Cache-Control': 'no-store',
-      },
+      headers,
       method: 'GET',
       onload: (response) => {
         resolve(response.responseText);
