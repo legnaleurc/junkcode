@@ -11,7 +11,7 @@ from wcpan.logging import ConfigBuilder
 
 from app.lib import create_default_drive
 
-from ._types import ManifestDict
+from ._types import ManifestDict, JavData, SauceData
 from ._sauce import fetch_jav_data
 from ._dispatch import get_jav_query
 
@@ -42,6 +42,12 @@ def parse_args(args: list[str] | None = None) -> Namespace:
 
     f_parser = command.add_parser("filter", aliases=["f"])
     f_parser.set_defaults(action=_filter)
+
+    t_parser = command.add_parser("test", aliases=["t"])
+    t_parser.add_argument("--sauce", type=str)
+    t_parser.add_argument("--name", type=str)
+    t_parser.add_argument("--query", type=str)
+    t_parser.set_defaults(action=_test)
 
     kwargs = parser.parse_args(args)
     return kwargs
@@ -109,6 +115,22 @@ async def _filter(drive: Drive, kwargs: Namespace) -> int:
             default_flow_style=False,
         )
 
+    return 0
+
+
+async def _test(drive: Drive, kwargs: Namespace) -> int:
+    jav_data = JavData(
+        sauce_list=[
+            SauceData(
+                sauce=kwargs.sauce,
+                name=kwargs.name,
+                query=kwargs.query,
+            )
+        ]
+    )
+    async with ClientSession() as session:
+        title_dict = await fetch_jav_data(session, jav_data)
+        print(title_dict)
     return 0
 
 
