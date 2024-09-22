@@ -51,12 +51,12 @@ async def _fetch_from_fanza(
 
     pattern = re.compile(query.replace("-", "0*"), re.I)
     noise_list = (_normalize_fanza(_, pattern) for _ in node_list)
-    ordered_list = [_ for _ in noise_list if _].sort()
+    ordered_list = sorted([_ for _ in noise_list if _])
     if not ordered_list:
         return None
 
     best = ordered_list[0]
-    title = _normalize_name(best[0])
+    title = _normalize_name(best[1])
     return f"{jav_id} {title}"
 
 
