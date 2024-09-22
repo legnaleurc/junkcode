@@ -7,6 +7,7 @@ import sys
 import yaml
 from aiohttp import ClientSession
 from wcpan.drive.core.types import Drive, Node
+from wcpan.logging import ConfigBuilder
 
 from app.lib import create_default_drive
 
@@ -17,6 +18,7 @@ from ._dispatch import get_jav_query
 
 async def main(args: list[str] | None = None) -> int:
     kwargs = parse_args(args)
+    setup_logging()
 
     action: Callable[[Drive, Namespace], Awaitable[int]] | None = kwargs.action
     if not action:
@@ -43,6 +45,12 @@ def parse_args(args: list[str] | None = None) -> Namespace:
 
     kwargs = parser.parse_args(args)
     return kwargs
+
+
+def setup_logging():
+    from logging.config import dictConfig
+
+    dictConfig(ConfigBuilder().add("jav", level="D").to_dict())
 
 
 async def _generate(drive: Drive, kwargs: Namespace) -> int:
