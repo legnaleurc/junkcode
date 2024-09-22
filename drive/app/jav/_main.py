@@ -56,7 +56,7 @@ def parse_args(args: list[str] | None = None) -> Namespace:
 def setup_logging():
     from logging.config import dictConfig
 
-    dictConfig(ConfigBuilder().add("jav", level="D").to_dict())
+    dictConfig(ConfigBuilder().add("app.jav", level="D").to_dict())
 
 
 async def _generate(drive: Drive, kwargs: Namespace) -> int:
