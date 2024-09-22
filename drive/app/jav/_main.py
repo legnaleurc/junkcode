@@ -16,6 +16,17 @@ from ._dispatch import get_jav_query
 
 
 async def main(args: list[str] | None = None) -> int:
+    kwargs = parse_args(args)
+
+    action: Callable[[Drive, Namespace], Awaitable[int]] | None = kwargs.action
+    if not action:
+        return 1
+
+    async with create_default_drive() as drive:
+        return await action(drive, kwargs)
+
+
+def parse_args(args: list[str] | None = None) -> Namespace:
     parser = ArgumentParser("jav")
 
     command = parser.add_subparsers()
@@ -31,13 +42,7 @@ async def main(args: list[str] | None = None) -> int:
     f_parser.set_defaults(action=_filter)
 
     kwargs = parser.parse_args(args)
-
-    action: Callable[[Drive, Namespace], Awaitable[int]] | None = kwargs.action
-    if not action:
-        return 1
-
-    async with create_default_drive() as drive:
-        return await action(drive, kwargs)
+    return kwargs
 
 
 async def _generate(drive: Drive, kwargs: Namespace) -> int:
