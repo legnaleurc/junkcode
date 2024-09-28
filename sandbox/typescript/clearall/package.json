@@ -21,7 +21,7 @@
     "@rollup/plugin-typescript": "^11.0.0",
     "@types/node": "^18.0.3",
     "prettier": "^2.7.1",
-    "rollup": "^3.2.5",
+    "rollup": "^3.29.5",
     "tslib": "^2.4.0",
     "typescript": "^5.0.2"
   }
