@@ -11,7 +11,7 @@
 
 
 const HIDDEN = 'rgb(0, 0, 0)';
-const HIGHLIGHT = 'rgb(19, 87, 223)';
+const HIGHLIGHT = 'rgb(51, 119, 255)';
 
 
 main();

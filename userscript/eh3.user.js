@@ -249,7 +249,7 @@ async function inlineArchiveDownload () {
   const parser = new DOMParser();
   html = parser.parseFromString(html, 'text/html');
   const form = html.querySelector('#hathdl_form');
-  const block = form.nextElementSibling.firstElementChild.firstElementChild.lastElementChild;
+  const block = form.nextElementSibling.firstElementChild.firstElementChild.firstElementChild;
   const size = block.children[1].textContent;
   const price = block.children[2].textContent;
 
