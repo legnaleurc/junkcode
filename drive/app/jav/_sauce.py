@@ -213,25 +213,6 @@ async def _fetch_from_javbee(
     return _normalize_name(title.text)
 
 
-async def _fetch_from_javtorrent(
-    session: ClientSession, jav_id: str, query: str
-) -> str | None:
-    soup = await _get_html(
-        session,
-        "https://jav-torrent.org/search",
-        query={
-            "keyword": query,
-        },
-    )
-    if not soup:
-        return None
-
-    title = soup.select_one(".title > a")
-    if not title:
-        return None
-    return _normalize_name(title.text)
-
-
 async def _fetch_from_fc2(
     session: ClientSession, jav_id: str, query: str
 ) -> str | None:
@@ -264,7 +245,6 @@ _SAUCE_DICT = {
     "fanza": _fetch_from_fanza,
     "mgs": _fetch_from_mgs,
     "fc2_bee": _fetch_from_javbee,
-    "fc2_tor": _fetch_from_javtorrent,
     "fc2_acm": _fetch_from_fc2,
 }
 

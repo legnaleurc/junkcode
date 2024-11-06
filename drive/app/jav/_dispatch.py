@@ -38,7 +38,6 @@ def _match_fc2(name: str) -> JavData | None:
     return JavData(
         sauce_list=[
             SauceData(sauce="fc2_acm", query=id_, name=name),
-            SauceData(sauce="fc2_tor", query=name, name=name),
             SauceData(sauce="fc2_bee", query=name, name=name),
         ],
     )
