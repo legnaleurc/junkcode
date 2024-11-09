@@ -17,7 +17,7 @@ from app.lib import get_daily_usage
 from ._cache import is_migrated, set_cache, need_transcode, has_cache, unset_cache
 
 
-H264_PRESET = "veryfast"
+H264_PRESET = "veryslow"
 H264_CRF = "18"
 DAILY_UPLOAD_QUOTA = 500 * 1024 * 1024 * 1024
 
@@ -64,7 +64,7 @@ class VideoProcessor(object):
             sc = ["-c:s", "mov_text"]
         dc = ["-c:d", "copy"]
         # muxer options
-        fast_start = ["-movflags", "+faststart"]
+        fast_start = ["-movflags", "+faststart+frag_keyframe"]
         # keeps subtitles if possible
         all_streams = ["-map", "0"]
         # increase frame queue to fix corrupted frames
