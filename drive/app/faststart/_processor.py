@@ -408,15 +408,13 @@ def has_enough_quota(drive: Drive, size: int) -> bool:
     return (total + size) < DAILY_UPLOAD_QUOTA
 
 
-PROCESSOR_TABLE = {
+PROCESSOR_TABLE: dict[str, type[VideoProcessor]] = {
     "video/mp4": MP4Processor,
     "video/x-matroska": MKVProcessor,
     "video/x-msvideo": MaybeH264Processor,
     "video/x-ms-wmv": NeverH264Processor,
     "video/quicktime": MaybeH264Processor,
     "video/mpeg": MaybeH264Processor,
-    # '.flv': MaybeH264Processer,
-    # '.asf': MaybeH264Processer,
 }
 
 
