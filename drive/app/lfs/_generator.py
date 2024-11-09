@@ -7,7 +7,7 @@ import yaml
 from ._types import MediaDescriptor, AudioStream
 
 
-H264_PRESET = "veryfast"
+H264_PRESET = "veryslow"
 H264_CRF = "18"
 
 
@@ -60,6 +60,6 @@ def _get_audio_cmd(audios: list[AudioStream]) -> list[str]:
 
 def _get_dst_cmd(src: str) -> list[str]:
     dst = str(Path(src).with_suffix(".mp4"))
-    flags = ["+faststart"]
+    flags = ["+faststart", "+frag_keyframe"]
     opts = ["-movflags", "".join(flags)]
     return opts + [dst]
