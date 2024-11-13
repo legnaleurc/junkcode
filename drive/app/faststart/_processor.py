@@ -17,6 +17,7 @@ from app.lib import get_daily_usage
 from ._cache import is_migrated, set_cache, need_transcode, has_cache, unset_cache
 
 
+VIDEO_CODEC_SET = {"h264", "hevc"}
 H264_PRESET = "veryslow"
 H264_CRF = "18"
 MP4_FLAGS = "+faststart+frag_keyframe"
@@ -117,7 +118,7 @@ class VideoProcessor(object):
             elif codec_type == "subtitle":
                 subtitle_codec_list.append(codec_name)
         self.is_aac = all(c == "aac" for c in audio_codec_list)
-        self.is_h264 = all(c == "h264" for c in video_codec_list)
+        self.is_h264 = all(c in VIDEO_CODEC_SET for c in video_codec_list)
         self.is_movtext = all(c == "mov_text" for c in subtitle_codec_list)
         self.is_faststart = err.find("bytes read, 0 seeks") >= 0
 
