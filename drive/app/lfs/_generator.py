@@ -9,6 +9,7 @@ from ._types import MediaDescriptor, AudioStream
 
 H264_PRESET = "veryslow"
 H264_CRF = "18"
+MP4_FLAGS = "+faststart"
 
 
 async def generate() -> None:
@@ -60,6 +61,5 @@ def _get_audio_cmd(audios: list[AudioStream]) -> list[str]:
 
 def _get_dst_cmd(src: str) -> list[str]:
     dst = str(Path(src).with_suffix(".mp4"))
-    flags = ["+faststart", "+frag_keyframe"]
-    opts = ["-movflags", "".join(flags)]
+    opts = ["-movflags", MP4_FLAGS]
     return opts + [dst]
