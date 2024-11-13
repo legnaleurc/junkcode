@@ -19,6 +19,8 @@ from ._cache import is_migrated, set_cache, need_transcode, has_cache, unset_cac
 
 H264_PRESET = "veryslow"
 H264_CRF = "18"
+MP4_FLAGS = "+faststart+frag_keyframe"
+
 DAILY_UPLOAD_QUOTA = 500 * 1024 * 1024 * 1024
 
 
@@ -64,7 +66,7 @@ class VideoProcessor(object):
             sc = ["-c:s", "mov_text"]
         dc = ["-c:d", "copy"]
         # muxer options
-        fast_start = ["-movflags", "+faststart+frag_keyframe"]
+        fast_start = ["-movflags", MP4_FLAGS]
         # keeps subtitles if possible
         all_streams = ["-map", "0"]
         # increase frame queue to fix corrupted frames
