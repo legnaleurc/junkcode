@@ -9,6 +9,9 @@ import yaml
 from ._types import MediaContainer, MediaDescriptor
 
 
+_VIDEO_CODEC_SET: set[str] = {"h264", "hevc"}
+
+
 async def analyze(root_path: Path) -> None:
     for file_path in _scan(root_path):
         descriptor = await _describe(file_path)
@@ -76,7 +79,7 @@ def _transform(descriptor: dict[str, Any]) -> MediaContainer:
         match codec_type:
             case "video":
                 codec_name: str = stream["codec_name"]
-                rv["is_h264"] = codec_name == "h264"
+                rv["is_h264"] = codec_name in _VIDEO_CODEC_SET
             case "audio":
                 codec_name: str = stream["codec_name"]
                 rv["audios"].append(
