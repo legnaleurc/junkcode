@@ -431,39 +431,4 @@ def create_processor(
         return constructor(
             work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
         )
-
-    if is_realmedia(node) or is_oggmedia(node):
-        constructor = NeverH264Processor
-        return constructor(
-            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
-        )
-
-    if is_mkv(node):
-        constructor = MKVProcessor
-        return constructor(
-            work_folder=work_folder, dsn=dsn, pool=pool, drive=drive, node=node
-        )
-
     return None
-
-
-REAL_MEDIA = [
-    ".rm",
-    ".rmv",
-    ".rmvb",
-]
-
-
-def is_realmedia(node: Node):
-    lower_name = node.name.lower()
-    return any(lower_name.endswith(ext) for ext in REAL_MEDIA)
-
-
-def is_oggmedia(node: Node):
-    lower_name = node.name.lower()
-    return lower_name.endswith(".ogm")
-
-
-def is_mkv(node: Node):
-    lower_name = node.name.lower()
-    return lower_name.endswith(".mkv")
