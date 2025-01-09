@@ -41,6 +41,9 @@ async def _fetch_from_fanza(
     soup = await _get_html(
         session,
         f"https://www.dmm.co.jp/search/=/searchstr={query}/limit=30/sort=rankprofile/",
+        cookies={
+            "age_check_done": "1",
+        },
     )
     if not soup:
         return None
