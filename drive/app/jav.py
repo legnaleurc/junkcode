@@ -1,19 +1,22 @@
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Awaitable, AsyncIterator
 from pathlib import Path
+from typing import Sequence, TypedDict
 import asyncio
 import sys
 
 import yaml
-from aiohttp import ClientSession
 from wcpan.drive.core.types import Drive, Node
 from wcpan.logging import ConfigBuilder
+from wcpan.jav import generate_detailed_products
 
 from app.lib import create_default_drive
 
-from ._types import ManifestDict, JavData, SauceData
-from ._sauce import fetch_jav_data
-from ._dispatch import get_jav_query
+
+class ManifestDict(TypedDict):
+    id: str
+    name: str
+    title: dict[str, str]
 
 
 async def main(args: list[str] | None = None) -> int:
@@ -40,15 +43,6 @@ def parse_args(args: list[str] | None = None) -> Namespace:
     a_parser = command.add_parser("apply", aliases=["a"])
     a_parser.set_defaults(action=_apply)
 
-    f_parser = command.add_parser("filter", aliases=["f"])
-    f_parser.set_defaults(action=_filter)
-
-    t_parser = command.add_parser("test", aliases=["t"])
-    t_parser.add_argument("--sauce", type=str)
-    t_parser.add_argument("--name", type=str)
-    t_parser.add_argument("--query", type=str)
-    t_parser.set_defaults(action=_test)
-
     kwargs = parser.parse_args(args)
     return kwargs
 
@@ -61,19 +55,17 @@ def setup_logging():
 
 async def _generate(drive: Drive, kwargs: Namespace) -> int:
     root_path = Path(kwargs.path)
-
-    async with ClientSession() as session:
-        root_node = await drive.get_node_by_path(root_path)
-        children = await drive.get_children(root_node)
-        async for node in _process_node_list(session, children):
-            yaml.safe_dump(
-                [node],
-                sys.stdout,
-                encoding="utf-8",
-                allow_unicode=True,
-                default_flow_style=False,
-            )
-            await asyncio.sleep(1)
+    root_node = await drive.get_node_by_path(root_path)
+    children = await drive.get_children(root_node)
+    async for node in _process_node_list(children):
+        yaml.safe_dump(
+            [node],
+            sys.stdout,
+            encoding="utf-8",
+            allow_unicode=True,
+            default_flow_style=False,
+        )
+        await asyncio.sleep(1)
     return 0
 
 
@@ -94,57 +86,16 @@ async def _apply(drive: Drive, kwargs: Namespace) -> int:
     return 0
 
 
-async def _filter(drive: Drive, kwargs: Namespace) -> int:
-    manifest: list[ManifestDict] = yaml.safe_load(sys.stdin)
-
-    not_all_null = (m for m in manifest if any(m["title"].values()))
-
-    def all_same(m: ManifestDict):
-        values = set(v for v in m["title"].values() if v)
-        values.add(m["name"])
-        return len(values) == 1
-
-    not_all_same = (m for m in not_all_null if not all_same(m))
-
-    for node in not_all_same:
-        yaml.safe_dump(
-            [node],
-            sys.stdout,
-            encoding="utf-8",
-            allow_unicode=True,
-            default_flow_style=False,
-        )
-
-    return 0
-
-
-async def _test(drive: Drive, kwargs: Namespace) -> int:
-    jav_data = JavData(
-        sauce_list=[
-            SauceData(
-                sauce=kwargs.sauce,
-                name=kwargs.name,
-                query=kwargs.query,
-            )
-        ]
-    )
-    async with ClientSession() as session:
-        title_dict = await fetch_jav_data(session, jav_data)
-        print(title_dict)
-    return 0
-
-
-async def _process_node_list(
-    session: ClientSession, node_list: list[Node]
-) -> AsyncIterator[ManifestDict]:
+async def _process_node_list(node_list: list[Node]) -> AsyncIterator[ManifestDict]:
     for node in node_list:
         if node.is_trashed:
             continue
-        jav_query = get_jav_query(node.name)
-        if not jav_query:
-            continue
-        title_dict = await fetch_jav_data(session, jav_query)
 
+        pairs = [_ async for _ in _normalize_titles(node.name)]
+        if not pairs:
+            continue
+
+        title_dict = dict(_pad_keys(pairs))
         yield {
             "id": node.id,
             "name": node.name,
@@ -166,3 +117,30 @@ async def _rename(drive: Drive, node: Node, new_name: str) -> None:
     root_node = await drive.get_node_by_id(node.parent_id)
     parent = await drive.create_directory(new_name, root_node)
     await drive.move(node, new_parent=parent, new_name=None)
+
+
+async def _normalize_titles(name: str) -> AsyncIterator[tuple[str, str]]:
+    async for product in generate_detailed_products(name):
+        match product.sauce:
+            case "fanza" | "mgs" | "fc2" | "heyzo":
+                title = f"{product.id} {product.title}"
+                yield product.sauce, title
+            case "carib" | "caribpr" | "1pondo" | "10musume":
+                actresses = " ".join(product.actresses)
+                title = f"{product.id} {product.title} {actresses}"
+                yield product.sauce, title
+            case _:
+                yield product.sauce, product.title
+
+
+def _pad_keys[V](pairs: Sequence[tuple[str, V]]) -> list[tuple[str, V]]:
+    if not pairs:
+        return []
+
+    ml = max(len(_[0]) for _ in pairs)
+    padded = [(f"{k:_>{ml}}", v) for k, v in pairs]
+    return padded
+
+
+if __name__ == "__main__":
+    sys.exit(asyncio.run(main()))
