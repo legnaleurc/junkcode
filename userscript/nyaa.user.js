@@ -231,7 +231,15 @@ async function queryNodesApi (title) {
     headers['Authorization'] = `Token ${TOKEN}`;
   }
   const data = await get(URL_.nodes, args, headers);
-  return JSON.parse(data);
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    console.error(e);
+    console.error(data);
+    console.error(args);
+    console.error(headers);
+    throw e;
+  }
 }
 
 
