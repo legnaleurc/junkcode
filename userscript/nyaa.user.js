@@ -161,7 +161,7 @@ function makeHintArea () {
   a.parentNode.insertBefore(c, a);
 
   addStyle(`
-    #fake-hint > pre {
+    #fake-hint > p {
       padding: initial;
       border: initial;
       background-color: initial;
@@ -204,7 +204,7 @@ function markError () {
 
 function addHint (message) {
   let p = document.querySelector('#fake-hint');
-  let c = document.createElement('pre');
+  let c = document.createElement('p');
   c.textContent = message;
   p.appendChild(c);
 }
