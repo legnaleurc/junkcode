@@ -231,7 +231,7 @@ function markSearchError () {
  */
 function addTextToSearchHint (message) {
   const p = document.querySelector('#blk-search');
-  const c = document.createElement('pre');
+  const c = document.createElement('p');
   c.textContent = message;
   p.appendChild(c);
 }
