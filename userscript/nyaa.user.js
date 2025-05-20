@@ -15,6 +15,8 @@ const URL_ = {
   nodes: 'http://dvd.local/api/v1/nodes',
 };
 const TOKEN = '';
+const DFD_USERNAME = '';
+const DFD_PASSWORD = '';
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -39,7 +41,11 @@ async function markGarbage () {
 
 
 async function getFilters () {
-  let rv = await get(URL_.filters, {});
+  const headers = {};
+  if (DFD_USERNAME && DFD_PASSWORD) {
+    headers['Authorization'] = `Basic ${btoa(`${DFD_USERNAME}:${DFD_PASSWORD}`)}`;
+  }
+  let rv = await get(URL_.filters, {}, headers);
   rv = JSON.parse(rv);
   rv = rv.map((value) => {
     return new RegExp(value.regexp, 'i');
