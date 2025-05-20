@@ -10,7 +10,8 @@
 'use strict';
 
 
-const NODES_URL = 'http://dvd.localhost/api/v1/nodes';
+const DVD_HOST = 'http://dvd.localhost';
+const NODES_URL = `${DVD_HOST}/api/v1/nodes`;
 const TOKEN = '';
 
 
@@ -45,7 +46,7 @@ async function searchCache () {
   }
 
   markSearchLoading();
-  addTextToSearchHint(title);
+  addLinkToSearchHint(title, getSearchUrl(title));
 
   try {
     const data = await queryNodesApi(title);
@@ -234,6 +235,35 @@ function addTextToSearchHint (message) {
   const c = document.createElement('p');
   c.textContent = message;
   p.appendChild(c);
+}
+
+
+/**
+ * add link to search hint
+ * @param {string} message message
+ */
+function addLinkToSearchHint (message, url) {
+  const p = document.querySelector('#blk-search');
+  const c = document.createElement('p');
+  const a = document.createElement('a');
+  a.href = url;
+  a.textContent = message;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  c.appendChild(a);
+  p.appendChild(c);
+}
+
+
+/**
+ * Get search URL
+ * @param {string} name name
+ * @returns {string} url
+ */
+function getSearchUrl (name) {
+  const url = new URL(`${DVD_HOST}/search`);
+  url.searchParams.set('name', name);
+  return url.toString();
 }
 
 
