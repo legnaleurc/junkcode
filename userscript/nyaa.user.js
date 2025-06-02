@@ -15,6 +15,7 @@ const URL_ = {
   nodes: 'http://dvd.local/api/v1/nodes',
 };
 const TOKEN = '';
+const DVD_HOST = 'http://dvd.local';
 const DFD_USERNAME = '';
 const DFD_PASSWORD = '';
 
@@ -82,17 +83,17 @@ async function searchCache () {
   let t = searchKeyword(title.textContent);
   if (!t) {
     markError();
-    addHint('no match');
+    addLineToHint('no match');
     return;
   }
 
   markLoading();
-  addHint(t);
+  addLinkToHint(t, getSearchUrl(t));
 
   try {
     const data = await queryNodesApi(t);
     data.forEach((v) => {
-      addHint(`${v.parent_path}/${v.name}`);
+      addLineToHint(`${v.parent_path}/${v.name}`);
     });
     markNormal();
   } catch (e) {
@@ -208,11 +209,36 @@ function markError () {
 }
 
 
-function addHint (message) {
+function addLineToHint (message) {
   let p = document.querySelector('#fake-hint');
   let c = document.createElement('p');
   c.textContent = message;
   p.appendChild(c);
+}
+
+
+function addLinkToHint (message, url) {
+  let p = document.querySelector('#fake-hint');
+  let c = document.createElement('p');
+  let a = document.createElement('a');
+  a.href = url;
+  a.textContent = message;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  c.appendChild(a);
+  p.appendChild(c);
+}
+
+
+/**
+ * Get search URL
+ * @param {string} name name
+ * @returns {string} url
+ */
+function getSearchUrl (name) {
+  const url = new URL(`${DVD_HOST}/search`);
+  url.searchParams.set('name', name);
+  return url.toString();
 }
 
 
