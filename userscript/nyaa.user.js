@@ -10,14 +10,15 @@
 'use strict';
 
 
-const URL_ = {
-  filters: 'http://dfd.local/api/v1/filters',
-  nodes: 'http://dvd.local/api/v1/nodes',
-};
-const TOKEN = '';
 const DVD_HOST = 'http://dvd.local';
+const DVD_TOKEN = '';
+const DVD_API_NODES = `${DVD_HOST}/api/v1/nodes`;
+const DVD_URL_SEARCH = `${DVD_HOST}/search`;
+
+const DFD_HOST = 'http://dfd.local';
 const DFD_USERNAME = '';
 const DFD_PASSWORD = '';
+const DFD_API_FILTERS = `${DFD_HOST}/api/v1/filters`;
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -46,7 +47,7 @@ async function getFilters () {
   if (DFD_USERNAME && DFD_PASSWORD) {
     headers['Authorization'] = `Basic ${btoa(`${DFD_USERNAME}:${DFD_PASSWORD}`)}`;
   }
-  let rv = await get(URL_.filters, {}, headers);
+  let rv = await get(DFD_API_FILTERS, {}, headers);
   rv = JSON.parse(rv);
   rv = rv.map((value) => {
     return new RegExp(value.regexp, 'i');
@@ -236,7 +237,7 @@ function addLinkToHint (message, url) {
  * @returns {string} url
  */
 function getSearchUrl (name) {
-  const url = new URL(`${DVD_HOST}/search`);
+  const url = new URL(DVD_URL_SEARCH);
   url.searchParams.set('name', name);
   return url.toString();
 }
@@ -253,10 +254,10 @@ async function queryNodesApi (title) {
     fuzzy: true,
   };
   const headers = {};
-  if (TOKEN) {
-    headers['Authorization'] = `Token ${TOKEN}`;
+  if (DVD_TOKEN) {
+    headers['Authorization'] = `Token ${DVD_TOKEN}`;
   }
-  const data = await get(URL_.nodes, args, headers);
+  const data = await get(DVD_API_NODES, args, headers);
   try {
     return JSON.parse(data);
   } catch (e) {

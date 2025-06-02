@@ -400,8 +400,8 @@ async function queryNodesApi (title) {
     fuzzy: true,
   };
   const headers = {};
-  if (TOKEN) {
-    headers['Authorization'] = `Token ${TOKEN}`;
+  if (DVD_TOKEN) {
+    headers['Authorization'] = `Token ${DVD_TOKEN}`;
   }
   const data = await get(NODES_URL, args, headers);
   return JSON.parse(data);
