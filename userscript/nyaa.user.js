@@ -74,7 +74,7 @@ function getIconParent (icon) {
 
 
 async function searchCache () {
-  let title = document.querySelector('div.panel:nth-child(6) > div:nth-child(1) > h3:nth-child(1)');
+  let title = document.querySelector('div.panel:nth-child(7) > div:nth-child(1) > h3:nth-child(1)');
   if (!title) {
     return;
   }
@@ -162,7 +162,7 @@ function searchReal (title) {
 
 
 function makeHintArea () {
-  let a = document.querySelector('div.panel:nth-child(7)');
+  let a = document.querySelector('div.panel:nth-child(8)');
   let c = document.createElement('div');
   c.id = 'fake-hint';
   c.classList.add('panel', 'panel-default');
