@@ -1,0 +1,25 @@
+query FetchFanzaTvPlusMetadata($id: ID!, $device: Device!, $isForeign: Boolean!) {
+  fanzaTvPlus(device: $device) {
+    content(id: $id, isForeign: $isForeign) {
+      id
+      contentType
+      productId
+      shopName
+      title
+      description(format: HTML)
+      packageImage
+      packageLargeImage
+      startDeliveryAt
+      endDeliveryAt
+      isBeingDelivered
+      deliveryStatus
+      actresses { id name }
+      directors { id name }
+      histrions { id name }
+      maker { id name }
+      label { id name }
+      series { id name }
+      genres { id name }
+    }
+  }
+}

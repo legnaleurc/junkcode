@@ -1,0 +1,9 @@
+[project]
+name = "dmm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "gql[aiohttp]>=4.0.0,<5.0.0",
+]
