@@ -2,7 +2,7 @@
 // @name     JavBee
 // @version  1
 // @grant    none
-// @include  https://*.javbee.vip/*
+// @match    https://*.javbee.vip/*
 // ==/UserScript==
 
 
