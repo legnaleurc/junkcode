@@ -12,7 +12,7 @@
 
 const DVD_HOST = 'http://dvd.localhost';
 const NODES_URL = `${DVD_HOST}/api/v1/nodes`;
-const TOKEN = '';
+const DVD_TOKEN = '';
 
 
 main().catch((e) => {
