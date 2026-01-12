@@ -1,0 +1,12 @@
+#! /bin/sh
+
+uvx \
+  --quiet \
+  --isolated \
+  --with=wcpan.drive.crypt \
+  --with=wcpan.drive.sqlite \
+  --with=wcpan.drive.google \
+  -- \
+  wcpan.drive.cli \
+    --config="/mnt/config/cli.yaml" \
+    "$@"
