@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nas-shell
-    command: /bin/bash
+    profiles:
+      - manual
     volumes:
       - ${CONFIG_PATH}:/mnt/config:ro
       - ${DATA_PATH}:/mnt/data:rw
