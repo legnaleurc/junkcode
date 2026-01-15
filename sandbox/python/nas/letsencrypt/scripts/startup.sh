@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Container startup script
 # Auto-configures deploy hook and starts daemon mode
 # This is the container entrypoint
@@ -6,8 +6,8 @@
 set -e  # Exit on error
 
 # Source utility functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/utils.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/utils.sh"
 
 log "info" "========================================="
 log "info" "acme.sh Container Startup"

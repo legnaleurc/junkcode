@@ -1,40 +1,27 @@
-#!/bin/bash
+#!/bin/sh
 # Service detection and restart script
 # Called by deploy-to-synology.sh after certificate deployment
 
 # Source utility functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/utils.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/utils.sh"
 
 log "info" "Starting service restart process..."
 echo ""
 
-# Define common services that use certificates
+# Define common services that use certificates (space-separated)
 # Core services
-CORE_SERVICES=(
-    "nginx"           # Web server (DSM interface)
-)
+CORE_SERVICES="nginx"
 
 # Optional services (may not be installed/running)
-OPTIONAL_SERVICES=(
-    "smbdav"          # SMB/WebDAV
-    "ftpd"            # FTP server
-    "sshd"            # SSH server
-    "synoscgi"        # Synology CGI services
-    "avahi-daemon"    # mDNS responder
-)
+OPTIONAL_SERVICES="smbdav ftpd sshd synoscgi avahi-daemon"
 
 # Package services (dynamically detected)
-PACKAGE_SERVICES=(
-    "pkgctl-WebDAVServer"
-    "pkgctl-VPNCenter"
-    "pkgctl-MailServer"
-    "pkgctl-CloudStationShareSync"
-)
+PACKAGE_SERVICES="pkgctl-WebDAVServer pkgctl-VPNCenter pkgctl-MailServer pkgctl-CloudStationShareSync"
 
 # Dry run mode
 DRY_RUN=false
-if [ "$1" == "--dry-run" ]; then
+if [ "$1" = "--dry-run" ]; then
     DRY_RUN=true
     log "info" "DRY RUN MODE - No services will be restarted"
     echo ""
@@ -58,14 +45,14 @@ restart_service() {
     local service=$1
     local action=$2
 
-    if [ "$DRY_RUN" == true ]; then
+    if [ "$DRY_RUN" =true ]; then
         log "info" "[DRY RUN] Would $action: $service"
         return 0
     fi
 
     log "info" "Attempting to $action: $service"
 
-    if [ "$action" == "reload" ]; then
+    if [ "$action" ="reload" ]; then
         if systemctl reload "$service" 2>/dev/null; then
             log "info" "  ✓ Reloaded successfully"
             return 0
@@ -75,7 +62,7 @@ restart_service() {
         fi
     fi
 
-    if [ "$action" == "restart" ]; then
+    if [ "$action" ="restart" ]; then
         if systemctl restart "$service" 2>/dev/null; then
             log "info" "  ✓ Restarted successfully"
             return 0
@@ -93,7 +80,7 @@ skipped_services=0
 failed_services=0
 
 log "info" "Checking core services..."
-for service in "${CORE_SERVICES[@]}"; do
+for service in "$CORE_SERVICES"; do
     total_services=$((total_services + 1))
 
     if ! check_service_exists "$service"; then
@@ -109,7 +96,7 @@ for service in "${CORE_SERVICES[@]}"; do
     fi
 
     # Special handling for nginx - use reload instead of restart
-    if [ "$service" == "nginx" ]; then
+    if [ "$service" ="nginx" ]; then
         if restart_service "$service" "reload"; then
             restarted_services=$((restarted_services + 1))
         else
@@ -126,7 +113,7 @@ done
 echo ""
 
 log "info" "Checking optional services..."
-for service in "${OPTIONAL_SERVICES[@]}"; do
+for service in "$OPTIONAL_SERVICES"; do
     total_services=$((total_services + 1))
 
     if ! check_service_exists "$service"; then
@@ -150,7 +137,7 @@ done
 echo ""
 
 log "info" "Checking package services..."
-for service in "${PACKAGE_SERVICES[@]}"; do
+for service in "$PACKAGE_SERVICES"; do
     total_services=$((total_services + 1))
 
     if ! check_service_exists "$service"; then

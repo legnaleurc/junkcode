@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 # Initial certificate generation script
 # This is the ONLY script users need to run manually (once)
 
 set -e  # Exit on error
 
 # Source utility functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/utils.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/utils.sh"
 
 log "info" "========================================="
 log "info" "Let's Encrypt Initial Certificate Setup"
@@ -47,12 +47,16 @@ if acme.sh --list | grep -q "$DOMAIN"; then
     log "warn" "If you want to regenerate, first remove it with:"
     log "warn" "  acme.sh --remove -d $DOMAIN"
     echo ""
-    read -p "Do you want to continue and regenerate the certificate? (y/N): " -n 1 -r
+    printf "Do you want to continue and regenerate the certificate? (y/N): "
+    read -r REPLY
     echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log "info" "Certificate generation cancelled"
-        exit 0
-    fi
+    case "$REPLY" in
+        [Yy]|[Yy][Ee][Ss]) ;;
+        *)
+            log "info" "Certificate generation cancelled"
+            exit 0
+            ;;
+    esac
     log "info" "Removing existing certificate..."
     acme.sh --remove -d "$DOMAIN"
 fi

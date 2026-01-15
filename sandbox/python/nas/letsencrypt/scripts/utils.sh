@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Shared utility functions for acme.sh automation scripts
 
 # Color codes for output
@@ -62,16 +62,21 @@ log() {
 # validate_env() - Check required environment variables
 # Usage: validate_env VAR1 VAR2 VAR3
 validate_env() {
-    local missing=()
+    missing=""
 
     for var in "$@"; do
-        if [ -z "${!var}" ]; then
-            missing+=("$var")
+        eval value=\$$var
+        if [ -z "$value" ]; then
+            if [ -z "$missing" ]; then
+                missing="$var"
+            else
+                missing="$missing $var"
+            fi
         fi
     done
 
-    if [ ${#missing[@]} -gt 0 ]; then
-        log "error" "Missing required environment variables: ${missing[*]}"
+    if [ -n "$missing" ]; then
+        log "error" "Missing required environment variables: $missing"
         return 1
     fi
 
