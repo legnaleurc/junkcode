@@ -15,5 +15,9 @@ services:
     volumes:
       - ${CERT_PATH}:/acme.sh
       - ${OUTPUT_PATH}:/certs
+      # Mount Synology certificate folder for direct updates
+      - /usr/syno/etc/certificate:/usr/syno/etc/certificate
+      # Mount scripts directory
+      - ./:/synology-scripts:ro
     network_mode: bridge
     command: daemon
