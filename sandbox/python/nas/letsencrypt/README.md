@@ -55,9 +55,15 @@ This solution automates Let's Encrypt SSL certificate management on Synology NAS
 docker-compose up -d
 ```
 
-Verify it's running:
+The container will start in **idle mode** (waiting for initial setup) since no certificate exists yet. Verify it's running:
 ```bash
 docker ps
+# You should see the container status as "Up"
+```
+
+Check the logs to confirm it's waiting:
+```bash
+docker logs acme
 ```
 
 ### 4. Generate Initial Certificate
@@ -66,6 +72,11 @@ Run the initial certificate generation script (this is the ONLY script you need 
 
 ```bash
 docker exec acme /scripts/initial-cert.sh
+```
+
+**Alternative method** (one-off command, requires overriding entrypoint):
+```bash
+docker-compose run --rm --entrypoint /scripts/initial-cert.sh acme
 ```
 
 This will:
@@ -169,6 +180,15 @@ docker exec acme /scripts/restart-services.sh --dry-run
 
 ## Troubleshooting
 
+### Container Shows "Waiting for initial setup"
+
+This is **normal** when you first start the container. The container runs in idle mode until you:
+1. Generate the initial certificate: `docker exec acme /scripts/initial-cert.sh`
+2. Manually import the certificate to DSM
+3. Set `SYNO_CERT_ID` in `.env` and restart
+
+The container stays alive (doesn't restart loop) so you can run `docker exec` commands.
+
 ### Certificate Not Generating
 
 1. Check Cloudflare API access:
@@ -229,6 +249,23 @@ docker exec acme /scripts/restart-services.sh --dry-run
 - **.gitignore**: Protects secrets, logs, and certificate data from being committed
 
 ## Advanced Configuration
+
+### Alternative Workflow: Using docker-compose run
+
+If you prefer not to have the container running in idle mode during initial setup:
+
+```bash
+# Don't start the service yet
+# docker-compose up -d  # Skip this
+
+# Run initial cert generation as a one-off command
+docker-compose run --rm --entrypoint /scripts/initial-cert.sh acme
+
+# After manual import and setting SYNO_CERT_ID, start the daemon
+docker-compose up -d
+```
+
+This approach doesn't keep a persistent container during setup, but starts the daemon only after everything is configured. However, the recommended workflow is to use `docker-compose up -d` first (container stays in idle mode) then `docker exec` - it's simpler and doesn't require overriding the entrypoint.
 
 ### Custom Renewal Check Interval
 

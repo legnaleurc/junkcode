@@ -32,9 +32,18 @@ if acme.sh --list 2>/dev/null | grep -q "$DOMAIN"; then
     CERT_EXISTS=true
 else
     log "warn" "✗ Certificate not found for $DOMAIN"
-    log "warn" "You need to run the initial certificate generation:"
+    log "warn" ""
+    log "warn" "Initial setup required!"
+    log "warn" "Run the initial certificate generation script:"
     log "warn" "  docker exec acme /scripts/initial-cert.sh"
-    CERT_EXISTS=false
+    log "warn" ""
+    log "warn" "Container will stay alive in idle mode."
+    echo ""
+
+    # Keep container alive but idle
+    log "info" "Container is ready. Waiting for certificate generation..."
+    exec tail -f /dev/null
+    exit 0
 fi
 echo ""
 
@@ -50,12 +59,16 @@ if [ -z "$SYNO_CERT_ID" ]; then
     log "warn" "  2. Update .env file with SYNO_CERT_ID=<value>"
     log "warn" "  3. Restart container: docker-compose restart"
     log "warn" ""
-    log "warn" "Skipping auto-configuration, starting daemon mode..."
+    log "warn" "Skipping auto-configuration."
+    log "warn" ""
+    log "warn" "Container will stay alive in idle mode."
+    log "warn" "Run the initial certificate generation script:"
+    log "warn" "  docker exec acme /scripts/initial-cert.sh"
     echo ""
 
-    # Start daemon mode without deploy hook
-    log "info" "Starting acme.sh daemon mode..."
-    exec /entry.sh daemon
+    # Keep container alive but idle
+    log "info" "Container is ready. Waiting for initial setup..."
+    exec tail -f /dev/null
     exit 0
 fi
 
