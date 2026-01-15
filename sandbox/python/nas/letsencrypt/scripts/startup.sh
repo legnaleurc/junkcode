@@ -88,39 +88,36 @@ echo ""
 
 # Check if deploy hook is already registered
 log "info" "Step 3: Checking deploy hook registration..."
-if [ "$CERT_EXISTS" == true ]; then
-    CERT_INFO=$(acme.sh --info -d "$DOMAIN" 2>/dev/null || true)
+if [ "$CERT_EXISTS" = true ]; then
+    DOMAIN_CONF="/acme.sh/$DOMAIN/$DOMAIN.conf"
 
-    if echo "$CERT_INFO" | grep -q "Le_DeployHook"; then
-        CURRENT_HOOK=$(echo "$CERT_INFO" | grep "Le_DeployHook" | cut -d"'" -f2)
-        log "info" "✓ Deploy hook already registered: $CURRENT_HOOK"
+    if [ -f "$DOMAIN_CONF" ]; then
+        # Check if deploy hook is already set
+        if grep -q "^Le_DeployHook=" "$DOMAIN_CONF"; then
+            CURRENT_HOOK=$(grep "^Le_DeployHook=" "$DOMAIN_CONF" | cut -d"'" -f2)
+            log "info" "✓ Deploy hook already registered: $CURRENT_HOOK"
 
-        # Check if it's our hook
-        if [ "$CURRENT_HOOK" == "/scripts/deploy-to-synology.sh" ]; then
-            log "info" "✓ Using correct deploy hook"
-        else
-            log "warn" "✗ Deploy hook is different, updating..."
-            log "info" "Registering deploy hook: /scripts/deploy-to-synology.sh"
-            acme.sh --deploy -d "$DOMAIN" --deploy-hook "/scripts/deploy-to-synology.sh"
-            if [ $? -eq 0 ]; then
-                log "info" "✓ Deploy hook registered successfully"
+            # Check if it's our hook
+            if [ "$CURRENT_HOOK" = "/scripts/deploy-to-synology.sh" ]; then
+                log "info" "✓ Using correct deploy hook"
             else
-                log "error" "✗ Failed to register deploy hook"
+                log "warn" "✗ Deploy hook is different, updating..."
+                # Update the hook in config file (use temp file for portability)
+                sed "s|^Le_DeployHook=.*|Le_DeployHook='/scripts/deploy-to-synology.sh'|" "$DOMAIN_CONF" > "$DOMAIN_CONF.tmp"
+                mv "$DOMAIN_CONF.tmp" "$DOMAIN_CONF"
+                log "info" "✓ Deploy hook updated in certificate config"
             fi
+        else
+            log "warn" "✗ Deploy hook not registered"
+            log "info" "Registering deploy hook in certificate config..."
+
+            # Add deploy hook to config file
+            echo "Le_DeployHook='/scripts/deploy-to-synology.sh'" >> "$DOMAIN_CONF"
+            log "info" "✓ Deploy hook registered successfully"
         fi
     else
-        log "warn" "✗ Deploy hook not registered"
-        log "info" "Registering deploy hook: /scripts/deploy-to-synology.sh"
-
-        # Register deploy hook
-        acme.sh --deploy -d "$DOMAIN" --deploy-hook "/scripts/deploy-to-synology.sh"
-
-        if [ $? -eq 0 ]; then
-            log "info" "✓ Deploy hook registered successfully"
-        else
-            log "error" "✗ Failed to register deploy hook"
-            log "error" "Certificate renewal will not deploy automatically"
-        fi
+        log "warn" "Certificate config file not found: $DOMAIN_CONF"
+        log "warn" "Deploy hook will not be registered"
     fi
 else
     log "warn" "Certificate doesn't exist yet, skipping deploy hook registration"
@@ -128,7 +125,7 @@ fi
 echo ""
 
 # Display certificate info if it exists
-if [ "$CERT_EXISTS" == true ]; then
+if [ "$CERT_EXISTS" = true ]; then
     log "info" "Step 4: Certificate information..."
 
     # Get certificate details
