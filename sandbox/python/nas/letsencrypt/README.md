@@ -250,6 +250,22 @@ The container stays alive (doesn't restart loop) so you can run `docker exec` co
 
 ## Advanced Configuration
 
+### Certificate Authority Server
+
+By default, this setup uses **Let's Encrypt** (no registration required). You can change the CA server in `.env`:
+
+```bash
+CA_SERVER=letsencrypt  # Default - no registration needed
+# CA_SERVER=zerossl     # Requires email registration first
+# CA_SERVER=buypass     # Alternative CA
+```
+
+**Why Let's Encrypt?**
+- No registration required
+- Widely trusted
+- Works immediately with just your email for notifications
+- ZeroSSL (acme.sh's default) requires account registration before issuing certificates
+
 ### Alternative Workflow: Using docker-compose run
 
 If you prefer not to have the container running in idle mode during initial setup:

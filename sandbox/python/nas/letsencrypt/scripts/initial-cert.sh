@@ -67,7 +67,7 @@ log "info" "Step 4: Issuing certificate from Let's Encrypt..."
 log "info" "This may take 2-5 minutes depending on DNS propagation..."
 echo ""
 
-ISSUE_CMD="acme.sh --issue --dns dns_cf -d \"$DOMAIN\""
+ISSUE_CMD="acme.sh --issue --server ${CA_SERVER:-letsencrypt} --dns dns_cf -d \"$DOMAIN\""
 
 # Add wildcard domain if specified
 if [ -n "$WILDCARD_DOMAIN" ]; then

@@ -27,6 +27,7 @@ services:
 
       # Certificate configuration
       - CERT_KEY_LENGTH=${CERT_KEY_LENGTH}
+      - CA_SERVER=${CA_SERVER:-letsencrypt}
 
       # Synology configuration
       - SYNO_CERT_ID=${SYNO_CERT_ID}
