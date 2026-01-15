@@ -1,0 +1,10 @@
+# Environment variables with secrets
+.env
+
+# Local data directories (if mounted locally)
+acme/
+certs/
+
+# OS files
+.DS_Store
+Thumbs.db
