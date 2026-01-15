@@ -32,7 +32,7 @@ CURRENT_LOG_LEVEL=$(get_log_level)
 log() {
     level=$1
     shift
-    message="$@"
+    message="$*"
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     log_file="${LOG_FILE:-/logs/acme.log}"
 
@@ -45,8 +45,8 @@ log() {
         *)     level_num=$LOG_LEVEL_INFO;  color=$NC ;;
     esac
 
-    # Only log if level is high enough
-    if [ $level_num -ge $CURRENT_LOG_LEVEL ]; then
+    # Only log if level is high enough (use arithmetic expansion safely)
+    if [ "${level_num:-1}" -ge "${CURRENT_LOG_LEVEL:-1}" ] 2>/dev/null; then
         # Convert level to uppercase (POSIX way)
         level_upper=$(echo "$level" | tr '[:lower:]' '[:upper:]')
 
@@ -110,12 +110,17 @@ check_cert_needs_renewal() {
     fi
 
     expiry_epoch=$(date -d "$expiry_date" +%s 2>/dev/null || date -j -f "%b %d %H:%M:%S %Y %Z" "$expiry_date" +%s 2>/dev/null)
+    if [ -z "$expiry_epoch" ]; then
+        log "error" "Could not parse certificate expiry date"
+        return 1
+    fi
+
     current_epoch=$(date +%s)
-    days_until_expiry=$(( ($expiry_epoch - $current_epoch) / 86400 ))
+    days_until_expiry=$(( (expiry_epoch - current_epoch) / 86400 ))
 
     log "info" "Certificate expires in $days_until_expiry days"
 
-    if [ $days_until_expiry -le $check_days ]; then
+    if [ "$days_until_expiry" -le "$check_days" ]; then
         log "warn" "Certificate needs renewal (expires in $days_until_expiry days, threshold: $check_days days)"
         return 0
     fi
@@ -171,7 +176,7 @@ verify_cert_files() {
         fi
 
         file_size=$(stat -f%z "$file_path" 2>/dev/null || stat -c%s "$file_path" 2>/dev/null)
-        if [ "$file_size" -eq 0 ]; then
+        if [ -z "$file_size" ] || [ "$file_size" = "0" ]; then
             log "error" "Empty file: $file"
             errors=$((errors + 1))
             continue
