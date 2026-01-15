@@ -3,7 +3,7 @@ version: '3.8'
 services:
   acme:
     image: neilpang/acme.sh:latest
-    container_name: acme-letsencrypt
+    container_name: acme
     restart: unless-stopped
 
     # Run as root (Synology Container Manager default)

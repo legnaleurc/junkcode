@@ -64,7 +64,7 @@ docker ps
 Run the initial certificate generation script (this is the ONLY script you need to run manually):
 
 ```bash
-docker exec acme-letsencrypt /scripts/initial-cert.sh
+docker exec acme /scripts/initial-cert.sh
 ```
 
 This will:
@@ -115,13 +115,13 @@ No further manual intervention needed!
 ### Check Certificate Status
 
 ```bash
-docker exec acme-letsencrypt acme.sh --list
+docker exec acme acme.sh --list
 ```
 
 ### View Container Logs
 
 ```bash
-docker logs -f acme-letsencrypt
+docker logs -f acme
 ```
 
 ### View acme.sh Logs
@@ -133,13 +133,13 @@ tail -f ./logs/acme.log
 ### Force Certificate Renewal (Testing)
 
 ```bash
-docker exec acme-letsencrypt acme.sh --renew -d example.com --force
+docker exec acme acme.sh --renew -d example.com --force
 ```
 
 ### Test Service Restart (Dry Run)
 
 ```bash
-docker exec acme-letsencrypt /scripts/restart-services.sh --dry-run
+docker exec acme /scripts/restart-services.sh --dry-run
 ```
 
 ## File Structure
@@ -172,7 +172,7 @@ docker exec acme-letsencrypt /scripts/restart-services.sh --dry-run
 
 1. Check Cloudflare API access:
    ```bash
-   docker exec acme-letsencrypt acme.sh --test-dns dns_cf -d example.com
+   docker exec acme acme.sh --test-dns dns_cf -d example.com
    ```
 
 2. Verify CF_TOKEN permissions in Cloudflare Dashboard
@@ -196,7 +196,7 @@ docker exec acme-letsencrypt /scripts/restart-services.sh --dry-run
 
 3. Manually test deploy hook:
    ```bash
-   docker exec acme-letsencrypt /scripts/deploy-to-synology.sh
+   docker exec acme /scripts/deploy-to-synology.sh
    ```
 
 ### Services Not Restarting
@@ -208,7 +208,7 @@ docker exec acme-letsencrypt /scripts/restart-services.sh --dry-run
 
 2. Test service restart script:
    ```bash
-   docker exec acme-letsencrypt /scripts/restart-services.sh --dry-run
+   docker exec acme /scripts/restart-services.sh --dry-run
    ```
 
 3. Manually restart nginx:
@@ -256,7 +256,7 @@ OPTIONAL_SERVICES=(
 
 For issues or questions:
 1. Check logs: `tail -f ./logs/acme.log`
-2. Check Docker logs: `docker logs acme-letsencrypt`
+2. Check Docker logs: `docker logs acme`
 3. Review the plan file for detailed implementation info
 
 ## License

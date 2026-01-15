@@ -33,7 +33,7 @@ if acme.sh --list 2>/dev/null | grep -q "$DOMAIN"; then
 else
     log "warn" "✗ Certificate not found for $DOMAIN"
     log "warn" "You need to run the initial certificate generation:"
-    log "warn" "  docker exec acme-letsencrypt /scripts/initial-cert.sh"
+    log "warn" "  docker exec acme /scripts/initial-cert.sh"
     CERT_EXISTS=false
 fi
 echo ""
@@ -142,13 +142,13 @@ log "info" "Daemon will check for renewal daily"
 log "info" "Certificates will be renewed 30 days before expiry"
 log "info" ""
 log "info" "To check certificate status:"
-log "info" "  docker exec acme-letsencrypt acme.sh --list"
+log "info" "  docker exec acme acme.sh --list"
 log "info" ""
 log "info" "To force renewal:"
-log "info" "  docker exec acme-letsencrypt acme.sh --renew -d $DOMAIN --force"
+log "info" "  docker exec acme acme.sh --renew -d $DOMAIN --force"
 log "info" ""
 log "info" "To view logs:"
-log "info" "  docker logs -f acme-letsencrypt"
+log "info" "  docker logs -f acme"
 log "info" "  tail -f ./logs/acme.log"
 echo ""
 
