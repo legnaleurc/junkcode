@@ -10,6 +10,8 @@ services:
     user: root
 
     # Custom entrypoint for auto-configuration
+    # Note: We override entrypoint because we need to run setup logic before starting daemon
+    # Our startup.sh calls 'exec /entry.sh daemon' at the end to properly start acme.sh
     entrypoint: ["/scripts/startup.sh"]
 
     environment:
