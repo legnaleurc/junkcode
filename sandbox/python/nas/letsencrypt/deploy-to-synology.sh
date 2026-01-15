@@ -104,19 +104,53 @@ echo "Certificates deployed successfully!"
 echo ""
 echo "Reloading Synology services..."
 
-# Reload nginx
-if command -v synosystemctl &> /dev/null; then
-    synosystemctl reload nginx
-    echo "✓ Nginx reloaded"
-else
-    /usr/syno/sbin/synoservicectl --reload nginx
-    echo "✓ Nginx reloaded"
-fi
+# Helper function to check if service is running and restart it
+restart_service_if_running() {
+    local service=$1
+    local action=${2:-restart}  # Default to restart, can pass "reload"
 
-# Restart other services that use certificates (optional)
-# Uncomment if needed:
-# synosystemctl restart nmbd
-# synosystemctl restart avahi
+    if command -v synosystemctl &> /dev/null; then
+        # Check if service is active
+        if synosystemctl is-active "$service" &> /dev/null; then
+            synosystemctl $action "$service"
+            echo "✓ $service ${action}ed"
+            return 0
+        fi
+    else
+        # Fallback to old synoservicectl
+        if /usr/syno/sbin/synoservicectl --status "$service" | grep -q "is running"; then
+            /usr/syno/sbin/synoservicectl --$action "$service"
+            echo "✓ $service ${action}ed"
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# Always reload nginx (DSM web interface)
+restart_service_if_running nginx reload
+
+# List of services that may use certificates
+# Only restart if they are running
+CERT_SERVICES=(
+    "smbd"           # SMB/CIFS file sharing
+    "nmbd"           # NetBIOS name service
+    "afpd"           # AFP file sharing (Mac)
+    "avahi"          # Bonjour/mDNS service discovery
+    "ftpd"           # FTP server (if FTPS enabled)
+    "sshd"           # SSH server
+    "vpnserver"      # VPN Server
+    "MailServer"     # Mail Server
+    "CalendarServer" # Calendar/CardDAV
+    "ContactServer"  # Contacts/CardDAV
+    "ldap-server"    # LDAP Server
+)
+
+echo ""
+echo "Checking and restarting services that use certificates..."
+for service in "${CERT_SERVICES[@]}"; do
+    restart_service_if_running "$service" || true
+done
 
 echo ""
 echo "==================================="
