@@ -15,9 +15,10 @@ services:
     entrypoint: ["/scripts/startup.sh"]
 
     environment:
-      # Cloudflare DNS API
+      # Cloudflare DNS API (only CF_Token is required)
       - CF_Token=${CF_TOKEN}
-      - CF_Account_ID=${CF_ACCOUNT_ID}
+      - CF_Account_ID=${CF_ACCOUNT_ID:-}
+      - CF_Zone_ID=${CF_ZONE_ID:-}
 
       # Domain configuration
       - DOMAIN=${DOMAIN}

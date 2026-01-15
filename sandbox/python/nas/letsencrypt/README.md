@@ -40,11 +40,12 @@ This solution automates Let's Encrypt SSL certificate management on Synology NAS
 2. Edit `.env` file with your details:
    ```bash
    CF_TOKEN=your_cloudflare_api_token_here
-   CF_ACCOUNT_ID=your_cloudflare_account_id_here
    DOMAIN=example.com
    WILDCARD_DOMAIN=*.example.com
    EMAIL=your-email@example.com
    ```
+
+   Note: `CF_ACCOUNT_ID` and `CF_ZONE_ID` are optional - acme.sh auto-detects them from your token.
 
 3. Keep `SYNO_CERT_ID` empty for now (will set after manual import)
 
