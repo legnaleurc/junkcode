@@ -30,14 +30,14 @@ CURRENT_LOG_LEVEL=$(get_log_level)
 # log() - Structured logging with timestamps
 # Usage: log "info" "message"
 log() {
-    local level=$1
+    level=$1
     shift
-    local message="$@"
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    local log_file="${LOG_FILE:-/logs/acme.log}"
+    message="$@"
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    log_file="${LOG_FILE:-/logs/acme.log}"
 
     # Determine log level number
-    local level_num
+    level_num
     case "$level" in
         debug) level_num=$LOG_LEVEL_DEBUG; color=$BLUE ;;
         info)  level_num=$LOG_LEVEL_INFO;  color=$GREEN ;;
@@ -48,11 +48,14 @@ log() {
 
     # Only log if level is high enough
     if [ $level_num -ge $CURRENT_LOG_LEVEL ]; then
+        # Convert level to uppercase (POSIX way)
+        level_upper=$(echo "$level" | tr '[:lower:]' '[:upper:]')
+
         # Format log message
-        local log_msg="[$timestamp] [${level^^}] $message"
+        log_msg="[$timestamp] [$level_upper] $message"
 
         # Output to console with color
-        echo -e "${color}${log_msg}${NC}"
+        printf "%b\n" "${color}${log_msg}${NC}"
 
         # Append to log file (without color codes)
         echo "$log_msg" >> "$log_file"
@@ -86,7 +89,7 @@ validate_env() {
 # get_cert_expiry() - Parse certificate expiration date
 # Usage: expiry=$(get_cert_expiry /path/to/cert.pem)
 get_cert_expiry() {
-    local cert_file=$1
+    cert_file=$1
 
     if [ ! -f "$cert_file" ]; then
         log "error" "Certificate file not found: $cert_file"
@@ -99,17 +102,17 @@ get_cert_expiry() {
 # check_cert_needs_renewal() - Compare against RENEW_CHECK_DAYS
 # Usage: if check_cert_needs_renewal /path/to/cert.pem; then ...
 check_cert_needs_renewal() {
-    local cert_file=$1
-    local check_days=${RENEW_CHECK_DAYS:-30}
+    cert_file=$1
+    check_days=${RENEW_CHECK_DAYS:-30}
 
-    local expiry_date=$(get_cert_expiry "$cert_file")
+    expiry_date=$(get_cert_expiry "$cert_file")
     if [ -z "$expiry_date" ]; then
         return 1
     fi
 
-    local expiry_epoch=$(date -d "$expiry_date" +%s 2>/dev/null || date -j -f "%b %d %H:%M:%S %Y %Z" "$expiry_date" +%s 2>/dev/null)
-    local current_epoch=$(date +%s)
-    local days_until_expiry=$(( ($expiry_epoch - $current_epoch) / 86400 ))
+    expiry_epoch=$(date -d "$expiry_date" +%s 2>/dev/null || date -j -f "%b %d %H:%M:%S %Y %Z" "$expiry_date" +%s 2>/dev/null)
+    current_epoch=$(date +%s)
+    days_until_expiry=$(( ($expiry_epoch - $current_epoch) / 86400 ))
 
     log "info" "Certificate expires in $days_until_expiry days"
 
@@ -124,8 +127,8 @@ check_cert_needs_renewal() {
 # backup_cert() - Create backup before deployment
 # Usage: backup_cert /path/to/cert/directory
 backup_cert() {
-    local cert_dir=$1
-    local backup_dir="${cert_dir}.backup.$(date +%Y%m%d_%H%M%S)"
+    cert_dir=$1
+    backup_dir="${cert_dir}.backup.$(date +%Y%m%d_%H%M%S)"
 
     if [ ! -d "$cert_dir" ]; then
         log "warn" "Certificate directory not found, skipping backup: $cert_dir"
@@ -139,8 +142,8 @@ backup_cert() {
         log "info" "Backup created successfully"
 
         # Keep only last 5 backups
-        local backup_parent=$(dirname "$cert_dir")
-        local backup_pattern=$(basename "$cert_dir").backup.*
+        backup_parent=$(dirname "$cert_dir")
+        backup_pattern=$(basename "$cert_dir").backup.*
         ls -dt "$backup_parent/$backup_pattern" 2>/dev/null | tail -n +6 | xargs rm -rf 2>/dev/null
 
         return 0
@@ -153,14 +156,14 @@ backup_cert() {
 # verify_cert_files() - Validate certificate file integrity
 # Usage: if verify_cert_files /path/to/cert/dir; then ...
 verify_cert_files() {
-    local cert_dir=$1
-    local required_files=("privkey.pem" "cert.pem" "fullchain.pem" "chain.pem")
-    local errors=0
+    cert_dir=$1
+    required_files="privkey.pem cert.pem fullchain.pem chain.pem"
+    errors=0
 
     log "info" "Verifying certificate files in $cert_dir"
 
-    for file in "${required_files[@]}"; do
-        local file_path="$cert_dir/$file"
+    for file in $required_files; do
+        file_path="$cert_dir/$file"
 
         if [ ! -f "$file_path" ]; then
             log "error" "Missing file: $file"
@@ -168,7 +171,7 @@ verify_cert_files() {
             continue
         fi
 
-        local file_size=$(stat -f%z "$file_path" 2>/dev/null || stat -c%s "$file_path" 2>/dev/null)
+        file_size=$(stat -f%z "$file_path" 2>/dev/null || stat -c%s "$file_path" 2>/dev/null)
         if [ "$file_size" -eq 0 ]; then
             log "error" "Empty file: $file"
             errors=$((errors + 1))

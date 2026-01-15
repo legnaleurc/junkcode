@@ -29,21 +29,21 @@ fi
 
 # Function: check_service_exists()
 check_service_exists() {
-    local service=$1
+    service=$1
     systemctl list-unit-files 2>/dev/null | grep -q "^${service}.service" || \
     systemctl list-units 2>/dev/null | grep -q "${service}.service"
 }
 
 # Function: check_service_running()
 check_service_running() {
-    local service=$1
+    service=$1
     systemctl is-active --quiet "$service" 2>/dev/null
 }
 
 # Function: restart_service()
 restart_service() {
-    local service=$1
-    local action=$2
+    service=$1
+    action=$2
 
     if [ "$DRY_RUN" =true ]; then
         log "info" "[DRY RUN] Would $action: $service"

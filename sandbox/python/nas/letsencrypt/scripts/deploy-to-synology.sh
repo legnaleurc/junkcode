@@ -120,7 +120,7 @@ echo ""
 # Restart services
 log "info" "Step 5: Restarting services..."
 if [ -f "$SCRIPT_DIR/restart-services.sh" ]; then
-    bash "$SCRIPT_DIR/restart-services.sh"
+    sh "$SCRIPT_DIR/restart-services.sh"
     if [ $? -eq 0 ]; then
         log "info" "✓ Services restarted successfully"
     else
