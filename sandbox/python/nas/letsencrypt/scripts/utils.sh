@@ -37,7 +37,6 @@ log() {
     log_file="${LOG_FILE:-/logs/acme.log}"
 
     # Determine log level number
-    level_num
     case "$level" in
         debug) level_num=$LOG_LEVEL_DEBUG; color=$BLUE ;;
         info)  level_num=$LOG_LEVEL_INFO;  color=$GREEN ;;
