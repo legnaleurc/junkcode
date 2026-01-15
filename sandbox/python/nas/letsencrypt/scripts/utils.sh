@@ -8,20 +8,14 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Log levels
-LOG_LEVEL_DEBUG=0
-LOG_LEVEL_INFO=1
-LOG_LEVEL_WARN=2
-LOG_LEVEL_ERROR=3
-
 # Get current log level from environment or default to INFO
 get_log_level() {
     case "${LOG_LEVEL:-info}" in
-        debug) echo $LOG_LEVEL_DEBUG ;;
-        info)  echo $LOG_LEVEL_INFO ;;
-        warn)  echo $LOG_LEVEL_WARN ;;
-        error) echo $LOG_LEVEL_ERROR ;;
-        *)     echo $LOG_LEVEL_INFO ;;
+        debug) echo 0 ;;
+        info)  echo 1 ;;
+        warn)  echo 2 ;;
+        error) echo 3 ;;
+        *)     echo 1 ;;
     esac
 }
 
@@ -30,34 +24,42 @@ CURRENT_LOG_LEVEL=$(get_log_level)
 # log() - Structured logging with timestamps
 # Usage: log "info" "message"
 log() {
-    level=$1
+    _log_level=$1
     shift
-    message="$*"
-    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    log_file="${LOG_FILE:-/logs/acme.log}"
+    _log_message="$*"
+    _log_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    _log_file="${LOG_FILE:-/logs/acme.log}"
 
-    # Determine log level number
-    case "$level" in
-        debug) level_num=$LOG_LEVEL_DEBUG; color=$BLUE ;;
-        info)  level_num=$LOG_LEVEL_INFO;  color=$GREEN ;;
-        warn)  level_num=$LOG_LEVEL_WARN;  color=$YELLOW ;;
-        error) level_num=$LOG_LEVEL_ERROR; color=$RED ;;
-        *)     level_num=$LOG_LEVEL_INFO;  color=$NC ;;
+    # Determine log level number (hardcoded to avoid variable issues)
+    case "$_log_level" in
+        debug) _log_level_num=0; _log_color=$BLUE ;;
+        info)  _log_level_num=1; _log_color=$GREEN ;;
+        warn)  _log_level_num=2; _log_color=$YELLOW ;;
+        error) _log_level_num=3; _log_color=$RED ;;
+        *)     _log_level_num=1; _log_color=$NC ;;
     esac
 
-    # Only log if level is high enough (use arithmetic expansion safely)
-    if [ "${level_num:-1}" -ge "${CURRENT_LOG_LEVEL:-1}" ] 2>/dev/null; then
+    # Only log if level is high enough
+    # Ensure both values are numeric before comparison
+    case "$_log_level_num" in
+        ''|*[!0-9]*) _log_level_num=1 ;;
+    esac
+    case "$CURRENT_LOG_LEVEL" in
+        ''|*[!0-9]*) CURRENT_LOG_LEVEL=1 ;;
+    esac
+
+    if [ "$_log_level_num" -ge "$CURRENT_LOG_LEVEL" ]; then
         # Convert level to uppercase (POSIX way)
-        level_upper=$(echo "$level" | tr '[:lower:]' '[:upper:]')
+        _log_level_upper=$(echo "$_log_level" | tr '[:lower:]' '[:upper:]')
 
         # Format log message
-        log_msg="[$timestamp] [$level_upper] $message"
+        _log_msg="[$_log_timestamp] [$_log_level_upper] $_log_message"
 
         # Output to console with color
-        printf "%b\n" "${color}${log_msg}${NC}"
+        printf "%b\n" "${_log_color}${_log_msg}${NC}"
 
         # Append to log file (without color codes)
-        echo "$log_msg" >> "$log_file"
+        echo "$_log_msg" >> "$_log_file"
     fi
 }
 
