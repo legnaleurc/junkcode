@@ -1,0 +1,26 @@
+# Secrets and sensitive data
+.env
+
+# Certificate data
+acme-data/
+
+# Logs
+logs/
+*.log
+
+# Backups
+*.backup.*
+
+# macOS
+.DS_Store
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.bak

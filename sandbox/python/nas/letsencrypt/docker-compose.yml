@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  acme:
+    image: neilpang/acme.sh:latest
+    container_name: acme-letsencrypt
+    restart: unless-stopped
+
+    # Run as root (Synology Container Manager default)
+    user: root
+
+    # Custom entrypoint for auto-configuration
+    entrypoint: ["/scripts/startup.sh"]
+
+    environment:
+      # Cloudflare DNS API
+      - CF_Token=${CF_TOKEN}
+      - CF_Account_ID=${CF_ACCOUNT_ID}
+
+      # Domain configuration
+      - DOMAIN=${DOMAIN}
+      - WILDCARD_DOMAIN=${WILDCARD_DOMAIN}
+      - EMAIL=${EMAIL}
+
+      # Certificate configuration
+      - CERT_KEY_LENGTH=${CERT_KEY_LENGTH}
+
+      # Synology configuration
+      - SYNO_CERT_ID=${SYNO_CERT_ID}
+      - SYNO_CERT_ROOT=${SYNO_CERT_ROOT}
+      - SYNO_CERT_ARCHIVE=${SYNO_CERT_ARCHIVE}
+      - SYNO_CERT_DEFAULT=${SYNO_CERT_DEFAULT}
+
+      # Logging
+      - LOG_FILE=${LOG_FILE}
+      - LOG_LEVEL=${LOG_LEVEL}
+
+      # acme.sh configuration
+      - LE_CONFIG_HOME=/acme.sh
+      - AUTO_UPGRADE=1
+
+    volumes:
+      # Certificate storage (persistent)
+      - ./acme-data:/acme.sh
+
+      # Custom scripts
+      - ./scripts:/scripts
+
+      # Synology certificate directory (read-write for deployment)
+      - /usr/syno/etc/certificate:/usr/syno/etc/certificate
+
+      # Logs
+      - ./logs:/logs
+
+    # Optional: Network mode host if DNS resolution issues occur
+    # network_mode: host
