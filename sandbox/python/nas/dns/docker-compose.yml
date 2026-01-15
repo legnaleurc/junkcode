@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  dnsmasq:
+    image: 4km3/dnsmasq
+    container_name: dnsmasq
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf:ro
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - dns-network
+
+networks:
+  dns-network:
+    driver: bridge
