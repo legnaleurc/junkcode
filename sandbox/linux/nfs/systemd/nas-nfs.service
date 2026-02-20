@@ -1,0 +1,20 @@
+[Unit]
+Description=NAS NFS mount with bindfs (kernel NFS to staging, bindfs to final mount point)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+# Load variables: NAS_HOST, NFS_EXPORT, MOUNT_POINT, STAGING_DIR, BINDFS_UID_MAP, etc.
+EnvironmentFile=/etc/default/nas-nfs
+
+# Staging dir is under /var/tmp; with PrivateTmp this is a private tmp for the service
+PrivateTmp=yes
+
+ExecStart=/usr/local/bin/nas-nfs-mount.sh start
+ExecStop=/usr/local/bin/nas-nfs-mount.sh stop
+
+[Install]
+WantedBy=multi-user.target
