@@ -1,0 +1,20 @@
+[project]
+name = "wcpan-drive-poc"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "wcpan-drive-cli",
+    "wcpan-drive-core",
+    "wcpan-drive-crypt",
+    "wcpan-drive-google",
+    "wcpan-drive-sqlite",
+    "wcpan-drive-synology",
+]
+
+[tool.uv.sources]
+wcpan-drive-cli = { path = "../wcpan.drive.cli", editable = true }
+wcpan-drive-core = { path = "../wcpan.drive.core", editable = true }
+wcpan-drive-crypt = { path = "../wcpan.drive.crypt", editable = true }
+wcpan-drive-google = { path = "../wcpan.drive.google", editable = true }
+wcpan-drive-sqlite = { path = "../wcpan.drive.sqlite", editable = true }
+wcpan-drive-synology = { path = "../wcpan.drive.synology", editable = true }

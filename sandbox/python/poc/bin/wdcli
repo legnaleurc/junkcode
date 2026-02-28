@@ -1,0 +1,6 @@
+#!/bin/sh
+
+uv run \
+  wcpan.drive.cli \
+    --config="./config/cli.yaml" \
+    "$@"
