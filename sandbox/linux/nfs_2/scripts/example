@@ -1,0 +1,8 @@
+NAS_HOST=192.168.1.1
+NFS_EXPORT=/volume1/share
+MOUNT_POINT=/mnt/myshare
+NAS_UID=1026
+NAS_GID=100
+WSL_UID=1000
+WSL_GID=1000
+NFS_OPTS=nfsvers=4.1,noresvport,soft,tcp
