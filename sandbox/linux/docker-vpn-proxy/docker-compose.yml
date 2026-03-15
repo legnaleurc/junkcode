@@ -1,0 +1,42 @@
+name: vpn-proxy
+
+services:
+  vpn:
+    image: ghcr.io/wfg/openvpn-client:latest
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./config:/config:ro
+    environment:
+      CONFIG_FILE: ${VPN_CONFIG_FILE:-client.ovpn}
+      ALLOWED_SUBNETS: ${VPN_ALLOWED_SUBNETS:-172.16.0.0/12}
+    ports:
+      - "0.0.0.0:${HOST_PORT_1}:${HOST_PORT_1}/tcp"
+      # - "0.0.0.0:${HOST_PORT_2}:${HOST_PORT_2}/tcp"
+    healthcheck:
+      test: ["CMD-SHELL", "ip link show tun0 | grep -q 'state UP'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  forward-1:
+    image: alpine/socat:latest
+    network_mode: "service:vpn"
+    command: TCP-LISTEN:${HOST_PORT_1},fork,reuseaddr TCP:${TARGET_HOST_1}:${TARGET_PORT_1}
+    depends_on:
+      vpn:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # forward-2:
+  #   image: alpine/socat:latest
+  #   network_mode: "service:vpn"
+  #   command: TCP-LISTEN:${HOST_PORT_2},fork,reuseaddr TCP:${TARGET_HOST_2}:${TARGET_PORT_2}
+  #   depends_on:
+  #     vpn:
+  #       condition: service_healthy
+  #   restart: unless-stopped
