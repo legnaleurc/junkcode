@@ -1,14 +1,29 @@
 name: vpn-proxy
 
+volumes:
+  ovpn-processed:
+
 services:
+  ovpn-init:
+    image: docker.io/library/alpine:latest
+    volumes:
+      - ${OVPN_FILE}:/mnt/client.ovpn:ro
+      - ovpn-processed:/mnt/processed
+    command: >
+      sh -c "IP=$(getent hosts host.containers.internal | awk '{print $1}') &&
+             sed s/host.containers.internal/$$IP/g /mnt/client.ovpn > /mnt/processed/client.ovpn"
+
   vpn:
     image: docker.io/qmcgaw/gluetun:latest
     cap_add:
       - NET_ADMIN
+      - NET_RAW
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
-      - ${OVPN_FILE}:/mnt/client.ovpn:ro
+      - ovpn-processed:/mnt:ro
     environment:
       VPN_SERVICE_PROVIDER: custom
       VPN_TYPE: openvpn
@@ -24,8 +39,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      ovpn-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   forward-1:
@@ -38,7 +54,7 @@ services:
     restart: unless-stopped
 
   # forward-2:
-  #   image: alpine/socat:latest
+  #   image: docker.io/alpine/socat:latest
   #   network_mode: "service:vpn"
   #   command: TCP-LISTEN:${HOST_PORT_2},fork,reuseaddr TCP:${TARGET_HOST_2}:${TARGET_PORT_2}
   #   depends_on:
