@@ -20,9 +20,9 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
-      - ovpn-processed:/mnt:ro
+      - ovpn-processed:/config:ro
     environment:
-      CONFIG_FILE: /mnt/client.ovpn
+      CONFIG_FILE: client.ovpn
       KILL_SWITCH: "off"
     ports:
       - "0.0.0.0:${HOST_PORT_1}:${HOST_PORT_1}/tcp"
