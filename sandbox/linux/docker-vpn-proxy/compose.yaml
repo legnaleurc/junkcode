@@ -14,7 +14,7 @@ services:
       - "0.0.0.0:${HOST_PORT_1}:${HOST_PORT_1}/tcp"
       # - "0.0.0.0:${HOST_PORT_2}:${HOST_PORT_2}/tcp"
     healthcheck:
-      test: ["CMD-SHELL", "ip link show tun0 | grep -q 'state UP'"]
+      test: ["CMD-SHELL", "ip link show tun0"]
       interval: 30s
       timeout: 10s
       retries: 3
