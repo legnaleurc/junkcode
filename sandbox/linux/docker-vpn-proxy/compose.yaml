@@ -2,7 +2,7 @@ name: vpn-proxy
 
 services:
   vpn:
-    image: qmcgaw/gluetun:latest
+    image: docker.io/qmcgaw/gluetun:latest
     cap_add:
       - NET_ADMIN
     devices:
@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
 
   forward-1:
-    image: alpine/socat:latest
+    image: docker.io/alpine/socat:latest
     network_mode: "service:vpn"
     command: TCP-LISTEN:${HOST_PORT_1},fork,reuseaddr TCP:${TARGET_HOST_1}:${TARGET_PORT_1}
     depends_on:
