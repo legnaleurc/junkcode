@@ -31,6 +31,7 @@ services:
       OPENVPN_USER: ${VPN_USER:-}
       OPENVPN_PASSWORD: ${VPN_PASSWORD:-}
       HEALTH_TARGET_URLS: http://${TARGET_HOST_1}:${TARGET_PORT_1}
+      HEALTH_VPN_DURATION_INITIAL: 0s
     ports:
       - "0.0.0.0:${HOST_PORT_1}:${HOST_PORT_1}/tcp"
       # - "0.0.0.0:${HOST_PORT_2}:${HOST_PORT_2}/tcp"
