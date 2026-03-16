@@ -10,7 +10,7 @@ services:
     volumes:
       - ${OVPN_FILE}:/config/client.ovpn:ro
     environment:
-      CONFIG_FILE: client.ovpn
+      VPN_CONFIG_FILE: client.ovpn
       KILL_SWITCH: "off"
     ports:
       - "0.0.0.0:${HOST_PORT_1}:${HOST_PORT_1}/tcp"
