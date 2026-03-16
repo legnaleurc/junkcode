@@ -30,7 +30,7 @@ services:
       OPENVPN_CUSTOM_CONFIG: /mnt/client.ovpn
       OPENVPN_USER: ${VPN_USER:-}
       OPENVPN_PASSWORD: ${VPN_PASSWORD:-}
-      HEALTH_TARGET_URLS: http://${TARGET_HOST_1}
+      HEALTH_TARGET_URLS: http://${TARGET_HOST_1}:${TARGET_PORT_1}
     ports:
       - "0.0.0.0:${HOST_PORT_1}:${HOST_PORT_1}/tcp"
       # - "0.0.0.0:${HOST_PORT_2}:${HOST_PORT_2}/tcp"
