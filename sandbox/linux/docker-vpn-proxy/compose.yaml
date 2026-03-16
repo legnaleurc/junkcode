@@ -1,18 +1,6 @@
 name: vpn-proxy
 
-volumes:
-  ovpn-processed:
-
 services:
-  ovpn-init:
-    image: docker.io/library/alpine:latest
-    volumes:
-      - ${OVPN_FILE}:/mnt/client.ovpn:ro
-      - ovpn-processed:/mnt/processed
-    command: >
-      sh -c "IP=$(getent hosts host.containers.internal | awk '{print $1}') &&
-             sed s/host.containers.internal/$$IP/g /mnt/client.ovpn > /mnt/processed/client.ovpn"
-
   vpn:
     image: ghcr.io/wfg/openvpn-client:latest
     cap_add:
@@ -20,7 +8,7 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
-      - ovpn-processed:/config:ro
+      - ${OVPN_FILE}:/config/client.ovpn:ro
     environment:
       CONFIG_FILE: client.ovpn
       KILL_SWITCH: "off"
@@ -33,9 +21,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
-    depends_on:
-      ovpn-init:
-        condition: service_completed_successfully
     restart: unless-stopped
 
   forward-1:
