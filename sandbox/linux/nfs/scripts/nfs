@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+NFS_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nfs"
+
+usage() {
+    echo "Usage: $0 <up|down> <profile>" >&2
+    exit 1
+}
+
+cmd_up() {
+    if [[ -z "${NAS_HOST:-}" || -z "${NFS_EXPORT:-}" || -z "${MOUNT_POINT:-}" ]]; then
+        echo "Error: NAS_HOST, NFS_EXPORT, and MOUNT_POINT must be set in profile" >&2
+        exit 1
+    fi
+
+    NFS_OPTS=${NFS_OPTS:-nfsvers=4.1,noresvport,soft,tcp}
+
+    if mountpoint -q "$MOUNT_POINT" 2>/dev/null; then
+        echo "$MOUNT_POINT is already mounted" >&2
+        exit 0
+    fi
+
+    mkdir -p "$STAGING_DIR"
+
+    if ! mountpoint -q "$STAGING_DIR" 2>/dev/null; then
+        mount -t nfs -o "$NFS_OPTS" "$NAS_HOST:$NFS_EXPORT" "$STAGING_DIR"
+    fi
+
+    mkdir -p "$MOUNT_POINT"
+
+    MAP_OPT=
+    if [[ -n "${NAS_UID:-}" && -n "${WSL_UID:-}" ]]; then
+        MAP_OPT="$NAS_UID/$WSL_UID"
+    fi
+    if [[ -n "${NAS_GID:-}" && -n "${WSL_GID:-}" ]]; then
+        if [[ -n "$MAP_OPT" ]]; then
+            MAP_OPT="$MAP_OPT:@$NAS_GID/@$WSL_GID"
+        else
+            MAP_OPT="@$NAS_GID/@$WSL_GID"
+        fi
+    fi
+
+    BINDFS_ARGS=()
+    if [[ -n "$MAP_OPT" ]]; then
+        BINDFS_ARGS+=(--map="$MAP_OPT")
+    fi
+
+    bindfs "${BINDFS_ARGS[@]}" "$STAGING_DIR" "$MOUNT_POINT"
+}
+
+cmd_down() {
+    if mountpoint -q "$MOUNT_POINT" 2>/dev/null; then
+        umount "$MOUNT_POINT"
+    fi
+
+    if [[ -d "$MOUNT_POINT" ]] && [[ -z "$(ls -A "$MOUNT_POINT")" ]]; then
+        rmdir "$MOUNT_POINT"
+    fi
+
+    if mountpoint -q "$STAGING_DIR" 2>/dev/null; then
+        umount "$STAGING_DIR"
+    fi
+
+    if [[ -d "$STAGING_DIR" ]] && [[ -z "$(ls -A "$STAGING_DIR")" ]]; then
+        rmdir "$STAGING_DIR"
+    fi
+}
+
+# --- main ---
+
+if [[ $# -ne 2 ]]; then
+    usage
+fi
+
+CMD=$1
+PROFILE=$2
+
+PROFILE_FILE="$NFS_CONFIG_DIR/$PROFILE"
+if [[ ! -f "$PROFILE_FILE" ]]; then
+    echo "Error: profile '$PROFILE' not found in $NFS_CONFIG_DIR" >&2
+    exit 1
+fi
+
+# shellcheck source=/dev/null
+source "$PROFILE_FILE"
+
+STAGING_DIR=/tmp/nfs-staging-$PROFILE
+
+case "$CMD" in
+    up)   cmd_up ;;
+    down) cmd_down ;;
+    *)    usage ;;
+esac
