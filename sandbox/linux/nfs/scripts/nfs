@@ -4,7 +4,7 @@ set -euo pipefail
 NFS_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nfs"
 
 usage() {
-    echo "Usage: $0 <up|down> <profile>" >&2
+    echo "Usage: $0 <start|stop> <profile>" >&2
     exit 1
 }
 
@@ -88,7 +88,7 @@ source "$PROFILE_FILE"
 STAGING_DIR=/tmp/nfs-staging-$PROFILE
 
 case "$CMD" in
-    up)   cmd_up ;;
-    down) cmd_down ;;
-    *)    usage ;;
+    start) cmd_up ;;
+    stop)  cmd_down ;;
+    *)     usage ;;
 esac
