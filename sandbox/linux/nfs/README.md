@@ -11,11 +11,68 @@ sudo apt install nfs-common bindfs
 ## Usage
 
 ```bash
-cp scripts/example scripts/myshare
+# Install the script
+cp scripts/nfs ~/.local/bin/nfs
+chmod +x ~/.local/bin/nfs
+
+# Create a profile
+cp scripts/example ~/.config/nfs/myshare
 # Edit NAS_HOST, NFS_EXPORT, MOUNT_POINT, NAS_UID, NAS_GID, WSL_UID, WSL_GID
 
-sudo bash scripts/mount.sh myshare
-sudo bash scripts/umount.sh myshare
+nfs start myshare
+nfs stop myshare
+```
+
+## Systemd Integration
+
+A template unit `scripts/nfs@.service` is provided for automatic mounting at login.
+
+### Setup
+
+```bash
+# Allow the script to run with sudo without a password
+sudo visudo -f /etc/sudoers.d/nfs-mount
+# Add: <user> ALL=(root) NOPASSWD: /home/<user>/.local/bin/nfs start *
+# Add: <user> ALL=(root) NOPASSWD: /home/<user>/.local/bin/nfs stop *
+
+# Install the unit
+mkdir -p ~/.config/systemd/user
+cp scripts/nfs@.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+```
+
+### Profile selection
+
+Enable the profiles you want to start at login:
+
+```bash
+systemctl --user enable nfs@myshare.service
+systemctl --user start nfs@myshare.service
+```
+
+### Dependencies
+
+Use drop-in files to configure ordering between profiles or other services.
+
+```bash
+mkdir -p ~/.config/systemd/user/nfs@myshare.service.d
+```
+
+**Depend on another profile:**
+
+```ini
+# ~/.config/systemd/user/nfs@gallery.service.d/after-drive.conf
+[Unit]
+After=nfs@drive.service
+Wants=nfs@drive.service
+```
+
+**Add a startup delay (e.g. for flaky network):**
+
+```ini
+# ~/.config/systemd/user/nfs@myshare.service.d/delay.conf
+[Service]
+ExecStartPre=/bin/sleep 10
 ```
 
 ## Profile Variables
