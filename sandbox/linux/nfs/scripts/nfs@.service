@@ -1,0 +1,12 @@
+[Unit]
+Description=NFS mount profile %i
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=sudo %h/.local/bin/nfs start %i
+ExecStop=sudo %h/.local/bin/nfs stop %i
+
+[Install]
+WantedBy=default.target
