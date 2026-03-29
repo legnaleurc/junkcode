@@ -85,7 +85,7 @@ fi
 # shellcheck source=/dev/null
 source "$PROFILE_FILE"
 
-STAGING_DIR=/tmp/nfs-staging-$PROFILE
+STAGING_DIR=/run/nfs/$PROFILE
 
 case "$CMD" in
     start) cmd_up ;;
