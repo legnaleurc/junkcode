@@ -30,10 +30,12 @@ A template unit `scripts/nfs@.service` is provided for automatic mounting at log
 ### Setup
 
 ```bash
-# Allow the script to run with sudo without a password
+# Allow the script to run with sudo without a password.
+# SETENV is required so --preserve-env=HOME works, keeping profile
+# lookup in the user's config dir rather than /root/.config/nfs/.
 sudo visudo -f /etc/sudoers.d/nfs-mount
-# Add: <user> ALL=(root) NOPASSWD: /home/<user>/.local/bin/nfs start *
-# Add: <user> ALL=(root) NOPASSWD: /home/<user>/.local/bin/nfs stop *
+# Add: <user> ALL=(root) NOPASSWD,SETENV: /home/<user>/.local/bin/nfs start *
+# Add: <user> ALL=(root) NOPASSWD,SETENV: /home/<user>/.local/bin/nfs stop *
 
 # Install the unit
 mkdir -p ~/.config/systemd/user
